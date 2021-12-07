@@ -1,0 +1,43 @@
+There are two types of event code definition structure: "raw" and "cooked".
+
+
+The "raw" event code definition structure is the structure returned by
+calling "jsondecode" on the contents of the "eventcodes_USE_05.json" file.
+
+This is a structure with one field per event code, with the field name being
+the event code's name. Each field contains a structure with the following
+fields (upper-case leading):
+
+- "Value" is an integer value in the range 0..65025.
+- "Description" is a character array with human-readable text describing this
+  event code.
+
+Note that there are often pairs of codes with the name "FooMin" and "FooMax"
+describing ranges of code values that are interpreted per their descriptions.
+
+
+
+The "cooked" event code definition structure has one field per event code,
+with the field name being the event code's name. Each field contains a
+structure with the following fields (lower-case):
+
+- "value" is either a scalar integer value or a [min max] pair of integer
+  values (describing a ranged code).
+- "description" is a cell array containing character arrays with
+  human-readable text describing this event code.
+- "offset" (optional) is a number to be subtracted from the code value to
+  convert it into a processed data value.
+- "multiplier" (optional) is a factor by which the code value is to be
+  multiplied (after offset subtraction) to convert it into a processed value.
+
+When turning an event code value into a processed value, the formula used is:
+  processed = multiplier * (raw - offset)
+
+Pairs of raw codes of the form "FooMin" and "FooMax" are turned into single
+cooked code definitions for the code "Foo". The description strings from
+"FooMin" and "FooMax" are usually identical, but both are stored in the
+cooked definition as a precaution.
+
+
+
+This is the end of the file.
