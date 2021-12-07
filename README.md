@@ -14,7 +14,7 @@ lends itself to reuse can be migrated to public projects.
 The following directories contain library code:
 
 * lib-evcodes --
-Time-alignment code and event code parsing code.
+Time-alignment and event code parsing.
 
 
 ## Sample Code
