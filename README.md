@@ -13,7 +13,7 @@ lends itself to reuse can be migrated to public projects.
 
 The following directories contain library code:
 
-* lib-evcodes --
+* `lib-evcodes` --
 Time-alignment and event code parsing.
 
 
@@ -21,5 +21,9 @@ Time-alignment and event code parsing.
 
 (FIXME -- Turn my test scripts into sample code.)
 
+* `ft-test` --
+Test scripts, sample code, and getting started documentation for using
+Field Trip with our lab's datasets.
 
-This is the end of the file.
+
+*This is the end of the file.*
