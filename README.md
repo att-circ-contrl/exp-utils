@@ -22,8 +22,8 @@ Time-alignment and event code parsing.
 (FIXME -- Turn my test scripts into sample code.)
 
 * `ft-test` --
-Test scripts, sample code, and getting started documentation for using
-Field Trip with our lab's datasets.
+Test scripts, sample code, and documentation for using Field Trip with our
+lab's datasets.
 
 
 *This is the end of the file.*
