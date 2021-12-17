@@ -11,7 +11,10 @@ lends itself to reuse can be migrated to public projects.
 
 ## Libraries
 
-The following directories contain library code:
+Libraries are provided in the `libraries` directory. With that directory
+on path, call the `addPathsExpUtilsCjt` function to add sub-folders.
+
+The following subdirectories contain library code:
 
 * `lib-evcodes` --
 Time-alignment and event code parsing.
@@ -19,7 +22,7 @@ Time-alignment and event code parsing.
 
 ## Sample Code
 
-(FIXME -- Turn my test scripts into sample code.)
+Sample code project folders are as follows:
 
 * `ft-test` --
 Test scripts, sample code, and documentation for using Field Trip with our
