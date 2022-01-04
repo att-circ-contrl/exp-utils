@@ -154,9 +154,25 @@ for didx = 1:length(datacases)
 
       disp(sprintf('-- Reading "%s" headers.', thiscase.title));
 
-      rechdr = ft_read_header( thiscase.recfile, ...
+      % NOTE - We're reading several different types of signal separately.
+
+      nlFT_selectChannels({}, {}, {'Amp'})
+      rechdr_rec = ft_read_header( thiscase.recfile, ...
         'headerformat', 'nlFT_readHeader' );
-      stimhdr = ft_read_header( thiscase.stimfile, ...
+      stimhdr_rec = ft_read_header( thiscase.stimfile, ...
+        'headerformat', 'nlFT_readHeader' );
+
+      nlFT_selectChannels({}, {}, {'Din', 'Dout'})
+      rechdr_dig = ft_read_header( thiscase.recfile, ...
+        'headerformat', 'nlFT_readHeader' );
+      stimhdr_dig = ft_read_header( thiscase.stimfile, ...
+        'headerformat', 'nlFT_readHeader' );
+
+      nlFT_selectChannels({}, {}, {'Stim'})
+      stimhdr_current = ft_read_header( thiscase.stimfile, ...
+        'headerformat', 'nlFT_readHeader' );
+      nlFT_selectChannels({}, {}, {'Flags'})
+      stimhdr_flags = ft_read_header( thiscase.stimfile, ...
         'headerformat', 'nlFT_readHeader' );
 
       % FIXME - NYI.
