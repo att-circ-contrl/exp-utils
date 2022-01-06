@@ -150,37 +150,131 @@ for didx = 1:length(datacases)
 
   is_ok = true;
   try
-    if thiscase.use_looputil
 
-      disp(sprintf('-- Reading "%s" headers.', thiscase.title));
+    % Get rid of figures that are still open.
+    close all;
+
+
+    % Clear any data that's still in memory from the previous dataset.
+
+    % Aggregated data. TTL and bit-vector data is converted to double.
+    clear rechdr stimhdr recdata stimdata;
+
+    % Just the ephys channels.
+    clear rechdr_rec stimhdr_rec recdata_rec stimdata_rec;
+
+    % Just the stimulation channels.
+    % We have events when there's nonzero current, or when flags change.
+    clear stimhdr_current stimdata_current stimevents_current;
+    clear stimhdr_flags stimdata_flags stimevents_flags;
+
+    % Just the digital channels.
+    clear rechdr_dig stimhdr_dig;
+    clear recdata_dig stimdata_dig recevents_dig stimevents_dig;
+
+
+    % Read this dataset.
+
+    if thiscase.use_looputil
 
       % NOTE - We're reading several different types of signal separately.
 
+
+      disp(sprintf('-- Reading "%s" ephys amplifier data.', thiscase.title));
+
       nlFT_selectChannels({}, {}, {'Amp'})
+
       rechdr_rec = ft_read_header( thiscase.recfile, ...
         'headerformat', 'nlFT_readHeader' );
       stimhdr_rec = ft_read_header( thiscase.stimfile, ...
         'headerformat', 'nlFT_readHeader' );
 
+      % FIXME - Keeping ephys data in native format.
+      % Double is what we eventually want, and we'll need the conversion
+      % factor from the NeuroLoop header!
+
+      recdata_rec = ft_read_data( thiscase.recfile, ...
+        'headerformat', 'nlFT_readHeader', ...
+        'dataformat', 'nlFT_readDataNative' );
+      stimdata_rec = ft_read_data( thiscase.stimfile, ...
+        'headerformat', 'nlFT_readHeader', ...
+        'dataformat', 'nlFT_readDataNative' );
+
+      % No event detection for ephys data.
+
+
+      disp(sprintf('-- Reading "%s" digital data.', thiscase.title));
+
       nlFT_selectChannels({}, {}, {'Din', 'Dout'})
+
       rechdr_dig = ft_read_header( thiscase.recfile, ...
         'headerformat', 'nlFT_readHeader' );
       stimhdr_dig = ft_read_header( thiscase.stimfile, ...
         'headerformat', 'nlFT_readHeader' );
 
+      % Native format is fine for digital I/O data.
+      % We'll get uint16 per-channel or per-bank, depending on file format.
+
+      recdata_dig = ft_read_data( thiscase.recfile, ...
+        'headerformat', 'nlFT_readHeader', ...
+        'dataformat', 'nlFT_readDataNative' );
+      stimdata_dig = ft_read_data( thiscase.stimfile, ...
+        'headerformat', 'nlFT_readHeader', ...
+        'dataformat', 'nlFT_readDataNative' );
+
+% FIXME - Digital events go here.
+disp(sprintf('###  Looputil TTL events NYI (%s).', thiscase.title));
+
+
+      disp(sprintf('-- Reading "%s" stimulation data.', thiscase.title));
+
+      % Stimulation current gets converted to double-precision.
+
       nlFT_selectChannels({}, {}, {'Stim'})
+
       stimhdr_current = ft_read_header( thiscase.stimfile, ...
         'headerformat', 'nlFT_readHeader' );
+      stimdata_current = ft_read_data( thiscase.stimfile, ...
+        'headerformat', 'nlFT_readHeader', ...
+        'dataformat', 'nlFT_readDataDouble' );
+
+% FIXME - Current-drive events go here.
+disp(sprintf('###  Looputil stim current events NYI (%s).', thiscase.title));
+
+      % Stimulation flags get kept in native format.
+
       nlFT_selectChannels({}, {}, {'Flags'})
+
       stimhdr_flags = ft_read_header( thiscase.stimfile, ...
         'headerformat', 'nlFT_readHeader' );
+      stimdata_flags = ft_read_data( thiscase.stimfile, ...
+        'headerformat', 'nlFT_readHeader', ...
+        'dataformat', 'nlFT_readDataNative' );
 
-      % FIXME - NYI.
-      disp(sprintf('###  Looputil hooks NYI (%s).', thiscase.title));
+% FIXME - Stimulation flags events go here.
+disp(sprintf('###  Looputil stim flag events NYI (%s).', thiscase.title));
 
-      disp(sprintf('-- Reading "%s" data.', thiscase.title));
 
-      disp(sprintf('-- Reading "%s" events.', thiscase.title));
+      % NOTE - We're also separately reading in all channels, to test that.
+      % Channel data all gets promoted to double, for consistent merging.
+
+      disp(sprintf('-- Reading "%s" combined data.', thiscase.title));
+
+      nlFT_selectChannels({}, {}, {});
+
+      rechdr = ft_read_header( thiscase.recfile, ...
+        'headerformat', 'nlFT_readHeader' );
+      stimhdr = ft_read_header( thiscase.stimfile, ...
+        'headerformat', 'nlFT_readHeader' );
+
+      recdata = ft_read_data( thiscase.recfile, ...
+        'headerformat', 'nlFT_readHeader', ...
+        'dataformat', 'nlFT_readDataDouble' );
+      stimdata = ft_read_data( thiscase.stimfile, ...
+        'headerformat', 'nlFT_readHeader', ...
+        'dataformat', 'nlFT_readDataDouble' );
+
+      % No event detection for combined data.
 
     else
 
