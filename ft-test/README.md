@@ -57,13 +57,15 @@ pass it a custom reading function to read data types it doesn't know about.
 For Intan or Open Ephys data that will be a LoopUtil function.
 * `ft_read_data` reads a dataset's raw ephys waveforms. You can pass it a
 custom reading function to read data types it doesn't know about.
-For Intan or Open Ephys data that will be a LoopUtil function.
+For Intan or Open Ephys data that will be a LoopUtil function. We don't
+normally call this; `ft_preprocessing` calls it instead.
+* `ft_read_event` **FIXME** Details go here.
 * `ft_preprocessing` calls `ft_read_header` and `ft_read_data` to read a
 dataset (all channels or a subset), and then performs re-referencing and
 filtering on the resulting signals and optionally performs additional signal
 processing (detrending, zero-averaging, rectification, computing the
 derivative, computing the Hilbert transform). `ft_preprocessing` may also be
-called on data that's already been read (this is how we'll be using it).
+called to perform additional processing on data that's already been read.
 * `ft_resample` **FIXME** Details go here.
 * `ft_definetrial` **FIXME** Details go here.
 * **FIXME** Describe the "newconfig = function(oldconfig)" convention.
