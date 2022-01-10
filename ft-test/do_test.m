@@ -37,6 +37,13 @@ rect_corners = [ 1000 3000 ];
 rect_lowpass = 500;
 rect_rate = 2000;
 
+% Patterns that various channel names match.
+% See "ft_channelselection" for special names. Use "*" as a wildcard.
+name_patterns_record = { 'Amp*' };
+name_patterns_digital = { 'Din*', 'Dout*' };
+name_patterns_stim_current = { 'Stim*' };
+name_patterns_stim_flags = { 'Flags*' };
+
 
 % Which datasets to use.
 
@@ -58,11 +65,7 @@ want_openephys_plexon = false;
 
 % Various debugging tests.
 
-% Test low-level reading functions.
-want_test_read_lowlevel = false;
-
-% Read all types of signal at once.
-want_test_read_all = false;
+% FIXME - No debugging switches for now.
 
 
 
@@ -178,12 +181,39 @@ ft_info('off');
 
 for didx = 1:length(datacases)
 
+  % Get this case's metadata.
   thiscase = datacases(didx);
+
+
+
+  % Get rid of figures that are still open.
+  close all;
+
+
+  % Clear any data that's still in memory from the previous dataset.
+
+  % Headers, for channel information.
+  clear rechdr stimhdr;
+
+  % Aggregated data. TTL and bit-vector data is converted to double.
+  clear recdata stimdata;
+
+  % Just the ephys channels.
+  clear recdata_rec stimdata_rec;
+
+  % Just the stimulation channels.
+  % We have events when there's nonzero current, or when flags change.
+  clear stimdata_current stimdata_flags;
+  clear stimevents_current stimevents_flags;
+
+  % Just the digital channels.
+  clear recdata_dig stimdata_dig;
+  clear recevents_dig stimevents_dig;
 
 
   %
   % Read the datasets using ft_preprocessing().
-  % We'll need to read events separately.
+  % We'll be identifying events ourselves, rather than reading event lists.
 
 
   % NOTE - Field Trip will throw an exception if this fails. Wrap this to
@@ -195,239 +225,92 @@ for didx = 1:length(datacases)
   is_ok = true;
   try
 
-    % Get rid of figures that are still open.
-    close all;
+    % Read the headers. This gives us the channel lists.
+
+    if thiscase.use_looputil
+      rechdr = ft_read_header( thiscase.recfile, ...
+        'headerformat', 'nlFT_readHeader' );
+      stimhdr = ft_read_header( thiscase.stimfile, ...
+        'headerformat', 'nlFT_readHeader' );
+    else
+      rechdr = ft_read_header( thiscase.recfile );
+      stimhdr = ft_read_header( thiscase.stimfile );
+    end
 
 
-    % Clear any data that's still in memory from the previous dataset.
+    % Get the names of the types of channels we want.
 
-    % Aggregated data. TTL and bit-vector data is converted to double.
-    clear recdata stimdata;
-    % Low-level data:
-    clear rechdr stimhdr recdataraw stimdataraw;
+    rec_channels_record = ...
+      ft_channelselection( name_patterns_record, rechdr.label, {} );
+    rec_channels_digital = ...
+      ft_channelselection( name_patterns_digital, rechdr.label, {} );
 
-    % Just the ephys channels.
-    clear recdata_rec stimdata_rec;
-    % Low-level data:
-    clear rechdr_rec stimhdr_rec recdataraw_rec stimdataraw_rec;
+    stim_channels_record = ...
+      ft_channelselection( name_patterns_record, stimhdr.label, {} );
+    stim_channels_digital = ...
+      ft_channelselection( name_patterns_digital, stimhdr.label, {} );
 
-    % Just the stimulation channels.
-    % We have events when there's nonzero current, or when flags change.
-    clear stimdata_current stimdata_flags;
-    clear stimevents_current stimevents_flags;
-    % Low-level data:
-    clear stimhdr_current stimdataraw_current;
-    clear stimhdr_flags stimdataraw_flags;
-
-    % Just the digital channels.
-    clear recdata_dig stimdata_dig;
-    clear recevents_dig stimevents_dig;
-    % Low-level data:
-    clear rechdr_dig stimhdr_dig recdataraw_dig stimdataraw_dig;
+    stim_channels_current = ...
+      ft_channelselection( name_patterns_stim_current, stimhdr.label, {} );
+    stim_channels_flags = ...
+      ft_channelselection( name_patterns_stim_flags, stimhdr.label, {} );
 
 
     % Read this dataset.
 
+    % NOTE - We're reading several different types of signal separately.
+    % For each call to ft_preprocessing, we have to build a configuration
+    % structure specifying what we want to read.
+    % The only part that changes is "channel" (the channel name list).
+
+    preproc_config_rec = struct( ...
+      'datafile', thiscase.recfile, 'headerfile', thiscase.recfile );
+    preproc_config_stim = struct( ...
+      'datafile', thiscase.stimfile, 'headerfile', thiscase.stimfile );
+
     if thiscase.use_looputil
+      % NOTE - Promoting everything to double-precision floating-point.
 
-      % NOTE - We're reading several different types of signal separately.
+      preproc_config_rec.headerformat = 'nlFT_readHeader';
+      preproc_config_rec.dataformat = 'nlFT_readDataDouble';
 
-      disp(sprintf( ...
-        '== Reading "%s" using LoopUtil''s Field Trip functions.', ...
-        thiscase.title ));
-
-
-      % Build configuration for reading this dataset.
-      % NOTE - We'll want to use the "channel" field to specify a subset of
-      % channels for full-sized recording data.
-      % NOTE - Promoting everything to double.
-
-      preproc_config_rec = struct( ...
-        'datafile', thiscase.recfile, 'headerfile', thiscase.recfile, ...
-        'headerformat', 'nlFT_readHeader', ...
-        'dataformat', 'nlFT_readDataDouble', ...
-        'channel', 'all' );
-
-      preproc_config_stim = struct( ...
-        'datafile', thiscase.stimfile, 'headerfile', thiscase.stimfile, ...
-        'headerformat', 'nlFT_readHeader', ...
-        'dataformat', 'nlFT_readDataDouble', ...
-        'channel', 'all' );
-
-
-      disp('-- Reading ephys amplifier data.');
-
-      nlFT_selectChannels({}, {}, {'Amp'})
-
-      if want_test_read_lowlevel
-        rechdr_rec = ft_read_header( thiscase.recfile, ...
-          'headerformat', 'nlFT_readHeader' );
-        stimhdr_rec = ft_read_header( thiscase.stimfile, ...
-          'headerformat', 'nlFT_readHeader' );
-
-        % FIXME - Keeping ephys data in native format.
-        % Double is what we eventually want, and we'll need the conversion
-        % factor from the NeuroLoop header!
-
-        recdataraw_rec = ft_read_data( thiscase.recfile, ...
-          'headerformat', 'nlFT_readHeader', ...
-          'dataformat', 'nlFT_readDataNative' );
-        stimdataraw_rec = ft_read_data( thiscase.stimfile, ...
-          'headerformat', 'nlFT_readHeader', ...
-          'dataformat', 'nlFT_readDataNative' );
-
-        % FIXME - Not assembling cooked ft_datatype_raw structure!
-      else
-        % NOTE - Reading as double. This will be big!
-        recdata_rec = ft_preprocessing(preproc_config_rec);
-        stimdata_rec = ft_preprocessing(preproc_config_stim);
-      end
-
-      % No event detection for ephys data.
-
-
-      disp('-- Reading digital data.');
-
-      nlFT_selectChannels({}, {}, {'Din', 'Dout'})
-
-      if want_test_read_lowlevel
-        rechdr_dig = ft_read_header( thiscase.recfile, ...
-          'headerformat', 'nlFT_readHeader' );
-        stimhdr_dig = ft_read_header( thiscase.stimfile, ...
-          'headerformat', 'nlFT_readHeader' );
-
-        % Native format is fine for digital I/O data.
-        % We'll get uint16 per-channel or per-bank, depending on file format.
-
-        recdataraw_dig = ft_read_data( thiscase.recfile, ...
-          'headerformat', 'nlFT_readHeader', ...
-          'dataformat', 'nlFT_readDataNative' );
-        stimdataraw_dig = ft_read_data( thiscase.stimfile, ...
-          'headerformat', 'nlFT_readHeader', ...
-          'dataformat', 'nlFT_readDataNative' );
-
-        % FIXME - Not assembling cooked ft_datatype_raw structure!
-      else
-        % NOTE - Reading as double.
-        recdata_dig = ft_preprocessing(preproc_config_rec);
-        stimdata_dig = ft_preprocessing(preproc_config_stim);
-      end
-
-% FIXME - Digital events go here.
-disp(sprintf('###  Looputil TTL events NYI (%s).', thiscase.title));
-
-
-      disp('-- Reading stimulation data.');
-
-      nlFT_selectChannels({}, {}, {'Stim'})
-
-      if want_test_read_lowlevel
-        % Stimulation current gets converted to double-precision.
-
-        stimhdr_current = ft_read_header( thiscase.stimfile, ...
-          'headerformat', 'nlFT_readHeader' );
-        stimdataraw_current = ft_read_data( thiscase.stimfile, ...
-          'headerformat', 'nlFT_readHeader', ...
-          'dataformat', 'nlFT_readDataDouble' );
-
-        % FIXME - Not assembling cooked ft_datatype_raw structure!
-      else
-        % NOTE - Reading as double.
-        stimdata_current = ft_preprocessing(preproc_config_stim);
-      end
-
-% FIXME - Current-drive events go here.
-disp(sprintf('###  Looputil stim current events NYI (%s).', thiscase.title));
-
-      nlFT_selectChannels({}, {}, {'Flags'})
-
-      if want_test_read_lowlevel
-        % Stimulation flags get kept in native format.
-
-        stimhdr_flags = ft_read_header( thiscase.stimfile, ...
-          'headerformat', 'nlFT_readHeader' );
-        stimdataraw_flags = ft_read_data( thiscase.stimfile, ...
-          'headerformat', 'nlFT_readHeader', ...
-          'dataformat', 'nlFT_readDataNative' );
-
-        % FIXME - Not assembling cooked ft_datatype_raw structure!
-      else
-        % NOTE - Reading as double.
-        stimdata_flags = ft_preprocessing(preproc_config_stim);
-      end
-
-% FIXME - Stimulation flags events go here.
-disp(sprintf('###  Looputil stim flag events NYI (%s).', thiscase.title));
-
-
-      % NOTE - We're also separately reading in all channels, to test that.
-      % Channel data all gets promoted to double, for consistent merging.
-
-      if want_test_read_all
-        disp('-- Reading combined data.');
-
-        nlFT_selectChannels({}, {}, {});
-
-        if want_test_read_lowlevel
-          rechdr = ft_read_header( thiscase.recfile, ...
-            'headerformat', 'nlFT_readHeader' );
-          stimhdr = ft_read_header( thiscase.stimfile, ...
-            'headerformat', 'nlFT_readHeader' );
-
-          recdataraw = ft_read_data( thiscase.recfile, ...
-            'headerformat', 'nlFT_readHeader', ...
-            'dataformat', 'nlFT_readDataDouble' );
-          stimdataraw = ft_read_data( thiscase.stimfile, ...
-            'headerformat', 'nlFT_readHeader', ...
-            'dataformat', 'nlFT_readDataDouble' );
-
-          % FIXME - Not assembling cooked ft_datatype_raw structure!
-        else
-          % NOTE - Reading as double. This will be big!
-          recdata_dig = ft_preprocessing(preproc_config_rec);
-          stimdata_dig = ft_preprocessing(preproc_config_stim);
-        end
-
-        % No event detection for combined data.
-      end
-
-      disp(sprintf('-- Finished reading "%s".', thiscase.title));
-
-    else
-
-      disp(sprintf( ...
-        '== Reading "%s" using Field Trip''s native functions.', ...
-        thiscase.title ));
-
-      if want_test_read_lowlevel
-        disp(sprintf('-- Reading headers.', thiscase.title));
-
-        rechdr = ft_read_header(thiscase.recfile);
-        stimhdr = ft_read_header(thiscase.stimfile);
-
-        disp(sprintf('-- Reading data.', thiscase.title));
-
-        % This will re-read the header will be re-read if we don't supply it,
-        % but supply it anyways.
-        recdataraw = ft_read_data(thiscase.recfile, 'header', rechdr);
-        stimdataraw = ft_read_data(thiscase.stimfile, 'header', stimhdr);
-
-        % FIXME - Not assembling cooked ft_datatype_raw structure!
-      else
-        % NOTE - Reading as double. This will be big!
-        recdata_dig = ft_preprocessing(preproc_config_rec);
-        stimdata_dig = ft_preprocessing(preproc_config_stim);
-      end
-
-      disp(sprintf('-- Reading events.', thiscase.title));
-
-      % This will re-read the header, so we don't need to supply it.
-      recevents = ft_read_event(thiscase.recfile);
-      stimevents = ft_read_event(thiscase.stimfile);
-
-      disp(sprintf('-- Finished reading "%s".', thiscase.title));
-
+      preproc_config_stim.headerformat = 'nlFT_readHeader';
+      preproc_config_stim.dataformat = 'nlFT_readDataDouble';
     end
+
+
+    disp('-- Reading ephys amplifier data.');
+
+    % NOTE - Reading as double. This will be big!
+
+    preproc_config_rec.channel = rec_channels_record;
+    preproc_config_stim.channel = stim_channels_record;
+    recdata_rec = ft_preprocessing(preproc_config_rec);
+    stimdata_rec = ft_preprocessing(preproc_config_stim);
+
+
+    disp('-- Reading digital data.');
+
+    preproc_config_rec.channel = rec_channels_digital;
+    preproc_config_stim.channel = stim_channels_digital;
+    recdata_dig = ft_preprocessing(preproc_config_rec);
+    stimdata_dig = ft_preprocessing(preproc_config_stim);
+
+
+    disp('-- Reading stimulation data.');
+
+    preproc_config_stim.channel = stim_channels_current;
+    stimdata_current = ft_preprocessing(preproc_config_stim);
+
+    % NOTE - Reading flag as double. We can still perform bitwise operations
+    % on them.
+    preproc_config_stim.channel = stim_channels_flags;
+    stimdata_flags = ft_preprocessing(preproc_config_stim);
+
+
+    % Done.
+    disp(sprintf('-- Finished reading "%s".', thiscase.title));
+
   catch errordetails
     isok = false;
     disp(sprintf( ...
