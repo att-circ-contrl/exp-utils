@@ -39,7 +39,7 @@ rect_rate = 2000;
 
 % Patterns that various channel names match.
 % See "ft_channelselection" for special names. Use "*" as a wildcard.
-name_patterns_record = { 'Amp*' };
+name_patterns_record = { 'Amp*', 'CH*' };
 name_patterns_digital = { 'Din*', 'Dout*' };
 name_patterns_stim_current = { 'Stim*' };
 name_patterns_stim_flags = { 'Flags*' };
@@ -50,13 +50,15 @@ name_patterns_stim_flags = { 'Flags*' };
 % Native Intan.
 want_intan_monolithic = false;
 want_intan_pertype = false;
-want_intan_perchan = true;
+want_intan_perchan = false;
 
 % Native Open Ephys.
-want_openephys_monolithic = false;
+want_openephys_monolithic = true;
+want_openephys_perchan = false;
 
 % Converted Intan.
 want_intan_plexon = false;
+% Need "want_intan_plexon" as well for this.
 want_intan_plexon_nex5 = false;
 
 % Converted Open Ephys.
@@ -79,6 +81,8 @@ want_openephys_plexon = false;
 addpath('lib-exp-utils-cjt');
 addpath('lib-looputil');
 addpath('lib-fieldtrip');
+addpath('lib-openephys');
+addpath('lib-npy-matlab');
 
 % Second step: Call various functions to add library sub-folders.
 
@@ -96,7 +100,7 @@ evalc('ft_defaults');
 datacases = struct([]);
 
 if want_intan_monolithic
-  srcdir = [ 'datasets', filesep, 'MonolithicIntan_format' ];
+  srcdir = [ 'datasets-intan', filesep, 'MonolithicIntan_format' ];
   thiscase = struct( ...
     'title', 'Intan Monolithic', 'label', 'intanmono', ...
     'recfile', [ srcdir, filesep, 'record_211206_171502.rhd' ], ...
@@ -111,7 +115,7 @@ if want_intan_monolithic
 end
 
 if want_intan_pertype
-  srcdir = [ 'datasets', filesep, 'OneFilePerTypeOfChannel_format' ];
+  srcdir = [ 'datasets-intan', filesep, 'OneFilePerTypeOfChannel_format' ];
   thiscase = struct( ...
     'title', 'Intan Per-Type', 'label', 'intanpertype', ...
     'recfile', [ srcdir, filesep, 'record_211206_172518' ], ...
@@ -126,7 +130,7 @@ if want_intan_pertype
 end
 
 if want_intan_perchan
-  srcdir = [ 'datasets', filesep, 'OneFilePerChannel_format' ];
+  srcdir = [ 'datasets-intan', filesep, 'OneFilePerChannel_format' ];
   thiscase = struct( ...
     'title', 'Intan Per-Channel', 'label', 'intanperchan', ...
     'recfile', [ srcdir, filesep, 'record_211206_172734' ], ...
@@ -141,7 +145,7 @@ if want_intan_perchan
 end
 
 if want_intan_plexon
-  srcdir = [ 'datasets', filesep, 'MonolithicIntan_Plexon' ];
+  srcdir = [ 'datasets-intan', filesep, 'MonolithicIntan_Plexon' ];
   thiscase = struct( ...
     'title', 'Intan (converted to NEX)', 'label', 'intanplexon', ...
     'recfile', [ srcdir, filesep, 'record_211206_171502.nex' ], ...
@@ -159,8 +163,39 @@ if want_intan_plexon
 end
 
 if want_openephys_monolithic
-  % FIXME - NYI.
-  disp('###  FIXME - Open Ephys monolithic NYI.');
+  srcdir = [ 'datasets-openephys', filesep, ...
+    'OEBinary_IntanStimOneFilePerChannel_format' ];
+  % NOTE - Pointing to directory now, not "structure.oebin".
+  thiscase = struct( ...
+    'title', 'Open Ephys Monolithic', 'label', 'openmono', ...
+    'recfile', [ srcdir, filesep, ...
+      '2021-12-17_14-47-00', filesep, 'Record Node 101', filesep, ...
+      'experiment1', filesep, 'recording1' ], ...
+    'stimfile', [ srcdir, filesep, 'stim_211217_144659' ], ...
+    'use_looputil', true );
+
+  if isempty(datacases)
+    datacases = thiscase;
+  else
+    datacases(1 + length(datacases)) = thiscase;
+  end
+end
+
+if want_openephys_perchan
+  srcdir = [ 'datasets-openephys', filesep, ...
+    'OEOpenEphys_IntanStimOneFilePerChannel_format' ];
+  thiscase = struct( ...
+    'title', 'Open Ephys Per-Channel', 'label', 'openperchan', ...
+    'recfile', [ srcdir, filesep, ...
+      '2021-12-17_14-47-00', filesep, 'Record Node 101' ], ...
+    'stimfile', [ srcdir, filesep, 'stim_211217_150043' ], ...
+    'use_looputil', true );
+
+  if isempty(datacases)
+    datacases = thiscase;
+  else
+    datacases(1 + length(datacases)) = thiscase;
+  end
 end
 
 if want_openephys_plexon
