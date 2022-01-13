@@ -290,6 +290,30 @@ for didx = 1:length(datacases)
     stim_channels_flags = ...
       ft_channelselection( name_patterns_stim_flags, stimhdr.label, {} );
 
+    % FIXME - Passing an empty channel list to ft_preprocessing results in
+    % all channels being read. Modify these to contain a bogus name instead.
+
+    if isempty(rec_channels_record)
+      rec_channels_record = { 'none' };
+    end
+    if isempty(rec_channels_digital)
+      rec_channels_digital = { 'none' };
+    end
+
+    if isempty(stim_channels_record)
+      stim_channels_record = { 'none' };
+    end
+    if isempty(stim_channels_digital)
+      stim_channels_digital = { 'none' };
+    end
+
+    if isempty(stim_channels_current)
+      stim_channels_current = { 'none' };
+    end
+    if isempty(stim_channels_flags)
+      stim_channels_flags = { 'none' };
+    end
+
 
     % Read this dataset.
 
@@ -312,6 +336,10 @@ for didx = 1:length(datacases)
       preproc_config_stim.headerformat = 'nlFT_readHeader';
       preproc_config_stim.dataformat = 'nlFT_readDataDouble';
     end
+
+
+    % Banner.
+    disp(sprintf('== Reading "%s".', thiscase.title));
 
 
     disp('-- Reading ephys amplifier data.');
@@ -344,10 +372,10 @@ for didx = 1:length(datacases)
 
 
     % Done.
-    disp(sprintf('-- Finished reading "%s".', thiscase.title));
+    disp(sprintf('== Finished reading "%s".', thiscase.title));
 
   catch errordetails
-    isok = false;
+    is_ok = false;
     disp(sprintf( ...
       '###  Exception thrown while reading "%s".', thiscase.title));
     disp(sprintf('Message: "%s"', errordetails.message));
@@ -358,6 +386,7 @@ for didx = 1:length(datacases)
 
   % If we had an error, bail out and move to the next dataset.
   if ~is_ok
+    disp(sprintf( '..  Aborting processing of "%s".', thiscase.title ));
     continue;
   end
 
