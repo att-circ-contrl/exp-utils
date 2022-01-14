@@ -17,6 +17,11 @@ want_power_filter_thilo = true;
 want_crop_big = true;
 want_detail_zoom = false;
 
+% Channel subset control.
+% The idea is to read a small number of channels for debugging, for datasets
+% that take a while to read.
+want_chan_subset = true;
+
 % Bring up the GUI data browser after processing.
 want_browser = true;
 
@@ -73,8 +78,8 @@ want_intan_plexon_nex5 = false;
 want_openephys_plexon = false;
 
 % Big datasets.
-want_big_tungsten = true;
-want_big_silicon = false;
+want_big_tungsten = false;
+want_big_silicon = true;
 
 
 % Various debugging tests.
@@ -269,12 +274,21 @@ if want_big_silicon
 
   % Add "zoom" cases.
   if want_crop_big
-    % The full trace is at least an hour long.
+    % The full trace is about 4300 seconds long (1.2h).
     % My machine can tolerate 1-2 minutes. Give it 100 seconds.
     thiscase.timerange = [ 1000.0 1100.0 ];
+%    thiscase.timerange = [ 2000.0 2100.0 ];
+%    thiscase.timerange = [ 3000.0 3100.0 ];
   end
   if want_detail_zoom
 % FIXME - Detail zoom for Frey silicon NYI.
+  end
+
+  % Add "only a few channels" case.
+  % FIXME - Need to prune floating channels even without this!
+  if want_chan_subset
+    % Filter analog channels on the recorder.
+    thiscase.channels_rec = { 'CH_001', 'CH_030', 'CH_070', 'CH_110' };
   end
 
   if isempty(datacases)
@@ -355,13 +369,24 @@ for didx = 1:length(datacases)
 
     % Get the names of the types of channels we want.
 
+    % FIXME - Blithely assuming that we can fit digital I/O channels in RAM.
+    % FIXME - Not filtering stimulation current or flag data for now.
+
     rec_channels_record = ...
       ft_channelselection( name_patterns_record, rechdr.label, {} );
+    if isfield( thiscase, 'channels_rec' )
+      rec_channels_record = ...
+        ft_channelselection( thiscase.channels_rec, rechdr.label, {} );
+    end
     rec_channels_digital = ...
       ft_channelselection( name_patterns_digital, rechdr.label, {} );
 
     stim_channels_record = ...
       ft_channelselection( name_patterns_record, stimhdr.label, {} );
+    if isfield( thiscase, 'channels_stim' )
+      stim_channels_record = ...
+        ft_channelselection( thiscase.channels_stim, stimhdr.label, {} );
+    end
     stim_channels_digital = ...
       ft_channelselection( name_patterns_digital, stimhdr.label, {} );
 
@@ -664,8 +689,10 @@ function durstring = helper_makePrettyTime(dursecs)
 
   durstring = '-bogus-';
 
-  if dursecs < 1e-3
+  if dursecs < 1e-4
     durstring = sprintf('%.1e s', dursecs);
+  elseif dursecs < 2e-3
+    durstring = sprintf('%.2f ms', dursecs * 1e3);
   elseif dursecs < 2e-2
     durstring = sprintf('%.1f ms', dursecs * 1e3);
   elseif dursecs < 2e-1
