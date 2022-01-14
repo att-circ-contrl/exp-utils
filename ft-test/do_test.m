@@ -12,6 +12,14 @@
 % much faster than time-domain FIR filtering.
 want_power_filter_thilo = true;
 
+% Trimming control.
+% The idea is to trim big datasets to be small enough to fit in memory.
+want_crop_big = true;
+want_detail_zoom = false;
+
+% Bring up the GUI data browser after processing.
+want_browser = true;
+
 
 % Various magic values.
 
@@ -50,10 +58,10 @@ name_patterns_stim_flags = { 'Flags*' };
 % Native Intan.
 want_intan_monolithic = false;
 want_intan_pertype = false;
-want_intan_perchan = false;
+want_intan_perchan = false;  % Early tungsten datasets used this.
 
 % Native Open Ephys.
-want_openephys_monolithic = true;
+want_openephys_monolithic = false;  % This is what we're using for silicon.
 want_openephys_perchan = false;
 
 % Converted Intan.
@@ -63,6 +71,10 @@ want_intan_plexon_nex5 = false;
 
 % Converted Open Ephys.
 want_openephys_plexon = false;
+
+% Big datasets.
+want_big_tungsten = true;
+want_big_silicon = false;
 
 
 % Various debugging tests.
@@ -137,6 +149,11 @@ if want_intan_perchan
     'stimfile', [ srcdir, filesep, 'stim_211206_172734' ], ...
     'use_looputil', true );
 
+  % Add "zoom" case.
+  if want_detail_zoom
+    thiscase.timerange = [ 4.0 6.0 ];
+  end
+
   if isempty(datacases)
     datacases = thiscase;
   else
@@ -165,7 +182,7 @@ end
 if want_openephys_monolithic
   srcdir = [ 'datasets-openephys', filesep, ...
     'OEBinary_IntanStimOneFilePerChannel_format' ];
-  % NOTE - Pointing to directory now, not "structure.oebin".
+  % NOTE - Pointing to directory, not "structure.oebin".
   thiscase = struct( ...
     'title', 'Open Ephys Monolithic', 'label', 'openmono', ...
     'recfile', [ srcdir, filesep, ...
@@ -173,6 +190,11 @@ if want_openephys_monolithic
       'experiment1', filesep, 'recording1' ], ...
     'stimfile', [ srcdir, filesep, 'stim_211217_144659' ], ...
     'use_looputil', true );
+
+  % Add "zoom" case.
+  if want_detail_zoom
+    thiscase.timerange = [ 12.0 14.0 ];
+  end
 
   if isempty(datacases)
     datacases = thiscase;
@@ -203,6 +225,64 @@ if want_openephys_plexon
   disp('###  FIXME - Open Ephys Plexon NYI.');
 end
 
+if want_big_tungsten
+  srcdir = [ 'datasets-big', filesep, '20211112-frey-tungsten' ];
+  thiscase = struct( ...
+    'title', '2021 Nov 12 Frey Tungsten', 'label', 'freytungsten', ...
+    'recfile', [ srcdir, filesep, 'record_211112_112922' ], ...
+    'stimfile', [ srcdir, filesep, 'stim_211112_112924' ], ...
+    'unityfile', [ srcdir, filesep, 'Session4__12_11_2021__11_29_57', ...
+      filesep, 'RuntimeData' ], ...
+    'use_looputil', true );
+
+  % Add "zoom" cases.
+  if want_crop_big
+    % The full trace is about 5800 seconds long (1.6h).
+    % My machine can tolerate 1-2 minutes. Give it 100 seconds.
+%    thiscase.timerange = [ 1000.0 1100.0 ];
+%    thiscase.timerange = [ 2000.0 2100.0 ];
+    thiscase.timerange = [ 3000.0 3100.0 ];
+  end
+  if want_detail_zoom
+% FIXME - Detail zoom for Frey tungsten NYI.
+  end
+
+  if isempty(datacases)
+    datacases = thiscase;
+  else
+    datacases(1 + length(datacases)) = thiscase;
+  end
+end
+
+if want_big_silicon
+  srcdir = [ 'datasets-big', filesep, '20211111-frey-silicon' ];
+  % NOTE - Pointing to directory, not "structure.oebin".
+  thiscase = struct( ...
+    'title', '2021 Nov 11 Frey Silicon', 'label', 'freysilicon', ...
+    'recfile', [ srcdir, filesep, ...
+      '2021-11-11_12-08-33', filesep, 'Record Node 101', filesep, ...
+      'experiment2', filesep, 'recording1' ], ...
+    'stimfile', [ srcdir, filesep, 'stim_211111_121220' ], ...
+    'unityfile', [ srcdir, filesep, 'Session3__11_11_2021__12_12_49', ...
+      filesep, 'RuntimeData' ], ...
+    'use_looputil', true );
+
+  % Add "zoom" cases.
+  if want_crop_big
+    % The full trace is at least an hour long.
+    % My machine can tolerate 1-2 minutes. Give it 100 seconds.
+    thiscase.timerange = [ 1000.0 1100.0 ];
+  end
+  if want_detail_zoom
+% FIXME - Detail zoom for Frey silicon NYI.
+  end
+
+  if isempty(datacases)
+    datacases = thiscase;
+  else
+    datacases(1 + length(datacases)) = thiscase;
+  end
+end
 
 
 %
@@ -293,26 +373,8 @@ for didx = 1:length(datacases)
     % FIXME - Passing an empty channel list to ft_preprocessing results in
     % all channels being read. Modify these to contain a bogus name instead.
 
-    if isempty(rec_channels_record)
-      rec_channels_record = { 'none' };
-    end
-    if isempty(rec_channels_digital)
-      rec_channels_digital = { 'none' };
-    end
-
-    if isempty(stim_channels_record)
-      stim_channels_record = { 'none' };
-    end
-    if isempty(stim_channels_digital)
-      stim_channels_digital = { 'none' };
-    end
-
-    if isempty(stim_channels_current)
-      stim_channels_current = { 'none' };
-    end
-    if isempty(stim_channels_flags)
-      stim_channels_flags = { 'none' };
-    end
+    % FIXME - ft_preprocessing throws an exception if it didn't read data.
+    % Instead, just skip reading a given element if there are no channels.
 
 
     % Read this dataset.
@@ -337,38 +399,108 @@ for didx = 1:length(datacases)
       preproc_config_stim.dataformat = 'nlFT_readDataDouble';
     end
 
+    if isfield(thiscase, 'timerange')
+
+      % Define a single trial to get windowed continuous data.
+      % FIXME - Not aligning the recorder and stimulator!
+
+      disp(sprintf( '.. Windowing to %.1f - %.1f seconds.', ...
+        min(thiscase.timerange), max(thiscase.timerange) ));
+
+
+      firstsamp = round( min(thiscase.timerange) * rechdr.Fs );
+      firstsamp = min(firstsamp, rechdr.nSamples);
+      firstsamp = max(firstsamp, 1);
+
+      lastsamp = round ( max(thiscase.timerange) * rechdr.Fs );
+      lastsamp = min(lastsamp, rechdr.nSamples);
+      lastsamp = max(lastsamp, 1);
+
+      preproc_config_rec.trl = [ firstsamp lastsamp 0 ];
+
+
+      firstsamp = round( min(thiscase.timerange) * stimhdr.Fs );
+      firstsamp = min(firstsamp, stimhdr.nSamples);
+      firstsamp = max(firstsamp, 1);
+
+      lastsamp = round ( max(thiscase.timerange) * stimhdr.Fs );
+      lastsamp = min(lastsamp, stimhdr.nSamples);
+      lastsamp = max(lastsamp, 1);
+
+      preproc_config_stim.trl = [ firstsamp lastsamp 0 ];
+
+    end
+
 
     % Banner.
     disp(sprintf('== Reading "%s".', thiscase.title));
 
 
     disp('-- Reading ephys amplifier data.');
+    tic();
 
     % NOTE - Reading as double. This will be big!
 
-    preproc_config_rec.channel = rec_channels_record;
-    preproc_config_stim.channel = stim_channels_record;
-    recdata_rec = ft_preprocessing(preproc_config_rec);
-    stimdata_rec = ft_preprocessing(preproc_config_stim);
+    if isempty(rec_channels_record)
+      disp('.. Skipping recorder (no channels selected).');
+    else
+      preproc_config_rec.channel = rec_channels_record;
+      recdata_rec = ft_preprocessing(preproc_config_rec);
+    end
+
+    if isempty(stim_channels_record)
+      disp('.. Skipping stimulator (no channels selected).');
+    else
+      preproc_config_stim.channel = stim_channels_record;
+      stimdata_rec = ft_preprocessing(preproc_config_stim);
+    end
+
+    thisduration = helper_makePrettyTime(toc());
+    disp(sprintf( '.. Read in %s.', thisduration ));
 
 
     disp('-- Reading digital data.');
+    tic();
 
-    preproc_config_rec.channel = rec_channels_digital;
-    preproc_config_stim.channel = stim_channels_digital;
-    recdata_dig = ft_preprocessing(preproc_config_rec);
-    stimdata_dig = ft_preprocessing(preproc_config_stim);
+    if isempty(rec_channels_digital)
+      disp('.. Skipping recorder (no channels selected).');
+    else
+      preproc_config_rec.channel = rec_channels_digital;
+      recdata_dig = ft_preprocessing(preproc_config_rec);
+    end
+
+    if isempty(stim_channels_digital)
+      disp('.. Skipping stimulator (no channels selected).');
+    else
+      preproc_config_stim.channel = stim_channels_digital;
+      stimdata_dig = ft_preprocessing(preproc_config_stim);
+    end
+
+    thisduration = helper_makePrettyTime(toc());
+    disp(sprintf( '.. Read in %s.', thisduration ));
 
 
     disp('-- Reading stimulation data.');
+    tic();
 
-    preproc_config_stim.channel = stim_channels_current;
-    stimdata_current = ft_preprocessing(preproc_config_stim);
+    if isempty(stim_channels_current)
+      disp('.. Skipping stimulation current (no channels selected).');
+    else
+      preproc_config_stim.channel = stim_channels_current;
+      stimdata_current = ft_preprocessing(preproc_config_stim);
+    end
 
     % NOTE - Reading flag as double. We can still perform bitwise operations
     % on them.
-    preproc_config_stim.channel = stim_channels_flags;
-    stimdata_flags = ft_preprocessing(preproc_config_stim);
+    if isempty(stim_channels_flags)
+      disp('.. Skipping stimulation flags (no channels selected).');
+    else
+      preproc_config_stim.channel = stim_channels_flags;
+      stimdata_flags = ft_preprocessing(preproc_config_stim);
+    end
+
+    thisduration = helper_makePrettyTime(toc());
+    disp(sprintf( '.. Read in %s.', thisduration ));
 
 
     % Done.
@@ -401,7 +533,11 @@ for didx = 1:length(datacases)
   % and re-referencing on both, then do time alignment.
   % After that, we can use ft_appenddata().
 
+  have_data = false;
+
   if exist('recdata_rec', 'var')
+
+    have_data = true;
 
     % Power-line filtering.
 
@@ -496,7 +632,24 @@ for didx = 1:length(datacases)
 
   end
 
+
   % FIXME - Dataset inspection NYI.
+
+  if have_data
+    if want_browser
+      % FIXME - The saved configuration might be re-filtering the data!
+      % It _shouldn't_ be rereading, but it's doing _something_.
+
+      ft_databrowser(data_wideband.cfg, data_wideband);
+      set(gcf(), 'Name', 'Wideband', 'NumberTitle', 'off');
+      ft_databrowser(data_lfp.cfg, data_lfp);
+      set(gcf(), 'Name', 'LFP', 'NumberTitle', 'off');
+      ft_databrowser(data_spike.cfg, data_spike);
+      set(gcf(), 'Name', 'Spikes', 'NumberTitle', 'off');
+      ft_databrowser(data_rect.cfg, data_rect);
+      set(gcf(), 'Name', 'Rectified', 'NumberTitle', 'off');
+    end
+  end
 
 end
 
