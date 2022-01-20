@@ -14,19 +14,26 @@ want_power_filter_thilo = true;
 
 % Trimming control.
 % The idea is to trim big datasets to be small enough to fit in memory.
+% 100 seconds is okay with 128ch, 1000 seconds is okay with 4ch.
 want_crop_big = true;
+crop_window_seconds = 100;
+%crop_window_seconds = 1000;
 want_detail_zoom = false;
 
 % Channel subset control.
 % The idea is to read a small number of channels for debugging, for datasets
 % that take a while to read.
-want_chan_subset = true;
+want_chan_subset = false;
 
 % Bring up the GUI data browser after processing.
-want_browser = true;
+want_browser = false;
 
 
 % Various magic values.
+
+% The number of channels to load into memory at one time, when loading.
+% This takes up at least 1 GB per channel-hour.
+memchans = 4;
 
 % The power frequency filter filters the fundamental mode and some of the
 % harmonics of the power line frequency. Mode count should be 2-3 typically.
@@ -243,10 +250,10 @@ if want_big_tungsten
   % Add "zoom" cases.
   if want_crop_big
     % The full trace is about 5800 seconds long (1.6h).
-    % My machine can tolerate 1-2 minutes. Give it 100 seconds.
-%    thiscase.timerange = [ 1000.0 1100.0 ];
-%    thiscase.timerange = [ 2000.0 2100.0 ];
-    thiscase.timerange = [ 3000.0 3100.0 ];
+%    crop_start = 1000.0;
+    crop_start = 2000.0;
+%    crop_start = 3000.0;
+    thiscase.timerange = [ crop_start (crop_start + crop_window_seconds) ];
   end
   if want_detail_zoom
 % FIXME - Detail zoom for Frey tungsten NYI.
@@ -275,10 +282,10 @@ if want_big_silicon
   % Add "zoom" cases.
   if want_crop_big
     % The full trace is about 4300 seconds long (1.2h).
-    % My machine can tolerate 1-2 minutes. Give it 100 seconds.
-    thiscase.timerange = [ 1000.0 1100.0 ];
-%    thiscase.timerange = [ 2000.0 2100.0 ];
-%    thiscase.timerange = [ 3000.0 3100.0 ];
+%    crop_start = 1000.0;
+    crop_start = 2000.0;
+%    crop_start = 3000.0;
+    thiscase.timerange = [ crop_start (crop_start + crop_window_seconds) ];
   end
   if want_detail_zoom
 % FIXME - Detail zoom for Frey silicon NYI.
@@ -297,6 +304,12 @@ if want_big_silicon
     datacases(1 + length(datacases)) = thiscase;
   end
 end
+
+
+%
+% Do setup.
+
+nlFT_setMemChans(memchans);
 
 
 %
