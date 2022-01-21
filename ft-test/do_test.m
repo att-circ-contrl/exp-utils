@@ -23,10 +23,10 @@ want_detail_zoom = false;
 % Channel subset control.
 % The idea is to read a small number of channels for debugging, for datasets
 % that take a while to read.
-want_chan_subset = false;
+want_chan_subset = true;
 
 % Bring up the GUI data browser after processing.
-want_browser = false;
+want_browser = true;
 
 
 % Various magic values.
@@ -60,7 +60,7 @@ rect_rate = 2000;
 % Patterns that various channel names match.
 % See "ft_channelselection" for special names. Use "*" as a wildcard.
 name_patterns_record = { 'Amp*', 'CH*' };
-name_patterns_digital = { 'Din*', 'Dout*' };
+name_patterns_digital = { 'Din*', 'Dout*', 'DigBits*' };
 name_patterns_stim_current = { 'Stim*' };
 name_patterns_stim_flags = { 'Flags*' };
 
@@ -87,6 +87,13 @@ want_openephys_plexon = false;
 % Big datasets.
 want_big_tungsten = false;
 want_big_silicon = true;
+
+
+% Which types of data to read.
+% We usually want all data; this lets us turn off elements for testing.
+want_data_ephys = false;
+want_data_ttl = true;
+want_data_stim = true;
 
 
 % Various debugging tests.
@@ -408,6 +415,25 @@ for didx = 1:length(datacases)
     stim_channels_flags = ...
       ft_channelselection( name_patterns_stim_flags, stimhdr.label, {} );
 
+
+    % Suppress data types we don't want.
+
+    if ~want_data_ephys
+      rec_channels_record = {};
+      stim_channels_record = {};
+    end
+
+    if ~want_data_ttl
+      rec_channels_digital = {};
+      stim_channels_digital = {};
+    end
+
+    if ~want_data_stim
+      stim_channels_current = {};
+      stim_channels_flags = {};
+    end
+
+
     % FIXME - Passing an empty channel list to ft_preprocessing results in
     % all channels being read. Modify these to contain a bogus name instead.
 
@@ -571,11 +597,11 @@ for didx = 1:length(datacases)
   % and re-referencing on both, then do time alignment.
   % After that, we can use ft_appenddata().
 
-  have_data = false;
+  have_analog = false;
 
   if exist('recdata_rec', 'var')
 
-    have_data = true;
+    have_analog = true;
 
     % Power-line filtering.
 
@@ -673,8 +699,11 @@ for didx = 1:length(datacases)
 
   % FIXME - Dataset inspection NYI.
 
-  if have_data
-    if want_browser
+  if want_browser
+    % Suppress warnings. The auto-generated config has deprecated fields.
+    ft_warning('off');
+
+    if have_analog
       % FIXME - The saved configuration might be re-filtering the data!
       % It _shouldn't_ be rereading, but it's doing _something_.
 
@@ -687,6 +716,18 @@ for didx = 1:length(datacases)
       ft_databrowser(data_rect.cfg, data_rect);
       set(gcf(), 'Name', 'Rectified', 'NumberTitle', 'off');
     end
+
+    if exist('recdata_dig', 'var')
+      ft_databrowser(recdata_dig.cfg, recdata_dig);
+      set(gcf(), 'Name', 'Recorder TTL', 'NumberTitle', 'off');
+    end
+    if exist('stimdata_dig', 'var')
+      ft_databrowser(stimdata_dig.cfg, stimdata_dig);
+      set(gcf(), 'Name', 'Stimulator TTL', 'NumberTitle', 'off');
+    end
+
+    % Re-enable warnings.
+    ft_warning('on');
   end
 
 end
