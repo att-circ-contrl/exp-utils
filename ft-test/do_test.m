@@ -60,7 +60,7 @@ rect_rate = 2000;
 % Patterns that various channel names match.
 % See "ft_channelselection" for special names. Use "*" as a wildcard.
 name_patterns_record = { 'Amp*', 'CH*' };
-name_patterns_digital = { 'Din*', 'Dout*', 'DigBits*' };
+name_patterns_digital = { 'Din*', 'Dout*', 'DigBits*', 'DigWords*' };
 name_patterns_stim_current = { 'Stim*' };
 name_patterns_stim_flags = { 'Flags*' };
 
