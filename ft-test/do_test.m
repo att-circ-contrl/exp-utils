@@ -92,8 +92,10 @@ want_big_silicon = true;
 % Which types of data to read.
 % We usually want all data; this lets us turn off elements for testing.
 want_data_ephys = false;
-want_data_ttl = true;
-want_data_stim = true;
+want_data_ttl = false;
+want_data_stim = false;
+want_data_events = true;
+
 
 
 % Various debugging tests.
@@ -355,14 +357,13 @@ for didx = 1:length(datacases)
   clear stimdata_current stimdata_flags;
   clear stimevents_current stimevents_flags;
 
-  % Just the digital channels.
+  % Just the digital channels and digital events.
   clear recdata_dig stimdata_dig;
   clear recevents_dig stimevents_dig;
 
 
   %
   % Read the datasets using ft_preprocessing().
-  % We'll be identifying events ourselves, rather than reading event lists.
 
 
   % NOTE - Field Trip will throw an exception if this fails. Wrap this to
@@ -538,6 +539,22 @@ for didx = 1:length(datacases)
     else
       preproc_config_stim.channel = stim_channels_digital;
       stimdata_dig = ft_preprocessing(preproc_config_stim);
+    end
+
+    thisduration = helper_makePrettyTime(toc());
+    disp(sprintf( '.. Read in %s.', thisduration ));
+
+
+    disp('-- Reading digital events.');
+    tic();
+
+    if ~want_data_events
+      disp('.. Skipping events.');
+    else
+      % FIXME - Glom everything using my internal hook instead of FT's hook.
+      recevents_dig = nlFT_readAllEvents(thiscase.recfile, false);
+      stimevents_dig = nlFT_readAllEvents(thiscase.stimfile, true);
+% FIXME - Events NYI.
     end
 
     thisduration = helper_makePrettyTime(toc());
