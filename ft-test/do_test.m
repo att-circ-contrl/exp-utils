@@ -3,108 +3,6 @@
 
 
 %
-% Configuration.
-
-% Behavior switches.
-
-% Use Thilo's comb-style DFT power filter instead of the time-domain one.
-% This might introduce numerical noise in very long continuous data, but it's
-% much faster than time-domain FIR filtering.
-want_power_filter_thilo = true;
-
-% Trimming control.
-% The idea is to trim big datasets to be small enough to fit in memory.
-% 100 seconds is okay with 128ch, 1000 seconds is okay with 4ch.
-want_crop_big = true;
-crop_window_seconds = 100;
-%crop_window_seconds = 1000;
-want_detail_zoom = false;
-
-% Channel subset control.
-% The idea is to read a small number of channels for debugging, for datasets
-% that take a while to read.
-want_chan_subset = true;
-
-% Bring up the GUI data browser after processing.
-want_browser = true;
-
-
-% Various magic values.
-
-% The number of channels to load into memory at one time, when loading.
-% This takes up at least 1 GB per channel-hour.
-memchans = 4;
-
-% The power frequency filter filters the fundamental mode and some of the
-% harmonics of the power line frequency. Mode count should be 2-3 typically.
-power_freq = 60.0;
-power_filter_modes = 2;
-
-% The LFP signal is low-pass-filtered and downsampled. Typical features are
-% in the range of 2 Hz to 200 Hz.
-% The DC component should have been removed in an earlier step.
-lfp_corner = 300;
-lfp_rate = 2000;
-
-% The spike signal is high-pass-filtered. Typical features have a time scale
-% of 1 ms or less, but there's often a broad tail lasting several ms.
-spike_corner = 100;
-
-% The rectified signal is a measure of spiking activity. The signal is
-% band-pass filtered, then rectified (absolute value), then low-pass filtered
-% at a frequency well below the lower corner, then downsampled.
-rect_corners = [ 1000 3000 ];
-rect_lowpass = 500;
-rect_rate = 2000;
-
-% Patterns that various channel names match.
-% See "ft_channelselection" for special names. Use "*" as a wildcard.
-name_patterns_record = { 'Amp*', 'CH*' };
-name_patterns_digital = { 'Din*', 'Dout*', 'DigBits*', 'DigWords*' };
-name_patterns_stim_current = { 'Stim*' };
-name_patterns_stim_flags = { 'Flags*' };
-
-
-% Which datasets to use.
-
-% Native Intan.
-want_intan_monolithic = false;
-want_intan_pertype = false;
-want_intan_perchan = false;  % Early tungsten datasets used this.
-
-% Native Open Ephys.
-want_openephys_monolithic = false;  % This is what we're using for silicon.
-want_openephys_perchan = false;
-
-% Converted Intan.
-want_intan_plexon = false;
-% Need "want_intan_plexon" as well for this.
-want_intan_plexon_nex5 = false;
-
-% Converted Open Ephys.
-want_openephys_plexon = false;
-
-% Big datasets.
-want_big_tungsten = false;
-want_big_silicon = true;
-
-
-% Which types of data to read.
-% We usually want all data; this lets us turn off elements for testing.
-want_data_ephys = false;
-want_data_ttl = false;
-want_data_stim = false;
-want_data_events = true;
-
-
-
-% Various debugging tests.
-
-% FIXME - No debugging switches for now.
-
-
-
-%
 % Paths.
 
 % First step: Add the library root folders.
@@ -128,672 +26,435 @@ evalc('ft_defaults');
 
 
 %
-% Set up our data processing cases so that we don't keep duplicating code.
+% Load configuration parameters.
 
-datacases = struct([]);
+do_test_config;
 
-if want_intan_monolithic
-  srcdir = [ 'datasets-intan', filesep, 'MonolithicIntan_format' ];
-  thiscase = struct( ...
-    'title', 'Intan Monolithic', 'label', 'intanmono', ...
-    'recfile', [ srcdir, filesep, 'record_211206_171502.rhd' ], ...
-    'stimfile', [ srcdir, filesep, 'stim_211206_171502.rhs' ], ...
-    'use_looputil', true );
+% This loads dataset information, but we still have to pick a dataset.
+do_test_datasets;
 
-  if isempty(datacases)
-    datacases = thiscase;
-  else
-    datacases(1 + length(datacases)) = thiscase;
-  end
-end
 
-if want_intan_pertype
-  srcdir = [ 'datasets-intan', filesep, 'OneFilePerTypeOfChannel_format' ];
-  thiscase = struct( ...
-    'title', 'Intan Per-Type', 'label', 'intanpertype', ...
-    'recfile', [ srcdir, filesep, 'record_211206_172518' ], ...
-    'stimfile', [ srcdir, filesep, 'stim_211206_172519' ], ...
-    'use_looputil', true );
+% Pick the dataset we want to use.
 
-  if isempty(datacases)
-    datacases = thiscase;
-  else
-    datacases(1 + length(datacases)) = thiscase;
-  end
-end
+thisdataset = dataset_big_silicon;
 
-if want_intan_perchan
-  srcdir = [ 'datasets-intan', filesep, 'OneFilePerChannel_format' ];
-  thiscase = struct( ...
-    'title', 'Intan Per-Channel', 'label', 'intanperchan', ...
-    'recfile', [ srcdir, filesep, 'record_211206_172734' ], ...
-    'stimfile', [ srcdir, filesep, 'stim_211206_172734' ], ...
-    'use_looputil', true );
-
-  % Add "zoom" case.
-  if want_detail_zoom
-    thiscase.timerange = [ 4.0 6.0 ];
-  end
-
-  if isempty(datacases)
-    datacases = thiscase;
-  else
-    datacases(1 + length(datacases)) = thiscase;
-  end
-end
-
-if want_intan_plexon
-  srcdir = [ 'datasets-intan', filesep, 'MonolithicIntan_Plexon' ];
-  thiscase = struct( ...
-    'title', 'Intan (converted to NEX)', 'label', 'intanplexon', ...
-    'recfile', [ srcdir, filesep, 'record_211206_171502.nex' ], ...
-    'stimfile', [ srcdir, filesep, 'stim_211206_171502.nex' ], ...
-    'use_looputil', false );
-  if want_intan_plexon_nex5
-    thiscase.recfile = [ srcdir, filesep, 'record_211206_171502.nex5' ];
-  end
-
-  if isempty(datacases)
-    datacases = thiscase;
-  else
-    datacases(1 + length(datacases)) = thiscase;
-  end
-end
-
-if want_openephys_monolithic
-  srcdir = [ 'datasets-openephys', filesep, ...
-    'OEBinary_IntanStimOneFilePerChannel_format' ];
-  % NOTE - Pointing to directory, not "structure.oebin".
-  thiscase = struct( ...
-    'title', 'Open Ephys Monolithic', 'label', 'openmono', ...
-    'recfile', [ srcdir, filesep, ...
-      '2021-12-17_14-47-00', filesep, 'Record Node 101', filesep, ...
-      'experiment1', filesep, 'recording1' ], ...
-    'stimfile', [ srcdir, filesep, 'stim_211217_144659' ], ...
-    'use_looputil', true );
-
-  % Add "zoom" case.
-  if want_detail_zoom
-    thiscase.timerange = [ 12.0 14.0 ];
-  end
-
-  if isempty(datacases)
-    datacases = thiscase;
-  else
-    datacases(1 + length(datacases)) = thiscase;
-  end
-end
-
-if want_openephys_perchan
-  srcdir = [ 'datasets-openephys', filesep, ...
-    'OEOpenEphys_IntanStimOneFilePerChannel_format' ];
-  thiscase = struct( ...
-    'title', 'Open Ephys Per-Channel', 'label', 'openperchan', ...
-    'recfile', [ srcdir, filesep, ...
-      '2021-12-17_14-47-00', filesep, 'Record Node 101' ], ...
-    'stimfile', [ srcdir, filesep, 'stim_211217_150043' ], ...
-    'use_looputil', true );
-
-  if isempty(datacases)
-    datacases = thiscase;
-  else
-    datacases(1 + length(datacases)) = thiscase;
-  end
-end
-
-if want_openephys_plexon
-  % FIXME - NYI.
-  disp('###  FIXME - Open Ephys Plexon NYI.');
-end
-
-if want_big_tungsten
-  srcdir = [ 'datasets-big', filesep, '20211112-frey-tungsten' ];
-  thiscase = struct( ...
-    'title', '2021 Nov 12 Frey Tungsten', 'label', 'freytungsten', ...
-    'recfile', [ srcdir, filesep, 'record_211112_112922' ], ...
-    'stimfile', [ srcdir, filesep, 'stim_211112_112924' ], ...
-    'unityfile', [ srcdir, filesep, 'Session4__12_11_2021__11_29_57', ...
-      filesep, 'RuntimeData' ], ...
-    'use_looputil', true );
-
-  % Add "zoom" cases.
-  if want_crop_big
-    % The full trace is about 5800 seconds long (1.6h).
-%    crop_start = 1000.0;
-    crop_start = 2000.0;
-%    crop_start = 3000.0;
-    thiscase.timerange = [ crop_start (crop_start + crop_window_seconds) ];
-  end
-  if want_detail_zoom
-% FIXME - Detail zoom for Frey tungsten NYI.
-  end
-
-  if isempty(datacases)
-    datacases = thiscase;
-  else
-    datacases(1 + length(datacases)) = thiscase;
-  end
-end
-
-if want_big_silicon
-  srcdir = [ 'datasets-big', filesep, '20211111-frey-silicon' ];
-  % NOTE - Pointing to directory, not "structure.oebin".
-  thiscase = struct( ...
-    'title', '2021 Nov 11 Frey Silicon', 'label', 'freysilicon', ...
-    'recfile', [ srcdir, filesep, ...
-      '2021-11-11_12-08-33', filesep, 'Record Node 101', filesep, ...
-      'experiment2', filesep, 'recording1' ], ...
-    'stimfile', [ srcdir, filesep, 'stim_211111_121220' ], ...
-    'unityfile', [ srcdir, filesep, 'Session3__11_11_2021__12_12_49', ...
-      filesep, 'RuntimeData' ], ...
-    'use_looputil', true );
-
-  % Add "zoom" cases.
-  if want_crop_big
-    % The full trace is about 4300 seconds long (1.2h).
-%    crop_start = 1000.0;
-    crop_start = 2000.0;
-%    crop_start = 3000.0;
-    thiscase.timerange = [ crop_start (crop_start + crop_window_seconds) ];
-  end
-  if want_detail_zoom
-% FIXME - Detail zoom for Frey silicon NYI.
-  end
-
-  % Add "only a few channels" case.
-  % FIXME - Need to prune floating channels even without this!
-  if want_chan_subset
-    % Filter analog channels on the recorder.
-    thiscase.channels_rec = { 'CH_001', 'CH_030', 'CH_070', 'CH_110' };
-  end
-
-  if isempty(datacases)
-    datacases = thiscase;
-  else
-    datacases(1 + length(datacases)) = thiscase;
-  end
-end
 
 
 %
-% Do setup.
+% Initial setup.
 
+
+% Set the number of channels we want in memory at any given time.
 nlFT_setMemChans(memchans);
 
 
-%
-% Iterate through the datasets we're dealing with.
-
-
-% NOTE - Turn off FT notification messages. Otherwise they get spammy.
+% Turn off FT notification messages. Otherwise they get spammy.
 ft_notice('off');
 ft_info('off');
 
-
-for didx = 1:length(datacases)
-
-  % Get this case's metadata.
-  thiscase = datacases(didx);
-
+% FIXME - Suppress warnings too.
+% Among other things, when preprocessing the auto-generated configs have
+% deprecated fields that generate lots of warnings.
+ft_warning('off');
 
 
-  % Get rid of figures that are still open.
-  close all;
+
+%
+% Read the dataset using ft_preprocessing().
 
 
-  % Clear any data that's still in memory from the previous dataset.
+% NOTE - Field Trip will throw an exception if this fails. Wrap this to
+% catch exceptions.
 
-  % Headers, for channel information.
-  clear rechdr stimhdr;
+is_ok = true;
+try
 
-  % Aggregated data. TTL and bit-vector data is converted to double.
-  clear recdata stimdata;
+  % Read the headers. This gives us the channel lists.
 
-  % Just the ephys channels.
-  clear recdata_rec stimdata_rec;
-
-  % Just the stimulation channels.
-  % We have events when there's nonzero current, or when flags change.
-  clear stimdata_current stimdata_flags;
-  clear stimevents_current stimevents_flags;
-
-  % Just the digital channels and digital events.
-  clear recdata_dig stimdata_dig;
-  clear recevents_dig stimevents_dig;
+  if thisdataset.use_looputil
+    rechdr = ft_read_header( thisdataset.recfile, ...
+      'headerformat', 'nlFT_readHeader' );
+    stimhdr = ft_read_header( thisdataset.stimfile, ...
+      'headerformat', 'nlFT_readHeader' );
+  else
+    rechdr = ft_read_header( thisdataset.recfile );
+    stimhdr = ft_read_header( thisdataset.stimfile );
+  end
 
 
-  %
-  % Read the datasets using ft_preprocessing().
+  % Get the names of the types of channels we want.
 
+  % FIXME - Blithely assuming that we can fit digital I/O channels in RAM.
+  % FIXME - Not filtering stimulation current or flag data for now.
 
-  % NOTE - Field Trip will throw an exception if this fails. Wrap this to
-  % catch exceptions.
-
-  % Also temporarily suppress warnings.
-  ft_warning('off');
-
-  is_ok = true;
-  try
-
-    % Read the headers. This gives us the channel lists.
-
-    if thiscase.use_looputil
-      rechdr = ft_read_header( thiscase.recfile, ...
-        'headerformat', 'nlFT_readHeader' );
-      stimhdr = ft_read_header( thiscase.stimfile, ...
-        'headerformat', 'nlFT_readHeader' );
-    else
-      rechdr = ft_read_header( thiscase.recfile );
-      stimhdr = ft_read_header( thiscase.stimfile );
-    end
-
-
-    % Get the names of the types of channels we want.
-
-    % FIXME - Blithely assuming that we can fit digital I/O channels in RAM.
-    % FIXME - Not filtering stimulation current or flag data for now.
-
+  rec_channels_record = ...
+    ft_channelselection( name_patterns_record, rechdr.label, {} );
+  if isfield( thisdataset, 'channels_rec' )
     rec_channels_record = ...
-      ft_channelselection( name_patterns_record, rechdr.label, {} );
-    if isfield( thiscase, 'channels_rec' )
-      rec_channels_record = ...
-        ft_channelselection( thiscase.channels_rec, rechdr.label, {} );
-    end
-    rec_channels_digital = ...
-      ft_channelselection( name_patterns_digital, rechdr.label, {} );
+      ft_channelselection( thisdataset.channels_rec, rechdr.label, {} );
+  end
+  rec_channels_digital = ...
+    ft_channelselection( name_patterns_digital, rechdr.label, {} );
 
+  stim_channels_record = ...
+    ft_channelselection( name_patterns_record, stimhdr.label, {} );
+  if isfield( thisdataset, 'channels_stim' )
     stim_channels_record = ...
-      ft_channelselection( name_patterns_record, stimhdr.label, {} );
-    if isfield( thiscase, 'channels_stim' )
-      stim_channels_record = ...
-        ft_channelselection( thiscase.channels_stim, stimhdr.label, {} );
-    end
-    stim_channels_digital = ...
-      ft_channelselection( name_patterns_digital, stimhdr.label, {} );
+      ft_channelselection( thisdataset.channels_stim, stimhdr.label, {} );
+  end
+  stim_channels_digital = ...
+    ft_channelselection( name_patterns_digital, stimhdr.label, {} );
 
-    stim_channels_current = ...
-      ft_channelselection( name_patterns_stim_current, stimhdr.label, {} );
-    stim_channels_flags = ...
-      ft_channelselection( name_patterns_stim_flags, stimhdr.label, {} );
+  stim_channels_current = ...
+    ft_channelselection( name_patterns_stim_current, stimhdr.label, {} );
+  stim_channels_flags = ...
+    ft_channelselection( name_patterns_stim_flags, stimhdr.label, {} );
 
 
-    % Suppress data types we don't want.
+  % Suppress data types we don't want.
 
-    if ~want_data_ephys
-      rec_channels_record = {};
-      stim_channels_record = {};
-    end
+  if ~want_data_ephys
+    rec_channels_record = {};
+    stim_channels_record = {};
+  end
 
-    if ~want_data_ttl
-      rec_channels_digital = {};
-      stim_channels_digital = {};
-    end
+  if ~want_data_ttl
+    rec_channels_digital = {};
+    stim_channels_digital = {};
+  end
 
-    if ~want_data_stim
-      stim_channels_current = {};
-      stim_channels_flags = {};
-    end
-
-
-    % FIXME - Passing an empty channel list to ft_preprocessing results in
-    % all channels being read. Modify these to contain a bogus name instead.
-
-    % FIXME - ft_preprocessing throws an exception if it didn't read data.
-    % Instead, just skip reading a given element if there are no channels.
+  if ~want_data_stim
+    stim_channels_current = {};
+    stim_channels_flags = {};
+  end
 
 
-    % Read this dataset.
+  % FIXME - Passing an empty channel list to ft_preprocessing results in
+  % all channels being read. Modify these to contain a bogus name instead.
 
-    % NOTE - We're reading several different types of signal separately.
-    % For each call to ft_preprocessing, we have to build a configuration
-    % structure specifying what we want to read.
-    % The only part that changes is "channel" (the channel name list).
-
-    preproc_config_rec = struct( ...
-      'datafile', thiscase.recfile, 'headerfile', thiscase.recfile );
-    preproc_config_stim = struct( ...
-      'datafile', thiscase.stimfile, 'headerfile', thiscase.stimfile );
-
-    if thiscase.use_looputil
-      % NOTE - Promoting everything to double-precision floating-point.
-
-      preproc_config_rec.headerformat = 'nlFT_readHeader';
-      preproc_config_rec.dataformat = 'nlFT_readDataDouble';
-
-      preproc_config_stim.headerformat = 'nlFT_readHeader';
-      preproc_config_stim.dataformat = 'nlFT_readDataDouble';
-    end
-
-    if isfield(thiscase, 'timerange')
-
-      % Define a single trial to get windowed continuous data.
-      % FIXME - Not aligning the recorder and stimulator!
-
-      disp(sprintf( '.. Windowing to %.1f - %.1f seconds.', ...
-        min(thiscase.timerange), max(thiscase.timerange) ));
+  % FIXME - ft_preprocessing throws an exception if it didn't read data.
+  % Instead, just skip reading a given element if there are no channels.
 
 
-      firstsamp = round( min(thiscase.timerange) * rechdr.Fs );
-      firstsamp = min(firstsamp, rechdr.nSamples);
-      firstsamp = max(firstsamp, 1);
+  % Read this dataset.
 
-      lastsamp = round ( max(thiscase.timerange) * rechdr.Fs );
-      lastsamp = min(lastsamp, rechdr.nSamples);
-      lastsamp = max(lastsamp, 1);
+  % NOTE - We're reading several different types of signal separately.
+  % For each call to ft_preprocessing, we have to build a configuration
+  % structure specifying what we want to read.
+  % The only part that changes is "channel" (the channel name list).
 
-      preproc_config_rec.trl = [ firstsamp lastsamp 0 ];
+  preproc_config_rec = struct( ...
+    'datafile', thisdataset.recfile, 'headerfile', thisdataset.recfile );
+  preproc_config_stim = struct( ...
+    'datafile', thisdataset.stimfile, 'headerfile', thisdataset.stimfile );
 
+  if thisdataset.use_looputil
+    % NOTE - Promoting everything to double-precision floating-point.
+    % It might be better to keep TTL signals in native format.
 
-      firstsamp = round( min(thiscase.timerange) * stimhdr.Fs );
-      firstsamp = min(firstsamp, stimhdr.nSamples);
-      firstsamp = max(firstsamp, 1);
+    preproc_config_rec.headerformat = 'nlFT_readHeader';
+    preproc_config_rec.dataformat = 'nlFT_readDataDouble';
 
-      lastsamp = round ( max(thiscase.timerange) * stimhdr.Fs );
-      lastsamp = min(lastsamp, stimhdr.nSamples);
-      lastsamp = max(lastsamp, 1);
+    preproc_config_stim.headerformat = 'nlFT_readHeader';
+    preproc_config_stim.dataformat = 'nlFT_readDataDouble';
+  end
 
-      preproc_config_stim.trl = [ firstsamp lastsamp 0 ];
+  if isfield(thisdataset, 'timerange')
 
-    end
+    % Define a single trial to get windowed continuous data.
+    % FIXME - Not aligning the recorder and stimulator!
 
-
-    % Banner.
-    disp(sprintf('== Reading "%s".', thiscase.title));
-
-
-    disp('-- Reading ephys amplifier data.');
-    tic();
-
-    % NOTE - Reading as double. This will be big!
-
-    if isempty(rec_channels_record)
-      disp('.. Skipping recorder (no channels selected).');
-    else
-      preproc_config_rec.channel = rec_channels_record;
-      recdata_rec = ft_preprocessing(preproc_config_rec);
-    end
-
-    if isempty(stim_channels_record)
-      disp('.. Skipping stimulator (no channels selected).');
-    else
-      preproc_config_stim.channel = stim_channels_record;
-      stimdata_rec = ft_preprocessing(preproc_config_stim);
-    end
-
-    thisduration = helper_makePrettyTime(toc());
-    disp(sprintf( '.. Read in %s.', thisduration ));
+    disp(sprintf( '.. Windowing to %.1f - %.1f seconds.', ...
+      min(thisdataset.timerange), max(thisdataset.timerange) ));
 
 
-    disp('-- Reading digital data.');
-    tic();
+    firstsamp = round( min(thisdataset.timerange) * rechdr.Fs );
+    firstsamp = min(firstsamp, rechdr.nSamples);
+    firstsamp = max(firstsamp, 1);
 
-    if isempty(rec_channels_digital)
-      disp('.. Skipping recorder (no channels selected).');
-    else
-      preproc_config_rec.channel = rec_channels_digital;
-      recdata_dig = ft_preprocessing(preproc_config_rec);
-    end
+    lastsamp = round ( max(thisdataset.timerange) * rechdr.Fs );
+    lastsamp = min(lastsamp, rechdr.nSamples);
+    lastsamp = max(lastsamp, 1);
 
-    if isempty(stim_channels_digital)
-      disp('.. Skipping stimulator (no channels selected).');
-    else
-      preproc_config_stim.channel = stim_channels_digital;
-      stimdata_dig = ft_preprocessing(preproc_config_stim);
-    end
-
-    thisduration = helper_makePrettyTime(toc());
-    disp(sprintf( '.. Read in %s.', thisduration ));
+    preproc_config_rec.trl = [ firstsamp lastsamp 0 ];
 
 
-    disp('-- Reading digital events.');
-    tic();
+    firstsamp = round( min(thisdataset.timerange) * stimhdr.Fs );
+    firstsamp = min(firstsamp, stimhdr.nSamples);
+    firstsamp = max(firstsamp, 1);
 
-    if ~want_data_events
-      disp('.. Skipping events.');
-    else
-      % FIXME - Glom everything using my internal hook instead of FT's hook.
-      recevents_dig = nlFT_readAllEvents(thiscase.recfile, false);
-      stimevents_dig = nlFT_readAllEvents(thiscase.stimfile, true);
+    lastsamp = round ( max(thisdataset.timerange) * stimhdr.Fs );
+    lastsamp = min(lastsamp, stimhdr.nSamples);
+    lastsamp = max(lastsamp, 1);
+
+    preproc_config_stim.trl = [ firstsamp lastsamp 0 ];
+
+  end
+
+
+  % Banner.
+  disp(sprintf('== Reading "%s".', thisdataset.title));
+
+
+  disp('-- Reading ephys amplifier data.');
+  tic();
+
+  % NOTE - Reading as double. This will be big!
+
+  have_recdata_rec = false;
+  if isempty(rec_channels_record)
+    disp('.. Skipping recorder (no channels selected).');
+  else
+    preproc_config_rec.channel = rec_channels_record;
+    recdata_rec = ft_preprocessing(preproc_config_rec);
+    have_recdata_rec = true;
+  end
+
+  have_stimdata_rec = false;
+  if isempty(stim_channels_record)
+    disp('.. Skipping stimulator (no channels selected).');
+  else
+    preproc_config_stim.channel = stim_channels_record;
+    stimdata_rec = ft_preprocessing(preproc_config_stim);
+    have_stimdata_rec = true;
+  end
+
+  thisduration = euUtil_makePrettyTime(toc());
+  disp(sprintf( '.. Read in %s.', thisduration ));
+
+
+  disp('-- Reading digital data.');
+  tic();
+
+  have_recdata_dig = false;
+  if isempty(rec_channels_digital)
+    disp('.. Skipping recorder (no channels selected).');
+  else
+    preproc_config_rec.channel = rec_channels_digital;
+    recdata_dig = ft_preprocessing(preproc_config_rec);
+    have_recdata_dig = true;
+  end
+
+  have_stimdata_dig = false;
+  if isempty(stim_channels_digital)
+    disp('.. Skipping stimulator (no channels selected).');
+  else
+    preproc_config_stim.channel = stim_channels_digital;
+    stimdata_dig = ft_preprocessing(preproc_config_stim);
+    have_stimdata_dig = true;
+  end
+
+  thisduration = euUtil_makePrettyTime(toc());
+  disp(sprintf( '.. Read in %s.', thisduration ));
+
+
+  disp('-- Reading digital events.');
+  tic();
+
+  have_recevents_dig = false;
+  have_stimevents_dig = false;
+  if ~want_data_events
+    disp('.. Skipping events.');
+  else
+    % FIXME - Glom everything using my internal hook instead of FT's hook.
+    recevents_dig = nlFT_readAllEvents(thisdataset.recfile, false);
+    stimevents_dig = nlFT_readAllEvents(thisdataset.stimfile, true);
+    have_recevents_dig = true;
+    have_stimevents_dig = true;
 % FIXME - Events NYI.
-    end
-
-    thisduration = helper_makePrettyTime(toc());
-    disp(sprintf( '.. Read in %s.', thisduration ));
-
-
-    disp('-- Reading stimulation data.');
-    tic();
-
-    if isempty(stim_channels_current)
-      disp('.. Skipping stimulation current (no channels selected).');
-    else
-      preproc_config_stim.channel = stim_channels_current;
-      stimdata_current = ft_preprocessing(preproc_config_stim);
-    end
-
-    % NOTE - Reading flag as double. We can still perform bitwise operations
-    % on them.
-    if isempty(stim_channels_flags)
-      disp('.. Skipping stimulation flags (no channels selected).');
-    else
-      preproc_config_stim.channel = stim_channels_flags;
-      stimdata_flags = ft_preprocessing(preproc_config_stim);
-    end
-
-    thisduration = helper_makePrettyTime(toc());
-    disp(sprintf( '.. Read in %s.', thisduration ));
-
-
-    % Done.
-    disp(sprintf('== Finished reading "%s".', thiscase.title));
-
-  catch errordetails
-    is_ok = false;
-    disp(sprintf( ...
-      '###  Exception thrown while reading "%s".', thiscase.title));
-    disp(sprintf('Message: "%s"', errordetails.message));
   end
 
-  % Re-enable warnings.
-  ft_warning('on');
+  thisduration = euUtil_makePrettyTime(toc());
+  disp(sprintf( '.. Read in %s.', thisduration ));
 
-  % If we had an error, bail out and move to the next dataset.
-  if ~is_ok
-    disp(sprintf( '..  Aborting processing of "%s".', thiscase.title ));
-    continue;
+
+  disp('-- Reading stimulation data.');
+  tic();
+
+  have_stimdata_current = false;
+  if isempty(stim_channels_current)
+    disp('.. Skipping stimulation current (no channels selected).');
+  else
+    preproc_config_stim.channel = stim_channels_current;
+    stimdata_current = ft_preprocessing(preproc_config_stim);
+    have_stimdata_current = true;
   end
 
+  % NOTE - Reading flags as double. We can still perform bitwise operations
+  % on them.
+  have_stimdata_flags = false;
+  if isempty(stim_channels_flags)
+    disp('.. Skipping stimulation flags (no channels selected).');
+  else
+    preproc_config_stim.channel = stim_channels_flags;
+    stimdata_flags = ft_preprocessing(preproc_config_stim);
+    have_stimdata_flags = true;
+  end
+
+  thisduration = euUtil_makePrettyTime(toc());
+  disp(sprintf( '.. Read in %s.', thisduration ));
+
+
+  % Done.
+  disp(sprintf('== Finished reading "%s".', thisdataset.title));
+
+
+catch errordetails
+  is_ok = false;
+  disp(sprintf( ...
+    '###  Exception thrown while reading "%s".', thisdataset.title));
+  disp(sprintf('Message: "%s"', errordetails.message));
+end
+
+
+
+%
+% Filter the continuous ephys data.
+
+
+% FIXME - Just dealing with recorder channels, not stimulator channels.
+% To aggregate both, we'd need to do artifact removal and notch filtering
+% and re-referencing on both, then do time alignment.
+% After that, we can use ft_appenddata().
+
+have_analog = false;
+
+if is_ok && have_recdata_rec
+
+  have_analog = true;
+
+  % Power-line filtering.
+
+  filt_power = euFT_getFiltPowerLong(power_freq, power_filter_modes);
+  if want_power_filter_thilo
+    filt_power = euFT_getFiltPowerTW(power_freq, power_filter_modes);
+  end
+
+  disp('.. Removing power-line noise.');
+  tic();
+  recdata_rec = ft_preprocessing(filt_power, recdata_rec);
+  thisduration = euUtil_makePrettyTime(toc());
+  disp(sprintf( '.. Power line noise removed in %s.', thisduration ));
+
+
+  % Artifact removal.
+
+  % FIXME - NYI.
+  disp('###  Artifact removal NYI!');
+
+
+  % Re-referencing.
+
+  % FIXME - NYI.
+  disp('###  Rereferencing NYI!');
+
+
+  % De-trending.
+
+  % FIXME - NYI.
+  disp('###  De-trending NYI!');
 
 
   %
-  % Filter the continuous ephys data.
+  % Get spike and LFP and rectified waveforms.
 
 
-  % FIXME - Just dealing with recorder channels, not stimulator channels.
-  % To aggregate both, we'd need to do artifact removal and notch filtering
-  % and re-referencing on both, then do time alignment.
-  % After that, we can use ft_appenddata().
+  % Copy the wideband signals.
 
-  have_analog = false;
-
-  if exist('recdata_rec', 'var')
-
-    have_analog = true;
-
-    % Power-line filtering.
-
-    filt_power = euFT_getFiltPowerLong(power_freq, power_filter_modes);
-    if want_power_filter_thilo
-      filt_power = euFT_getFiltPowerTW(power_freq, power_filter_modes);
-    end
-
-    disp('.. Removing power-line noise.');
-    tic();
-    recdata_rec = ft_preprocessing(filt_power, recdata_rec);
-    thisduration = helper_makePrettyTime(toc());
-    disp(sprintf( '.. Power line noise removed in %s.', thisduration ));
+  % FIXME - We should append stimulator data to this!
+  data_wideband = recdata_rec;
 
 
-    % Artifact removal.
+  % Produce LFP signals.
 
-    % FIXME - NYI.
-    disp('###  Artifact removal NYI!');
+  filtconfig = ...
+    struct( 'lpfilter', 'yes', 'lpfilttype', 'but', 'lpfreq', lfp_corner );
+  resampleconfig = struct( 'resamplefs', lfp_rate, 'detrend', 'no' );
 
-
-    % Re-referencing.
-
-    % FIXME - NYI.
-    disp('###  Rereferencing NYI!');
-
-
-    % De-trending.
-
-    % FIXME - NYI.
-    disp('###  De-trending NYI!');
+  disp('.. Generating LFP data series.');
+  tic();
+  data_lfp = ft_preprocessing(filtconfig, data_wideband);
+  data_lfp = ft_resampledata(resampleconfig, data_lfp);
+  thisduration = euUtil_makePrettyTime(toc());
+  disp(sprintf( '.. LFP series generated in %s.', thisduration ));
 
 
-    %
-    % Get spike and LFP and rectified waveforms.
+  % Produce spike signals.
+
+  filtconfig = struct( ...
+    'hpfilter', 'yes', 'hpfilttype', 'but', 'hpfreq', spike_corner );
+
+  disp('.. Generating spike data series.');
+  tic();
+  data_spike = ft_preprocessing(filtconfig, data_wideband);
+  thisduration = euUtil_makePrettyTime(toc());
+  disp(sprintf( '.. Spike series generated in %s.', thisduration ));
 
 
-    % Copy the wideband signals.
+  % Produce rectified activity signal.
 
-    % FIXME - We should append stimulator data to this!
-    data_wideband = recdata_rec;
+  filtconfigband = struct( 'bpfilter', 'yes', 'bpfilttype', 'but', ...
+    'bpfreq', [ min(rect_corners), max(rect_corners) ] );
+  rectconfig = struct('rectify', 'yes');
+  filtconfiglow = struct( ...
+    'lpfilter', 'yes', 'lpfilttype', 'but', 'lpfreq', rect_lowpass );
+  resampleconfig = struct( 'resamplefs', rect_rate, 'detrend', 'no' );
 
+  disp('.. Generating rectified activity data series.');
+  tic();
 
-    % Produce LFP signals.
+  % FIXME - We can group some of these calls, but that requires detailed
+  % knowledge of the order in which FT applies preprocessing operations.
+  % Do them individually for safety's sake.
 
-    filtconfig = ...
-      struct( 'lpfilter', 'yes', 'lpfilttype', 'but', 'lpfreq', lfp_corner );
-    resampleconfig = struct( 'resamplefs', lfp_rate, 'detrend', 'no' );
+  data_rect = ft_preprocessing(filtconfigband, data_wideband);
+  data_rect = ft_preprocessing(rectconfig, data_rect);
+  data_rect = ft_preprocessing(filtconfiglow, data_rect);
+  data_rect = ft_resampledata(resampleconfig, data_rect);
 
-    disp('.. Generating LFP data series.');
-    tic();
-    data_lfp = ft_preprocessing(filtconfig, data_wideband);
-    data_lfp = ft_resampledata(resampleconfig, data_lfp);
-    thisduration = helper_makePrettyTime(toc());
-    disp(sprintf( '.. LFP series generated in %s.', thisduration ));
-
-
-    % Produce spike signals.
-
-    filtconfig = struct( ...
-      'hpfilter', 'yes', 'hpfilttype', 'but', 'hpfreq', spike_corner );
-
-    disp('.. Generating spike data series.');
-    tic();
-    data_spike = ft_preprocessing(filtconfig, data_wideband);
-    thisduration = helper_makePrettyTime(toc());
-    disp(sprintf( '.. Spike series generated in %s.', thisduration ));
+  thisduration = euUtil_makePrettyTime(toc());
+  disp(sprintf( '.. Rectified series generated in %s.', thisduration ));
 
 
-    % Produce rectified activity signal.
-
-    filtconfigband = struct( 'bpfilter', 'yes', 'bpfilttype', 'but', ...
-      'bpfreq', [ min(rect_corners), max(rect_corners) ] );
-    rectconfig = struct('rectify', 'yes');
-    filtconfiglow = struct( ...
-      'lpfilter', 'yes', 'lpfilttype', 'but', 'lpfreq', rect_lowpass );
-    resampleconfig = struct( 'resamplefs', rect_rate, 'detrend', 'no' );
-
-    disp('.. Generating rectified activity data series.');
-    tic();
-    % FIXME - We can group some of these, but that requires detailed
-    % knowledge of the order in which FT applies preprocessing operations.
-    data_rect = ft_preprocessing(filtconfigband, data_wideband);
-    data_rect = ft_preprocessing(rectconfig, data_rect);
-    data_rect = ft_preprocessing(filtconfiglow, data_rect);
-    data_rect = ft_resampledata(resampleconfig, data_rect);
-    thisduration = helper_makePrettyTime(toc());
-    disp(sprintf( '.. Rectified series generated in %s.', thisduration ));
-
-
-    % Done.
-
-  end
-
-
-  % FIXME - Dataset inspection NYI.
-
-  if want_browser
-    % Suppress warnings. The auto-generated config has deprecated fields.
-    ft_warning('off');
-
-    if have_analog
-      % FIXME - The saved configuration might be re-filtering the data!
-      % It _shouldn't_ be rereading, but it's doing _something_.
-
-      ft_databrowser(data_wideband.cfg, data_wideband);
-      set(gcf(), 'Name', 'Wideband', 'NumberTitle', 'off');
-      ft_databrowser(data_lfp.cfg, data_lfp);
-      set(gcf(), 'Name', 'LFP', 'NumberTitle', 'off');
-      ft_databrowser(data_spike.cfg, data_spike);
-      set(gcf(), 'Name', 'Spikes', 'NumberTitle', 'off');
-      ft_databrowser(data_rect.cfg, data_rect);
-      set(gcf(), 'Name', 'Rectified', 'NumberTitle', 'off');
-    end
-
-    if exist('recdata_dig', 'var')
-      ft_databrowser(recdata_dig.cfg, recdata_dig);
-      set(gcf(), 'Name', 'Recorder TTL', 'NumberTitle', 'off');
-    end
-    if exist('stimdata_dig', 'var')
-      ft_databrowser(stimdata_dig.cfg, stimdata_dig);
-      set(gcf(), 'Name', 'Stimulator TTL', 'NumberTitle', 'off');
-    end
-
-    % Re-enable warnings.
-    ft_warning('on');
-  end
+  % Done.
 
 end
 
 
 
 %
-% Helper functions.
+% Inspect the data.
 
-% This formats a duration (in seconds) in a meaningful human-readable way.
+% FIXME - Just pulling up data browser windows as an interim measure.
 
-function durstring = helper_makePrettyTime(dursecs)
+if want_browser
 
-  durstring = '-bogus-';
+  % Analog data.
 
-  if dursecs < 1e-4
-    durstring = sprintf('%.1e s', dursecs);
-  elseif dursecs < 2e-3
-    durstring = sprintf('%.2f ms', dursecs * 1e3);
-  elseif dursecs < 2e-2
-    durstring = sprintf('%.1f ms', dursecs * 1e3);
-  elseif dursecs < 2e-1
-    durstring = sprintf('%d ms', round(dursecs * 1e3));
-  elseif dursecs < 2
-    durstring = sprintf('%.2f s', dursecs);
-  elseif dursecs < 20
-    durstring = sprintf('%.1f s', dursecs);
-  else
-    % We're in days/hours/minutes/seconds territory.
+  if have_analog
+    % FIXME - The saved configuration might be re-filtering the data!
+    % It _shouldn't_ be rereading, but it's doing _something_.
 
-    dursecs = round(dursecs);
-    scratch = dursecs;
-    dursecs = mod(scratch, 60);
-    scratch = round((scratch - dursecs) / 60);
-    durmins = mod(scratch, 60);
-    scratch = round((scratch - durmins) / 60);
-    durhours = mod(scratch, 24);
-    durdays = round((scratch - durhours) / 24);
+    ft_databrowser(data_wideband.cfg, data_wideband);
+    set(gcf(), 'Name', 'Wideband', 'NumberTitle', 'off');
+    ft_databrowser(data_lfp.cfg, data_lfp);
+    set(gcf(), 'Name', 'LFP', 'NumberTitle', 'off');
+    ft_databrowser(data_spike.cfg, data_spike);
+    set(gcf(), 'Name', 'Spikes', 'NumberTitle', 'off');
+    ft_databrowser(data_rect.cfg, data_rect);
+    set(gcf(), 'Name', 'Rectified', 'NumberTitle', 'off');
+  end
 
-    if durdays > 0
-      durstring = ...
-        sprintf('%dd%dh%dm%ds', durdays, durhours, durmins, dursecs);
-    elseif durhours > 0
-      durstring = sprintf('%dh%dm%ds', durhours, durmins, dursecs);
-    elseif durmins > 0
-      durstring = sprintf('%dm%ds', durmins, dursecs);
-    else
-      durstring = sprintf('%d s', dursecs);
-    end
+
+  % Continuous digital data.
+
+  if have_recdata_dig
+    ft_databrowser(recdata_dig.cfg, recdata_dig);
+    set(gcf(), 'Name', 'Recorder TTL', 'NumberTitle', 'off');
+  end
+  if have_stimdata_dig
+    ft_databrowser(stimdata_dig.cfg, stimdata_dig);
+    set(gcf(), 'Name', 'Stimulator TTL', 'NumberTitle', 'off');
   end
 
 end

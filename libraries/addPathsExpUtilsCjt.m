@@ -20,6 +20,7 @@ fullname = which('addPathsExpUtilsCjt');
 % FIXME - Sort these by category once we have more of them.
 addpath([ thisdir filesep 'lib-evcodes' ]);
 addpath([ thisdir filesep 'lib-exputils-ft' ]);
+addpath([ thisdir filesep 'lib-exputils-util' ]);
 
 
 % Done.
