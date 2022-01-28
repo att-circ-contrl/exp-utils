@@ -1,7 +1,7 @@
-function [ cookedcodes cookedindices ] = evCodes_reassembleCodes( ...
+function [ cookedcodes cookedindices ] = euUSE_reassembleEventCodes( ...
   rawcodes, codedefs, codebytes, codeendian )
 
-% function [ cookedcodes cookedindices ] = evCodes_reassembleCodes( ...
+% function [ cookedcodes cookedindices ] = euUSE_reassembleEventCodes( ...
 %   rawcodes, codedefs, codebytes, codeendian )
 %
 % This translates a data table containing raw (byte) event codes into a
@@ -63,7 +63,7 @@ if ~isempty(rawcodes)
       thiscode = rawbytes(sidx:(sidx + codebytes - 1));
       thisword = helper_translateCode(thiscode, codeendian);
 
-      [ thisdata thislabel ] = evCodes_lookUpCode(thisword, codedefs);
+      [ thisdata thislabel ] = euUSE_lookUpEventCode(thisword, codedefs);
 
       % If this wasn't recognized, increment the bad bytes count.
       if isempty(thislabel)

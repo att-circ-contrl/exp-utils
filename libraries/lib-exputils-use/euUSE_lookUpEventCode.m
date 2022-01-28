@@ -1,6 +1,6 @@
-function [ codedata codelabel ] = evCodes_loopUpCode( codeword, codedefs)
+function [ codedata codelabel ] = euUSE_loopUpEventCode( codeword, codedefs)
 
-% function [ codedata codelabel ] = evCodes_loopUpCode( codeword, codedefs)
+% function [ codedata codelabel ] = euUSE_loopUpEventCode( codeword, codedefs)
 %
 % This function looks up the event code definition for a specified code word.
 % The translated event code data value, if applicable, is generated.

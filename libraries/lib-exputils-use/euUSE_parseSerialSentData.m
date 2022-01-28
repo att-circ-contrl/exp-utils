@@ -1,8 +1,8 @@
 function [ evrwdA evrwdB evcodes ] = ...
-  evCodes_parseSerialSentData( serialdata, codeformat )
+  euUSE_parseSerialSentData( serialdata, codeformat )
 
 % function [ evrwdA evrwdB evcodes ] = ...
-%   evCodes_parseSerialSentData( serialdata, codeformat )
+%   euUSE_parseSerialSentData( serialdata, codeformat )
 %
 % This function parses a "serialData" structure, read from the "SerialData.mat"
 % file produced by the USE processing scripts.

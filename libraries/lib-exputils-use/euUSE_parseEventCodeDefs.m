@@ -1,6 +1,6 @@
-function cookeddefs = evCodes_parseEventCodeDefs( rawdefs, overrides )
+function cookeddefs = euUSE_parseEventCodeDefs( rawdefs, overrides )
 
-% function cookeddefs = evCodes_parseEventCodeDefs( rawdefs, overrides )
+% function cookeddefs = euUSE_parseEventCodeDefs( rawdefs, overrides )
 %
 % This parses raw event code definitions (as given by "jsondecode") and
 % builds a structure containing processed event definitions.

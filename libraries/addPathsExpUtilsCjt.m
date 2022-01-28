@@ -17,9 +17,9 @@ fullname = which('addPathsExpUtilsCjt');
 % Add the new paths.
 % (This checks for duplicates, so we don't have to.)
 
-% FIXME - Sort these by category once we have more of them.
-addpath([ thisdir filesep 'lib-evcodes' ]);
+addpath([ thisdir filesep 'lib-exputils-align' ]);
 addpath([ thisdir filesep 'lib-exputils-ft' ]);
+addpath([ thisdir filesep 'lib-exputils-use' ]);
 addpath([ thisdir filesep 'lib-exputils-util' ]);
 
 
