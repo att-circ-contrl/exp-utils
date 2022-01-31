@@ -201,16 +201,21 @@ disp('-- Loading TTL events...');
 % FIXME - Suppress NPy warnings.
 warnstate = warning('off');
 
+
 % The header gives us the sampling rate.
 rechdr = ...
   ft_read_header(folder_ephysbinary, 'headerformat', 'nlFT_readHeader');
 
-% Select the "all bits as one word" channel and read it as an event list.
-nlFT_selectOneFTChannel('DigWordsA_000');
+% This reads all events.
 recevents_dig = ...
   ft_read_event( folder_ephysbinary, 'headerformat', 'nlFT_readHeader', ...
     'eventformat', 'nlFT_readEvents' );
-nlFT_selectAllChannels();
+
+% We only care about events from the 'DigWordsA_000' channel.
+evchans = { recevents_dig.type };
+evmask = strcmp(evchans, 'DigWordsA_000');
+recevents_dig = recevents_dig(evmask);
+
 
 % FIXME - Restore warnings.
 warning(warnstate);
