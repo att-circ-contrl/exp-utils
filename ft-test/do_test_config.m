@@ -24,9 +24,16 @@ want_detail_zoom = false;
 want_chan_subset = true;
 
 
-% Bring up the GUI data browser after processing.
+% Turn on and off various processing steps.
 
-want_browser = true;
+% Try to automatically label ephys channels as good/bad/floating/etc.
+want_auto_channel_types = false;
+
+% Process continuous data before segmenting.
+want_monolithic = false;
+
+% Bring up the GUI data browser after processing.
+want_browser = false;
 
 
 
@@ -35,14 +42,38 @@ want_browser = true;
 % You usually won't want to edit these.
 
 
+% Automatic channel classification.
+
+% Analysis window duration in seconds for automatically testing for good/bad
+% channels.
+classify_window_seconds = 30;
+
+% Anything with a range of this many bits or lower is flagged as quantized.
+quantization_bits = 8;
+
+% Anything with a smoothed rectified signal amplitude this far above or
+% below the median is flagged as an artifact or drop-out, respectively, for
+% classification purposes.
+artifact_rect_threshold = 5;
+dropout_rect_threshold = 0.3;
+
+% Approximate duration of artifacts and dropouts, in seconds.
+% This should be at least 5x longer than spike durations.
+% Anything within a factor of 2-3 of this will get recognized, at minimum.
+artifact_dropout_time = 0.02;
+
+% Channels with more than this fraction of artifacts or dropouts are flagged
+% as bad.
+artifact_bad_frac = 0.01;
+dropout_bad_frac = 0.01;
+
+
+% Analog signal filtering.
+
 % Use Thilo's comb-style DFT power filter instead of the time-domain one.
 % This might introduce numerical noise in very long continuous data, but it's
 % much faster than time-domain FIR filtering.
 want_power_filter_thilo = true;
-
-% The number of channels to load into memory at one time, when loading.
-% This takes up at least 1 GB per channel-hour.
-memchans = 4;
 
 % The power frequency filter filters the fundamental mode and some of the
 % harmonics of the power line frequency. Mode count should be 2-3 typically.
@@ -66,13 +97,19 @@ rect_corners = [ 1000 3000 ];
 rect_lowpass = 500;
 rect_rate = 2000;
 
+
+% File I/O.
+
+% The number of channels to load into memory at one time, when loading.
+% This takes up at least 1 GB per channel-hour.
+memchans = 4;
+
 % Patterns that various channel names match.
 % See "ft_channelselection" for special names. Use "*" as a wildcard.
 name_patterns_record = { 'Amp*', 'CH*' };
 name_patterns_digital = { 'Din*', 'Dout*', 'DigBits*', 'DigWords*' };
 name_patterns_stim_current = { 'Stim*' };
 name_patterns_stim_flags = { 'Flags*' };
-
 
 % Which types of data to read.
 % We usually want all data; this lets us turn off elements for testing.

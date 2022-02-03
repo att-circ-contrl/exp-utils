@@ -1,0 +1,23 @@
+Files that we read from USE, as of 03 Feb 2022:
+
+
+The "RuntimeData" folder has files of interest in the following subfolders:
+
+- "SerialSent" has messages sent from USE to the SynchBox, with Unity
+  timestamps. These are per-trial plus a startup file.
+- "SerialRecv" has messages sent from the SynchBox to USE, with both
+  Unity and SynchBox timestamps. These are per-trial plus a startup file.
+- "GazeData" has eye-tracker data in TSV format. These are per-trial.
+
+NOTE - Trial files are stored as "_N.txt", "_NN.txt", etc; either use the
+third-party "sort_nat" to sort them, or sort data based on timestamps.
+
+
+The "ProcessedData" folder has ".mat" files with data tables:
+
+- "SerialData.mat" has SerialSentData and SerialRecvData tables.
+- "RawGazeData" has the gaze data.
+
+
+The "use/USE_Analysis" scripts on GitHub are used for converting raw into
+processed data.

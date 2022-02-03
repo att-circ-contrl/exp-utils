@@ -37,7 +37,8 @@ want_remove_unmatched = false;
 
 
 % Verbosity levels are 'quiet', 'normal', and 'verbose'.
-verbosity_codes = 'normal';
+%verbosity_codes = 'normal';
+verbosity_codes = 'verbose';
 verbosity_align = 'normal';
 
 % Canonical event code source.
