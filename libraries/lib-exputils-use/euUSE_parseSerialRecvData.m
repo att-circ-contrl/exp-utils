@@ -1,18 +1,20 @@
 function [ evsynchA evsynchB evrwdA evrwdB evcodes ] = ...
-  euUSE_parseSerialRecvData( serialdata, codeformat )
+  euUSE_parseSerialRecvData( serialrecvdata, codeformat )
 
 % function [ evsynchA evsynchB evrwdA evrwdB evcodes ] = ...
-%   euUSE_parseSerialRecvData( serialdata, codeformat )
+%   euUSE_parseSerialRecvData( serialrecvdata, codeformat )
 %
-% This function parses a "serialData" structure, read from the "SerialData.mat"
-% file produced by the USE processing scripts.
+% This function parses the "SerialRecvData" table from a "serialData"
+% structure, read from the "SerialData.mat" file produced by the USE
+% processing scripts. It may alternatively be read by using the
+% euUSE_readRawSerialData() function.
 %
-% The "SerialRecvData" table is processed. This table contains communication
-% received from the SynchBox, which includes Unity and SynchBox timestamps.
-% Timing, reward, and event code messages are parsed, and are returned as
-% separate tables. Each table contains Unity and SynchBox timestamps
-% (converted to seconds); the reward tables also contain reward pulse
-% duration in seconds, and event code tables contain the event code value.
+% This table contains communication received by Unity from the SynchBox,
+% which includes Unity and SynchBox timestamps. Timing, reward, and event
+% code messages are parsed, and are returned as separate tables. Each table
+% contains Unity and SynchBox timestamps (converted to seconds); the reward
+% tables also contain reward pulse duration in seconds, and event code
+% tables contain the event code value.
 %
 % Event codes may be in any of several formats; "word" format codes are
 % preserved as-is, while "byte" format codes are shortened to 8 bits. The
@@ -21,8 +23,7 @@ function [ evsynchA evsynchB evrwdA evrwdB evcodes ] = ...
 % 8 bits are expected to contain the same values; any codes that don't are
 % rejected.
 %
-% "serialdata" is the SerialData structure, which must contain a
-%   "SerialRecvData" field with an appropriate data table.
+% "serialrecvdata" is the data table containing raw inbound serial data.
 % "codeformat" is 'word' (for 16-bit words), 'hibyte' for MS bytes, 'lobyte'
 %   for LS bytes, and 'dupbyte' for MS and LS both replicating a byte value.
 %
@@ -43,10 +44,8 @@ synchbox_clock_tick = 1.0e-4;
 
 % Extract relevant columns from the received data table.
 
-recvdata = serialdata.SerialRecvData;
-
-recvtimes = recvdata.SystemTimestamp;
-recvmsgs = recvdata.Message;
+recvtimes = serialrecvdata.SystemTimestamp;
+recvmsgs = serialrecvdata.Message;
 
 % Convert Unity timestamps to seconds.
 recvtimes = recvtimes * unity_clock_tick;

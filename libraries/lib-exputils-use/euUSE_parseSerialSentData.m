@@ -1,18 +1,20 @@
 function [ evrwdA evrwdB evcodes ] = ...
-  euUSE_parseSerialSentData( serialdata, codeformat )
+  euUSE_parseSerialSentData( serialsentdata, codeformat )
 
 % function [ evrwdA evrwdB evcodes ] = ...
-%   euUSE_parseSerialSentData( serialdata, codeformat )
+%   euUSE_parseSerialSentData( serialsentdata, codeformat )
 %
-% This function parses a "serialData" structure, read from the "SerialData.mat"
-% file produced by the USE processing scripts.
+% This function parses the "SerialSentData" table from a "serialData"
+% structure, read from the "SerialData.mat" file produced by the USE
+% processing scripts. It may alternatively be read by using the
+% euUSE_readRawSerialData() function.
 %
-% The "SerialSentData" table is processed. This table contains communication
-% sent from Unity to the SynchBox, which includes Unity timestamps (but no
-% synchbox timestamps). Reward, and event code messages are parsed, and are
-% returned as separate tables. Each table contains Unity timestamps
-% (converted to seconds); the reward tables also contain reward pulse
-% duration in seconds, and event code tables contain the event code value.
+% This table contains communication sent from Unity to the SynchBox, which
+% includes Unity timestamps (but no synchbox timestamps). Reward and event
+% code messages are parsed, and are returned as separate tables. Each table
+% contains Unity timestamps (converted to seconds); the reward tables also
+% contain reward pulse duration in seconds, and event code tables contain
+% the event code value.
 %
 % Event codes may be in any of several formats; "word" format codes are
 % preserved as-is, while "byte" format codes are shortened to 8 bits. The
@@ -21,8 +23,7 @@ function [ evrwdA evrwdB evcodes ] = ...
 % 8 bits are expected to contain the same values; any codes that don't are
 % rejected.
 %
-% "serialdata" is the SerialData structure, which must contain a
-%   "SerialSentData" field with an appropriate data table.
+% "serialsentdata" is the data table containing raw outbound serial data.
 % "codeformat" is 'word' (for 16-bit words), 'hibyte' for MS bytes, 'lobyte'
 %   for LS bytes, and 'dupbyte' for MS and LS both replicating a byte value.
 %
@@ -42,10 +43,8 @@ synchbox_clock_tick = 1.0e-4;
 
 % Extract relevant columns from the sent data table.
 
-sentdata = serialdata.SerialSentData;
-
-senttimes = sentdata.SystemTimestamp;
-sentmsgs = sentdata.Message;
+senttimes = serialsentdata.SystemTimestamp;
+sentmsgs = serialsentdata.Message;
 
 % Convert Unity timestamps to seconds.
 senttimes = senttimes * unity_clock_tick;

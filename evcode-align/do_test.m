@@ -172,9 +172,9 @@ disp('-- Loading SynchBox data...');
 
 load( [ folder_usedata filesep 'SerialData.mat' ], 'serialData');
 [ boxsynchA boxsynchB boxrwdA boxrwdB boxcodes ] = ...
-  euUSE_parseSerialRecvData(serialData, 'dupbyte');
+  euUSE_parseSerialRecvData(serialData.SerialRecvData, 'dupbyte');
 [ gamerwdA gamerwdB gamecodes ] = ...
-  euUSE_parseSerialSentData(serialData, 'dupbyte');
+  euUSE_parseSerialSentData(serialData.SerialSentData, 'dupbyte');
 
 
 % FIXME - FrameData contains columns of interest:
@@ -431,11 +431,11 @@ end
 disp('-- Rebuilding event codes.');
 
 [ ephyscodes ephyscodeindices ] = euUSE_reassembleEventCodes( ...
-  ephyscodes, evcodedefs, bytespercode, codeendian );
+  ephyscodes, evcodedefs, bytespercode, codeendian, 'codeValue' );
 [ boxcodes boxcodeindices ] = euUSE_reassembleEventCodes( ...
-  boxcodes, evcodedefs, bytespercode, codeendian);
+  boxcodes, evcodedefs, bytespercode, codeendian, 'codeValue' );
 [ gamecodes gamecodeindices ] = euUSE_reassembleEventCodes( ...
-  gamecodes, evcodedefs, bytespercode, codeendian);
+  gamecodes, evcodedefs, bytespercode, codeendian, 'codeValue' );
 
 % Diagnostics.
 disp(sprintf( ...

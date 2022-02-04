@@ -1,8 +1,8 @@
 function [ cookedcodes cookedindices ] = euUSE_reassembleEventCodes( ...
-  rawcodes, codedefs, codebytes, codeendian )
+  rawcodes, codedefs, codebytes, codeendian, rawcolumn )
 
 % function [ cookedcodes cookedindices ] = euUSE_reassembleEventCodes( ...
-%   rawcodes, codedefs, codebytes, codeendian )
+%   rawcodes, codedefs, codebytes, codeendian, rawcolumn )
 %
 % This translates a data table containing raw (byte) event codes into a
 % table containing cooked (word) event codes.
@@ -11,13 +11,14 @@ function [ cookedcodes cookedindices ] = euUSE_reassembleEventCodes( ...
 % bytes or just not being in the definition file) is tagged with an empty
 % character array as the "codeLabel".
 %
-% "rawcodes" is a table containing a "codeValue" column and optionally
+% "rawcodes" is a table containing a raw code value column and optionally
 %   other columns.
 % "codedefs" is a structure containing "cooked" event code definitions per
 %   "parseEventCodeDefs" and "EVCODEDEFS.txt".
 % "codebytes" is the number of bytes per cooked code.
 % "codeendian" is 'big' if the most-significant byte is received first
 %   or 'little' if the least-significant byte is received first.
+% "rawcolumn" is the name of the column to read raw codes from.
 %
 % "cookedcodes" is a table with the following columns:
 %   "codeWord" is the reconstructed event code word value.
@@ -36,7 +37,7 @@ cookedindices = [];
 
 if ~isempty(rawcodes)
 
-  rawbytes = rawcodes.codeValue;
+  rawbytes = rawcodes.(rawcolumn);
 
   % We can test starting indices of 1..startcount.
   startcount = length(rawbytes) + 1 - codebytes;
@@ -119,7 +120,7 @@ if ~isempty(rawcodes)
       % Get only the subset corresponding to the first byte of each code.
       thisdata = thisdata(cookedindices);
 
-      if ~strcmp(thiscol, 'codeValue')
+      if ~strcmp(thiscol, rawcolumn)
         cookedcodes.(thiscol) = thisdata;
       end
     end

@@ -120,20 +120,28 @@ try
   if ~want_data_events
     disp('.. Skipping events.');
   else
+    disp('.. Reading from recorder.');
+
     recevents_dig = ft_read_event( thisdataset.recfile, ...
       'headerformat', 'nlFT_readHeader', 'eventformat', 'nlFT_readEvents' );
-    stimevents_dig = ft_read_event( thisdataset.stimfile, ...
-      'headerformat', 'nlFT_readHeader', 'eventformat', 'nlFT_readEvents' );
 
-    % FIXME - Kludge for Intan. If we didn't find any events with the
-    % normal reading hook, try again promoting all digital signals to events.
+    % FIXME - Kludge for drivers that don't report events.
+    % We actually don't need this - our Intan wrapper does this internally.
     if isempty(recevents_dig)
       disp('.. No recorder events found. Trying again using waveforms.');
       recevents_dig = ft_read_event( thisdataset.recfile, ...
         'headerformat', 'nlFT_readHeader', ...
         'eventformat', 'nlFT_readEventsContinuous' );
     end
-    if isempty(recevents_dig)
+
+    disp('.. Reading from stimulator.');
+
+    stimevents_dig = ft_read_event( thisdataset.stimfile, ...
+      'headerformat', 'nlFT_readHeader', 'eventformat', 'nlFT_readEvents' );
+
+    % FIXME - Kludge for drivers that don't report events.
+    % We actually don't need this - our Intan wrapper does this internally.
+    if isempty(stimevents_dig)
       disp('.. No stimulator events found. Trying again using waveforms.');
       stimevents_dig = ft_read_event( thisdataset.stimfile, ...
         'headerformat', 'nlFT_readHeader', ...

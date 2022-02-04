@@ -175,7 +175,7 @@ preproc_config_stim_span_default = [ 1 stimhdr.nSamples 0 ];
 
 if isfield(thisdataset, 'timerange')
 
-  disp(sprintf( '.. Windowing to %.1f - %.1f seconds.', ...
+  disp(sprintf( '.. Setting read window to %.1f - %.1f seconds.', ...
     min(thisdataset.timerange), max(thisdataset.timerange) ));
 
 

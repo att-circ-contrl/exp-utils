@@ -32,6 +32,9 @@ want_auto_channel_types = false;
 % Process continuous data before segmenting.
 want_monolithic = false;
 
+% Compare and align Unity and TTL data and build trial definitions.
+want_align_segment = true;
+
 % Bring up the GUI data browser after processing.
 want_browser = false;
 
@@ -96,6 +99,12 @@ spike_corner = 100;
 rect_corners = [ 1000 3000 ];
 rect_lowpass = 500;
 rect_rate = 2000;
+
+
+% Event code processing.
+
+evcodebytes = 2;
+evcodeendian = 'big';
 
 
 % File I/O.
