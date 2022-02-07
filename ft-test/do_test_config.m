@@ -39,10 +39,25 @@ want_align_segment = true;
 want_browser = false;
 
 
+% Optionally save data from various steps to disk.
+% Optionally load previously-saved data instead of processing raw data.
+
+want_save_data = true;
+want_cache_autoclassify = true;
+want_cache_monolithic = true;
+want_cache_align_raw = true;
+
+
 
 %
 % Various magic values.
 % You usually won't want to edit these.
+
+
+% Output directories.
+
+plotdir = 'plots';
+datadir = 'output';
 
 
 % Automatic channel classification.

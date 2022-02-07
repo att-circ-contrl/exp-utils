@@ -7,8 +7,13 @@ MATGUIFLAGS=-nodesktop -nosplash
 
 default: clean run gallery
 
+force: allclean run gallery
+
 clean:
 	rm -f plots/*
+
+allclean: clean
+	rm -f output/*
 
 run:
 	nice -n +10 $(MATLAB) $(MATFLAGS) \

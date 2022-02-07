@@ -33,6 +33,62 @@
 
 
 %
+% Load cached results from disk, if requested.
+% If we successfully load data, bail out without further processing.
+
+if want_cache_monolithic
+  fname = [ datadir filesep 'monolithic.mat' ];
+
+  if isfile(fname)
+    % Load the data we previously saved.
+
+    disp('-- Loading processed monolithic data.');
+    load(fname);
+    disp('-- Finished loading.');
+
+
+    % Generate reports and plots.
+% FIXME - Monolithic reports and plots NYI.
+
+
+    % Pull up the data browser windows, if requested.
+    if want_browser
+      disp('-- Rendering waveforms.');
+
+      % Analog data.
+      if have_recdata_rec
+        doBrowseFiltered( 'Rec', ...
+          recdata_wideband, recdata_lfp, recdata_spike, recdata_rect );
+      end
+      if have_stimdata_rec
+        doBrowseFiltered( 'Stim', ...
+          stimdata_wideband, stimdata_lfp, stimdata_spike, stimdata_rect );
+      end
+
+      % Continuous digital data.
+      if have_recdata_dig
+        doBrowseWave( recdata_dig, 'Recorder TTL' );
+      end
+      if have_stimdata_dig
+        doBrowseWave( stimdata_dig, 'Stimulator TTL' );
+      end
+
+      disp('-- Press any key to continue.');
+      pause;
+
+      % Clean up.
+      close all;
+    end
+
+
+    % We've loaded cached results. Bail out of this portion of the script.
+    return;
+  end
+end
+
+
+
+%
 % Read the dataset using ft_preprocessing().
 
 
@@ -55,19 +111,40 @@ preproc_config_stim.feedback = 'no';
 have_recdata_rec = false;
 have_stimdata_rec = false;
 
+recdata_rec = struct([]);
+stimdata_rec = struct([]);
+
 have_recdata_dig = false;
 have_stimdata_dig = false;
+
+recdata_dig = struct([]);
+stimdata_dig = struct([]);
+
+have_stimdata_current = false;
+have_stimdata_flags = false;
+
+stimdata_current = struct([]);
+stimdata_flags = struct([]);
 
 have_recevents_dig = false;
 have_stimevents_dig = false;
 
-have_stimdata_current = false;
-have_stimdata_flags = false;
+recevents_dig = struct([]);
+stimevents_dig = struct([]);
 
 try
 
   disp('-- Reading ephys amplifier data.');
   tic();
+
+  % Report the window span.
+  disp(sprintf( ...
+    '.. Read window is:   %.1f - %.1f s (rec)   %.1f - %.1f s (stim).', ...
+    preproc_config_rec_span_default(1) / rechdr.Fs, ...
+    preproc_config_rec_span_default(2) / rechdr.Fs, ...
+    preproc_config_stim_span_default(1) / stimhdr.Fs, ...
+    preproc_config_stim_span_default(2) / stimhdr.Fs ));
+
 
   % NOTE - Reading as double. This will be big!
 
@@ -207,6 +284,16 @@ end
 % In practice aggregating monolithic isn't necessarily useful; we can do it
 % for trials once alignment is known.
 
+recdata_wideband = struct([]);
+recdata_lfp = struct([]);
+recdata_spike = struct([]);
+recdata_rect = struct([]);
+
+stimdata_wideband = struct([]);
+stimdata_lfp = struct([]);
+stimdata_spike = struct([]);
+stimdata_rect = struct([]);
+
 
 if have_recdata_rec
 
@@ -328,9 +415,36 @@ end
 
 
 %
-% Inspect the waveform data.
+% Save the results to disk, if requested.
 
-% FIXME - Just pulling up data browser windows as an interim measure.
+if want_save_data
+  fname = [ datadir filesep 'monolithic.mat' ];
+
+  if isfile(fname)
+    delete(fname);
+  end
+
+  disp('-- Saving processed monolithic data.');
+
+  save( fname, ...
+    'have_recdata_rec', 'recdata_rec', ...
+    'have_recdata_dig', 'recdata_dig', ...
+    'have_stimdata_rec', 'stimdata_rec', ...
+    'have_stimdata_dig', 'stimdata_dig', ...
+    'have_stimdata_current', 'stimdata_current', ...
+    'have_stimdata_flags', 'stimdata_flags', ...
+    'have_recevents_dig', 'recevents_dig', ...
+    'have_stimevents_dig', 'stimevents_dig', ...
+    'recdata_wideband', 'recdata_lfp', 'recdata_spike', 'recdata_rect', ...
+    'stimdata_wideband', 'stimdata_lfp', 'stimdata_spike', 'stimdata_rect' );
+
+  disp('-- Finished saving.');
+end
+
+
+
+%
+% Inspect the waveform data, if requested.
 
 if want_browser
 
@@ -338,42 +452,25 @@ if want_browser
 
   % Analog data.
 
-  % FIXME - The saved configuration might be re-filtering the data!
-  % It _shouldn't_ be rereading, but it's doing _something_.
-
   if have_recdata_rec
-    ft_databrowser(recdata_wideband.cfg, recdata_wideband);
-    set(gcf(), 'Name', 'Rec Wideband', 'NumberTitle', 'off');
-    ft_databrowser(recdata_lfp.cfg, recdata_lfp);
-    set(gcf(), 'Name', 'Rec LFP', 'NumberTitle', 'off');
-    ft_databrowser(recdata_spike.cfg, recdata_spike);
-    set(gcf(), 'Name', 'Rec Spikes', 'NumberTitle', 'off');
-    ft_databrowser(recdata_rect.cfg, recdata_rect);
-    set(gcf(), 'Name', 'Rec Rectified', 'NumberTitle', 'off');
+    doBrowseFiltered( 'Rec', ...
+      recdata_wideband, recdata_lfp, recdata_spike, recdata_rect );
   end
 
   if have_stimdata_rec
-    ft_databrowser(stimdata_wideband.cfg, stimdata_wideband);
-    set(gcf(), 'Name', 'Stim Wideband', 'NumberTitle', 'off');
-    ft_databrowser(stimdata_lfp.cfg, stimdata_lfp);
-    set(gcf(), 'Name', 'Stim LFP', 'NumberTitle', 'off');
-    ft_databrowser(stimdata_spike.cfg, stimdata_spike);
-    set(gcf(), 'Name', 'Stim  Spikes', 'NumberTitle', 'off');
-    ft_databrowser(stimdata_rect.cfg, stimdata_rect);
-    set(gcf(), 'Name', 'Stim Rectified', 'NumberTitle', 'off');
+    doBrowseFiltered( 'Stim', ...
+      stimdata_wideband, stimdata_lfp, stimdata_spike, stimdata_rect );
   end
 
 
   % Continuous digital data.
 
   if have_recdata_dig
-    ft_databrowser(recdata_dig.cfg, recdata_dig);
-    set(gcf(), 'Name', 'Recorder TTL', 'NumberTitle', 'off');
+    doBrowseWave( recdata_dig, 'Recorder TTL' );
   end
 
   if have_stimdata_dig
-    ft_databrowser(stimdata_dig.cfg, stimdata_dig);
-    set(gcf(), 'Name', 'Stimulator TTL', 'NumberTitle', 'off');
+    doBrowseWave( stimdata_dig, 'Stimulator TTL' );
   end
 
 
@@ -381,6 +478,8 @@ if want_browser
 
   disp('-- Press any key to continue.');
   pause;
+
+  % Clean up.
   close all;
 
 end

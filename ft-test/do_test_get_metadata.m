@@ -166,6 +166,8 @@ end
 % These get stored as "preproc_config_XX.trl".
 % Defining a single trial gets us windowed continuous data.
 
+% Monolithic data time range.
+
 % FIXME - Windowing is done before time alignment, so we'd better be sure
 % that the time difference between the recorder and stimulator is much
 % shorter than the window size.
@@ -174,10 +176,6 @@ preproc_config_rec_span_default = [ 1 rechdr.nSamples 0 ];
 preproc_config_stim_span_default = [ 1 stimhdr.nSamples 0 ];
 
 if isfield(thisdataset, 'timerange')
-
-  disp(sprintf( '.. Setting read window to %.1f - %.1f seconds.', ...
-    min(thisdataset.timerange), max(thisdataset.timerange) ));
-
 
   firstsamp = round( min(thisdataset.timerange) * rechdr.Fs );
   firstsamp = min(firstsamp, rechdr.nSamples);
@@ -202,15 +200,18 @@ if isfield(thisdataset, 'timerange')
 
 end
 
-firstsamp = preproc_config_rec_span_default(1);
+% Auto-configuration time range.
+% Put this in the middle of the dataset.
+
+firstsamp = round(0.5 * rechdr.nSamples);
 lastsamp = firstsamp + round( classify_window_seconds * rechdr.Fs );
-lastsamp = min( lastsamp, preproc_config_rec_span_default(2) );
+lastsamp = min( lastsamp, rechdr.nSamples );
 
 preproc_config_rec_span_autotype = [ firstsamp lastsamp 0 ];
 
-firstsamp = preproc_config_stim_span_default(1);
+firstsamp = round(0.5 * stimhdr.nSamples);
 lastsamp = firstsamp + round( classify_window_seconds * stimhdr.Fs );
-lastsamp = min( lastsamp, preproc_config_stim_span_default(2) );
+lastsamp = min( lastsamp, stimhdr.nSamples );
 
 preproc_config_stim_span_autotype = [ firstsamp lastsamp 0 ];
 

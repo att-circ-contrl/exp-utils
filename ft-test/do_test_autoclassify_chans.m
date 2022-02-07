@@ -20,6 +20,47 @@
 
 
 %
+% Load cached results from disk, if requested.
+% If we successfully load data, bail out without further processing.
+
+if want_cache_autoclassify
+  fname = [ datadir filesep 'autoclassify.mat' ];
+
+  if isfile(fname)
+
+    % Load the data we previously saved.
+    disp('-- Loading channel auto-classification results.');
+    load(fname);
+
+    % Generate reports.
+
+    thismsg = helper_reportQuantized( ...
+      [ plotdir filesep 'autodetect-quantization.txt' ], ...
+      rec_quantized, stim_quantized, ...
+      rec_channels_record, stim_channels_record );
+    disp(thismsg);
+
+    thismsg = helper_reportDropoutArtifact( ...
+      [ plotdir filesep 'autodetect-dropouts-artifacts.txt' ], ...
+      rec_has_artifacts, stim_has_artifacts, ...
+      rec_artifact_frac, stim_artifact_frac, ...
+      rec_has_dropouts, stim_has_dropouts, ...
+      rec_dropout_frac, stim_dropout_frac, ...
+      rec_channels_record, stim_channels_record );
+    disp(thismsg);
+
+    % Banner.
+    disp('-- Finished loading.');
+
+    % We've loaded cached results. Bail out of this portion of the script.
+    return;
+
+  end
+end
+
+
+
+%
 % Banner.
 
 disp('-- Attempting to auto-classify channels.');
@@ -61,6 +102,14 @@ try
 
   disp('-- Reading windowed ephys amplifier data.');
   tic();
+
+  % Report the window span.
+  disp(sprintf( ...
+    '.. Read window is:   %.1f - %.1f s (rec)   %.1f - %.1f s (stim).', ...
+    preproc_config_rec_span_autotype(1) / rechdr.Fs, ...
+    preproc_config_rec_span_autotype(2) / rechdr.Fs, ...
+    preproc_config_stim_span_autotype(1) / stimhdr.Fs, ...
+    preproc_config_stim_span_autotype(2) / stimhdr.Fs ));
 
   if isempty(rec_channels_record)
     disp('.. Skipping recorder (no channels selected).');
@@ -143,23 +192,12 @@ else
 
   % Quantization report.
 
-  disp(sprintf( '.. %d of %d recording channels were quantized.', ...
-    sum(rec_quantized), nchans_rec ));
+  thismsg = helper_reportQuantized( ...
+    [ plotdir filesep 'autodetect-quantization.txt' ], ...
+    rec_quantized, stim_quantized, ...
+    rec_channels_record, stim_channels_record );
 
-  for cidx = 1:nchans_rec
-    if rec_quantized(cidx)
-      disp([ '  ' rec_channels_record{cidx} ]);
-    end
-  end
-
-  disp(sprintf( '.. %d of %d stimulation channels were quantized.', ...
-    sum(stim_quantized), nchans_stim ));
-
-  for cidx = 1:nchans_stim
-    if stim_quantized(cidx)
-      disp([ '  ' stim_channels_record{cidx} ]);
-    end
-  end
+  disp(thismsg);
 
 
   % Done.
@@ -389,85 +427,71 @@ end
 
 % Dropout and artifact report.
 
-disp(sprintf( '.. %d of %d recording channels had artifacts.', ...
-  sum(rec_has_artifacts), nchans_rec ));
+thismsg = helper_reportDropoutArtifact( ...
+  [ plotdir filesep 'autodetect-dropouts-artifacts.txt' ], ...
+  rec_has_artifacts, stim_has_artifacts, ...
+  rec_artifact_frac, stim_artifact_frac, ...
+  rec_has_dropouts, stim_has_dropouts, ...
+  rec_dropout_frac, stim_dropout_frac, ...
+  rec_channels_record, stim_channels_record );
 
-for cidx = 1:nchans_rec
-  if rec_has_artifacts(cidx)
-    disp(sprintf( '  %s  (%.1f %%)', ...
-      rec_channels_record{cidx}, 100 * rec_artifact_frac(cidx) ));
-  end
-end
-
-disp(sprintf( '.. %d of %d stimulation channels had artifacts.', ...
-  sum(stim_has_artifacts), nchans_stim ));
-
-for cidx = 1:nchans_stim
-  if stim_has_artifacts(cidx)
-    disp(sprintf( '  %s  (%.1f %%)', ...
-      stim_channels_record{cidx}, 100 * stim_artifact_frac(cidx) ));
-  end
-end
-
-disp(sprintf( '.. %d of %d recording channels had drop-outs.', ...
-  sum(rec_has_dropouts), nchans_rec ));
-
-for cidx = 1:nchans_rec
-  if rec_has_dropouts(cidx)
-    disp(sprintf( '  %s  (%.1f %%)', ...
-      rec_channels_record{cidx}, 100 * rec_dropout_frac(cidx) ));
-  end
-end
-
-disp(sprintf( '.. %d of %d stimulation channels had drop-outs.', ...
-  sum(stim_has_dropouts), nchans_stim ));
-
-for cidx = 1:nchans_stim
-  if stim_has_dropouts(cidx)
-    disp(sprintf( '  %s  (%.1f %%)', ...
-      stim_channels_record{cidx}, 100 * stim_dropout_frac(cidx) ));
-  end
-end
+disp(thismsg);
 
 
 disp('-- Finished checking for dropouts and artifacts.');
 
 
-%
-% Inspect the waveform data.
 
-% FIXME - Just pulling up data browser windows as an interim measure.
+%
+% Check power spectra.
+
+% FIXME - Power spectrum check NYI!
+
+
+
+%
+% Save results to disk, if requested.
+
+if want_save_data
+  fname = [ datadir filesep 'autoclassify.mat' ];
+
+  if isfile(fname)
+    delete(fname);
+  end
+
+  disp('-- Saving channel auto-classification results.');
+
+  save( fname, ...
+    'rec_channels_record', 'stim_channels_record', ...
+    'rec_quantized', 'stim_quantized', ...
+    'rec_has_dropouts', 'stim_has_dropouts', ...
+    'rec_dropout_frac', 'stim_dropout_frac', ...
+    'rec_has_artifacts', 'stim_has_artifacts', ...
+    'rec_artifact_frac', 'stim_artifact_frac', ...
+    '-v7.3' );
+
+  % FIXME - Saving power spectrum diagnostics NYI.
+
+  disp('-- Finished saving.');
+end
+
+
+
+%
+% Inspect the waveform data, if requested.
 
 if want_browser
 
   disp('-- Rendering waveforms.');
 
   if have_recdata_auto
-    % FIXME - The saved configuration might be re-filtering the data!
-    % It _shouldn't_ be rereading, but it's doing _something_.
-
-    ft_databrowser(recdata_wideband.cfg, recdata_wideband);
-    set(gcf(), 'Name', 'Rec Wideband', 'NumberTitle', 'off');
-    ft_databrowser(recdata_lfp.cfg, recdata_lfp);
-    set(gcf(), 'Name', 'Rec LFP', 'NumberTitle', 'off');
-    ft_databrowser(recdata_spike.cfg, recdata_spike);
-    set(gcf(), 'Name', 'Rec Spikes', 'NumberTitle', 'off');
-    ft_databrowser(recdata_rect.cfg, recdata_rect);
-    set(gcf(), 'Name', 'Rec Rectified', 'NumberTitle', 'off');
+    doBrowseFiltered( 'Rec', ...
+      recdata_wideband, recdata_lfp, recdata_spike, recdata_rect );
   end
 
-  if have_recdata_auto
-    % FIXME - The saved configuration might be re-filtering the data!
-    % It _shouldn't_ be rereading, but it's doing _something_.
-
-    ft_databrowser(stimdata_wideband.cfg, stimdata_wideband);
-    set(gcf(), 'Name', 'Stim Wideband', 'NumberTitle', 'off');
-    ft_databrowser(stimdata_lfp.cfg, stimdata_lfp);
-    set(gcf(), 'Name', 'Stim LFP', 'NumberTitle', 'off');
-    ft_databrowser(stimdata_spike.cfg, stimdata_spike);
-    set(gcf(), 'Name', 'Stim Spikes', 'NumberTitle', 'off');
-    ft_databrowser(stimdata_rect.cfg, stimdata_rect);
-    set(gcf(), 'Name', 'Stim Rectified', 'NumberTitle', 'off');
+  if have_stimdata_auto
+    doBrowseFiltered( 'Stim', ...
+      stimdata_wideband, stimdata_lfp, stimdata_spike, stimdata_rect );
   end
 
   disp('-- Press any key to continue.');
@@ -481,14 +505,7 @@ end
 
 
 %
-% Check power spectra.
-
-% FIXME - Power spectrum check NYI!
-
-
-
-%
-% Clean up.
+% Clean up intermediate data.
 
 if have_recdata_auto
   clear recdata_auto;
@@ -506,6 +523,125 @@ end
 % Banner.
 
 disp('-- Finished auto-classifying channels.');
+
+
+
+%
+% Helper functions.
+
+
+% Quantization report.
+% If fname is non-empty, the report is also written to a file.
+
+function reporttext = helper_reportQuantized( ...
+  fname, ...
+  rec_quantized, stim_quantized, ...
+  rec_channels_record, stim_channels_record )
+
+  nchans_rec = length(rec_channels_record);
+  nchans_stim = length(stim_channels_record);
+
+  reporttext = sprintf( ...
+    '.. %d of %d recording channels were quantized.\n', ...
+    sum(rec_quantized), nchans_rec );
+
+  for cidx = 1:nchans_rec
+    if rec_quantized(cidx)
+      reporttext = [ reporttext ...
+        '  ' rec_channels_record{cidx} '\n' ];
+    end
+  end
+
+  reporttext = [ reporttext ...
+    sprintf( '.. %d of %d stimulation channels were quantized.\n', ...
+      sum(stim_quantized), nchans_stim ) ];
+
+  for cidx = 1:nchans_stim
+    if stim_quantized(cidx)
+      reporttext = [ reporttext ...
+        '  ' stim_channels_record{cidx} '\n' ];
+    end
+  end
+
+  if ~isempty(fname)
+    thisfid = fopen(fname, 'w');
+    fwrite(thisfid, reporttext);
+    fclose(thisfid);
+  end
+
+end
+
+
+
+% Dropout and artifact report.
+% If fname is non-empty, the report is also written to a file.
+
+function reporttext = helper_reportDropoutArtifact( ...
+  fname, ...
+  rec_has_artifacts, stim_has_artifacts, ...
+  rec_artifact_frac, stim_artifact_frac, ...
+  rec_has_dropouts, stim_has_dropouts, ...
+  rec_dropout_frac, stim_dropout_frac, ...
+  rec_channels_record, stim_channels_record )
+
+  nchans_rec = length(rec_channels_record);
+  nchans_stim = length(stim_channels_record);
+
+  reporttext = sprintf( ...
+    '.. %d of %d recording channels had artifacts.\n', ...
+    sum(rec_has_artifacts), nchans_rec );
+
+  for cidx = 1:nchans_rec
+    if rec_has_artifacts(cidx)
+      reporttext = [ reporttext ...
+        sprintf( '  %s  (%.1f %%)\n', ...
+          rec_channels_record{cidx}, 100 * rec_artifact_frac(cidx) ) ];
+    end
+  end
+
+  reporttext = [ reporttext ...
+    sprintf( '.. %d of %d stimulation channels had artifacts.\n', ...
+      sum(stim_has_artifacts), nchans_stim ) ];
+
+  for cidx = 1:nchans_stim
+    if stim_has_artifacts(cidx)
+      reporttext = [ reporttext ...
+        sprintf( '  %s  (%.1f %%)\n', ...
+          stim_channels_record{cidx}, 100 * stim_artifact_frac(cidx) ) ];
+    end
+  end
+
+  reporttext = [ reporttext ...
+    sprintf( '.. %d of %d recording channels had drop-outs.\n', ...
+      sum(rec_has_dropouts), nchans_rec ) ];
+
+  for cidx = 1:nchans_rec
+    if rec_has_dropouts(cidx)
+      reporttext = [ reporttext ...
+        sprintf( '  %s  (%.1f %%)\n', ...
+          rec_channels_record{cidx}, 100 * rec_dropout_frac(cidx) ) ];
+    end
+  end
+
+  reporttext = [ reporttext ...
+    sprintf( '.. %d of %d stimulation channels had drop-outs.\n', ...
+      sum(stim_has_dropouts), nchans_stim ) ];
+
+  for cidx = 1:nchans_stim
+    if stim_has_dropouts(cidx)
+      reporttext = [ reporttext ...
+        sprintf( '  %s  (%.1f %%)\n', ...
+          stim_channels_record{cidx}, 100 * stim_dropout_frac(cidx) ) ];
+    end
+  end
+
+  if ~isempty(fname)
+    thisfid = fopen(fname, 'w');
+    fwrite(thisfid, reporttext);
+    fclose(thisfid);
+  end
+
+end
 
 
 
