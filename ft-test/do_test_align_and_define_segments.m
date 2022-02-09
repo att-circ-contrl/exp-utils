@@ -13,9 +13,11 @@
 %   boxrwdA
 %   boxrwdB
 %   boxcodes
+%   boxcodes_raw
 %   gamerwdA
 %   gamerwdB
 %   gamecodes
+%   gamecodes_raw
 %   have_recevents_dig
 %   have_stimevents_dig
 %   recevents_dig
@@ -30,6 +32,7 @@
 %   recsynchA
 %   recsynchB
 %   reccodes
+%   reccodes_raw
 %   have_stimrwdA
 %   have_stimrwdB
 %   have_stimsynchA
@@ -40,6 +43,7 @@
 %   stimsynchA
 %   stimsynchB
 %   stimcodes
+%   stimcodes_raw
 %   gamegaze
 
 
@@ -71,6 +75,11 @@ else
 
   % FIXME - These should use Field Trip wrappers!
 
+  % FIXME - We have to keep the raw event codes as well.
+  % The alignment routines misbehave trying to line up the SynchBox with
+  % the ephys machines based on cooked codes, due to a large number of
+  % dropped bytes (the synchbox-to-unity reply link is saturated).
+
   have_unity = false;
   if isfield( thisdataset, 'unityfile' )
 
@@ -79,18 +88,18 @@ else
     disp('-- Reading Unity event data.');
 
     [ sentdata recvdata ] = euUSE_readRawSerialData(thisdataset.unityfile);
-    [ boxsynchA boxsynchB boxrwdA boxrwdB boxcodes ] = ...
+    [ boxsynchA boxsynchB boxrwdA boxrwdB boxcodes_raw ] = ...
       euUSE_parseSerialRecvData(recvdata, 'dupbyte');
-    [ gamerwdA gamerwdB gamecodes ] = ...
+    [ gamerwdA gamerwdB gamecodes_raw ] = ...
       euUSE_parseSerialSentData(sentdata, 'dupbyte');
 
     evcodedefs = euUSE_readEventCodeDefs(thisdataset.unityfile);
 
     % Translate raw code bytes into cooked codes.
     [ boxcodes origlocations ] = euUSE_reassembleEventCodes( ...
-      boxcodes, evcodedefs, evcodebytes, evcodeendian, 'codeValue' );
+      boxcodes_raw, evcodedefs, evcodebytes, evcodeendian, 'codeValue' );
     [ gamecodes origlocations ] = euUSE_reassembleEventCodes( ...
-      gamecodes, evcodedefs, evcodebytes, evcodeendian, 'codeValue' );
+      gamecodes_raw, evcodedefs, evcodebytes, evcodeendian, 'codeValue' );
 
     % FIXME - Diagnostics.
     disp(sprintf( ...
@@ -248,25 +257,31 @@ else
 
   % Event codes from both devices.
 
+  % FIXME - We have to keep the raw event codes as well.
+  % The alignment routines misbehave trying to line up the SynchBox with
+  % the ephys machines based on cooked codes, due to a large number of
+  % dropped bytes (the synchbox-to-unity reply link is saturated).
+
   % FIXME - The only situation where we have to assemble from bits is with
   % the Intan machine, and channel numbering starts at 1 in that situation.
   firstbit = 1;
 
-  [ reccodes have_reccodes ] = euFT_getCodeWordEvent( ...
+  [ reccodes_raw have_reccodes ] = euFT_getCodeWordEvent( ...
     synchboxsignals, 'reccodes', 'reccodebits', firstbit, 'recshift', ...
     rechdr.label, recevents_dig );
 
-  [ stimcodes have_stimcodes ] = euFT_getCodeWordEvent( ...
+  [ stimcodes_raw have_stimcodes ] = euFT_getCodeWordEvent( ...
     synchboxsignals, 'stimcodes', 'stimcodebits', firstbit, 'stimshift', ...
     stimhdr.label, stimevents_dig );
 
+
   % Squash event code values of zero; that's the idle state.
-  if have_reccodes
-    reccodes = reccodes(reccodes.value > 0,:);
-  end
-  if have_stimcodes
-    stimcodes = stimcodes(stimcodes.value > 0,:);
-  end
+  % Merge codes that repeat the same timestamp or that are one sample apart.
+  % These use the FT event column labels ("sample", "value", "type",
+  % "offset", "duration").
+  reccodes_raw = euUSE_cleanEventsTabular( reccodes_raw, 'value', 'sample' );
+  stimcodes_raw = euUSE_cleanEventsTabular( stimcodes_raw, 'value', 'sample' );
+
 
   % Translate raw code bytes into cooked codes.
   if ~have_unity
@@ -274,9 +289,9 @@ else
       '###  Can''t reassemble event codes without USE''s code definitions!');
   else
     [ reccodes origlocations ] = euUSE_reassembleEventCodes( ...
-      reccodes, evcodedefs, evcodebytes, evcodeendian, 'value' );
+      reccodes_raw, evcodedefs, evcodebytes, evcodeendian, 'value' );
     [ stimcodes origlocations ] = euUSE_reassembleEventCodes( ...
-      stimcodes, evcodedefs, evcodebytes, evcodeendian, 'value' );
+      stimcodes_raw, evcodedefs, evcodebytes, evcodeendian, 'value' );
   end
 
   % Done.
@@ -296,16 +311,17 @@ else
 
     save( fname_raw, ...
       'have_unity', 'evcodedefs', ...
-      'boxsynchA', 'boxsynchB', 'boxrwdA', 'boxrwdB', 'boxcodes', ...
-      'gamerwdA', 'gamerwdB', 'gamecodes', ...
+      'boxsynchA', 'boxsynchB', 'boxrwdA', 'boxrwdB', ...
+      'boxcodes', 'boxcodes_raw', ...
+      'gamerwdA', 'gamerwdB', 'gamecodes', 'gamecodes_raw', ...
       'have_recevents_dig', 'recevents_dig', ...
       'have_stimevents_dig', 'stimevents_dig', ...
       'have_recrwdA', 'recrwdA', 'have_recrwdB', 'recrwdB', ...
       'have_recsynchA', 'recsynchA', 'have_recsynchB', 'recsynchB', ...
-      'have_reccodes', 'reccodes', ...
+      'have_reccodes', 'reccodes', 'reccodes_raw', ...
       'have_stimrwdA', 'stimrwdA', 'have_stimrwdB', 'stimrwdB', ...
       'have_stimsynchA', 'stimsynchA', 'have_stimsynchB', 'stimsynchB', ...
-      'have_stimcodes', 'stimcodes', ...
+      'have_stimcodes', 'stimcodes', 'stimcodes_raw', ...
       'gamegaze' );
 
     disp('-- Finished saving.');
@@ -325,6 +341,141 @@ disp(sprintf( ...
   '.. From stimulator:  %d rwdA  %d rwdB  %d synchA  %d synchB  %d codes', ...
   height(stimrwdA), height(stimrwdB), ...
   height(stimsynchA), height(stimsynchB), height(stimcodes) ));
+
+
+
+%
+% == Time alignment.
+
+
+%
+% If we don't have the information we need, bail out.
+
+% We need USE and the recorder. Stimulator is optional.
+% We need at least one data track in common between USE/recorder and (if
+% present) USE/stimulator.
+
+isok = false;
+
+if ~have_unity
+  disp('-- Can''t do time alignment without Unity data.');
+elseif ~have_recevents_dig
+  disp('-- Can''t do time alignment without recorder data.');
+else
+  % Make sure we have a common SynchBox/recorder pair.
+  % FIXME - Not aligning on synchA/synchB. Misalignment is larger than the
+  % synch pulse interval, so we'd get an ambiguous result.
+  if ( (~isempty(gamecodes)) && (~isempty(reccodes)) ) ...
+    || ( (~isempty(gamerwdA)) && (~isempty(recrwdA)) ) ...
+    || ( (~isempty(gamerwdB)) && (~isempty(recrwdB)) )
+
+    % We have enough information to align the recorder.
+    % Check the stimulator if requested.
+
+    if ~have_stimevents_dig
+      % No stimulator; we're fine as-is.
+      isok = true;
+    elseif ( (~isempty(reccodes)) && (~isempty(stimcodes)) ) ...
+      || ( (~isempty(recrwdA)) && (~isempty(stimrwdA)) ) ...
+      || ( (~isempty(recrwdB)) && (~isempty(stimrwdB)) )
+      % We have enough information to align the stimulator with the recorder.
+      isok = true;
+    elseif ( (~isempty(gamecodes)) && (~isempty(stimcodes)) ) ...
+      || ( (~isempty(gamerwdA)) && (~isempty(stimrwdA)) ) ...
+      || ( (~isempty(gamerwdB)) && (~isempty(stimrwdB)) )
+      % We have enough information to align the stimulator with Unity.
+      isok = true;
+    else
+      disp('-- Not enough information to align the stimulator.');
+    end
+
+  else
+    disp('-- Not enough information to align the recorder with Unity.');
+  end
+end
+
+if ~isok
+  % End the script here if there was a problem.
+  error('Couldn''t perform time alignment; bailing out.');
+end
+
+
+
+%
+% Remove enormous offsets from the various time series.
+
+% In practice, this is the Unity timestamps, which are relative to 1 Jan 1970.
+% FIXME - Leaving synchbox, recorder, and stimulator timestamps as-is.
+% The offsets in these should be modest (hours at most).
+
+
+% Pick an arbitrary time reference. Negative offsets relative to it are fine.
+
+unityreftime = 0;
+
+if ~isempty(gamecodes)
+  unityreftime = min(gamecodes.unityTime);
+elseif ~isempty(gamerwdA)
+  unityreftime = min(gamerwdA.unityTime);
+elseif ~isempty(gamerwdB)
+  unityreftime = min(gamerwdB.unityTime);
+end
+
+% Subtract the time offset.
+% We have a "unityTime" column in the "gameXX" and "boxXX" tables.
+
+if ~isempty(gamecodes)
+  gamecodes.unityTime = gamecodes.unityTime - unityreftime;
+end
+
+if ~isempty(gamerwdA)
+  gamerwdA.unityTime = gamerwdA.unityTime - unityreftime;
+end
+if ~isempty(gamerwdA)
+  gamerwdB.unityTime = gamerwdB.unityTime - unityreftime;
+end
+
+if ~isempty(boxcodes)
+  boxcodes.unityTime = boxcodes.unityTime - unityreftime;
+end
+
+if ~isempty(boxrwdA)
+  boxrwdA.unityTime = boxrwdA.unityTime - unityreftime;
+end
+if ~isempty(boxrwdA)
+  boxrwdB.unityTime = boxrwdB.unityTime - unityreftime;
+end
+
+if ~isempty(boxsynchA)
+  boxsynchA.unityTime = boxsynchA.unityTime - unityreftime;
+end
+if ~isempty(boxsynchA)
+  boxsynchB.unityTime = boxsynchB.unityTime - unityreftime;
+end
+
+
+%
+% Augment everything we can with recorder timestamps.
+
+% Recorder and synchbox timestamps do drift but can be aligned to about 0.1ms
+% precision locally (using raw, not cooked, event codes).
+% Unity timestamps have a lot more jitter (about 1.0 to 1.5 ms total).
+
+% Do alignment using event codes if possible. Failing that, using reward
+% lines.
+% FIXME - Reward line alignment will take much longer due to not being able
+% to filter based on data values.
+
+
+times_recorder_synchbox = table();
+
+
+
+  % FIXME - We have to keep the raw event codes as well.
+  % The alignment routines misbehave trying to line up the SynchBox with
+  % the ephys machines based on cooked codes, due to a large number of
+  % dropped bytes (the synchbox-to-unity reply link is saturated).
+
 
 
 
