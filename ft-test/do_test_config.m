@@ -122,6 +122,29 @@ evcodebytes = 2;
 evcodeendian = 'big';
 
 
+% Time alignment.
+
+% For coarse windows, one candidate is picked within the window and matched
+% against other candidates. The window is walked forwards by its radius.
+% Constant-delay alignment is performed using the first coarse window value.
+aligncoarsewindows = [ 100.0 ];
+
+% For medium windows, each event is considered as the center of a window and
+% is matched against other candidates in the window.
+alignmedwindows = [ 1.0 ];
+
+% For fine alignment, each event is considered as the center of a window,
+% all events in the window are considered to match their nearest candidates,
+% and a fine-tuning offset is calculated for that window position.
+alignfinewindow = 0.1;
+
+% Outlier time-deltas will substantially skew time estimates around them.
+alignoutliersigma = 4.0;
+
+% This should either be 'quiet' or 'normal'. 'verbose' is for debugging.
+alignverbosity = 'normal';
+
+
 % File I/O.
 
 % The number of channels to load into memory at one time, when loading.

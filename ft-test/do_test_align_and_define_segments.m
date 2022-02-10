@@ -43,8 +43,8 @@
 %   stimsynchA
 %   stimsynchB
 %   stimcodes
-%   stimcodes_raw
-%   gamegaze
+%   gamegaze_raw
+%   usedata_gaze
 
 
 %
@@ -101,15 +101,6 @@ else
     [ gamecodes origlocations ] = euUSE_reassembleEventCodes( ...
       gamecodes_raw, evcodedefs, evcodebytes, evcodeendian, 'codeValue' );
 
-    % FIXME - Diagnostics.
-    disp(sprintf( ...
-'.. From SynchBox:  %d rwdA  %d rwdB  %d synchA  %d synchB  %d codes', ...
-      height(boxrwdA), height(boxrwdB), ...
-      height(boxsynchA), height(boxsynchB), height(boxcodes) ));
-    disp(sprintf( ...
-      '.. From USE:  %d rwdA  %d rwdB  %d codes', ...
-      height(gamerwdA), height(gamerwdB), height(gamecodes) ));
-
     disp('-- Finished reading Unity event data.');
 
 
@@ -117,7 +108,9 @@ else
 
     % FIXME - This should be turned into waveform data. For now, keep it
     % as a not-quite-uniformly-sampled data table.
-    gamegaze = euUSE_readRawGazeData(thisdataset.unityfile);
+    % NOTE - This uses its own timestamps and time quantum, not unity's.
+    % The loading function gives us a 'time_seconds' column.
+    gamegaze_raw = euUSE_readRawGazeData(thisdataset.unityfile);
 
     disp('-- Finished reading Unity gaze data.');
 
@@ -322,7 +315,7 @@ else
       'have_stimrwdA', 'stimrwdA', 'have_stimrwdB', 'stimrwdB', ...
       'have_stimsynchA', 'stimsynchA', 'have_stimsynchB', 'stimsynchB', ...
       'have_stimcodes', 'stimcodes', 'stimcodes_raw', ...
-      'gamegaze' );
+      'gamegaze_raw' );
 
     disp('-- Finished saving.');
   end
@@ -332,6 +325,14 @@ end
 
 
 % FIXME - Diagnostics.
+
+disp(sprintf( ...
+'.. From SynchBox:  %d rwdA  %d rwdB  %d synchA  %d synchB  %d codes', ...
+  height(boxrwdA), height(boxrwdB), ...
+  height(boxsynchA), height(boxsynchB), height(boxcodes) ));
+disp(sprintf( ...
+  '.. From USE:  %d rwdA  %d rwdB  %d codes', ...
+  height(gamerwdA), height(gamerwdB), height(gamecodes) ));
 
 disp(sprintf( ...
   '.. From recorder:  %d rwdA  %d rwdB  %d synchA  %d synchB  %d codes', ...
@@ -405,8 +406,8 @@ end
 % Remove enormous offsets from the various time series.
 
 % In practice, this is the Unity timestamps, which are relative to 1 Jan 1970.
-% FIXME - Leaving synchbox, recorder, and stimulator timestamps as-is.
-% The offsets in these should be modest (hours at most).
+% FIXME - Leaving synchbox, recorder, and stimulator, and gaze timestamps
+% as-is. The offsets in these should be modest (hours at most).
 
 
 % Pick an arbitrary time reference. Negative offsets relative to it are fine.
@@ -454,6 +455,58 @@ if ~isempty(boxsynchA)
 end
 
 
+
+%
+% Augment everything that doesn't have a time in seconds with time in seconds.
+
+% Recorder tables get "recTime", stimulator tables get "stimTime".
+
+
+if ~isempty(recrwdA)
+  recrwdA.recTime = recrwdA.sample / rechdr.Fs;
+end
+if ~isempty(recrwdB)
+  recrwdB.recTime = recrwdB.sample / rechdr.Fs;
+end
+
+if ~isempty(recsynchA)
+  recsynchA.recTime = recsynchA.sample / rechdr.Fs;
+end
+if ~isempty(recsynchB)
+  recsynchB.recTime = recsynchB.sample / rechdr.Fs;
+end
+
+if ~isempty(reccodes)
+  reccodes.recTime = reccodes.sample / rechdr.Fs;
+end
+if ~isempty(reccodes_raw)
+  reccodes_raw.recTime = reccodes_raw.sample / rechdr.Fs;
+end
+
+
+if ~isempty(stimrwdA)
+  stimrwdA.stimTime = stimrwdA.sample / stimhdr.Fs;
+end
+if ~isempty(stimrwdB)
+  stimrwdB.stimTime = stimrwdB.sample / stimhdr.Fs;
+end
+
+if ~isempty(stimsynchA)
+  stimsynchA.stimTime = stimsynchA.sample / stimhdr.Fs;
+end
+if ~isempty(stimsynchB)
+  stimsynchB.stimTime = stimsynchB.sample / stimhdr.Fs;
+end
+
+if ~isempty(stimcodes)
+  stimcodes.stimTime = stimcodes.sample / stimhdr.Fs;
+end
+if ~isempty(stimcodes_raw)
+  stimcodes_raw.stimTime = stimcodes_raw.sample / stimhdr.Fs;
+end
+
+
+
 %
 % Augment everything we can with recorder timestamps.
 
@@ -467,15 +520,58 @@ end
 % to filter based on data values.
 
 
+% NOTE - Event code alignment with the SynchBox has to use raw codes.
+% The alignment routines misbehave trying to line up the SynchBox with
+% the ephys machines based on cooked codes, due to a large number of
+% dropped bytes (the synchbox-to-unity reply link is saturated).
+
+% NOTE - We can fall back to reward alignment but not synch pulse alignment.
+% The synch pulses are at regular intervals, so alignment is ambiguous.
+
 times_recorder_synchbox = table();
 
+if (~isempty(reccodes_raw)) && (~isempty(boxcodes_raw))
+  disp('.. Aligning SynchBox and recorder using event codes.');
+
+  [ boxcodes_raw, reccodes_raw, boxmatchmask, recmatchmask, ...
+    times_recorder_synchbox ] = ...
+    evCodes_alignTables( boxcodes_raw, reccodes_raw, ...
+      'synchBoxTime', 'recTime', 'codeValue', 'value', ...
+      aligncoarsewindows, alignmedwindows, alignfinewindow, ...
+      alignoutliersigma, alignverbosity );
+
+  disp('.. Finished aligning.');
+elseif (~isempty(recrwdA)) && (~isempty(boxrwdA))
+  disp('.. Aligning SynchBox and recorder using Reward A.');
+
+  [ boxrwdA, recrwdA, boxmatchmask, recmatchmask, ...
+    times_recorder_synchbox ] = ...
+    evCodes_alignTables( boxrwdA, recrwdA, ...
+      'synchBoxTime', 'recTime', 'codeValue', 'value', ...
+      aligncoarsewindows, alignmedwindows, alignfinewindow, ...
+      alignoutliersigma, alignverbosity );
+
+  disp('.. Finished aligning.');
+elseif (~isempty(recrwdB)) && (~isempty(boxrwdB))
+  disp('.. Aligning SynchBox and recorder using Reward B.');
+
+  [ boxrwdB, recrwdB, boxmatchmask, recmatchmask, ...
+    times_recorder_synchbox ] = ...
+    evCodes_alignTables( boxrwdB, recrwdB, ...
+      'synchBoxTime', 'recTime', 'codeValue', 'value', ...
+      aligncoarsewindows, alignmedwindows, alignfinewindow, ...
+      alignoutliersigma, alignverbosity );
+
+  disp('.. Finished aligning.');
+else
+  disp('###  Not enough information to align recorder and SynchBox!');
+end
 
 
-  % FIXME - We have to keep the raw event codes as well.
-  % The alignment routines misbehave trying to line up the SynchBox with
-  % the ephys machines based on cooked codes, due to a large number of
-  % dropped bytes (the synchbox-to-unity reply link is saturated).
+% If we've aligned the recorder and synchbox, augment all synchbox data
+% that doesn't already have recorder timestamps with recorder timestamps.
 
+% FIXME - NYI.
 
 
 
