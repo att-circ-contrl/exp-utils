@@ -189,17 +189,26 @@ string(datetime), constantwindow ));
 end
 
 
-% Initialize to safe values.
-bestdelta = 0;
-bestcost = inf;
+% Initialize our estimate of the constant offset, and the list of nonuniform
+% time deltas.
+bestdelta = mean(secondtimes) - mean(firsttimes);
+firstdeltas = ones(size(firsttimes)) * bestdelta;
+
+% Initialize our estimate of "aligned" time.
+firsttimesaligned = firsttimes + firstdeltas;
+
 
 % We're using an infinite search radius, so return values are scalars
 % (there's only one window).
 [ thismost, thismedian, thisleast ] = evCodes_getWindowExemplars( ...
-  firsttimes, secondtimes, firstdata, seconddata, inf );
+  firsttimesaligned, secondtimes, firstdata, seconddata, inf );
 
 % We want the exemplar with the fewest potential matches, for speed.
 chosenlist = thisleast;
+
+% Initialize to safe values.
+bestdelta = 0;
+bestcost = inf;
 
 % Handle the "couldn't find anything" case gracefully.
 if ~isempty(chosenlist)
@@ -208,7 +217,7 @@ if ~isempty(chosenlist)
   % Evaluate cost globally.
   % We have only one candidate, so the return values are scalars.
   [ bestdeltalist bestcostlist ] = evCodes_alignUsingSlidingWindow( ...
-      firsttimes, secondtimes, firstdata, seconddata, ...
+      firsttimesaligned, secondtimes, firstdata, seconddata, ...
       thiscandidate, constantwindow, 'global' );
 
   % FIXME - Bulletproof this just in case.
@@ -218,8 +227,8 @@ if ~isempty(chosenlist)
   end
 end
 
-% Initialize the list of nonuniform time deltas.
-firstdeltas = ones(size(firsttimes)) * bestdelta;
+% Update the list of nonuniform time deltas.
+firstdeltas = firstdeltas + bestdelta;
 
 
 % FIXME - Diagnostics

@@ -348,6 +348,9 @@ disp(sprintf( ...
 %
 % == Time alignment.
 
+% We're propagating recorder timestamps to all other devices and using these
+% as our official set of timestamps.
+
 
 %
 % If we don't have the information we need, bail out.
@@ -508,14 +511,13 @@ end
 
 
 %
-% Augment everything we can with recorder timestamps.
+% Propagate recorder timestamps to the SynchBox.
 
 % Recorder and synchbox timestamps do drift but can be aligned to about 0.1ms
 % precision locally (using raw, not cooked, event codes).
-% Unity timestamps have a lot more jitter (about 1.0 to 1.5 ms total).
 
 % Do alignment using event codes if possible. Failing that, using reward
-% lines.
+% lines. We can't usefully align based on periodic synch signals.
 % FIXME - Reward line alignment will take much longer due to not being able
 % to filter based on data values.
 
@@ -547,7 +549,7 @@ elseif (~isempty(recrwdA)) && (~isempty(boxrwdA))
   [ boxrwdA, recrwdA, boxmatchmask, recmatchmask, ...
     times_recorder_synchbox ] = ...
     evCodes_alignTables( boxrwdA, recrwdA, ...
-      'synchBoxTime', 'recTime', 'codeValue', 'value', ...
+      'synchBoxTime', 'recTime', '', '', ...
       aligncoarsewindows, alignmedwindows, alignfinewindow, ...
       alignoutliersigma, alignverbosity );
 
@@ -558,7 +560,7 @@ elseif (~isempty(recrwdB)) && (~isempty(boxrwdB))
   [ boxrwdB, recrwdB, boxmatchmask, recmatchmask, ...
     times_recorder_synchbox ] = ...
     evCodes_alignTables( boxrwdB, recrwdB, ...
-      'synchBoxTime', 'recTime', 'codeValue', 'value', ...
+      'synchBoxTime', 'recTime', '', '', ...
       aligncoarsewindows, alignmedwindows, alignfinewindow, ...
       alignoutliersigma, alignverbosity );
 
@@ -571,7 +573,111 @@ end
 % If we've aligned the recorder and synchbox, augment all synchbox data
 % that doesn't already have recorder timestamps with recorder timestamps.
 
-% FIXME - NYI.
+if ~isempty(times_recorder_synchbox)
+
+  % This checks for cases where translation can't be done or where the
+  % new timestamps are already present.
+
+  boxcodes_raw = evCodes_addTimesToTable( boxcodes_raw, ...
+    'synchBoxTime', 'recTime', times_recorder_synchbox );
+
+  boxcodes = evCodes_addTimesToTable( boxcodes, ...
+    'synchBoxTime', 'recTime', times_recorder_synchbox );
+
+  boxrwdA = evCodes_addTimesToTable( boxrwdA, ...
+    'synchBoxTime', 'recTime', times_recorder_synchbox );
+
+  boxrwdB = evCodes_addTimesToTable( boxrwdB, ...
+    'synchBoxTime', 'recTime', times_recorder_synchbox );
+
+  boxsynchA = evCodes_addTimesToTable( boxsynchA, ...
+    'synchBoxTime', 'recTime', times_recorder_synchbox );
+
+  boxsynchB = evCodes_addTimesToTable( boxsynchB, ...
+    'synchBoxTime', 'recTime', times_recorder_synchbox );
+
+end
+
+
+
+%
+% Propagate recorder timestamps to USE.
+
+% Unity timestamps have a lot more jitter (about 1.0 to 1.5 ms total).
+
+% Do alignment using event codes if possible. Failing that, using reward
+% lines.
+% FIXME - Reward line alignment will take much longer due to not being able
+% to filter based on data values.
+
+% NOTE - USE's record of event codes is complete, so we can align on cooked
+% codes without problems.
+
+times_recorder_game = table();
+
+if (~isempty(reccodes)) && (~isempty(gamecodes))
+  disp('.. Aligning USE and recorder using event codes.');
+
+  [ gamecodes, reccodes, gamematchmask, recmatchmask, ...
+    times_recorder_game ] = ...
+    evCodes_alignTables( gamecodes, reccodes, ...
+      'unityTime', 'recTime', 'codeWord', 'codeWord', ...
+      aligncoarsewindows, alignmedwindows, alignfinewindow, ...
+      alignoutliersigma, alignverbosity );
+
+  disp('.. Finished aligning.');
+elseif (~isempty(recrwdA)) && (~isempty(gamerwdA))
+  disp('.. Aligning USE and recorder using Reward A.');
+
+  [ gamerwdA, recrwdA, gamematchmask, recmatchmask, ...
+    times_recorder_game ] = ...
+    evCodes_alignTables( gamerwdA, recrwdA, ...
+      'unityTime', 'recTime', '', '', ...
+      aligncoarsewindows, alignmedwindows, alignfinewindow, ...
+      alignoutliersigma, alignverbosity );
+
+  disp('.. Finished aligning.');
+elseif (~isempty(recrwdB)) && (~isempty(gamerwdB))
+  disp('.. Aligning USE and recorder using Reward B.');
+
+  [ gamerwdB, recrwdB, gamematchmask, recmatchmask, ...
+    times_recorder_game ] = ...
+    evCodes_alignTables( gamerwdB, recrwdB, ...
+      'unityTime', 'recTime', '', '', ...
+      aligncoarsewindows, alignmedwindows, alignfinewindow, ...
+      alignoutliersigma, alignverbosity );
+
+  disp('.. Finished aligning.');
+else
+  disp('###  Not enough information to align recorder and USE!');
+end
+
+
+% If we've aligned the recorder and USE, augment all game data that doesn't
+% already have recorder timestamps with recorder timestamps.
+
+if ~isempty(times_recorder_game)
+
+  % This checks for cases where translation can't be done or where the
+  % new timestamps are already present.
+
+  gamecodes_raw = evCodes_addTimesToTable( gamecodes_raw, ...
+    'unityTime', 'recTime', times_recorder_game );
+
+  gamecodes = evCodes_addTimesToTable( gamecodes, ...
+    'unityTime', 'recTime', times_recorder_game );
+
+  gamerwdA = evCodes_addTimesToTable( gamerwdA, ...
+    'unityTime', 'recTime', times_recorder_game );
+
+  gamerwdB = evCodes_addTimesToTable( gamerwdB, ...
+    'unityTime', 'recTime', times_recorder_game );
+
+end
+
+
+
+% FIXME - NYI. Stopped here.
 
 
 

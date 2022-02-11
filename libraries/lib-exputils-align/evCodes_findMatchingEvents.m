@@ -44,6 +44,7 @@ secondmatches = NaN * ones(size(secondtimes));
 
 % Get window spans. We only need to do this for the first list's elements,
 % since matching is symmetrical.
+% NOTE - Indices will be NaN if corresponding spans weren't found!
 
 [ spanstart spanend ] = evCodes_getSlidingWindowIndices( ...
   firsttimes, secondtimes, windowrad );

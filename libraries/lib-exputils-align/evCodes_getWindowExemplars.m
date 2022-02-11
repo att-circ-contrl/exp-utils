@@ -90,6 +90,7 @@ end
 matchcount = 0;
 
 % Segment the second list before looping, to keep it O(n).
+% NOTE - Indices will be NaN if corresponding spans weren't found!
 [ spansecondstart spansecondend ] = evCodes_getSlidingWindowIndices( ...
   firsttimes, secondtimes, windowrad );
 
@@ -134,16 +135,19 @@ for sidx = 1:length(spanfirststart)
       thisdata = firstdata(fidx);
 
       % Get the data span within search range of this candidate.
+      % NOTE - Indices will be NaN if corresponding spans weren't found!
       thissecondstart = spansecondstart(fidx);
       thissecondend = spansecondend(fidx);
-      winseconddata = seconddata(thissecondstart:thissecondend);
+      if (~isnan(thissecondstart)) && (~isnan(thissecondend))
+        winseconddata = seconddata(thissecondstart:thissecondend);
 
-      % Count the number of matches. This might be zero.
-      thismatchcount = sum(winseconddata == thisdata);
-      if thismatchcount > 0
-        candidatecount = candidatecount + 1;
-        candidatelist(candidatecount) = fidx;
-        candidatequantities(candidatecount) = thismatchcount;
+        % Count the number of matches. This might be zero.
+        thismatchcount = sum(winseconddata == thisdata);
+        if thismatchcount > 0
+          candidatecount = candidatecount + 1;
+          candidatelist(candidatecount) = fidx;
+          candidatequantities(candidatecount) = thismatchcount;
+        end
       end
     end
 

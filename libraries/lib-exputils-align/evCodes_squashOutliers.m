@@ -22,6 +22,8 @@ function newdata = evCodes_squashOutliers( ...
 newdata = olddata;
 
 % Get window boundaries.
+% NOTE - Because we're comparing the time series with itself, we'll
+% always have valid corresponding windows (no NaN windows).
 [ spanstart spanend ] = ...
   evCodes_getSlidingWindowIndices( timeseries, timeseries, windowrad );
 
