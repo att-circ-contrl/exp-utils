@@ -21,9 +21,27 @@ if ~isempty(flist)
   for fidx = 1:length(flist)
     thisname = [ flist(fidx).folder filesep flist(fidx).name ];
     thistable = readtable(thisname, 'Delimiter', 'tab');
+
     if fidx == 1
       tabdata = thistable;
     else
+      % NOTE - We need to promote appropriate non-cell columns to cell columns
+      % before concatenating. Whether they're auto-detected correctly or not
+      % depends on the data in the table.
+
+      % FIXME - Assuming that any misdetected data is read as numeric data!
+
+      colnames = tabdata.Properties.VariableNames;
+      for cidx = 1:length(colnames)
+        thiscol = colnames{cidx};
+        if iscell(tabdata.(thiscol)) && (~iscell(thistable.(thiscol)))
+          thistable.(thiscol) = num2cell(thistable.(thiscol));
+        elseif (~iscell(tabdata.(thiscol))) && iscell(thistable.(thiscol))
+          tabdata.(thiscol) = num2cell(tabdata.(thiscol));
+        end
+      end
+
+      % Concatenate the tables, now that they're compatible.
       tabdata = [ tabdata ; thistable ];
     end
   end

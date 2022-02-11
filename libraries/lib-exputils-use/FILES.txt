@@ -8,6 +8,8 @@ The "RuntimeData" folder has files of interest in the following subfolders:
 - "SerialRecv" has messages sent from the SynchBox to USE, with both
   Unity and SynchBox timestamps. These are per-trial plus a startup file.
 - "GazeData" has eye-tracker data in TSV format. These are per-trial.
+- "FrameData" has USE state information, including eye tracker timestamps,
+  in TSV format.
 
 NOTE - Trial files are stored as "_N.txt", "_NN.txt", etc; either use the
 third-party "sort_nat" to sort them, or sort data based on timestamps.

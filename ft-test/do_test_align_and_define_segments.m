@@ -44,7 +44,7 @@
 %   stimsynchB
 %   stimcodes
 %   gamegaze_raw
-%   usedata_gaze
+%   gameframedata_raw
 
 
 %
@@ -113,6 +113,16 @@ else
     gamegaze_raw = euUSE_readRawGazeData(thisdataset.unityfile);
 
     disp('-- Finished reading Unity gaze data.');
+
+
+    disp('-- Reading Unity frame data.');
+
+    % NOTE - This has eye-tracker and unity timestamps.
+    % The loading function adds "SystemTimeSeconds" and
+    % "EyetrackerTimeSeconds" columns with timestamps in seconds.
+    gameframedata_raw = euUSE_readRawFrameData(thisdataset.unityfile);
+
+    disp('-- Finished reading Unity frame data.');
 
   end
 
@@ -315,7 +325,7 @@ else
       'have_stimrwdA', 'stimrwdA', 'have_stimrwdB', 'stimrwdB', ...
       'have_stimsynchA', 'stimsynchA', 'have_stimsynchB', 'stimsynchB', ...
       'have_stimcodes', 'stimcodes', 'stimcodes_raw', ...
-      'gamegaze_raw' );
+      'gamegaze_raw', 'gameframedata_raw' );
 
     disp('-- Finished saving.');
   end
