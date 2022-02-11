@@ -522,11 +522,6 @@ end
 % to filter based on data values.
 
 
-% NOTE - Event code alignment with the SynchBox has to use raw codes.
-% The alignment routines misbehave trying to line up the SynchBox with
-% the ephys machines based on cooked codes, due to a large number of
-% dropped bytes (the synchbox-to-unity reply link is saturated).
-
 % NOTE - We can fall back to reward alignment but not synch pulse alignment.
 % The synch pulses are at regular intervals, so alignment is ambiguous.
 
@@ -534,6 +529,11 @@ times_recorder_synchbox = table();
 
 if (~isempty(reccodes_raw)) && (~isempty(boxcodes_raw))
   disp('.. Aligning SynchBox and recorder using event codes.');
+
+  % NOTE - Event code alignment with the SynchBox has to use raw codes.
+  % The alignment routines misbehave trying to line up the SynchBox with
+  % the ephys machines based on cooked codes, due to a large number of
+  % dropped bytes (the synchbox-to-unity reply link is saturated).
 
   [ boxcodes_raw, reccodes_raw, boxmatchmask, recmatchmask, ...
     times_recorder_synchbox ] = ...
@@ -677,7 +677,124 @@ end
 
 
 
-% FIXME - NYI. Stopped here.
+%
+% Propagate recorder timestamps to the stimulator.
+
+% If we can do this directly, that's ideal. Otherwise go through the SynchBox.
+
+% Do alignment using event codes if possible. Failing that, using reward
+% lines. We can't usefully align based on periodic synch signals.
+% FIXME - Reward line alignment will take much longer due to not being able
+% to filter based on data values.
+
+times_recorder_stimulator = table();
+
+if (~isempty(reccodes)) && (~isempty(stimcodes))
+  disp('.. Aligning stimulator and recorder using event codes.');
+
+  [ stimcodes, reccodes, stimmatchmask, recmatchmask, ...
+    times_recorder_stimulator ] = ...
+    evCodes_alignTables( stimcodes, reccodes, ...
+      'stimTime', 'recTime', 'codeWord', 'codeWord', ...
+      aligncoarsewindows, alignmedwindows, alignfinewindow, ...
+      alignoutliersigma, alignverbosity );
+
+  disp('.. Finished aligning.');
+elseif (~isempty(boxcodes_raw)) && (~isempty(stimcodes_raw))
+  disp('.. Aligning stimulator and recorder via SynchBox using event codes.');
+
+  % NOTE - Event code alignment with the SynchBox has to use raw codes.
+  % The alignment routines misbehave trying to line up the SynchBox with
+  % the ephys machines based on cooked codes, due to a large number of
+  % dropped bytes (the synchbox-to-unity reply link is saturated).
+
+  % The "boxcodes_raw" table has already been augmented with "recTime".
+  [ stimcodes_raw, boxcodes_raw, stimmatchmask, boxcmatchmask, ...
+    times_recorder_stimulator ] = ...
+    evCodes_alignTables( stimcodes_raw, boxcodes_raw, ...
+      'stimTime', 'recTime', 'value', 'codeValue', ...
+      aligncoarsewindows, alignmedwindows, alignfinewindow, ...
+      alignoutliersigma, alignverbosity );
+
+  disp('.. Finished aligning.');
+elseif (~isempty(recrwdA)) && (~isempty(stimrwdA))
+  disp('.. Aligning stimulator and recorder using Reward A.');
+
+  [ stimrwdA, recrwdA, stimmatchmask, recmatchmask, ...
+    times_recorder_stimulator ] = ...
+    evCodes_alignTables( stimrwdA, recrwdA, ...
+      'stimTime', 'recTime', '', '', ...
+      aligncoarsewindows, alignmedwindows, alignfinewindow, ...
+      alignoutliersigma, alignverbosity );
+
+  disp('.. Finished aligning.');
+elseif (~isempty(recrwdB)) && (~isempty(stimrwdB))
+  disp('.. Aligning stimulator and recorder using Reward B.');
+
+  [ stimrwdB, recrwdB, stimmatchmask, recmatchmask, ...
+    times_recorder_stimulator ] = ...
+    evCodes_alignTables( stimrwdB, recrwdB, ...
+      'stimTime', 'recTime', '', '', ...
+      aligncoarsewindows, alignmedwindows, alignfinewindow, ...
+      alignoutliersigma, alignverbosity );
+
+  disp('.. Finished aligning.');
+elseif (~isempty(boxrwdA)) && (~isempty(stimrwdA))
+  disp('.. Aligning stimulator and recorder via SynchBox using Reward A.');
+
+  % The "boxrwdA" table has already been augmented with "recTime".
+  [ stimrwdA, boxrwdA, stimmatchmask, boxmatchmask, ...
+    times_recorder_stimulator ] = ...
+    evCodes_alignTables( stimrwdA, boxrwdA, ...
+      'stimTime', 'recTime', '', '', ...
+      aligncoarsewindows, alignmedwindows, alignfinewindow, ...
+      alignoutliersigma, alignverbosity );
+
+  disp('.. Finished aligning.');
+elseif (~isempty(boxrwdB)) && (~isempty(stimrwdB))
+  disp('.. Aligning stimulator and recorder via SynchBox using Reward B.');
+
+  % The "boxrwdB" table has already been augmented with "recTime".
+  [ stimrwdB, boxrwdB, stimmatchmask, boxmatchmask, ...
+    times_recorder_stimulator ] = ...
+    evCodes_alignTables( stimrwdB, boxrwdB, ...
+      'stimTime', 'recTime', '', '', ...
+      aligncoarsewindows, alignmedwindows, alignfinewindow, ...
+      alignoutliersigma, alignverbosity );
+
+  disp('.. Finished aligning.');
+else
+  disp('###  Not enough information to align recorder and stimulator!');
+end
+
+
+% If we've aligned the recorder and stimulator, augment all stimulator data
+% that doesn't already have recorder timestamps with recorder timestamps.
+
+if ~isempty(times_recorder_stimulator)
+
+  % This checks for cases where translation can't be done or where the
+  % new timestamps are already present.
+
+  stimcodes_raw = evCodes_addTimesToTable( stimcodes_raw, ...
+    'stimTime', 'recTime', times_recorder_stimulator );
+
+  stimcodes = evCodes_addTimesToTable( stimcodes, ...
+    'stimTime', 'recTime', times_recorder_stimulator );
+
+  stimrwdA = evCodes_addTimesToTable( stimrwdA, ...
+    'stimTime', 'recTime', times_recorder_stimulator );
+
+  stimrwdB = evCodes_addTimesToTable( stimrwdB, ...
+    'stimTime', 'recTime', times_recorder_stimulator );
+
+  stimsynchA = evCodes_addTimesToTable( stimsynchA, ...
+    'stimTime', 'recTime', times_recorder_stimulator );
+
+  stimsynchB = evCodes_addTimesToTable( stimsynchB, ...
+    'stimTime', 'recTime', times_recorder_stimulator );
+
+end
 
 
 

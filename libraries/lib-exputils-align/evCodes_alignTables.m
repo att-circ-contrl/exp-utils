@@ -423,7 +423,7 @@ percvec = 1e3 * prctile(deltaresidue, [ 2 9 25 50 75 91 98 ]);
 if ~want_quiet
 disp(sprintf( ...
   '(%s)  Mean align %.4f s, drift %.1f ppm, jitter %.3f ms.', ...
-  string(datetime), mean(firstdeltas), rampcoeff * 1e6, deltasigma ));
+  string(datetime), mean(firstdeltas), abs(rampcoeff) * 1e6, deltasigma ));
 end
 
 % FIXME - Diagnostics.
