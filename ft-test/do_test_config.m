@@ -46,6 +46,7 @@ want_save_data = true;
 want_cache_autoclassify = true;
 want_cache_monolithic = true;
 want_cache_align_raw = true;
+want_cache_align_done = true;
 
 
 

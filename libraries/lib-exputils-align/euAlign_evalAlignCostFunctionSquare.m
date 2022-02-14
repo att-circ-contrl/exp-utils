@@ -1,6 +1,9 @@
-function totalcost = evCodes_evalAlignCostFunctionSquare( ...
+function totalcost = euAlign_evalAlignCostFunctionSquare( ...
   firsttimes, secondtimes, firstdata, seconddata, windowrad )
 
+% function totalcost = euAlign_evalAlignCostFunctionSquare( ...
+%   firsttimes, secondtimes, firstdata, seconddata, windowrad )
+%
 % This evaluates a cost function for an attempted alignment between two
 % event lists. Optionally event data codes are presented that also have to
 % match. Only events within the window radius of each other can match.
@@ -28,7 +31,7 @@ totalcost = 0;
 
 % Get a list of second event ranges to check for each event in the first list.
 % NOTE - Indices will be NaN if corresponding spans weren't found!
-[ spanfirst spanlast ] = evCodes_getSlidingWindowIndices( ...
+[ spanfirst spanlast ] = euAlign_getSlidingWindowIndices( ...
   firsttimes, secondtimes, windowrad );
 
 

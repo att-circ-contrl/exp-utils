@@ -1,7 +1,7 @@
-function newdata = evCodes_squashOutliers( ...
+function newdata = euAlign_squashOutliers( ...
   timeseries, olddata, windowrad, outliersigma )
 
-% function newdata = evCodes_squashOutliers( ...
+% function newdata = euAlign_squashOutliers( ...
 %   timeseries, olddata, windowrad, outliersigma )
 %
 % This performs sliding-window outlier rejection. Data elements that are
@@ -25,7 +25,7 @@ newdata = olddata;
 % NOTE - Because we're comparing the time series with itself, we'll
 % always have valid corresponding windows (no NaN windows).
 [ spanstart spanend ] = ...
-  evCodes_getSlidingWindowIndices( timeseries, timeseries, windowrad );
+  euAlign_getSlidingWindowIndices( timeseries, timeseries, windowrad );
 
 % Walk through the list of samples.
 for sidx = 1:length(newdata)

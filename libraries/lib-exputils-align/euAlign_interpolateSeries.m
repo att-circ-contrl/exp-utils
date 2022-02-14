@@ -1,6 +1,6 @@
-function newdata = evCodes_interpolateSeries( oldtimes, olddata, newtimes )
+function newdata = euAlign_interpolateSeries( oldtimes, olddata, newtimes )
 
-% function newdata = evCodes_interpolateSeries( oldtimes, olddata, newtimes )
+% function newdata = euAlign_interpolateSeries( oldtimes, olddata, newtimes )
 %
 % This performs linear interpolation of a sparsely-defined data series to
 % a new set of sparse sample points, handling unusual cases (empty lists,

@@ -107,7 +107,7 @@ end
 % Load Unity data and TTL data, perform alignment, and set up segments.
 
 if want_align_segment
-  do_test_align_and_define_segments;
+  do_test_align;
 end
 
 

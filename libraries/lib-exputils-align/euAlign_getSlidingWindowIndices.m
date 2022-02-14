@@ -1,8 +1,8 @@
 function [ firstindices lastindices ] = ...
-  evCodes_getSlidingWindowIndices( firsttimes, secondtimes, windowrad )
+  euAlign_getSlidingWindowIndices( firsttimes, secondtimes, windowrad )
 
 % function [ firstindices lastindices ] = ...
-%   evCodes_getSlidingWindowIndices( firsttimes, secondtimes, windowrad )
+%   euAlign_getSlidingWindowIndices( firsttimes, secondtimes, windowrad )
 %
 % This compiles a list of spans within "secondtimes" that are within a
 % search range of any given event within "firsttimes". For each time in

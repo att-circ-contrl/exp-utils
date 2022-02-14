@@ -1,12 +1,12 @@
-function newtable = evCodes_addTimesToTable( ...
+function newtable = euAlign_addTimesToTable( ...
   oldtable, oldcolumn, newcolumn, corresptimes )
 
-% function newtable = evCodes_addTimesToTable( ...
+% function newtable = euAlign_addTimesToTable( ...
 %   oldtable, oldcolumn, newcolumn, corresptimes )
 %
 % This function augments a table with an additional timestamp column. These
 % new timestamps are derived from an existing timestamp column using a
-% correspondence table produced by evCodes_alignTables().
+% correspondence table produced by euAlign_alignTables().
 %
 % If the new timestamp column already exists or if it can't be generated,
 % "newtable" is a copy of "oldtable".
@@ -16,7 +16,7 @@ function newtable = evCodes_addTimesToTable( ...
 %   timestamps.
 % "newcolumn" is the name of the new table column to generate.
 % "corresptimes" is a table containing old and new column timestamps at
-%   known-corresponding time points, produced by evCodes_alignTables().
+%   known-corresponding time points, produced by euAlign_alignTables().
 %
 % "newtable" is a copy of "oldtable" with the new column added. New timestamp
 %   values are linearly interpolated between known points of correspondence.
@@ -29,7 +29,7 @@ if (~isempty(newtable)) && (~isempty(corresptimes))
     && ismember(oldcolumn, newtable.Properties.VariableNames) ...
     && (~ismember(newcolumn, newtable.Properties.VariableNames))
 
-    newtimes = evCodes_interpolateSeries( ...
+    newtimes = euAlign_interpolateSeries( ...
       corresptimes.(oldcolumn), corresptimes.(newcolumn), ...
       newtable.(oldcolumn) );
 
