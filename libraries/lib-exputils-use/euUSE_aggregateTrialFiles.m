@@ -17,7 +17,13 @@ function tabdata = euUSE_aggregateTrialFiles(filepattern, sortcolumn)
 tabdata = table();
 
 flist= dir(filepattern);
+
 if ~isempty(flist)
+  % FIXME - traversing in unsorted order.
+  % We should traverse this is "natural" sorted order (per sort_nat).
+  % If we do that, then we can allow the undocumented "empty sortcolumn name
+  % skips sorting" option.
+
   for fidx = 1:length(flist)
     thisname = [ flist(fidx).folder filesep flist(fidx).name ];
     thistable = readtable(thisname, 'Delimiter', 'tab');
@@ -47,8 +53,21 @@ if ~isempty(flist)
   end
 end
 
-if ~isempty(tabdata)
+if (~isempty(tabdata)) && (~isempty(sortcolumn))
   tabdata = sortrows(tabdata, sortcolumn);
+
+  % FIXME - Sanity-check the sorting!
+  if true
+    sortseries = tabdata.(sortcolumn);
+    sortcount = length(sortseries);
+    uniquecount = length(unique(sortseries));
+    if uniquecount < sortcount
+      disp(sprintf( ...
+        [ '###  [euUSE_aggregateTrialFiles] NOTE - Sorting column "%s" ' ...
+          'only had %d of %d unique values.' ], ...
+        sortcolumn, uniquecount, sortcount ));
+    end
+  end
 end
 
 
