@@ -97,17 +97,38 @@ end
 % The Right Way to do this is to accept configuration structures and to
 % write large result structures to disk.
 
-if want_monolithic
+if want_process_monolithic
   do_test_process_monolithic;
 end
 
 
 
 %
-% Load Unity data and TTL data, perform alignment, and set up segments.
+% Load Unity data and TTL data, and perform alignment.
 
-if want_align_segment
+% FIXME - This reads and sets workspace variables directly.
+% The Right Way to do this is to accept configuration structures and to
+% write large result structures to disk.
+
+if want_align
   do_test_align;
+end
+
+
+
+%
+% Define data segments and process the segments.
+
+% FIXME - This reads and sets workspace variables directly.
+% The Right Way to do this is to accept configuration structures and to
+% write large result structures to disk.
+
+if want_define_trials
+  do_test_define_trials;
+
+  if want_process_trials
+    do_test_process_trials;
+  end
 end
 
 

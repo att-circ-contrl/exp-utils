@@ -7,7 +7,7 @@
 % These are what you'll usually want to edit.
 
 
-% Trimming control.
+% Trimming control for monolithic data processing.
 % The idea is to trim big datasets to be small enough to fit in memory.
 % 100 seconds is okay with 128ch, 1000 seconds is okay with 4ch.
 
@@ -24,16 +24,31 @@ want_detail_zoom = false;
 want_chan_subset = true;
 
 
+% Number of trials to batch-process at once.
+% Memory footprint is on the order of 1 GB per trial for 128ch.
+% Set this to "inf" to process all trials in a single batch.
+
+trials_per_batch = inf;
+%trials_per_batch = 10;
+
+
 % Turn on and off various processing steps.
 
 % Try to automatically label ephys channels as good/bad/floating/etc.
 want_auto_channel_types = false;
 
-% Process continuous data before segmenting.
-want_monolithic = false;
+% Process continuous data before aligning and segmenting.
+% This is mostly for debugging.
+want_process_monolithic = false;
 
-% Compare and align Unity and TTL data and build trial definitions.
-want_align_segment = true;
+% Compare and align Unity and TTL data.
+want_align = true;
+
+% Build trial definitions.
+want_define_trials = true;
+
+% Process segmented data.
+want_process_trials = false;
 
 % Bring up the GUI data browser after processing.
 want_browser = false;
@@ -47,6 +62,7 @@ want_cache_autoclassify = true;
 want_cache_monolithic = true;
 want_cache_align_raw = true;
 want_cache_align_done = true;
+want_cache_epoched = true;
 
 
 
@@ -144,6 +160,33 @@ alignoutliersigma = 4.0;
 
 % This should either be 'quiet' or 'normal'. 'verbose' is for debugging.
 alignverbosity = 'normal';
+
+
+% Epoch segmentation.
+
+% We're always using 'TrlStart' and 'TrlEnd' to identify trials.
+% Those aren't stored here.
+
+% To identify the span to _save_, we use 'trialstartcode' and 'trialendcode'.
+% The trial starts at the _latest_ start code seen and ends at the _earliest_
+% end code seen.
+trialstartcodes = { 'TrlStart' };
+trialendcodes = { 'TrlEnd' };
+
+% We want to add a halo to give filters time to stabilize. This should be
+% at least 3 times the longest corner period and preferably 10 times.
+% The problem is that artifacts may occur at certain points in the trial
+% (e.g. when rewards are given), and those may cause large filter artifacts.
+trialstartpadsecs = 3.0;
+trialendpadsecs = 3.0;
+
+% We want to examine multiple time alignment cases (e.g. cue, choice, and
+% feedback alignment).
+% For each case, there may be multiple codes to align to (e.g. "correct" vs
+% "incorrect"). We align to the _first_ such code seen, for a given case.
+% Remember to use pairs of braces so that we get one structure instead of
+% an array.
+trialaligncodes = struct( 'cue', {{ 'StimOn' }} );
 
 
 % File I/O.
