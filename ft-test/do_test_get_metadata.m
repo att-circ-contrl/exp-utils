@@ -7,9 +7,9 @@
 % Variables that get set:
 %   rechdr
 %   stimhdr
-%   rec_channels_record
+%   rec_channels_ephys
 %   rec_channels_digital
-%   stim_channels_record
+%   stim_channels_ephys
 %   stim_channels_digital
 %   stim_channels_current
 %   stim_channels_flags
@@ -71,17 +71,17 @@ end
 
 % Analog ephys channels.
 
-rec_channels_record = ...
-  ft_channelselection( name_patterns_record, rechdr.label, {} );
+rec_channels_ephys = ...
+  ft_channelselection( name_patterns_ephys, rechdr.label, {} );
 if isfield( thisdataset, 'channels_rec' )
-  rec_channels_record = ...
+  rec_channels_ephys = ...
     ft_channelselection( thisdataset.channels_rec, rechdr.label, {} );
 end
 
-stim_channels_record = ...
-  ft_channelselection( name_patterns_record, stimhdr.label, {} );
+stim_channels_ephys = ...
+  ft_channelselection( name_patterns_ephys, stimhdr.label, {} );
 if isfield( thisdataset, 'channels_stim' )
-  stim_channels_record = ...
+  stim_channels_ephys = ...
     ft_channelselection( thisdataset.channels_stim, stimhdr.label, {} );
 end
 
@@ -106,8 +106,8 @@ stim_channels_flags = ...
 % Suppress data types we don't want.
 
 if ~want_data_ephys
-  rec_channels_record = {};
-  stim_channels_record = {};
+  rec_channels_ephys = {};
+  stim_channels_ephys = {};
 end
 
 if ~want_data_ttl

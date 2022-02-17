@@ -35,6 +35,8 @@ trials_per_batch = inf;
 % Turn on and off various processing steps.
 
 % Try to automatically label ephys channels as good/bad/floating/etc.
+% Mostly this is handy for finding dropouts and quantization.
+% FIXME - We want to automatically detect floating channels too.
 want_auto_channel_types = false;
 
 % Process continuous data before aligning and segmenting.
@@ -42,13 +44,13 @@ want_auto_channel_types = false;
 want_process_monolithic = false;
 
 % Compare and align Unity and TTL data.
-want_align = true;
+want_align = false;
 
 % Build trial definitions.
 want_define_trials = true;
 
 % Process segmented data.
-want_process_trials = false;
+want_process_trials = true;
 
 % Bring up the GUI data browser after processing.
 want_browser = false;
@@ -197,7 +199,7 @@ memchans = 4;
 
 % Patterns that various channel names match.
 % See "ft_channelselection" for special names. Use "*" as a wildcard.
-name_patterns_record = { 'Amp*', 'CH*' };
+name_patterns_ephys = { 'Amp*', 'CH*' };
 name_patterns_digital = { 'Din*', 'Dout*', 'DigBits*', 'DigWords*' };
 name_patterns_stim_current = { 'Stim*' };
 name_patterns_stim_flags = { 'Flags*' };

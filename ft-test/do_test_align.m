@@ -57,16 +57,48 @@
 
 % We're either loading this from ephys/unity or loading a cached version.
 
-fname_raw = [ datadir filesep 'alignraw.mat' ];
+fname_rawttl = [ datadir filesep 'ttl_raw.mat' ];
+fname_rawevents = [ datadir filesep 'events_raw.mat' ];
+fname_rawgaze = [ datadir filesep 'gaze_raw.mat' ];
+fname_rawframe = [ datadir filesep 'frame_raw.mat' ];
 
 
-if want_cache_align_raw && isfile(fname_raw)
+if want_cache_align_raw ...
+  && isfile(fname_rawttl) && isfile(fname_rawevents) ...
+  && isfile(fname_rawgaze) && isfile(fname_rawframe)
 
   %
   % Load raw data from disk.
 
-  disp('-- Loading raw Unity and TTL events.');
-  load(fname_raw);
+  disp('-- Loading raw TTL events.');
+
+  load(fname_rawttl);
+
+  disp('-- Unpacking raw TTL events.');
+
+  recevents_dig = struct([]);
+  if have_recevents_dig
+    recevents_dig = ...
+      nlFT_uncompressFTEvents( recevents_dig_tab, rechdr.label );
+  end
+  recevents_dig = struct([]);
+  if have_stimevents_dig
+    stimevents_dig = ...
+      nlFT_uncompressFTEvents( stimevents_dig_tab, stimhdr.label );
+  end
+
+  disp('-- Loading raw Unity events.');
+
+  load(fname_rawevents);
+
+  disp('-- Loading raw Unity gaze data.');
+
+  load(fname_rawgaze);
+
+  disp('-- Loading raw Unity frame data.');
+
+  load(fname_rawframe);
+
   disp('-- Finished loading.');
 
 else
@@ -311,27 +343,56 @@ else
   % Save the results to disk, if requested.
 
   if want_save_data
-    if isfile(fname_raw)
-      delete(fname_raw);
+    if isfile(fname_rawttl)    ; delete(fname_rawttl)    ; end
+    if isfile(fname_rawevents) ; delete(fname_rawevents) ; end
+    if isfile(fname_rawgaze)   ; delete(fname_rawgaze)   ; end
+    if isfile(fname_rawframe ) ; delete(fname_rawframe)  ; end
+
+    % NOTE - Saving TTL events in packed tabular form, as that's far smaller
+    % than structure array form.
+
+    disp('-- Compressing raw TTL events.');
+
+    recevents_dig_tab = table();
+    if have_recevents_dig
+      [ recevents_dig_tab scratchlut ] = ...
+        nlFT_compressFTEvents( recevents_dig, rechdr.label );
+    end
+    stimevents_dig_tab = table();
+    if have_stimevents_dig
+      [ stimevents_dig_tab scratchlut ] = ...
+        nlFT_compressFTEvents( stimevents_dig, stimhdr.label );
     end
 
-    disp('-- Saving raw Unity and TTL event data.');
+    disp('-- Saving raw TTL event data.');
 
-    save( fname_raw, ...
+    save( fname_rawttl, ...
+      'have_recevents_dig', 'recevents_dig_tab', ...
+      'have_stimevents_dig', 'stimevents_dig_tab', ...
+      '-v7.3' );
+
+    disp('-- Saving raw Unity event data.');
+
+    save( fname_rawevents, ...
       'have_unity', 'evcodedefs', ...
       'boxsynchA', 'boxsynchB', 'boxrwdA', 'boxrwdB', ...
       'boxcodes', 'boxcodes_raw', ...
       'gamerwdA', 'gamerwdB', 'gamecodes', 'gamecodes_raw', ...
-      'have_recevents_dig', 'recevents_dig', ...
-      'have_stimevents_dig', 'stimevents_dig', ...
       'have_recrwdA', 'recrwdA', 'have_recrwdB', 'recrwdB', ...
       'have_recsynchA', 'recsynchA', 'have_recsynchB', 'recsynchB', ...
       'have_reccodes', 'reccodes', 'reccodes_raw', ...
       'have_stimrwdA', 'stimrwdA', 'have_stimrwdB', 'stimrwdB', ...
       'have_stimsynchA', 'stimsynchA', 'have_stimsynchB', 'stimsynchB', ...
       'have_stimcodes', 'stimcodes', 'stimcodes_raw', ...
-      'gamegaze_raw', 'gameframedata_raw', ...
       '-v7.3' );
+
+    disp('-- Saving raw Unity gaze data.');
+
+    save( fname_rawgaze, 'gamegaze_raw', '-v7.3' );
+
+    disp('-- Saving raw Unity frame data.');
+
+    save( fname_rawframe, 'gameframedata_raw', '-v7.3' );
 
     disp('-- Finished saving.');
   end
@@ -371,15 +432,28 @@ disp(sprintf( ...
 %
 % Check for cached data and return immediately if we find it.
 
-fname_cooked = [ datadir filesep 'align.mat' ];
+fname_cookedevents = [ datadir filesep 'events_aligned.mat' ];
+fname_cookedgaze = [ datadir filesep 'gaze_aligned.mat' ];
+fname_cookedframe = [ datadir filesep 'frame_aligned.mat' ];
 
-if want_cache_align_done && isfile(fname_cooked)
+if want_cache_align_done && isfile(fname_cookedevents) ...
+  && isfile(fname_cookedgaze) && isfile(fname_cookedframe)
 
   %
   % Load aligned data from disk.
 
-  disp('-- Loading time-aligned Unity and TTL data and alignment tables.');
-  load(fname_cooked);
+  disp('-- Loading time-aligned Unity events and alignment tables.');
+
+  load(fname_cookedevents);
+
+  disp('-- Loading time-aligned gaze data.');
+
+  load(fname_cookedgaze);
+
+  disp('-- Loading time-aligned Unity frame data.');
+
+  load(fname_cookedframe);
+
   disp('-- Finished loading.');
 
   % We've loaded cached results. Bail out of this portion of the script.
@@ -955,30 +1029,39 @@ end
 % Save the results to disk, if requested.
 
 if want_save_data
-  if isfile(fname_cooked)
-    delete(fname_cooked);
-  end
+  if isfile(fname_cookedevents) ; delete(fname_cookedevents) ; end
+  if isfile(fname_cookedgaze)   ; delete(fname_cookedgaze)   ; end
+  if isfile(fname_cookedframe)  ; delete(fname_cookedframe)  ; end
 
-  disp('-- Saving time-aligned Unity and TTL data and alignment tables.');
+  disp('-- Saving time-aligned Unity events and alignment tables.');
 
-  save( fname_cooked, ...
+  % NOTE - Only save the tables we annotated, and selected metadata.
+  % In particular recevents_dig and stimevents_dig are huge and raw TTL.
+  % There's no further need for them and they're alreadys saved as raw data.
+
+  save( fname_cookedevents, ...
     'have_unity', 'evcodedefs', ...
     'boxsynchA', 'boxsynchB', 'boxrwdA', 'boxrwdB', ...
     'boxcodes', 'boxcodes_raw', ...
     'gamerwdA', 'gamerwdB', 'gamecodes', 'gamecodes_raw', ...
-    'have_recevents_dig', 'recevents_dig', ...
-    'have_stimevents_dig', 'stimevents_dig', ...
     'have_recrwdA', 'recrwdA', 'have_recrwdB', 'recrwdB', ...
     'have_recsynchA', 'recsynchA', 'have_recsynchB', 'recsynchB', ...
     'have_reccodes', 'reccodes', 'reccodes_raw', ...
     'have_stimrwdA', 'stimrwdA', 'have_stimrwdB', 'stimrwdB', ...
     'have_stimsynchA', 'stimsynchA', 'have_stimsynchB', 'stimsynchB', ...
     'have_stimcodes', 'stimcodes', 'stimcodes_raw', ...
-    'gamegaze_raw', 'gameframedata_raw', ...
     'times_recorder_synchbox', 'times_recorder_game', ...
     'times_recorder_stimulator', 'times_game_eyetracker', ...
     'times_recorder_eyetracker', 'unityreftime', ...
     '-v7.3' );
+
+  disp('-- Saving time-aligned gaze data.');
+
+  save( fname_cookedgaze, 'gamegaze_raw', '-v7.3' );
+
+  disp('-- Saving time-aligned Unity frame data.');
+
+  save( fname_cookedframe, 'gameframedata_raw', '-v7.3' );
 
   disp('-- Finished saving.');
 end

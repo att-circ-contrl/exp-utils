@@ -37,7 +37,7 @@ if want_cache_autoclassify
     thismsg = helper_reportQuantized( ...
       [ plotdir filesep 'autodetect-quantization.txt' ], ...
       rec_quantized, stim_quantized, ...
-      rec_channels_record, stim_channels_record );
+      rec_channels_ephys, stim_channels_ephys );
     disp(thismsg);
 
     thismsg = helper_reportDropoutArtifact( ...
@@ -46,7 +46,7 @@ if want_cache_autoclassify
       rec_artifact_frac, stim_artifact_frac, ...
       rec_has_dropouts, stim_has_dropouts, ...
       rec_dropout_frac, stim_dropout_frac, ...
-      rec_channels_record, stim_channels_record );
+      rec_channels_ephys, stim_channels_ephys );
     disp(thismsg);
 
     % Banner.
@@ -111,18 +111,18 @@ try
     preproc_config_stim_span_autotype(1) / stimhdr.Fs, ...
     preproc_config_stim_span_autotype(2) / stimhdr.Fs ));
 
-  if isempty(rec_channels_record)
+  if isempty(rec_channels_ephys)
     disp('.. Skipping recorder (no channels selected).');
   else
-    preproc_config_rec_auto.channel = rec_channels_record;
+    preproc_config_rec_auto.channel = rec_channels_ephys;
     recdata_auto = ft_preprocessing(preproc_config_rec_auto);
     have_recdata_auto = true;
   end
 
-  if isempty(stim_channels_record)
+  if isempty(stim_channels_ephys)
     disp('.. Skipping stimulator (no channels selected).');
   else
-    preproc_config_stim_auto.channel = stim_channels_record;
+    preproc_config_stim_auto.channel = stim_channels_ephys;
     stimdata_auto = ft_preprocessing(preproc_config_stim_auto);
     have_stimdata_auto = true;
   end
@@ -150,8 +150,8 @@ end
 
 % We have to do this before filtering.
 
-nchans_rec = length(rec_channels_record);
-nchans_stim = length(stim_channels_record);
+nchans_rec = length(rec_channels_ephys);
+nchans_stim = length(stim_channels_ephys);
 
 rec_quantized = zeros(nchans_rec, 1, 'logical');
 stim_quantized = zeros(nchans_stim, 1, 'logical');
@@ -195,7 +195,7 @@ else
   thismsg = helper_reportQuantized( ...
     [ plotdir filesep 'autodetect-quantization.txt' ], ...
     rec_quantized, stim_quantized, ...
-    rec_channels_record, stim_channels_record );
+    rec_channels_ephys, stim_channels_ephys );
 
   disp(thismsg);
 
@@ -368,7 +368,7 @@ if have_recdata_auto
 % FIXME - Diagnostics.
 if false
 disp(sprintf( '.. Rec "%s" rect ratio:  %.2f - %.2f', ...
-rec_channels_record{cidx}, min(thisrelative), max(thisrelative) ));
+rec_channels_ephys{cidx}, min(thisrelative), max(thisrelative) ));
 end
 
     thismask = (thisrelative >= artifact_rect_threshold);
@@ -402,7 +402,7 @@ if have_stimdata_auto
 % FIXME - Diagnostics.
 if false
 disp(sprintf( '.. Stim "%s" rect ratio:  %.2f - %.2f', ...
-stim_channels_record{cidx}, min(thisrelative), max(thisrelative) ));
+stim_channels_ephys{cidx}, min(thisrelative), max(thisrelative) ));
 end
 
     thismask = (thisrelative >= artifact_rect_threshold);
@@ -433,7 +433,7 @@ thismsg = helper_reportDropoutArtifact( ...
   rec_artifact_frac, stim_artifact_frac, ...
   rec_has_dropouts, stim_has_dropouts, ...
   rec_dropout_frac, stim_dropout_frac, ...
-  rec_channels_record, stim_channels_record );
+  rec_channels_ephys, stim_channels_ephys );
 
 disp(thismsg);
 
@@ -462,7 +462,7 @@ if want_save_data
   disp('-- Saving channel auto-classification results.');
 
   save( fname, ...
-    'rec_channels_record', 'stim_channels_record', ...
+    'rec_channels_ephys', 'stim_channels_ephys', ...
     'rec_quantized', 'stim_quantized', ...
     'rec_has_dropouts', 'stim_has_dropouts', ...
     'rec_dropout_frac', 'stim_dropout_frac', ...
@@ -536,10 +536,10 @@ disp('-- Finished auto-classifying channels.');
 function reporttext = helper_reportQuantized( ...
   fname, ...
   rec_quantized, stim_quantized, ...
-  rec_channels_record, stim_channels_record )
+  rec_channels_ephys, stim_channels_ephys )
 
-  nchans_rec = length(rec_channels_record);
-  nchans_stim = length(stim_channels_record);
+  nchans_rec = length(rec_channels_ephys);
+  nchans_stim = length(stim_channels_ephys);
 
   reporttext = sprintf( ...
     '.. %d of %d recording channels were quantized.\n', ...
@@ -548,7 +548,7 @@ function reporttext = helper_reportQuantized( ...
   for cidx = 1:nchans_rec
     if rec_quantized(cidx)
       reporttext = [ reporttext ...
-        '  ' rec_channels_record{cidx} '\n' ];
+        '  ' rec_channels_ephys{cidx} '\n' ];
     end
   end
 
@@ -559,7 +559,7 @@ function reporttext = helper_reportQuantized( ...
   for cidx = 1:nchans_stim
     if stim_quantized(cidx)
       reporttext = [ reporttext ...
-        '  ' stim_channels_record{cidx} '\n' ];
+        '  ' stim_channels_ephys{cidx} '\n' ];
     end
   end
 
@@ -582,10 +582,10 @@ function reporttext = helper_reportDropoutArtifact( ...
   rec_artifact_frac, stim_artifact_frac, ...
   rec_has_dropouts, stim_has_dropouts, ...
   rec_dropout_frac, stim_dropout_frac, ...
-  rec_channels_record, stim_channels_record )
+  rec_channels_ephys, stim_channels_ephys )
 
-  nchans_rec = length(rec_channels_record);
-  nchans_stim = length(stim_channels_record);
+  nchans_rec = length(rec_channels_ephys);
+  nchans_stim = length(stim_channels_ephys);
 
   reporttext = sprintf( ...
     '.. %d of %d recording channels had artifacts.\n', ...
@@ -595,7 +595,7 @@ function reporttext = helper_reportDropoutArtifact( ...
     if rec_has_artifacts(cidx)
       reporttext = [ reporttext ...
         sprintf( '  %s  (%.1f %%)\n', ...
-          rec_channels_record{cidx}, 100 * rec_artifact_frac(cidx) ) ];
+          rec_channels_ephys{cidx}, 100 * rec_artifact_frac(cidx) ) ];
     end
   end
 
@@ -607,7 +607,7 @@ function reporttext = helper_reportDropoutArtifact( ...
     if stim_has_artifacts(cidx)
       reporttext = [ reporttext ...
         sprintf( '  %s  (%.1f %%)\n', ...
-          stim_channels_record{cidx}, 100 * stim_artifact_frac(cidx) ) ];
+          stim_channels_ephys{cidx}, 100 * stim_artifact_frac(cidx) ) ];
     end
   end
 
@@ -619,7 +619,7 @@ function reporttext = helper_reportDropoutArtifact( ...
     if rec_has_dropouts(cidx)
       reporttext = [ reporttext ...
         sprintf( '  %s  (%.1f %%)\n', ...
-          rec_channels_record{cidx}, 100 * rec_dropout_frac(cidx) ) ];
+          rec_channels_ephys{cidx}, 100 * rec_dropout_frac(cidx) ) ];
     end
   end
 
@@ -631,7 +631,7 @@ function reporttext = helper_reportDropoutArtifact( ...
     if stim_has_dropouts(cidx)
       reporttext = [ reporttext ...
         sprintf( '  %s  (%.1f %%)\n', ...
-          stim_channels_record{cidx}, 100 * stim_dropout_frac(cidx) ) ];
+          stim_channels_ephys{cidx}, 100 * stim_dropout_frac(cidx) ) ];
     end
   end
 

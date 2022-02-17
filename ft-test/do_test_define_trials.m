@@ -14,6 +14,24 @@
 
 
 %
+% Load cached time-aligned event data if we don't already have it.
+
+if ~exist('times_recorder_game', 'var')
+  fname_aligned = [ datadir filesep 'events_aligned.mat' ];
+
+  if ~isfile(fname_aligned)
+    % No time-aligned data. Abort the script and send the user back to
+    % the Matlab prompt.
+    error('Can''t define trials without time alignment information.');
+  else
+    disp('-- Loading time-aligned Unity events and alignment tables.');
+    load(fname_aligned);
+    disp('-- Finished loading.');
+  end
+end
+
+
+%
 % Build trial definitions.
 
 

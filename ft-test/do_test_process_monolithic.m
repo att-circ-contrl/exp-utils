@@ -6,15 +6,15 @@
 % FIXME - Doing this by reading and setting workspace variables directly.
 %
 % Variables that get set:
-%   have_recdata_rec
+%   have_recdata_an
 %   have_recdata_dig
-%   recdata_rec
+%   recdata_an
 %   recdata_dig
-%   have_stimdata_rec
+%   have_stimdata_an
 %   have_stimdata_dig
 %   have_stimdata_current
 %   have_stimdata_flags
-%   stimdata_rec
+%   stimdata_an
 %   stimdata_dig
 %   stimdata_current
 %   stimdata_flags
@@ -56,11 +56,11 @@ if want_cache_monolithic
       disp('-- Rendering waveforms.');
 
       % Analog data.
-      if have_recdata_rec
+      if have_recdata_an
         doBrowseFiltered( 'Rec', ...
           recdata_wideband, recdata_lfp, recdata_spike, recdata_rect );
       end
-      if have_stimdata_rec
+      if have_stimdata_an
         doBrowseFiltered( 'Stim', ...
           stimdata_wideband, stimdata_lfp, stimdata_spike, stimdata_rect );
       end
@@ -108,11 +108,11 @@ preproc_config_stim.feedback = 'no';
 % NOTE - Field Trip will throw an exception if this fails. Wrap this to
 % catch exceptions.
 
-have_recdata_rec = false;
-have_stimdata_rec = false;
+have_recdata_an = false;
+have_stimdata_an = false;
 
-recdata_rec = struct([]);
-stimdata_rec = struct([]);
+recdata_an = struct([]);
+stimdata_an = struct([]);
 
 have_recdata_dig = false;
 have_stimdata_dig = false;
@@ -148,20 +148,20 @@ try
 
   % NOTE - Reading as double. This will be big!
 
-  if isempty(rec_channels_record)
+  if isempty(rec_channels_ephys)
     disp('.. Skipping recorder (no channels selected).');
   else
-    preproc_config_rec.channel = rec_channels_record;
-    recdata_rec = ft_preprocessing(preproc_config_rec);
-    have_recdata_rec = true;
+    preproc_config_rec.channel = rec_channels_ephys;
+    recdata_an = ft_preprocessing(preproc_config_rec);
+    have_recdata_an = true;
   end
 
-  if isempty(stim_channels_record)
+  if isempty(stim_channels_ephys)
     disp('.. Skipping stimulator (no channels selected).');
   else
-    preproc_config_stim.channel = stim_channels_record;
-    stimdata_rec = ft_preprocessing(preproc_config_stim);
-    have_stimdata_rec = true;
+    preproc_config_stim.channel = stim_channels_ephys;
+    stimdata_an = ft_preprocessing(preproc_config_stim);
+    have_stimdata_an = true;
   end
 
   thisduration = euUtil_makePrettyTime(toc());
@@ -295,14 +295,14 @@ stimdata_spike = struct([]);
 stimdata_rect = struct([]);
 
 
-if have_recdata_rec
+if have_recdata_an
 
   % Power-line filtering.
 
   disp('.. [Rec] Removing power-line noise.');
   tic();
 
-  recdata_rec = doPowerFiltering( recdata_rec, ...
+  recdata_an = doPowerFiltering( recdata_an, ...
     power_freq, power_filter_modes, want_power_filter_thilo );
 
   thisduration = euUtil_makePrettyTime(toc());
@@ -335,7 +335,7 @@ if have_recdata_rec
   % Get spike and LFP and rectified waveforms.
 
   % Copy the wideband signals.
-  recdata_wideband = recdata_rec;
+  recdata_wideband = recdata_an;
 
   disp('.. [Rec] Generating LFP, spike, and rectified activity data series.');
   tic();
@@ -354,14 +354,14 @@ if have_recdata_rec
 end
 
 
-if have_stimdata_rec
+if have_stimdata_an
 
   % Power-line filtering.
 
   disp('.. [Stim] Removing power-line noise.');
   tic();
 
-  stimdata_rec = doPowerFiltering( stimdata_rec, ...
+  stimdata_an = doPowerFiltering( stimdata_an, ...
     power_freq, power_filter_modes, want_power_filter_thilo );
 
   thisduration = euUtil_makePrettyTime(toc());
@@ -394,7 +394,7 @@ if have_stimdata_rec
   % Get spike and LFP and rectified waveforms.
 
   % Copy the wideband signals.
-  stimdata_wideband = stimdata_rec;
+  stimdata_wideband = stimdata_an;
 
   disp('.. [Stim] Generating LFP, spike, and rectified activity data series.');
   tic();
@@ -427,9 +427,9 @@ if want_save_data
   disp('-- Saving processed monolithic data.');
 
   save( fname, ...
-    'have_recdata_rec', 'recdata_rec', ...
+    'have_recdata_an', 'recdata_an', ...
     'have_recdata_dig', 'recdata_dig', ...
-    'have_stimdata_rec', 'stimdata_rec', ...
+    'have_stimdata_an', 'stimdata_an', ...
     'have_stimdata_dig', 'stimdata_dig', ...
     'have_stimdata_current', 'stimdata_current', ...
     'have_stimdata_flags', 'stimdata_flags', ...
@@ -453,12 +453,12 @@ if want_browser
 
   % Analog data.
 
-  if have_recdata_rec
+  if have_recdata_an
     doBrowseFiltered( 'Rec', ...
       recdata_wideband, recdata_lfp, recdata_spike, recdata_rect );
   end
 
-  if have_stimdata_rec
+  if have_stimdata_an
     doBrowseFiltered( 'Stim', ...
       stimdata_wideband, stimdata_lfp, stimdata_spike, stimdata_rect );
   end
