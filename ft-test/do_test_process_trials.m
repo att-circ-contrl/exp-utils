@@ -98,6 +98,11 @@ for caseidx = 1:length(trialcases)
           doFeatureFiltering( batchdata_rec_wb, ...
             lfp_corner, lfp_rate, spike_corner, ...
             rect_corners, rect_lowpass, rect_rate );
+
+        if want_reref && isfield( thisdataset, 'commonrefs_rec' )
+          batchdata_rec_lfp = doCommonAverageReference( ...
+            batchdata_rec_lfp, thisdataset.commonrefs_rec );
+        end
       end
 
 
@@ -142,12 +147,18 @@ for caseidx = 1:length(trialcases)
           doFeatureFiltering( batchdata_stim_wb, ...
             lfp_corner, lfp_rate, spike_corner, ...
             rect_corners, rect_lowpass, rect_rate );
+
+        if want_reref && isfield( thisdataset, 'commonrefs_stim' )
+          batchdata_stim_lfp = doCommonAverageReference( ...
+            batchdata_stim_lfp, thisdataset.commonrefs_stim );
+        end
       end
 
 
       disp([ '.. Copying Unity data for batch "' thisbatchlabel '".' ]);
 
 % FIXME - Unity trial data NYI.
+% FIXME - Unity gaze data NYI.
 
       disp([ '.. Finished reading.' ]);
 

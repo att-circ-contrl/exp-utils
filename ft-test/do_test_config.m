@@ -26,6 +26,9 @@ want_detail_zoom = false;
 want_chan_subset = true;
 want_chan_include_unused = false;
 
+% Set this to true to re-reference where metadata is available for that.
+want_reref = true;
+
 
 % Number of trials to batch-process at once.
 % Memory footprint is on the order of 1 GB per trial for 128ch.
@@ -44,7 +47,7 @@ want_auto_channel_types = false;
 
 % Process continuous data before aligning and segmenting.
 % This is mostly for debugging.
-want_process_monolithic = true;
+want_process_monolithic = false;
 
 % Compare and align Unity and TTL data.
 want_align = true;
