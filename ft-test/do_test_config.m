@@ -20,16 +20,19 @@ want_detail_zoom = false;
 % Ephys channel subset control.
 % The idea is to read a small number of channels for debugging, for datasets
 % that take a while to read.
+% Alternatively we can force it to read all channels even when some of those
+% are known to be floating.
 
 want_chan_subset = true;
+want_chan_include_unused = false;
 
 
 % Number of trials to batch-process at once.
 % Memory footprint is on the order of 1 GB per trial for 128ch.
 % Set this to "inf" to process all trials in a single batch.
 
-trials_per_batch = inf;
-%trials_per_batch = 10;
+%trials_per_batch = inf;
+trials_per_batch = 10;
 
 
 % Turn on and off various processing steps.
@@ -50,7 +53,7 @@ want_align = true;
 want_define_trials = true;
 
 % Process segmented data.
-want_process_trials = false;
+want_process_trials = true;
 
 % Bring up the GUI data browser after processing.
 want_browser = true;

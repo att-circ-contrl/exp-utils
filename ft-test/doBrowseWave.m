@@ -9,7 +9,8 @@ function doBrowseWave( thisdata, thistitle )
 % "thistitle" is a character array containing the title to use.
 
 
-ft_databrowser(thisdata.cfg, thisdata);
+browserconfig = struct( 'allowoverlap', 'yes' );
+ft_databrowser(browserconfig, thisdata);
 set( gcf(), 'Name', thistitle, 'NumberTitle', 'off' );
 
 

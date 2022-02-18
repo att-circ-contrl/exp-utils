@@ -114,6 +114,19 @@ dataset_big_tungsten = struct( ...
      'stimrwdB', 'Din_002' ), ...
   'use_looputil', true );
 
+% These are the channels that were actually used.
+chansrec = { 'AmpA_045', 'AmpA_047' };
+chansstim = { 'AmpC_011' };
+
+if ~want_chan_include_unused
+  dataset_big_tungsten.channels_rec = chansrec;
+  dataset_big_tungsten.channels_stim = chansstim;
+
+  % We can use common-average referencing on the recording channels, but
+  % we only have a single stimulation channel.
+  dataset_big_tungsten.commonrefs_rec = { chansrec };
+end
+
 % Crop the dataset if desired.
 
 if want_crop_big

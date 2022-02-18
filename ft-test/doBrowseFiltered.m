@@ -14,16 +14,18 @@ function doBrowseFiltered( titleprefix, ...
 % "data_rect" is FT-processed rectified spike activity data.
 
 
-ft_databrowser(data_wideband.cfg, data_wideband);
+browserconfig = struct( 'allowoverlap', 'yes');
+
+ft_databrowser(browserconfig, data_wideband);
 set( gcf(), 'Name', [ titleprefix ' Wideband' ], 'NumberTitle', 'off' );
 
-ft_databrowser(data_lfp.cfg, data_lfp);
+ft_databrowser(browserconfig, data_lfp);
 set( gcf(), 'Name', [ titleprefix ' LFP' ], 'NumberTitle', 'off' );
 
-ft_databrowser(data_spike.cfg, data_spike);
+ft_databrowser(browserconfig, data_spike);
 set( gcf(), 'Name', [ titleprefix ' Spikes' ], 'NumberTitle', 'off' );
 
-ft_databrowser(data_rect.cfg, data_rect);
+ft_databrowser(browserconfig, data_rect);
 set( gcf(), 'Name', [ titleprefix ' Rectified' ], 'NumberTitle', 'off' );
 
 

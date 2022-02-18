@@ -6,8 +6,9 @@ function newdata = euAlign_interpolateSeries( oldtimes, olddata, newtimes )
 % a new set of sparse sample points, handling unusual cases (empty lists,
 % NaN entries, etc).
 %
-% NOTE - Interpolated values off the ends of the source list are constant,
-% replicating the nearest source values, to avoid extreme interpolation.
+% NOTE - To interpolate values off the ends of the source list, the first
+% and last points in the source list are used to define a ramp. This gives
+% a degraded fit that should still be fairly accurate near the endpoints.
 %
 % "oldtimes" is a list of time values for which the data series has known
 %   values.
@@ -56,23 +57,33 @@ else
 
   % Multiple data points.
 
+
   % First pass: interpolate between known points.
   % Set the output to zero outside of the known range.
 
   newdata = interp1( oldtimes, olddata, newtimes, 'linear', 0 );
 
-  % Second pass: Set values out of range to constant values.
+
+  % Second pass: Set values out of range to values interpolated using a
+  % ramp that's contiguous with the known endpoint values.
+
   % We've already sorted the "old" series in time order.
+  firsttime = oldtimes(1);
+  firstdata = olddata(1);
+  lasttime = oldtimes(length(oldtimes));
+  lastdata = olddata(length(olddata));
 
-  thistime = oldtimes(1);
-  thisdata = olddata(1);
-  indexmask = (newtimes < thistime);
-  newdata(indexmask) = thisdata;
+  p = polyfit([ firsttime lasttime ], [firstdata lastdata], 1);
 
-  thistime = oldtimes(length(oldtimes));
-  thisdata = olddata(length(olddata));
-  indexmask = (newtimes > thistime);
-  newdata(indexmask) = thisdata;
+  indexmask = (newtimes < firsttime);
+  if any(indexmask)
+    newdata(indexmask) = polyval( p, newtimes(indexmask) );
+  end
+
+  indexmask = (newtimes > lasttime);
+  if any(indexmask)
+    newdata(indexmask) = polyval( p, newtimes(indexmask) );
+  end
 
 end
 

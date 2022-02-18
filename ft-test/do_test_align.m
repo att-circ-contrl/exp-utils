@@ -522,6 +522,9 @@ end
 % FIXME - Leaving synchbox, recorder, and stimulator, and gaze timestamps
 % as-is. The offsets in these should be modest (hours at most).
 
+% FIXME - Leaving "system timestamps" in frame and gaze data alone.
+% We'll subtract the offset when resaving as "unityTime".
+
 
 % Pick an arbitrary time reference. Negative offsets relative to it are fine.
 
@@ -965,7 +968,10 @@ if ~isempty(gameframedata_raw)
   % Save copies of timestamp columns with our standard names.
   % Interpolate timestamps for the ET data saved with successive Unity times.
 
-  gameframedata_raw.unityTime = gameframedata_raw.SystemTimeSeconds;
+  % NOTE - Remember to subtract the enormous offset from the Unity timestamp!
+
+  gameframedata_raw.unityTime = ...
+    gameframedata_raw.SystemTimeSeconds - unityreftime;
 
   % Interpolate gaze timestamps.
   % We should always have this alignment table if we have gameframedata_raw.
