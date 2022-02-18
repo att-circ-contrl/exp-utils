@@ -36,54 +36,77 @@
 % Load cached results from disk, if requested.
 % If we successfully load data, bail out without further processing.
 
-if want_cache_monolithic
-  fname = [ datadir filesep 'monolithic.mat' ];
+fname_raw = [ datadir filesep 'monolithic_raw.mat' ];
+fname_cooked = [ datadir filesep 'monolithic_filtered.mat' ];
+fname_ttlevents = [ datadir filesep 'monolithic_ttl_events.mat' ];
 
-  if isfile(fname)
-    % Load the data we previously saved.
+if want_cache_monolithic ...
+  && isfile(fname_raw) && isfile(fname_cooked) && isfile(fname_ttlevents)
 
-    disp('-- Loading processed monolithic data.');
-    load(fname);
-    disp('-- Finished loading.');
+  % Load the data we previously saved.
+
+  disp('-- Loading raw monolithic data.');
+
+  load(fname_raw);
+
+  disp('-- Loading processed monolithic data.');
+
+  load(fname_cooked);
+
+  disp('-- Loading TTL event lists from monolithic data.');
+
+  load(fname_ttlevents);
+
+  recevents_dig = struct([]);
+  if have_recevents_dig
+    recevents_dig = ...
+      nlFT_uncompressFTEvents( recevents_dig_tab, rechdr.label );
+  end
+  stimevents_dig = struct([]);
+  if have_stimevents_dig
+    stimevents_dig = ...
+      nlFT_uncompressFTEvents( stimevents_dig_tab, stimhdr.label );
+  end
+
+  disp('-- Finished loading.');
 
 
-    % Generate reports and plots.
+  % Generate reports and plots.
 % FIXME - Monolithic reports and plots NYI.
 
 
-    % Pull up the data browser windows, if requested.
-    if want_browser
-      disp('-- Rendering waveforms.');
+  % Pull up the data browser windows, if requested.
+  if want_browser
+    disp('-- Rendering waveforms.');
 
-      % Analog data.
-      if have_recdata_an
-        doBrowseFiltered( 'Rec', ...
-          recdata_wideband, recdata_lfp, recdata_spike, recdata_rect );
-      end
-      if have_stimdata_an
-        doBrowseFiltered( 'Stim', ...
-          stimdata_wideband, stimdata_lfp, stimdata_spike, stimdata_rect );
-      end
-
-      % Continuous digital data.
-      if have_recdata_dig
-        doBrowseWave( recdata_dig, 'Recorder TTL' );
-      end
-      if have_stimdata_dig
-        doBrowseWave( stimdata_dig, 'Stimulator TTL' );
-      end
-
-      disp('-- Press any key to continue.');
-      pause;
-
-      % Clean up.
-      close all;
+    % Analog data.
+    if have_recdata_an
+      doBrowseFiltered( 'Rec', ...
+        recdata_wideband, recdata_lfp, recdata_spike, recdata_rect );
+    end
+    if have_stimdata_an
+      doBrowseFiltered( 'Stim', ...
+        stimdata_wideband, stimdata_lfp, stimdata_spike, stimdata_rect );
     end
 
+    % Continuous digital data.
+    if have_recdata_dig
+      doBrowseWave( recdata_dig, 'Recorder TTL' );
+    end
+    if have_stimdata_dig
+      doBrowseWave( stimdata_dig, 'Stimulator TTL' );
+    end
 
-    % We've loaded cached results. Bail out of this portion of the script.
-    return;
+    disp('-- Press any key to continue.');
+    pause;
+
+    % Clean up.
+    close all;
   end
+
+
+  % We've loaded cached results. Bail out of this portion of the script.
+  return;
 end
 
 
@@ -418,25 +441,48 @@ end
 % Save the results to disk, if requested.
 
 if want_save_data
-  fname = [ datadir filesep 'monolithic.mat' ];
 
-  if isfile(fname)
-    delete(fname);
-  end
+  if isfile(fname_raw)       ; delete(fname_raw)       ; end
+  if isfile(fname_cooked)    ; delete(fname_cooked)    ; end
+  if isfile(fname_ttlevents) ; delete(fname_ttlevents) ; end
 
-  disp('-- Saving processed monolithic data.');
+  disp('-- Saving raw monolithic data.');
 
-  save( fname, ...
+  save( fname_raw, ...
     'have_recdata_an', 'recdata_an', ...
     'have_recdata_dig', 'recdata_dig', ...
     'have_stimdata_an', 'stimdata_an', ...
     'have_stimdata_dig', 'stimdata_dig', ...
     'have_stimdata_current', 'stimdata_current', ...
     'have_stimdata_flags', 'stimdata_flags', ...
-    'have_recevents_dig', 'recevents_dig', ...
-    'have_stimevents_dig', 'stimevents_dig', ...
+    '-v7.3' );
+
+  disp('-- Saving processed monolithic data.');
+
+  save( fname_cooked, ...
     'recdata_wideband', 'recdata_lfp', 'recdata_spike', 'recdata_rect', ...
     'stimdata_wideband', 'stimdata_lfp', 'stimdata_spike', 'stimdata_rect', ...
+    '-v7.3' );
+
+  disp('-- Saving compressed TTL event lists from monolithic data.');
+
+  % NOTE - Saving TTL events in packed tabular form, as that's far smaller
+  % than structure array form.
+
+  recevents_dig_tab = table();
+  if have_recevents_dig
+    [ recevents_dig_tab scratchlut ] = ...
+      nlFT_compressFTEvents( recevents_dig, rechdr.label );
+  end
+  stimevents_dig_tab = table();
+  if have_stimevents_dig
+    [ stimevents_dig_tab scratchlut ] = ...
+      nlFT_compressFTEvents( stimevents_dig, stimhdr.label );
+  end
+
+  save( fname_ttlevents, ...
+    'have_recevents_dig', 'recevents_dig_tab', ...
+    'have_stimevents_dig', 'stimevents_dig_tab', ...
     '-v7.3' );
 
   disp('-- Finished saving.');

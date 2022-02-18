@@ -41,25 +41,26 @@ want_auto_channel_types = false;
 
 % Process continuous data before aligning and segmenting.
 % This is mostly for debugging.
-want_process_monolithic = false;
+want_process_monolithic = true;
 
 % Compare and align Unity and TTL data.
-want_align = false;
+want_align = true;
 
 % Build trial definitions.
 want_define_trials = true;
 
 % Process segmented data.
-want_process_trials = true;
+want_process_trials = false;
 
 % Bring up the GUI data browser after processing.
-want_browser = false;
+want_browser = true;
 
 
 % Optionally save data from various steps to disk.
 % Optionally load previously-saved data instead of processing raw data.
 
 want_save_data = true;
+
 want_cache_autoclassify = true;
 want_cache_monolithic = true;
 want_cache_align_raw = true;
