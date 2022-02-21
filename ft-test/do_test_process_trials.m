@@ -14,11 +14,19 @@
 times_recstim_rec = times_recorder_stimulator.recTime;
 times_recstim_stim = times_recorder_stimulator.stimTime;
 
+gamecoderectime = [];
+gamerwdArectime = [];
+gamerwdBrectime = [];
+if ~isempty(gamecodes) ; gamecoderectime = gamecodes.recTime ; end
+if ~isempty(gamerwdA)  ; gamerwdArectime = gamerwdA.recTime  ; end
+if ~isempty(gamerwdB)  ; gamerwdBrectime = gamerwdB.recTime  ; end
+
 
 % Banner.
 disp('== Processing epoched trial data.');
 
 trialcases = fieldnames(trialdefs);
+trialbatchmeta = struct();
 
 for caseidx = 1:length(trialcases)
 
@@ -26,15 +34,21 @@ for caseidx = 1:length(trialcases)
 
   thiscaselabel = trialcases{caseidx};
   thistrialdefs = trialdefs.(thiscaselabel);
+  thistrialdeftable = trialdeftables.(thiscaselabel);
 
 
   % Split this case's trials into batches small enough to process.
+
+  % Default to monolithic.
 
   trialcount = size(thistrialdefs);
   trialcount = trialcount(1);
 
   batchlabels = { thiscaselabel };
   batchtrialdefs = { thistrialdefs };
+  batchtrialdeftables = { thistrialdeftable };
+
+  % If we have too many trials, break it into batches.
 
   if trialcount > trials_per_batch
     batchlabels = {};
@@ -44,6 +58,7 @@ for caseidx = 1:length(trialcases)
     for bidx = 1:length(trialsfirst)
       batchlabels{bidx} = sprintf('%s-batch%04d', thiscaselabel, bidx);
       batchtrialdefs{bidx} = thistrialdefs(trialsfirst:trialslast,:);
+      batchtrialdeftables{bidx} = thistrialdeftable(trialsfirst:trialslast,:);
     end
   end
 
@@ -51,26 +66,33 @@ for caseidx = 1:length(trialcases)
   %
   % Process this case's trial batches.
 
-  middlebatch = round(1 + 0.5 * length(batchlabels));
-  middlebatch = min(middlebatch, length(batchlabels));
+  % NOTE - There's a debug switch to process only a single batch, for testing.
 
-% FIXME - Test only the middle batch.
-  for bidx = middlebatch:middlebatch
-%  for bidx = 1:length(batchlabels)
+  batchspan = 1:length(batchlabels);
+
+  if want_one_batch
+    middlebatch = round(1 + 0.5 * length(batchlabels));
+    middlebatch = min(middlebatch, length(batchlabels));
+    batchspan = middlebatch:middlebatch;
+  end
+
+  for bidx = batchspan
 
     thisbatchlabel = batchlabels{bidx};
     thisbatchtrials_rec = batchtrialdefs{bidx};
+    % This has the same information as "trials", but has column labels.
+    thisbatchtable_rec = batchtrialdeftables{bidx};
 
-    fname = [ datadir filesep 'trials-' thisbatchlabel '.mat' ];
+    fname_batch = [ datadir filesep 'trials-' thisbatchlabel '.mat' ];
     need_save = false;
 
-    if want_cache_epoched && isfile(fname)
+    if want_cache_epoched && isfile(fname_batch)
 
       %
       % Load the data we previously processed.
 
       disp([ '.. Loading batch "' thisbatchlabel '".' ]);
-      load(fname);
+      load(fname_batch);
       disp([ '.. Finished loading.' ]);
 
     else
@@ -89,6 +111,12 @@ for caseidx = 1:length(trialcases)
       preproc_config_rec.feedback = 'no';
 
       have_batchdata_rec = false;
+
+      batchdata_rec_wb = struct([]);
+      batchdata_rec_lfp = struct([]);
+      batchdata_rec_spike = struct([]);
+      batchdata_rec_rect = struct([]);
+
       if ~isempty(rec_channels_ephys)
         preproc_config_rec.channel = rec_channels_ephys;
         batchdata_rec_wb = ft_preprocessing(preproc_config_rec);
@@ -138,6 +166,12 @@ for caseidx = 1:length(trialcases)
       preproc_config_stim.feedback = 'no';
 
       have_batchdata_stim = false;
+
+      batchdata_stim_wb = struct([]);
+      batchdata_stim_lfp = struct([]);
+      batchdata_stim_spike = struct([]);
+      batchdata_stim_rect = struct([]);
+
       if ~isempty(stim_channels_ephys)
         preproc_config_stim.channel = stim_channels_ephys;
         batchdata_stim_wb = ft_preprocessing(preproc_config_stim);
@@ -157,18 +191,109 @@ for caseidx = 1:length(trialcases)
 
       disp([ '.. Copying Unity data for batch "' thisbatchlabel '".' ]);
 
-% FIXME - Unity trial data NYI.
-% FIXME - Unity gaze data NYI.
+      % NOTE - We've loaded "events_aligned.mat" when building trial
+      % definitions. This gives us "gamecodes", "gamerwdA", and "gamerwdB",
+      % among other things. Those are the events that we care about.
 
-      disp([ '.. Finished reading.' ]);
+      % We always "have" event data, but a batch or a trial may have 0 events.
+
+      batchevents_codes = {};
+      batchevents_rwdA = {};
+      batchevents_rwdB = {};
+
+      for tidx = 1:height(thisbatchtable_rec)
+        thisrectimestart = thisbatchtable_rec.rectimestart(tidx);
+        thisrectimeend = thisbatchtable_rec.rectimeend(tidx);
+
+        thistrial_codes = table();
+        thistrial_rwdA = table();
+        thistrial_rwdB = table();
+
+        if ~isempty(gamecodes)
+          thismask = (gamecoderectime >= thisrectimestart) ...
+            & (gamecoderectime <= thisrectimeend);
+          thistrial_codes = gamecodes( thismask, : );
+        end
+
+        if ~isempty(gamerwdA)
+          thismask = (gamerwdArectime >= thisrectimestart) ...
+            & (gamerwdArectime <= thisrectimeend);
+          thistrial_rwdA = gamerwdA( thismask, : );
+        end
+
+        if ~isempty(gamerwdB)
+          thismask = (gamerwdBrectime >= thisrectimestart) ...
+            & (gamerwdBrectime <= thisrectimeend);
+          thistrial_rwdB = gamerwdB( thismask, : );
+        end
+
+        batchevents_codes{tidx} = thistrial_codes;
+        batchevents_rwdA{tidx} = thistrial_rwdA;
+        batchevents_rwdB{tidx} = thistrial_rwdB;
+      end
+
+% FIXME - Unity frame data NYI. Need to load this.
+% FIXME - Unity gaze data NYI. Need to load this.
 
       %
       % Save this batch of trial data.
 
+      disp([ '.. Saving trial batch "' thisbatchlabel '".' ]);
+
+
+% NOTE - Variables being saved per batch.
+%
+% thisbatchlabel
+% thisbatchtrials_rec
+% thisbatchtrials_stim  (only the three mandatory columns)
+% thisbatchtable_rec  (same as trials_rec but with column headings)
+% trialdefcolumns
+%
+% have_batchdata_rec
+% batchdata_rec_wb
+% batchdata_rec_lfp
+% batchdata_rec_spike
+% batchdata_rec_rect
+%
+% have_batchdata_stim
+% batchdata_stim_wb
+% batchdata_stim_lfp
+% batchdata_stim_spike
+% batchdata_stim_rect
+%
+% batchevents_codes
+% batchevents_rwdA
+% batchevents_rwdB
+
+      save( fname_batch, ...
+        'thisbatchlabel', 'thisbatchtrials_rec', 'thisbatchtable_rec', ...
+        'trialdefcolumns', 'thisbatchtrials_stim', ...
+        'have_batchdata_rec', 'batchdata_rec_wb', 'batchdata_rec_lfp', ...
+        'batchdata_rec_spike', 'batchdata_rec_rect', ...
+        'have_batchdata_stim', 'batchdata_stim_wb', 'batchdata_stim_lfp', ...
+        'batchdata_stim_spike', 'batchdata_stim_rect', ...
+        'batchevents_codes', 'batchevents_rwdA', 'batchevents_rwdB', ...
+        '-v7.3' );
+
+      disp([ '.. Finished saving.' ]);
     end
 
 
-    % FIXME - Batch plotting NYI.
+    % Generate plots for this batch.
+
+    fbase_plot = [ plotdir filesep 'trials' ];
+
+    % FIXME - Omitting gaze data for now.
+
+    disp([ '.. Plotting trial batch "' thisbatchlabel '".' ]);
+
+    doPlotBatchTrials( fbase_plot, thisbatchlabel, thisbatchtable_rec, ...
+      batchdata_rec_wb, batchdata_rec_lfp, batchdata_rec_spike, ...
+      batchdata_rec_rect, batchdata_stim_wb, batchdata_stim_lfp, ...
+      batchdata_stim_spike, batchdata_stim_rect, ...
+      batchevents_codes, batchevents_rwdA, batchevents_rwdB );
+
+    disp([ '.. Finished plotting.' ]);
 
 
     % If this is the batch we want to display, display it.
@@ -177,11 +302,12 @@ for caseidx = 1:length(trialcases)
 
       disp([ '-- Rendering waveforms for batch "' thisbatchlabel '".' ]);
 
-% FIXME - Data browser NYI.
       doBrowseFiltered( 'Rec', batchdata_rec_wb, batchdata_rec_lfp, ...
         batchdata_rec_spike, batchdata_rec_rect );
       doBrowseFiltered( 'Stim', batchdata_stim_wb, batchdata_stim_lfp, ...
         batchdata_stim_spike, batchdata_stim_rect );
+
+      % FIXME - Not browsing event data or frame data or gaze data.
 
       disp('-- Press any key to continue.');
       pause;
@@ -193,9 +319,24 @@ for caseidx = 1:length(trialcases)
   end
 
 
+  % Record batch metadata.
+
+  % Remember to wrap cell arrays in {}.
+  trialbatchmeta.(thiscaselabel) = struct( ...
+    'batchlabels', { batchlabels }, 'batchtrialdefs', { batchtrialdefs }, ...
+    'batchtrialdeftables', { batchtrialdeftables } );
+
+
   % Finished with this alignment case.
 
 end
+
+
+% Save batch metadata.
+
+fname = [ datadir filesep 'batchmetadata.mat' ];
+save( fname, 'trialbatchmeta', '-v7.3' );
+
 
 % Banner.
 disp('== Finished processing epoched trial data.');

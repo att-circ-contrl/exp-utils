@@ -38,6 +38,10 @@ want_reref = true;
 trials_per_batch = 10;
 
 
+% Debugging switch - process only one batch (in the middle of the data).
+want_one_batch = true;
+
+
 % Turn on and off various processing steps.
 
 % Try to automatically label ephys channels as good/bad/floating/etc.
@@ -50,7 +54,7 @@ want_auto_channel_types = false;
 want_process_monolithic = false;
 
 % Compare and align Unity and TTL data.
-want_align = true;
+want_align = false;
 
 % Build trial definitions.
 want_define_trials = true;
@@ -59,7 +63,7 @@ want_define_trials = true;
 want_process_trials = true;
 
 % Bring up the GUI data browser after processing.
-want_browser = true;
+want_browser = false;
 
 
 % Optionally save data from various steps to disk.
