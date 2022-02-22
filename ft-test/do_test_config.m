@@ -37,7 +37,6 @@ want_reref = true;
 %trials_per_batch = inf;
 trials_per_batch = 10;
 
-
 % Debugging switch - process only one batch (in the middle of the data).
 want_one_batch = true;
 
@@ -62,8 +61,11 @@ want_define_trials = true;
 % Process segmented data.
 want_process_trials = true;
 
-% Bring up the GUI data browser after processing.
+% Bring up the GUI data browser after processing (for debugging).
 want_browser = false;
+
+% Generate plots (for debugging).
+want_plots = true;
 
 
 % Optionally save data from various steps to disk.

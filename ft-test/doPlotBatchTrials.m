@@ -42,32 +42,67 @@ ymax_lfp = 200;
 ymax_hp = 300;
 ymax_rect = 50;
 
+
 % FIXME - Hardcoding time ranges to get readable plots.
-timeranges = struct( 'wide', 'auto', 'detail', [ -0.1 0.1 ] );
 
-helper_plotStack( [ obase '-lfp' ], ...
-  sprintf( 'Trials - %s - LFP', batchlabel ), ...
-  batchtrialtable, ymax_lfp, timeranges, ...
-  ft_rec_lfp, ft_stim_lfp, events_codes, events_rwdA, events_rwdB );
+rangeclose = [ -0.2 0.4 ];
+rangedetail = [ -0.1 0.1 ];
+rangefine = [ -0.01 0.01 ];
 
-helper_plotStack( [ obase '-rect' ], ...
-  sprintf( 'Trials - %s - Activity', batchlabel ), ...
-  batchtrialtable, ymax_rect, timeranges, ...
-  ft_rec_rect, ft_stim_rect, events_codes, events_rwdA, events_rwdB );
 
-% Add a third zoom level for high-pass and wideband.
-% Wideband won't benefit from it, due to 60 Hz noise, but do it anyways.
-timeranges.('fine') = [ -0.01 0.01 ];
+% For wideband, we just want "wide" and "detail".
+% Most of what we're seeing is noise, and the fact that spikes exist.
+timeranges = ...
+  struct( 'wide', 'auto', 'detail', rangedetail );
 
-helper_plotStack( [ obase '-wb' ], ...
-  sprintf( 'Trials - %s - Wideband', batchlabel ), ...
+helper_plotStack( [ obase '-rec-wb' ], ...
+  sprintf( 'Trials - %s - Rec Wideband', batchlabel ), ...
   batchtrialtable, ymax_wb, timeranges, ...
-  ft_rec_wb, ft_stim_wb, events_codes, events_rwdA, events_rwdB );
+  ft_rec_wb, events_codes, events_rwdA, events_rwdB );
 
-helper_plotStack( [ obase '-hp' ], ...
-  sprintf( 'Trials - %s - High-Pass', batchlabel ), ...
+helper_plotStack( [ obase '-stim-wb' ], ...
+  sprintf( 'Trials - %s - Stim Wideband', batchlabel ), ...
+  batchtrialtable, ymax_wb, timeranges, ...
+  ft_stim_wb, events_codes, events_rwdA, events_rwdB );
+
+
+% For LFP and rectified activity, add "close".
+% This is a wide enough range that we can see response to cues.
+timeranges.('close') = rangeclose;
+
+helper_plotStack( [ obase '-rec-lfp' ], ...
+  sprintf( 'Trials - %s - Rec LFP', batchlabel ), ...
+  batchtrialtable, ymax_lfp, timeranges, ...
+  ft_rec_lfp, events_codes, events_rwdA, events_rwdB );
+
+helper_plotStack( [ obase '-stim-lfp' ], ...
+  sprintf( 'Trials - %s - Stim LFP', batchlabel ), ...
+  batchtrialtable, ymax_lfp, timeranges, ...
+  ft_stim_lfp, events_codes, events_rwdA, events_rwdB );
+
+helper_plotStack( [ obase '-rec-rect' ], ...
+  sprintf( 'Trials - %s - Rec Activity', batchlabel ), ...
+  batchtrialtable, ymax_rect, timeranges, ...
+  ft_rec_rect, events_codes, events_rwdA, events_rwdB );
+
+helper_plotStack( [ obase '-stim-rect' ], ...
+  sprintf( 'Trials - %s - Stim Activity', batchlabel ), ...
+  batchtrialtable, ymax_rect, timeranges, ...
+  ft_stim_rect, events_codes, events_rwdA, events_rwdB );
+
+
+% For spikes, add "fine", so that we can see spike waveforms.
+timeranges.('fine') = rangefine;
+
+helper_plotStack( [ obase '-rec-hp' ], ...
+  sprintf( 'Trials - %s - Rec High-Pass', batchlabel ), ...
   batchtrialtable, ymax_hp, timeranges, ...
-  ft_rec_spike, ft_stim_spike, events_codes, events_rwdA, events_rwdB );
+  ft_rec_spike, events_codes, events_rwdA, events_rwdB );
+
+helper_plotStack( [ obase '-stim-hp' ], ...
+  sprintf( 'Trials - %s - Stim High-Pass', batchlabel ), ...
+  batchtrialtable, ymax_hp, timeranges, ...
+  ft_stim_spike, events_codes, events_rwdA, events_rwdB );
 
 
 % Done.
@@ -84,7 +119,7 @@ end
 
 function helper_plotStack( ...
   fbase, figtitle, batchdefs, maxyval, timeranges, ...
-  ft_recdata, ft_stimdata, events_codes, events_rwdA, events_rwdB )
+  ft_wavedata, events_codes, events_rwdA, events_rwdB )
 
   %
   % Extract selected metadata.
@@ -99,20 +134,12 @@ function helper_plotStack( ...
     reftimes = batchdefs.rectimeevent;
   end
 
-  recrate = 1000;
-  stimrate = 1000;
+  waverate = 1000;
+  wavechans = 0;
 
-  recchans = 0;
-  stimchans = 0;
-
-  if ~isempty(ft_recdata)
-    recrate = ft_recdata.fsample;
-    recchans = length(ft_recdata.label);
-  end
-
-  if ~isempty(ft_stimdata)
-    stimrate = ft_stimdata.fsample;
-    stimchans = length(ft_stimdata.label);
+  if ~isempty(ft_wavedata)
+    waverate = ft_wavedata.fsample;
+    wavechans = length(ft_wavedata.label);
   end
 
   timelabels = fieldnames(timeranges);
@@ -133,9 +160,11 @@ function helper_plotStack( ...
 
   % These are cursors, so making them visually distinct from each other is
   % more important than making them visually distinct from the waveforms.
-  palette_codes = nlPlot_getColorSpread(cols.red, trialcount, 40);
-  palette_rwdA = nlPlot_getColorSpread(cols.brn, trialcount, 40);
-  palette_rwdB = nlPlot_getColorSpread(cols.mag, trialcount, 40);
+  % There are a lot of event codes per frame, so make them a fainter colour.
+  % FIXME - Getting this to look not-ugly involves a lot of hand-tweaking.
+  palette_codes = nlPlot_getColorSpread(cols.cyn, trialcount, 20);
+  palette_rwdA = nlPlot_getColorSpread(cols.brn, trialcount, 30);
+  palette_rwdB = nlPlot_getColorSpread(cols.mag, trialcount, 60);
 
 
   %
@@ -143,42 +172,87 @@ function helper_plotStack( ...
 
   thisfig = figure();
 
-  % One output figure per recording channel.
-  for cidx = 1:recchans
-    for zidx = 1:length(timelabels)
+  % One output figure per channel.
+  for cidx = 1:wavechans
 
+    % We only need to plot the figure once; we'll call "xlim" for each
+    % zoom level.
+
+    figure(thisfig);
+    clf('reset');
+
+    thislabelraw = ft_wavedata.label{cidx};
+    thislabel = strrep(thislabelraw, '_', ' ');
+    title(sprintf( '%s - %s', figtitle, thislabel ));
+
+    ylim( plotyrange );
+    xlabel('Time (s)');
+    ylabel('Amplitude (a.u.)');
+
+    hold on;
+
+    % Render event cursors first, so that they're behind the waves.
+
+    for tidx = 1:trialcount
+      thistable = events_codes{tidx};
+      for eidx = 1:height(thistable)
+        thistime = thistable.recTime(eidx) - reftimes(tidx);
+        plot( [ thistime thistime ], plotyrange, ...
+          'Color', palette_codes{tidx}, ...
+          'DisplayName', sprintf('trial %d codes', tidx) );
+      end
+    end
+
+    for tidx = 1:trialcount
+      thistable = events_rwdA{tidx};
+      for eidx = 1:height(thistable)
+        thistime = thistable.recTime(eidx) - reftimes(tidx);
+        plot( [ thistime thistime ], plotyrange, ...
+          'Color', palette_rwdA{tidx}, ...
+          'DisplayName', sprintf('trial %d rwdA', tidx) );
+      end
+    end
+
+    for tidx = 1:trialcount
+      thistable = events_rwdB{tidx};
+      for eidx = 1:height(thistable)
+        thistime = thistable.recTime(eidx) - reftimes(tidx);
+        plot( [ thistime thistime ], plotyrange, ...
+          'Color', palette_rwdB{tidx}, ...
+          'DisplayName', sprintf('trial %d rwdB', tidx) );
+      end
+    end
+
+    % Now render the waves.
+
+    for tidx = 1:trialcount
+      thiswave = ft_wavedata.trial{tidx}(cidx,:);
+      sampcount = length(thiswave);
+      thistimes = 0:(sampcount-1);
+      thistimes = (thistimes / waverate) + firsttimes(tidx);
+      thistimes = thistimes - reftimes(tidx);
+
+      plot( thistimes, thiswave, 'Color', palette_waves{tidx}, ...
+        'DisplayName', sprintf('trial %d', tidx) );
+    end
+
+    hold off;
+
+    % Iterate zoom ranges, saving one figure per zoom level.
+    for zidx = 1:length(timelabels)
       thiszoom = timelabels{zidx};
 
-      figure(thisfig);
-      clf('reset');
-
-      thislabel = ft_recdata.label{cidx};
-      thislabel = strrep(thislabel, '_', ' ');
-      title(sprintf( '%s - %s', figtitle, thislabel ));
-
       xlim( timeranges.(thiszoom) );
-      ylim( plotyrange );
-      xlabel('Time (s)');
-      ylabel('Amplitude (a.u.)');
 
-      hold on;
-
-      for tidx = 1:trialcount
-        thiswave = ft_recdata.trial{tidx}(cidx,:);
-        sampcount = length(thiswave);
-        thistimes = 0:(sampcount-1);
-        thistimes = (thistimes / recrate) + firsttimes(tidx) - reftimes(tidx);
-
-        plot( thistimes, thiswave, 'Color', palette_waves{tidx}, ...
-          'DisplayName', sprintf('trial %d', tidx) );
-      end
-
-      hold off;
-
-      saveas(thisfig, sprintf('%s-%s-ch%04d.png', fbase, thiszoom, cidx));
-
+      % NOTE - Use the channel label, not the index, for readability.
+%      saveas(thisfig, sprintf('%s-%s-ch%04d.png', fbase, thiszoom, cidx));
+      saveas(thisfig, sprintf('%s-%s-%s.png', fbase, thiszoom, thislabelraw));
     end
   end
+
+  % Reset before closing, just in case of memory leaks.
+  figure(thisfig);
+  clf('reset');
 
   close(thisfig);
 

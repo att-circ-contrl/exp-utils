@@ -55,12 +55,28 @@ for caseidx = 1:length(trialcases)
     batchtrialdefs = {};
     trialsfirst = 1:trials_per_batch:trialcount;
     trialslast = min(( trialsfirst + trials_per_batch - 1), trialcount );
+
     for bidx = 1:length(trialsfirst)
+      thistrialfirst = trialsfirst(bidx);
+      thistriallast = trialslast(bidx);
+
       batchlabels{bidx} = sprintf('%s-batch%04d', thiscaselabel, bidx);
-      batchtrialdefs{bidx} = thistrialdefs(trialsfirst:trialslast,:);
-      batchtrialdeftables{bidx} = thistrialdeftable(trialsfirst:trialslast,:);
+      batchtrialdefs{bidx} = ...
+        thistrialdefs(thistrialfirst:thistriallast,:);
+      batchtrialdeftables{bidx} = ...
+        thistrialdeftable(thistrialfirst:thistriallast,:);
     end
   end
+
+
+  % Identify certain special batches, for debugging.
+
+  earlybatch = round(1 + 0.2 * length(batchlabels));
+  earlybatch = min(earlybatch, length(batchlabels));
+  middlebatch = round(1 + 0.5 * length(batchlabels));
+  middlebatch = min(middlebatch, length(batchlabels));
+  latebatch = round(1 + 0.8 * length(batchlabels));
+  latebatch = min(latebatch, length(batchlabels));
 
 
   %
@@ -69,12 +85,11 @@ for caseidx = 1:length(trialcases)
   % NOTE - There's a debug switch to process only a single batch, for testing.
 
   batchspan = 1:length(batchlabels);
-
   if want_one_batch
-    middlebatch = round(1 + 0.5 * length(batchlabels));
-    middlebatch = min(middlebatch, length(batchlabels));
     batchspan = middlebatch:middlebatch;
   end
+
+  plotbatches = [ earlybatch middlebatch latebatch ];
 
   for bidx = batchspan
 
@@ -107,6 +122,7 @@ for caseidx = 1:length(trialcases)
       % Sample counts are fine as-is.
 
       preproc_config_rec.trl = thisbatchtrials_rec;
+
       % Turn off the progress bar.
       preproc_config_rec.feedback = 'no';
 
@@ -162,6 +178,7 @@ for caseidx = 1:length(trialcases)
       % Read and process stimulator trials.
 
       preproc_config_stim.trl = thisbatchtrials_stim;
+
       % Turn off the progress bar.
       preproc_config_stim.feedback = 'no';
 
@@ -279,21 +296,26 @@ for caseidx = 1:length(trialcases)
     end
 
 
-    % Generate plots for this batch.
+    % Generate plots for this batch, if appropriate.
 
-    fbase_plot = [ plotdir filesep 'trials' ];
+    if want_plots && ismember(bidx, plotbatches)
 
-    % FIXME - Omitting gaze data for now.
+      disp([ '.. Plotting trial batch "' thisbatchlabel '".' ]);
 
-    disp([ '.. Plotting trial batch "' thisbatchlabel '".' ]);
+      fbase_plot = [ plotdir filesep 'trials' ];
 
-    doPlotBatchTrials( fbase_plot, thisbatchlabel, thisbatchtable_rec, ...
-      batchdata_rec_wb, batchdata_rec_lfp, batchdata_rec_spike, ...
-      batchdata_rec_rect, batchdata_stim_wb, batchdata_stim_lfp, ...
-      batchdata_stim_spike, batchdata_stim_rect, ...
-      batchevents_codes, batchevents_rwdA, batchevents_rwdB );
+      % FIXME - Omitting gaze data for now.
+      doPlotBatchTrials( fbase_plot, thisbatchlabel, thisbatchtable_rec, ...
+        batchdata_rec_wb, batchdata_rec_lfp, batchdata_rec_spike, ...
+        batchdata_rec_rect, batchdata_stim_wb, batchdata_stim_lfp, ...
+        batchdata_stim_spike, batchdata_stim_rect, ...
+        batchevents_codes, batchevents_rwdA, batchevents_rwdB );
 
-    disp([ '.. Finished plotting.' ]);
+      close all;
+
+      disp([ '.. Finished plotting.' ]);
+
+    end
 
 
     % If this is the batch we want to display, display it.
