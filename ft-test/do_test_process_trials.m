@@ -5,8 +5,44 @@
 % saves it trial by trial, and optionally displays it using FT's browser.
 % FIXME - Doing this by reading and setting workspace variables directly.
 %
-% Variables that get set:
-% FIXME - List goes here.
+% NOTE - Most data is computed per-batch and saved to per-batch files,
+% rather than saved in workspace variables.
+%
+%
+% Data that persists in workspace variables:
+%
+% trialbatchmeta
+%
+%
+% Variables saved per-batch:
+%
+% thisbatchlabel
+% thisbatchtrials_rec
+% thisbatchtrials_stim  (only the three mandatory columns)
+% thisbatchtrials_gaze  (only the three mandatory columns)
+% thisbatchtable_rec  (same as trials_rec but with column headings)
+% trialdefcolumns
+%
+% have_batchdata_rec
+% batchdata_rec_wb
+% batchdata_rec_lfp
+% batchdata_rec_spike
+% batchdata_rec_rect
+%
+% have_batchdata_stim
+% batchdata_stim_wb
+% batchdata_stim_lfp
+% batchdata_stim_spike
+% batchdata_stim_rect
+%
+% batchevents_codes
+% batchevents_rwdA
+% batchevents_rwdB
+%
+% batchrows_gaze
+% batchrows_frame
+%
+% batchdata_gaze
 
 
 %
@@ -441,6 +477,7 @@ for caseidx = 1:length(trialcases)
 % thisbatchlabel
 % thisbatchtrials_rec
 % thisbatchtrials_stim  (only the three mandatory columns)
+% thisbatchtrials_gaze  (only the three mandatory columns)
 % thisbatchtable_rec  (same as trials_rec but with column headings)
 % trialdefcolumns
 %
@@ -467,7 +504,7 @@ for caseidx = 1:length(trialcases)
 
       save( fname_batch, ...
         'thisbatchlabel', 'thisbatchtrials_rec', 'thisbatchtable_rec', ...
-        'trialdefcolumns', 'thisbatchtrials_stim', ...
+        'trialdefcolumns', 'thisbatchtrials_stim', 'thisbatchtrials_gaze', ...
         'have_batchdata_rec', 'batchdata_rec_wb', 'batchdata_rec_lfp', ...
         'batchdata_rec_spike', 'batchdata_rec_rect', ...
         'have_batchdata_stim', 'batchdata_stim_wb', 'batchdata_stim_lfp', ...

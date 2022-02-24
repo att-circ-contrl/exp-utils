@@ -46,7 +46,7 @@ want_one_batch = true;
 % Try to automatically label ephys channels as good/bad/floating/etc.
 % Mostly this is handy for finding dropouts and quantization.
 % FIXME - We want to automatically detect floating channels too.
-want_auto_channel_types = false;
+want_auto_channel_types = true;
 
 % Process continuous data before aligning and segmenting.
 % This is mostly for debugging.
@@ -59,7 +59,7 @@ want_align = false;
 want_define_trials = false;
 
 % Process segmented data.
-want_process_trials = true;
+want_process_trials = false;
 
 % Bring up the GUI data browser after processing (for debugging).
 want_browser = false;
@@ -73,12 +73,13 @@ want_plots = true;
 
 want_save_data = true;
 
-want_cache_autoclassify = true;
+want_cache_autoclassify = false;
 want_cache_monolithic = true;
 want_cache_align_raw = true;
 want_cache_align_done = true;
-% Trial definitions aren't cached; it's faster to rebuild them.
-want_cache_epoched = false;
+% Trial _definitions_ aren't cached; it's faster to rebuild them.
+% Trial _data_ can be cached.
+want_cache_epoched = true;
 
 
 
