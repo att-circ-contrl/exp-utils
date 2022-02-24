@@ -241,12 +241,12 @@ for caseidx = 1:length(trialcases)
       thisoffset = thisbatchtrials_rec(:,3);
 
       thisstart = (thisstart - 1) / rechdr.Fs;
-      thisstart = euAlign_interpolateSeries( ...
+      thisstart = nlProc_interpolateSeries( ...
         times_recstim_rec, times_recstim_stim, thisstart );
       thisstart = 1 + round(thisstart * stimhdr.Fs);
 
       thisend = (thisend - 1) / rechdr.Fs;
-      thisend = euAlign_interpolateSeries( ...
+      thisend = nlProc_interpolateSeries( ...
         times_recstim_rec, times_recstim_stim, thisend );
       thisend = 1 + round(thisend * stimhdr.Fs);
 

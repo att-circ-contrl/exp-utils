@@ -293,7 +293,7 @@ end
   % Interpolate the new delta series and add it to the old delta series.
   % Our time basis is "firsttimes", not "firsttimesaligned".
   % Either one would work as long as we use it consistently (here and above).
-  firstdeltas = firstdeltas + euAlign_interpolateSeries( ...
+  firstdeltas = firstdeltas + nlProc_interpolateSeries( ...
     bestfirsttimes, bestdeltalist, firsttimes );
 
 % FIXME - Diagnostics.
@@ -499,14 +499,14 @@ sparsetimes = firsttimes(~squashmask);
 
 
 firstdeltas = ...
-  euAlign_interpolateSeries( sparsetimes, sparsedeltas, firsttimes );
+  nlProc_interpolateSeries( sparsetimes, sparsedeltas, firsttimes );
 
 % This is the first table's estimate of the second table's times.
 firsttimesaligned = firsttimes + firstdeltas;
 
 % Find time deltas lined up with the second time series.
 % Remember that firstaligned = (first + delta) = second.
-seconddeltas = euAlign_interpolateSeries( ...
+seconddeltas = nlProc_interpolateSeries( ...
   firsttimesaligned, firstdeltas, secondtimes );
 
 % This gets the second table's estimate of the first table's times.
