@@ -56,7 +56,7 @@ want_process_monolithic = false;
 want_align = false;
 
 % Build trial definitions.
-want_define_trials = true;
+want_define_trials = false;
 
 % Process segmented data.
 want_process_trials = true;
@@ -77,7 +77,8 @@ want_cache_autoclassify = true;
 want_cache_monolithic = true;
 want_cache_align_raw = true;
 want_cache_align_done = true;
-want_cache_epoched = true;
+% Trial definitions aren't cached; it's faster to rebuild them.
+want_cache_epoched = false;
 
 
 
@@ -202,6 +203,19 @@ trialendpadsecs = 3.0;
 % Remember to use pairs of braces so that we get one structure instead of
 % an array.
 trialaligncodes = struct( 'cue', {{ 'StimOn' }} );
+
+
+% Table columns to convert to FT waveform data.
+
+% Cooked gaze coordinates from FrameData.
+% NOTE - There's an 'EyePositionZ', but it doesn't contain useful data.
+% NOTE - In the sample dataset, absolute position is -1k..+2k, and relative
+% position is -1..+2, roughly.
+frame_gaze_cols = { 'EyePositionX', 'EyePositionY', ...
+  'RelativeEyePositionX', 'RelativeEyePositionY' };
+
+% Sampling rate for cooked gaze data.
+gaze_rate = lfp_rate;
 
 
 % File I/O.

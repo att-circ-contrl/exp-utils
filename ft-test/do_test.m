@@ -125,10 +125,11 @@ end
 
 if want_define_trials
   do_test_define_trials;
+end
 
-  if want_process_trials
-    do_test_process_trials;
-  end
+% This will load trial definitions from disk if we didn't define them above.
+if want_process_trials
+  do_test_process_trials;
 end
 
 
