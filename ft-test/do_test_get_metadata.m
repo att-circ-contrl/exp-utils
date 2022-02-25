@@ -203,13 +203,19 @@ end
 % Auto-configuration time range.
 % Put this in the middle of the dataset.
 
-firstsamp = round(0.5 * rechdr.nSamples);
+autosamp_first_frac = 0.5;
+if want_auto_channel_early
+  % FIXME - Force this to the start, for testing before stimulation.
+  autosamp_first_frac = 0.05;
+end
+
+firstsamp = round(autosamp_first_frac * rechdr.nSamples);
 lastsamp = firstsamp + round( classify_window_seconds * rechdr.Fs );
 lastsamp = min( lastsamp, rechdr.nSamples );
 
 preproc_config_rec_span_autotype = [ firstsamp lastsamp 0 ];
 
-firstsamp = round(0.5 * stimhdr.nSamples);
+firstsamp = round(autosamp_first_frac * stimhdr.nSamples);
 lastsamp = firstsamp + round( classify_window_seconds * stimhdr.Fs );
 lastsamp = min( lastsamp, stimhdr.nSamples );
 

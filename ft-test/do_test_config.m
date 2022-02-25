@@ -47,6 +47,9 @@ want_one_batch = true;
 % Mostly this is handy for finding dropouts and quantization.
 % FIXME - We want to automatically detect floating channels too.
 want_auto_channel_types = true;
+% This debugging switch forces auto-typing to happen near the beginning of
+% the data instead of in the middle.
+want_auto_channel_early = true;
 
 % Process continuous data before aligning and segmenting.
 % This is mostly for debugging.
@@ -118,6 +121,30 @@ artifact_dropout_time = 0.02;
 % as bad.
 artifact_bad_frac = 0.01;
 dropout_bad_frac = 0.01;
+
+% Tuning parameters for looking for narrow-band noise.
+% See nlProc_findSpectrumPeaks() for discussion.
+if true
+  % Relatively wide search bins, relatively insensitive.
+  noisepeakwidth = 0.1;
+  noisebackgroundwidth = 2.0;
+  noisepeakthreshold = 3.0;
+elseif true
+  % Relatively narrow search bins. Somewhat more sensitive.
+  noisepeakwidth = 0.03;
+  noisebackgroundwidth = 1.5;
+  noisepeakthreshold = 4.0;
+else
+  % Very narrow search bins. This is too sensitive (lots of harmonics).
+  noisepeakwidth = 0.01;
+  noisebackgroundwidth = 1.5;
+  noisepeakthreshold = 4.0;
+end
+
+% Tuning parameters for looking at the LFP spectrum shape.
+% See nlProc_examineLFPSpectrum() for discussion.
+lfpspectrange = [ 4 200 ];
+lfpbinwidth = 0.03;
 
 
 % Analog signal filtering.
