@@ -255,6 +255,15 @@ for caseidx = 1:length(trialcases)
         batchdata_rec_wb = ft_preprocessing(preproc_config_rec);
         have_batchdata_rec = true;
 
+        % De-trend and remove power line noise.
+        extra_notches = [];
+        if isfield( thisdataset, 'extra_notches' )
+          extra_notches = thisdataset.extra_notches;
+        end
+        batchdata_rec_wb = doSignalConditioning( batchdata_rec_wb, ...
+          power_freq, power_filter_modes, filter_type_short, extra_notches );
+
+        % Extract processed signals of interest.
         [ batchdata_rec_lfp batchdata_rec_spike batchdata_rec_rect ] = ...
           doFeatureFiltering( batchdata_rec_wb, ...
             lfp_corner, lfp_rate, spike_corner, ...
@@ -312,6 +321,15 @@ for caseidx = 1:length(trialcases)
         batchdata_stim_wb = ft_preprocessing(preproc_config_stim);
         have_batchdata_stim = true;
 
+        % De-trend and remove power line noise.
+        extra_notches = [];
+        if isfield( thisdataset, 'extra_notches' )
+          extra_notches = thisdataset.extra_notches;
+        end
+        batchdata_stim_wb = doSignalConditioning( batchdata_stim_wb, ...
+          power_freq, power_filter_modes, filter_type_short, extra_notches );
+
+        % Extract processed signals of interest.
         [ batchdata_stim_lfp batchdata_stim_spike batchdata_stim_rect ] = ...
           doFeatureFiltering( batchdata_stim_wb, ...
             lfp_corner, lfp_rate, spike_corner, ...

@@ -28,9 +28,11 @@ cfg.dftreplace = 'neighbour';
 
 % Field Trip defaults to a widening series of notch bandwidths and a fixed
 % signal frequency bin bandwidth. We're using fixed for both.
-% NOTE - This can consume large amounts of memory!
 bandwidthnotch = 2.0;
 bandwidthsignal = 2.0;
+
+% FIXME - Clamp bandwidth to a reasonable minimum fraction of the frequency.
+bandwidth_minimum = 0.02;
 
 cfg.dftbandwidth = [];
 cfg.dftneighbourwidth = [];
@@ -48,9 +50,13 @@ cfg.padding = 5;
 
 for midx = 1:modecount
   thisfreq = powerfreq * midx;
+  % FIXME - Make sure bandwidth isn't too narrow.
+  thisbwnotch = max(bandwidthnotch, thisfreq * bandwidth_minimum);
+  thisbwsignal = max(bandwidthsignal, thisfreq * bandwidth_minimum);
+
   cfg.dftfreq = [ cfg.dftfreq thisfreq ];
-  cfg.dftbandwidth = [ cfg.dftbandwidth bandwidthnotch ];
-  cfg.dftneighbourwidth = [ cfg.dftneighbourwidth bandwidthsignal ];
+  cfg.dftbandwidth = [ cfg.dftbandwidth thisbwnotch ];
+  cfg.dftneighbourwidth = [ cfg.dftneighbourwidth thisbwsignal ];
 end
 
 

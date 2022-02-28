@@ -273,22 +273,21 @@ disp('-- Filtering windowed ephys data.');
 if have_recdata_auto
 
   %
-  % De-trend, removing any ramping in the data.
+  % De-trending and power-line filtering.
 
-  trendconfig = struct( 'detrend', 'yes' );
-  trendconfig.feedback = 'no';
-  recdata_auto = ft_preprocessing(trendconfig, recdata_auto);
-
-
-  %
-  % Power-line filtering.
-
-  disp('.. [Rec] Removing power-line noise.');
+  disp('.. [Rec] De-trending and removing power-line noise.');
   tic();
 
   % Save the filtered signal as "wideband". Keep the unfiltered around too.
-  recdata_wideband = doPowerFiltering( ...
-    recdata_auto, power_freq, power_filter_modes, want_power_filter_thilo );
+
+  extra_notches = [];
+  if isfield( thisdataset, 'extra_notches' )
+    extra_notches = thisdataset.extra_notches;
+  end
+
+  recdata_wideband = doSignalConditioning( recdata_auto, ...
+    power_freq, power_filter_modes, filter_type_long, ...
+    extra_notches );
 
   thisduration = euUtil_makePrettyTime(toc());
   disp(sprintf( '.. [Rec] Power line noise removed in %s.', thisduration ));
@@ -328,22 +327,21 @@ end
 if have_stimdata_auto
 
   %
-  % De-trend, removing any ramping in the data.
+  % De-trending and power-line filtering.
 
-  trendconfig = struct( 'detrend', 'yes' );
-  trendconfig.feedback = 'no';
-  stimdata_auto = ft_preprocessing(trendconfig, stimdata_auto);
-
-
-  %
-  % Power-line filtering.
-
-  disp('.. [Stim] Removing power-line noise.');
+  disp('.. [Stim] De-trending and removing power-line noise.');
   tic();
 
   % Save the filtered signal as "wideband". Keep the unfiltered around too.
-  stimdata_wideband = doPowerFiltering( ...
-    stimdata_auto, power_freq, power_filter_modes, want_power_filter_thilo );
+
+  extra_notches = [];
+  if isfield( thisdataset, 'extra_notches' )
+    extra_notches = thisdataset.extra_notches;
+  end
+
+  stimdata_wideband = doSignalConditioning( stimdata_auto, ...
+    power_freq, power_filter_modes, filter_type_long, ...
+    extra_notches );
 
   thisduration = euUtil_makePrettyTime(toc());
   disp(sprintf( '.. [Stim] Power line noise removed in %s.', thisduration ));

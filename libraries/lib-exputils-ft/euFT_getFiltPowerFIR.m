@@ -9,6 +9,8 @@ function cfg = euFT_getFiltPowerFIR( powerfreq, modecount )
 % We're using the FIR implementation of this; the IIR implementation is
 % unstable and FT flags it as such.
 %
+% FIXME - This doesn't seem to actually work?
+%
 % NOTE - This is intended for long continuous data, where frequency-domain
 % filtering might introduce numerical noise.
 %

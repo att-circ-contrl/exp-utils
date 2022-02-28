@@ -44,9 +44,11 @@ want_one_batch = true;
 % Turn on and off various processing steps.
 
 % Try to automatically label ephys channels as good/bad/floating/etc.
-% Mostly this is handy for finding dropouts and quantization.
-% FIXME - We want to automatically detect floating channels too.
+% We identify dropouts and quantization in the time domain, and narrow-band
+% noise in the frequency domain. We guess at good/bad by doing a power-law
+% fit to the LFP in the frequency domain.
 want_auto_channel_types = true;
+
 % This debugging switch forces auto-typing to happen near the beginning of
 % the data instead of in the middle.
 want_auto_channel_early = true;
@@ -62,7 +64,7 @@ want_align = false;
 want_define_trials = false;
 
 % Process segmented data.
-want_process_trials = false;
+want_process_trials = true;
 
 % Bring up the GUI data browser after processing (for debugging).
 want_browser = false;
@@ -82,7 +84,7 @@ want_cache_align_raw = true;
 want_cache_align_done = true;
 % Trial _definitions_ aren't cached; it's faster to rebuild them.
 % Trial _data_ can be cached.
-want_cache_epoched = true;
+want_cache_epoched = false;
 
 
 
@@ -149,15 +151,23 @@ lfpbinwidth = 0.03;
 
 % Analog signal filtering.
 
-% Use Thilo's comb-style DFT power filter instead of the time-domain one.
-% This might introduce numerical noise in very long continuous data, but it's
-% much faster than time-domain FIR filtering.
-want_power_filter_thilo = true;
+% Valid filter types are 'fir', 'dft', 'cosine', 'dftkludge', and 'thilo'.
+
+% Filter type to use for long data.
+% The kludge filter is the only one that works on long-duration signals
+% with acceptable time and memory costs.
+filter_type_long = 'dftkludge';
+
+% Filter type to use for trial data.
+% Alarmingly, the "kludge" filter has fewer artifacts at high frequencies
+% than the FT "dft" band-stop filter.
+%filter_type_short = 'dft';
+filter_type_short = 'dftkludge';
 
 % The power frequency filter filters the fundamental mode and some of the
 % harmonics of the power line frequency. Mode count should be 2-3 typically.
 power_freq = 60.0;
-power_filter_modes = 2;
+power_filter_modes = 3;
 
 % The LFP signal is low-pass-filtered and downsampled. Typical features are
 % in the range of 2 Hz to 200 Hz.

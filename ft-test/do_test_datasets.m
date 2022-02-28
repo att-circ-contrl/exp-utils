@@ -114,6 +114,9 @@ dataset_big_tungsten = struct( ...
      'stimrwdB', 'Din_002' ), ...
   'use_looputil', true );
 
+% FIXME - Manually adding a filter for beat frequency noise.
+dataset_big_tungsten.extra_notches = [ 561.6 ];
+
 % These are the channels that were actually used.
 chansrec = { 'AmpA_045', 'AmpA_047' };
 chansstim = { 'AmpC_011' };

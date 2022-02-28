@@ -320,24 +320,22 @@ stimdata_rect = struct([]);
 
 if have_recdata_an
 
-  % Power-line filtering.
+  % De-trending and power-line filtering.
 
-  disp('.. [Rec] Removing power-line noise.');
+  disp('.. [Rec] De-trending and removing power-line noise.');
   tic();
 
-  recdata_an = doPowerFiltering( recdata_an, ...
-    power_freq, power_filter_modes, want_power_filter_thilo );
+  extra_notches = [];
+  if isfield( thisdataset, 'extra_notches' )
+    extra_notches = thisdataset.extra_notches;
+  end
+
+  recdata_an = doSignalConditioning( recdata_an, ...
+    power_freq, power_filter_modes, filter_type_long, ...
+    extra_notches );
 
   thisduration = euUtil_makePrettyTime(toc());
   disp(sprintf( '.. [Rec] Power line noise removed in %s.', thisduration ));
-
-
-  % De-trending.
-
-  % FIXME - NYI.
-  % This would have to be done via a long moving-window average, as the
-  % DC level will wander for the full-length trace.
-  disp('###  De-trending NYI!');
 
 
   % Artifact removal.
@@ -379,24 +377,22 @@ end
 
 if have_stimdata_an
 
-  % Power-line filtering.
+  % De-trending and power-line filtering.
 
-  disp('.. [Stim] Removing power-line noise.');
+  disp('.. [Stim] De-trending and removing power-line noise.');
   tic();
 
-  stimdata_an = doPowerFiltering( stimdata_an, ...
-    power_freq, power_filter_modes, want_power_filter_thilo );
+  extra_notches = [];
+  if isfield( thisdataset, 'extra_notches' )
+    extra_notches = thisdataset.extra_notches;
+  end
+
+  stimdata_an = doSignalConditioning( stimdata_an, ...
+    power_freq, power_filter_modes, filter_type_long, ...
+    extra_notches );
 
   thisduration = euUtil_makePrettyTime(toc());
   disp(sprintf( '.. [Stim] Power line noise removed in %s.', thisduration ));
-
-
-  % De-trending.
-
-  % FIXME - NYI.
-  % This would have to be done via a long moving-window average, as the
-  % DC level will wander for the full-length trace.
-  disp('###  De-trending NYI!');
 
 
   % Artifact removal.
