@@ -1,10 +1,13 @@
-function cfg = euFT_getFiltPowerLong( powerfreq, modecount )
+function cfg = euFT_getFiltPowerFIR( powerfreq, modecount )
 
-% function cfg = euFT_getFiltPowerLong( powerfreq, modecount )
+% function cfg = euFT_getFiltPowerFIR( powerfreq, modecount )
 %
 % This generates a Field Trip ft_preprocessing() configuration structure for
 % power-line filtering, using the "bsfreq" option to get a time-domain
 % multi-notch band-stop filter.
+%
+% We're using the FIR implementation of this; the IIR implementation is
+% unstable and FT flags it as such.
 %
 % NOTE - This is intended for long continuous data, where frequency-domain
 % filtering might introduce numerical noise.
@@ -33,6 +36,7 @@ bandwidthnotch = 2.0;
 % Pad 5 seconds before and after the signal, to reduce wrap-around artifacts.
 % NOTE - This may misbehave if the signal isn't de-trended! I don't know if
 % Field Trip subtracts the trend before filtering or not.
+% NOTE - FT will usually refuse to pad the signal, for long signals.
 
 cfg.padding = 5;
 

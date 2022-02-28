@@ -18,7 +18,7 @@ function newsignal = ...
 % "newsignal" is a Field Trip data structure containing the filtered signal.
 
 
-filt_power = euFT_getFiltPowerLong(power_freq, power_modes);
+filt_power = euFT_getFiltPowerFIR(power_freq, power_modes);
 if use_thilo_filter
   filt_power = euFT_getFiltPowerTW(power_freq, power_modes);
 end

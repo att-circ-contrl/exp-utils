@@ -1,10 +1,10 @@
-function cfg = euFT_getFiltPowerShort( powerfreq, modecount )
+function cfg = euFT_getFiltPowerDFT( powerfreq, modecount )
 
-% function cfg = euFT_getFiltPowerShort( powerfreq, modecount )
+% function cfg = euFT_getFiltPowerDFT( powerfreq, modecount )
 %
 % This generates a Field Trip ft_preprocessing() configuration structure for
-% power-line filtering, using the "dftbandwidth" option to get a band-stop
-% filter.
+% power-line filtering in the frequency domain (DFT filter), using the
+% "dftbandwidth" option to get a band-stop filter with known bandwidth.
 %
 % NOTE - This is for short signals only (segmented trials)! For anything
 % longer than a few seconds, the type of filter this uses consumes a very
@@ -28,6 +28,7 @@ cfg.dftreplace = 'neighbour';
 
 % Field Trip defaults to a widening series of notch bandwidths and a fixed
 % signal frequency bin bandwidth. We're using fixed for both.
+% NOTE - This can consume large amounts of memory!
 bandwidthnotch = 2.0;
 bandwidthsignal = 2.0;
 
@@ -38,6 +39,7 @@ cfg.dftneighbourwidth = [];
 % Pad 5 seconds before and after the signal, to reduce wrap-around artifacts.
 % NOTE - This may misbehave if the signal isn't de-trended! I don't know if
 % Field Trip subtracts the trend before filtering or not.
+% NOTE - FT will usually refuse to pad the signal, for long signals.
 
 cfg.padding = 5;
 
