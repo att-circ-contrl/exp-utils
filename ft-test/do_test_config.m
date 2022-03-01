@@ -64,7 +64,7 @@ want_align = false;
 want_define_trials = false;
 
 % Process segmented data.
-want_process_trials = false;
+want_process_trials = true;
 
 % Bring up the GUI data browser after processing (for debugging).
 want_browser = false;
@@ -151,18 +151,20 @@ lfpbinwidth = 0.03;
 
 % Analog signal filtering.
 
-% Valid filter types are 'fir', 'dft', 'cosine', 'dftkludge', and 'thilo'.
+% Valid filter types are 'fir', 'dft', 'cosine', 'brickwall', and 'thilo'.
 
 % Filter type to use for long data.
-% The kludge filter is the only one that works on long-duration signals
+% The brick-wall filter is the only one that works on long-duration signals
 % with acceptable time and memory costs.
-filter_type_long = 'dftkludge';
+filter_type_long = 'brickwall';
 
 % Filter type to use for trial data.
-% Alarmingly, the "kludge" filter has fewer artifacts at high frequencies
-% than the FT "dft" band-stop filter.
+% The "dft" and "brickwall" filters are the only ones that work while using
+% a reasonable amount of time and memory.
+% Alarmingly, the brick-wall filter has fewer artifacts at high frequencies
+% than the "dft" band-stop filter.
 %filter_type_short = 'dft';
-filter_type_short = 'dftkludge';
+filter_type_short = 'brickwall';
 
 % The power frequency filter filters the fundamental mode and some of the
 % harmonics of the power line frequency. Mode count should be 2-3 typically.

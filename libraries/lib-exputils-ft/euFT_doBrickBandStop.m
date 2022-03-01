@@ -1,12 +1,17 @@
 function newdata = ...
-  euFT_doKludgeBandStop( olddata, notch_freq, notch_modes, notch_bw )
+  euFT_doBrickBandStop( olddata, notch_freq, notch_modes, notch_bw )
 
 % function newdata = ...
-%   euFT_doKludgeBandStop( olddata, notch_freq, notch_modes, notch_bw )
+%   euFT_doBrickBandStop( olddata, notch_freq, notch_modes, notch_bw )
 %
 % This performs band-stop filtering in the frequency domain by squashing
-% frequency components. This causes ringing near large disturbances (a
-% top-hat in the frequency domain gives a sinc function impulse response).
+% frequency components (a "brick wall" filter). This causes ringing near
+% large disturbances (a top-hat in the frequency domain gives a sinc
+% function impulse response).
+%
+% NOTE - This uses the LoopUtil brick-wall filter implementation. To use
+% Field Trip's implementation, call euFT_getFiltPowerBrick() to get a FT
+% filter configuration structure.
 %
 % "olddata" is the FT data structure to process.
 % "notch_freq" is the fundamental frequency of the family of notches.
@@ -52,7 +57,7 @@ for tidx = 1:trialcount
 
   for cidx = 1:chancount
     thiswave = thistrial(cidx,:);
-    thiswave = nlProc_filterKludgeBandStop( thiswave, samprate, notch_list );
+    thiswave = nlProc_filterBrickBandStop( thiswave, samprate, notch_list );
     thistrial(cidx,:) = thiswave;
   end
 
