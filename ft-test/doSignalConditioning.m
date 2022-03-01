@@ -12,7 +12,8 @@ function newdata = doSignalConditioning( olddata, ...
 % "power_freq" is the power line fundamental frequency.
 % "power_modes" is the number of power line modes to filter ( 1 = fundamental,
 %   2 = fundamental + first harmonic, etc.).
-% "filter_type" is 'fir', 'dft', 'cosine', or 'thilo', per doPowerfiltering().
+% "filter_type" is 'fir', 'dft', 'dftkludge', 'cosine', or 'thilo', per
+%   doPowerfiltering().
 % "extra_notches" is a vector containing any additional frequencies to
 %   filter. This may be empty.
 
@@ -29,7 +30,7 @@ newdata = ft_preprocessing( ...
 newdata = doPowerFiltering( newdata, power_freq, power_modes, filter_type);
 
 % Apply the power line filter again at various extra notch frequencies.
-% Only do single-mode filtering for this.
+% Only do fundamental-mode filtering for this.
 for fidx = 1:length(extra_notches)
   newdata = doPowerFiltering( newdata, extra_notches(fidx), 1, filter_type );
 end

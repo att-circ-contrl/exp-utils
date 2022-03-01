@@ -64,7 +64,7 @@ want_align = false;
 want_define_trials = false;
 
 % Process segmented data.
-want_process_trials = true;
+want_process_trials = false;
 
 % Bring up the GUI data browser after processing (for debugging).
 want_browser = false;
