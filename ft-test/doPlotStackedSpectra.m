@@ -50,8 +50,10 @@ for cidx = 1:chancount
 end
 ymagmax = 10^ceil(log10(ymagmax));
 
-% FIXME - A factor of 1000 is fine for my data, but we might want 10k.
-yrangescale = 1e+3;
+% FIXME - A factor of 1000 is fine for the tungsten test data but not the
+% silicon one.
+%yrangescale = 1e+3;
+yrangescale = 1e+4;
 if strcmp('power', scaletype)
   yrangescale = yrangescale * yrangescale;
 end

@@ -61,6 +61,9 @@
 %   stim_lfpspectpowers
 %   stim_lfpspectfreqs
 %   stim_lfpfitpowers
+%
+%   rec_correl
+%   stim_correl
 
 
 
@@ -757,6 +760,69 @@ disp('-- Finished checking LFP noise spectrum shape.');
 
 
 %
+% Channel correlation tests.
+
+disp('-- Checking for correlated channels.');
+
+rec_correl = struct();
+
+if have_recdata_auto
+
+  rec_correl = ...
+    nlFT_parseChannelsIntoBanks(recdata_lfp.label, recdata_lfp.trial{1});
+
+  banklist = fieldnames(rec_correl);
+  for bidx = 1:length(banklist)
+    thisbank = banklist{bidx};
+
+    [ thisgood thisrvals badgrouplist ] = nlProc_findCorrelatedChannels( ...
+      rec_correl.(thisbank).wavedata, correl_abs_thresh, correl_rel_thresh );
+
+    rec_correl.(thisbank).isgood = thisgood;
+    rec_correl.(thisbank).rvalues = thisrvals;
+    rec_correl.(thisbank).badgroups = badgrouplist;
+  end
+
+  thismsg = helper_reportCorrelChans( ...
+    [ plotdir filesep 'autodetect-correl-rec.txt' ], ...
+    'Recorder', rec_correl );
+  disp(thismsg);
+
+end
+
+
+stim_correl = struct();
+
+if have_stimdata_auto
+
+  stim_correl = ...
+    nlFT_parseChannelsIntoBanks(stimdata_lfp.label, stimdata_lfp.trial{1});
+
+  banklist = fieldnames(stim_correl);
+  for bidx = 1:length(banklist)
+    thisbank = banklist{bidx};
+
+    [ thisgood thisrvals badgrouplist] = nlProc_findCorrelatedChannels( ...
+      stim_correl.(thisbank).wavedata, correl_abs_thresh, correl_rel_thresh );
+
+    stim_correl.(thisbank).isgood = thisgood;
+    stim_correl.(thisbank).rvalues = thisrvals;
+    stim_correl.(thisbank).badgroups = badgrouplist;
+  end
+
+  thismsg = helper_reportCorrelChans( ...
+    [ plotdir filesep 'autodetect-correl-stim.txt' ], ...
+    'Stimulator', stim_correl );
+  disp(thismsg);
+
+end
+
+
+disp('-- Finished checking for channel correlation.');
+
+
+
+%
 % Save results to disk, if requested.
 
 if want_save_data
@@ -791,6 +857,7 @@ if want_save_data
     'rec_lfpspectpowers', 'rec_lfpspectfreqs', 'rec_lfpfitpowers', ...
     'stim_lfpgood', 'stim_lfptype', 'stim_lfpexponent', ...
     'stim_lfpspectpowers', 'stim_lfpspectfreqs', 'stim_lfpfitpowers', ...
+    'rec_correl', 'stim_correl', ...
     '-v7.3' );
 
   disp('-- Finished saving.');
@@ -1091,7 +1158,7 @@ function reporttext = helper_reportLFPShape( ...
 
   if ~isempty(rec_lfpgood)
     reporttext = [ reporttext sprintf( ...
-      '.. %d of %d recorder LFPs good.', ...
+      '.. %d of %d recorder LFPs good.\n', ...
       sum(rec_lfpgood), nchans_rec ) ];
   end
 
@@ -1123,7 +1190,7 @@ function reporttext = helper_reportLFPShape( ...
 
   if ~isempty(stim_lfpgood)
     reporttext = [ reporttext sprintf( ...
-      '.. %d of %d stimulator LFPs good.', ...
+      '.. %d of %d stimulator LFPs good.\n', ...
       sum(stim_lfpgood), nchans_stim ) ];
   end
 
@@ -1134,6 +1201,67 @@ function reporttext = helper_reportLFPShape( ...
     thisfid = fopen(fname, 'w');
     fwrite(thisfid, reporttext);
     fclose(thisfid);
+  end
+
+end
+
+
+
+% Correlated channels report.
+% If fname is non-empty, the report is also written to a file.
+
+function reporttext = helper_reportCorrelChans( ...
+  fname, devname, correl_struct )
+
+  reporttext = sprintf('.. Correlated channels for "%s":\n', devname);
+
+  banklist = fieldnames(correl_struct);
+  for bidx = 1:length(banklist)
+
+    thisbank = banklist{bidx};
+    thiscorrel = correl_struct.(thisbank);
+
+    reporttext = [ reporttext sprintf( '.. Bank "%s":  %d of %d good.\n', ...
+      thisbank, sum(thiscorrel.isgood), length(thiscorrel.isgood) ) ];
+
+    goodlist = thiscorrel.label(thiscorrel.isgood);
+    reporttext = [ reporttext sprintf( '  %s\n', ...
+      helper_formatLabelList(goodlist) ) ];
+
+    badgroups = thiscorrel.badgroups;
+    for gidx = 1:length(badgroups)
+      thislabellist = thiscorrel.label( badgroups{gidx} );
+      reporttext = [ reporttext sprintf( '.. Bad group %d:\n  %s\n', ...
+        gidx, helper_formatLabelList(thislabellist) ) ];
+    end
+
+  end
+
+  reporttext = [ reporttext sprintf( ...
+    '.. End of correlated channels for "%s".\n', devname ) ];
+
+
+  if ~isempty(fname)
+    thisfid = fopen(fname, 'w');
+    fwrite(thisfid, reporttext);
+    fclose(thisfid);
+  end
+
+end
+
+
+
+% This returns a comma-separated list of the listed labels.
+% I'm sure there's a Matlab function that does this too.
+
+function listtext = helper_formatLabelList(labels)
+
+  listtext = [];
+  for lidx = 1:length(labels)
+    if lidx > 1
+      listtext = [ listtext ', ' ];
+    end
+    listtext = [ listtext labels{lidx} ];
   end
 
 end

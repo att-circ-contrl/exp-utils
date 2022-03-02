@@ -23,7 +23,7 @@ want_detail_zoom = false;
 % Alternatively we can force it to read all channels even when some of those
 % are known to be floating.
 
-want_chan_subset = true;
+want_chan_subset = false;
 want_chan_include_unused = false;
 
 % Set this to true to re-reference where metadata is available for that.
@@ -64,7 +64,7 @@ want_align = false;
 want_define_trials = false;
 
 % Process segmented data.
-want_process_trials = true;
+want_process_trials = false;
 
 % Bring up the GUI data browser after processing (for debugging).
 want_browser = false;
@@ -147,6 +147,12 @@ end
 % See nlProc_examineLFPSpectrum() for discussion.
 lfpspectrange = [ 4 200 ];
 lfpbinwidth = 0.03;
+
+% Tuning parameters for looking at correlations between channels.
+% See nlProc_findCorrelatedChannels() for discussion.
+% Actual sets of floating channels tend to have R values of 0.99 or so.
+correl_abs_thresh = 0.9;
+correl_rel_thresh = 4.0;
 
 
 % Analog signal filtering.
