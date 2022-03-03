@@ -23,7 +23,7 @@ want_detail_zoom = false;
 % Alternatively we can force it to read all channels even when some of those
 % are known to be floating.
 
-want_chan_subset = false;
+want_chan_subset = true;
 want_chan_include_unused = false;
 
 % Set this to true to re-reference where metadata is available for that.
@@ -51,7 +51,7 @@ want_auto_channel_types = true;
 
 % This debugging switch forces auto-typing to happen near the beginning of
 % the data instead of in the middle.
-want_auto_channel_early = true;
+want_auto_channel_early = false;
 
 % Process continuous data before aligning and segmenting.
 % This is mostly for debugging.
@@ -67,7 +67,7 @@ want_define_trials = false;
 want_process_trials = false;
 
 % Bring up the GUI data browser after processing (for debugging).
-want_browser = false;
+want_browser = true;
 
 % Generate plots (for debugging).
 want_plots = true;

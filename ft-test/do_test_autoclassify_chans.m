@@ -7,6 +7,8 @@
 %
 % Variables that get set:
 %
+%   rec_bits
+%   stim_bits
 %   rec_quantized
 %   stim_quantized
 %
@@ -201,6 +203,8 @@ end
 nchans_rec = length(rec_channels_ephys);
 nchans_stim = length(stim_channels_ephys);
 
+rec_bits = zeros(nchans_rec, 1);
+stim_bits = zeros(nchans_stim, 1);
 rec_quantized = zeros(nchans_rec, 1, 'logical');
 stim_quantized = zeros(nchans_stim, 1, 'logical');
 
@@ -210,32 +214,17 @@ else
 
   disp('-- Checking for quantization.');
 
-  % foo.trial{1} is Nchans x Nsamps and contains sample values (A.U.).
-  % foo.time{1} is 1 x Nsamps and is time in seconds.
-
-  for cidx = 1:nchans_rec
-    thisdata = recdata_auto.trial{1}(cidx,:);
-    thismax = max(thisdata);
-    thismin = min(thisdata);
-    thisbits = log(thismax - thismin) / log(2);
-
-    if thisbits <= quantization_bits
-      rec_quantized(cidx) = true;
-    end
+  if nchans_rec > 0
+    thisbits = nlCheck_getFTSignalBits(recdata_auto);
+    rec_bits = thisbits{1};
+    rec_quantized = (rec_bits <= quantization_bits);
   end
 
-  for cidx = 1:nchans_stim
-    thisdata = stimdata_auto.trial{1}(cidx,:);
-    thismax = max(thisdata);
-    thismin = min(thisdata);
-    thisbits = log(thismax - thismin) / log(2);
-
-    if thisbits <= quantization_bits
-      stim_quantized(cidx) = true;
-    end
+  if nchans_stim > 0
+    thisbits = nlCheck_getFTSignalBits(stimdata_auto);
+    stim_bits = thisbits{1};
+    stim_quantized = (stim_bits <= quantization_bits);
   end
-
-  clear thisdata;
 
 
   % Quantization report.
@@ -409,68 +398,26 @@ filtconfig_smooth = ...
 filtconfig_smooth.feedback = 'no';
 
 if have_recdata_auto
-  datasmoothed = ft_preprocessing(filtconfig_smooth, recdata_rect);
+  % NOTE - This gets perturbed by low-frequency noise.
+  [ this_dropout, this_artifact ] = ...
+    nlCheck_testFTDropoutsArtifacts( recdata_wideband, smoothfreq, ...
+      dropout_rect_threshold, artifact_rect_threshold );
 
-  % foo.trial{1} is Nchans x Nsamps and contains sample values.
-  for cidx = 1:nchans_rec
-
-    thisrelative = datasmoothed.trial{1}(cidx,:) / ...
-      median( recdata_rect.trial{1}(cidx,:) );
-
-% FIXME - Diagnostics.
-if false
-disp(sprintf( '.. Rec "%s" rect ratio:  %.2f - %.2f', ...
-rec_channels_ephys{cidx}, min(thisrelative), max(thisrelative) ));
-end
-
-    thismask = (thisrelative >= artifact_rect_threshold);
-    thisfrac = sum(thismask) / length(thismask);
-    if ~isfinite(thisfrac)
-      thisfrac = 0;
-    end
-    rec_artifact_frac(cidx) = thisfrac;
-
-    thismask = (thisrelative <= dropout_rect_threshold);
-    thisfrac = sum(thismask) / length(thismask);
-    if ~isfinite(thisfrac)
-      thisfrac = 0;
-    end
-    rec_dropout_frac(cidx) = thisfrac;
-  end
+  rec_dropout_frac = this_dropout{1};
+  rec_artifact_frac = this_artifact{1};
 
   rec_has_artifacts = (rec_artifact_frac >= artifact_bad_frac);
   rec_has_dropouts = (rec_dropout_frac >= dropout_bad_frac);
 end
 
 if have_stimdata_auto
-  datasmoothed = ft_preprocessing(filtconfig_smooth, stimdata_rect);
+  % NOTE - This gets perturbed by low-frequency noise.
+  [ this_dropout, this_artifact ] = ...
+    nlCheck_testFTDropoutsArtifacts( stimdata_wideband, smoothfreq, ...
+      dropout_rect_threshold, artifact_rect_threshold );
 
-  % foo.trial{1} is Nchans x Nsamps and contains sample values.
-  for cidx = 1:nchans_stim
-
-    thisrelative = datasmoothed.trial{1}(cidx,:) / ...
-      median( stimdata_rect.trial{1}(cidx,:) );
-
-% FIXME - Diagnostics.
-if false
-disp(sprintf( '.. Stim "%s" rect ratio:  %.2f - %.2f', ...
-stim_channels_ephys{cidx}, min(thisrelative), max(thisrelative) ));
-end
-
-    thismask = (thisrelative >= artifact_rect_threshold);
-    thisfrac = sum(thismask) / length(thismask);
-    if ~isfinite(thisfrac)
-      thisfrac = 0;
-    end
-    stim_artifact_frac(cidx) = thisfrac;
-
-    thismask = (thisrelative <= dropout_rect_threshold);
-    thisfrac = sum(thismask) / length(thismask);
-    if ~isfinite(thisfrac)
-      thisfrac = 0;
-    end
-    stim_dropout_frac(cidx) = thisfrac;
-  end
+  stim_dropout_frac = this_dropout{1};
+  stim_artifact_frac = this_artifact{1};
 
   stim_has_artifacts = (stim_artifact_frac >= artifact_bad_frac);
   stim_has_dropouts = (stim_dropout_frac >= dropout_bad_frac);
@@ -836,7 +783,7 @@ if want_save_data
 
   save( fname, ...
     'rec_channels_ephys', 'stim_channels_ephys', ...
-    'rec_quantized', 'stim_quantized', ...
+    'rec_bits', 'stim_bits', 'rec_quantized', 'stim_quantized', ...
     'rec_has_dropouts', 'stim_has_dropouts', ...
     'rec_dropout_frac', 'stim_dropout_frac', ...
     'rec_has_artifacts', 'stim_has_artifacts', ...

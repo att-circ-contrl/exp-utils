@@ -101,7 +101,7 @@ dataset_openephys_perchan = struct( ...
 % Large datasets.
 
 
-% 2021 November tungsten recording.
+% 2021 November 12 tungsten recording (has stimulation).
 
 srcdir = [ 'datasets-big', filesep, '20211112-frey-tungsten' ];
 dataset_big_tungsten = struct( ...
@@ -148,14 +148,59 @@ if want_detail_zoom
 end
 
 
-% 2021 November silicon recording.
+% 2021 November 05 silicon recording (NOTE - has dropouts).
+
+srcdir = [ 'datasets-big', filesep, '20211105-frey-silicon' ];
+
+% NOTE - Pointing to directory, not "structure.oebin".
+
+dataset_big_silicon_20211105 = struct( ...
+  'title', '2021 Nov 05 Frey Silicon', 'label', 'freysilicon', ...
+  'recfile', [ srcdir, filesep, ...
+    '2021-11-05_11-55-08', filesep, 'Record Node 101', filesep, ...
+    'experiment1', filesep, 'recording1' ], ...
+  'stimfile', [ srcdir, filesep, 'stim_211105_115503' ], ...
+  'unityfile', [ srcdir, filesep, 'Session17__05_11_2021__11_55_39', ...
+    filesep, 'RuntimeData' ], ...
+  'synchbox', struct( 'reccodes', 'DigWordsA_000', 'recshift', 8, ...
+     'stimrwdB', 'Din_002' ), ...
+  'use_looputil', true );
+
+% Crop the dataset if desired.
+
+if want_crop_big
+  % The full trace is about 4300 seconds long (1.2h).
+%  crop_start = 1000.0;
+  crop_start = 2000.0;
+%  crop_start = 3000.0;
+  dataset_big_silicon_20211105.timerange = ...
+    [ crop_start (crop_start + crop_window_seconds) ];
+end
+
+% Add "zoom" cases.
+
+if want_detail_zoom
+% FIXME - Detail zoom for Frey silicon NYI.
+end
+
+% Add "only a few channels" case.
+% FIXME - Need to prune floating channels even without this!
+
+if want_chan_subset
+  % Filter analog channels on the recorder.
+  dataset_big_silicon_20211105.channels_rec = ...
+    { 'CH_001', 'CH_030', 'CH_070', 'CH_110' };
+end
+
+
+% 2021 November 11 silicon recording (NOTE - has dropouts).
 
 srcdir = [ 'datasets-big', filesep, '20211111-frey-silicon' ];
 
 % NOTE - Pointing to directory, not "structure.oebin".
 
-dataset_big_silicon = struct( ...
-  'title', '2021 Nov 11 Frey Silicon', 'label', 'freysilicon', ...
+dataset_big_silicon_20211111 = struct( ...
+  'title', '2021 Nov 11 Frey Silicon', 'label', 'freysiliconbad', ...
   'recfile', [ srcdir, filesep, ...
     '2021-11-11_12-08-33', filesep, 'Record Node 101', filesep, ...
     'experiment2', filesep, 'recording1' ], ...
@@ -173,7 +218,7 @@ if want_crop_big
 %  crop_start = 1000.0;
   crop_start = 2000.0;
 %  crop_start = 3000.0;
-  dataset_big_silicon.timerange = ...
+  dataset_big_silicon_20211111.timerange = ...
     [ crop_start (crop_start + crop_window_seconds) ];
 end
 
@@ -188,7 +233,7 @@ end
 
 if want_chan_subset
   % Filter analog channels on the recorder.
-  dataset_big_silicon.channels_rec = ...
+  dataset_big_silicon_20211111.channels_rec = ...
     { 'CH_001', 'CH_030', 'CH_070', 'CH_110' };
 end
 
