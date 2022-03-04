@@ -11,6 +11,20 @@ of our lab can be migrated to public projects. Code that's
 experiment-specific should be in projects associated with those experiments.
 
 
+## Documentation
+
+The following files and directories contain documentation:
+
+* The `manuals` directory contains PDF documentation files produced by
+the sources described below.
+* The `latex-build` directory is the LaTeX build directory for project-wide
+documentation. Use `make -C latex-build` to rebuild these documents.
+* Individual tool folders will usually contain `README.md` files.
+* Individual tool folders may also contain `manual` directories as local
+LaTeX build directories. Run `make` in these folders to rebuild the associated
+tool documents.
+
+
 ## Libraries
 
 Libraries are provided in the `libraries` directory. With that directory
@@ -23,9 +37,15 @@ Time-alignment of event lists from different sources.
 * `lib-exputils-ft` --
 Field Trip utility functions that aren't general enough to migrate to
 LoopUtil.
+* `lib-exputils-tools` --
+Helper functions used by specific tools and scripts that aren't general
+enough to migrate to LoopUtil.
 * `lib-exputils-use` --
 Functions for reading and interpreting USE data (event codes, SynchBox
 activity, gaze data).
+* `lib-exputils-util` --
+Utility functions that don't fit into other categories and that aren't
+general enough to migrate to LoopUtil.
 
 
 ## Sample Code
@@ -39,6 +59,9 @@ reporting time alignment precision statistics.
 * `ft-test` --
 Test scripts, sample code, and documentation for using Field Trip with our
 lab's datasets (including time alignment and USE integration).
+* `sanity-tool` --
+A quick and dirty script for running sanity checks on dataset folders. This
+looks for obvious artifacts in the data.
 
 
 *This is the end of the file.*
