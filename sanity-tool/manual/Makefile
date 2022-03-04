@@ -1,8 +1,8 @@
-# Event code alignment test script - Documentation - Makefile
+# Test script for dataset sanity-checking - Documentation - Makefile
 # Written by Christopher Thomas.
 
-REFNAME=evcodes-test-script
-REFBASE=euscript-evcodes
+REFNAME=sanity-check-script
+REFBASE=euscript-sanity
 
 
 REFBITS=\
@@ -10,8 +10,7 @@ REFBITS=\
 
 REFAUTO=\
 	$(REFBASE)-readme.tex		\
-	$(REFBASE)-dostuff.tex		\
-	$(REFBASE)-helpers.tex
+	$(REFBASE)-dostuff.tex
 
 
 default: force
@@ -40,9 +39,6 @@ refauto-bits:
 	./copy-code.pl --outfile=$(REFBASE)-dostuff.tex --verbatim \
 		"--chapter=Top-Level Scripts" --label=sect-dostuff \
 		../do_*m
-	./copy-code.pl --outfile=$(REFBASE)-helpers.tex --verbatim \
-		"--chapter=Helper Functions" --label=sect-helpers \
-		../do[A-Z]*m
 
 $(REFNAME).pdf: $(REFBITS) refauto-bits
 	pdflatex $(REFNAME).tex
