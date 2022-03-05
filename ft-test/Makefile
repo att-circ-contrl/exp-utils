@@ -16,6 +16,7 @@ allclean: clean
 	rm -f output/*
 
 run:
+	./checkdirs.sh
 	nice -n +10 $(MATLAB) $(MATFLAGS) \
 		-r "run('do_test.m'); exit;"
 
