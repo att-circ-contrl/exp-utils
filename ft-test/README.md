@@ -56,15 +56,17 @@ Trip integration; the "libraries" subfolder needs to be on path.)
 ## Using Field Trip
 
 A Field Trip script needs to do the following:
-* Read the data.
-* Perform re-referencing and artifact rejection.
-* Filter the wideband data to get clean LFP-band and spike-band signals.
-* Extract spike events and waveforms from the spike-band signal.
+* Read the TTL data.
 * Assemble event code information, reward triggers, and stimulation triggers
 from TTL data.
 * Time-align signals from different machines (recorder and stimulator) to
 produce a unified dataset.
-* Segment the data into epochs using event code information.
+* Segment the data into trials using event code information.
+* Read the analog data trial by trial (to keep memory footprint reasonable).
+* Perform re-referencing and artifact rejection.
+* Filter the wideband data to get clean LFP-band and high-pass signals.
+* Extract spike events and waveforms from the high-pass signal.
+* Extract average spike activity from the high-pass signal.
 * Perform experiment-specific analysis.
 
 ### Reading Data with Field Trip
@@ -72,70 +74,155 @@ produce a unified dataset.
 * `ft_read_header` reads a dataset's configuration information. You can
 pass it a custom reading function to read data types it doesn't know about.
 For Intan or Open Ephys data that will be a LoopUtil function.
-* `ft_read_data` reads a dataset's raw ephys waveforms. You can pass it a
-custom reading function to read data types it doesn't know about.
-For Intan or Open Ephys data that will be a LoopUtil function. **NOTE:**
-We don't normally call this; `ft_preprocessing` calls it instead.
 * `ft_read_event` reads a dataset's event lists (TTL data is often stored as
 events). You can pass it a custom reading function to read data types it
 doesn't know about it.
-* `ft_preprocessing` is a special case. It can either read data without
-processing it, process data that's already read, or read data and then
-process it. For reading data, it calls `ft_read_header` and `ft_read_data`
-to read a dataset (all channels or a specified subset). You can pass it
-custom reading functions for reading header information and data; for Intan
-or Open Ephys data these will be LoopUtil functions.
-* `ft_definetrial` **FIXME** Details go here.
+* `ft_preprocessing` is a "do-everything" function. It can either read data
+without processing it, process data that's already read, or read data and then
+process it. At minimum you'll use it to read data.
+
+**NOTE** - When reading data, you pass a trial definition table as part of
+the configuration structure. Normally this is built using `ft_definetrial`,
+but because of the way our event codes are set up and because we have to
+do time alignment between multiple devices, we build this table manually.
+
+This is done in `do_test_define_trials.m`. At some point this will get
+cleaned up and folded into library functions (along with much of the rest
+of this script).
 
 ### Signal Processing with Field Trip
 
-* **FIXME** Describe the "newconfig = function(oldconfig)" convention.
-* `ft_preprocessing` may be called to perform additional processing on data
-that's already been read. It's typically used to perform re-referencing,
-filtering, detrending, zero-averaging, rectification, computing of a signal's
-derivative, and computing of a signal's Hilbert transform.
-**FIXME** Describe `ft_preprocessing` call syntax here.
-* `ft_resample` **FIXME** Details go here.
+* Field Trip signal processing calls take the form
+"`newdata = ft_XXX(config, olddata)`. These can be made through calls
+to `ft_preprocessing` or by calling the relevant `ft_XXX` functions
+directly (these are in the `preproc` folder). The configuration structure
+only has to contain the arguments that the particular operation you're
+performing cares about.
+* ONLY call functions that begin with `ft_`. In particular, anything in the
+"`private`" directory should not be called (its implementation and
+arguments will change as FT gets updated). The `ft_XXX` functions are
+guaranteed to have a stable interface.
+* *Almost* all signal processing operations can be performed through
+`ft_preprocessing`. The exception is resampling: Call `ft_resampledata`
+to do that.
+* See the preamble of `ft_preprocessing` for a list of available signal
+processing operations and the parameters that need to get set to perform
+them.
 
-## Using LoopUtil and ExpUtils
+### Field Trip Data Structures
 
-**FIXME** Notes go here. Talk about event codes and time alignment. Mention
-LoopUtils hooks for devices and its FT wrapper.
+Data structures I kept having to look up were the following:
 
-## A Typical Pre-Processing Script
+* `ft_datatype_raw` is returned by `ft_preprocessing` and other signal
+processing functions. Relevant fields are:
+    * `label` is a {Nchans x 1} cell array of channel names.
+    * `time` is a {1 x Ntrials} cell array of [1 x Nsamples] time axis
+vectors. Taking the lengths of these will give you the number of samples in
+each trial without having to load the trial data itself.
+    * `trial` is a {1 x Ntrials} cell array of [Nchans x Nsamples] waveform
+matrices. This is the raw waveform data.
+    * `fsample` is "deprecated", but it's still the most reliable way to get
+the sampling rate for a data structure. Reading it from the header (which
+is also appended in the data) gives you the wrong answer if you've resampled
+the data (and you often will downsample it).
+    * Trial metadata is also included in `ft_datatype_raw`, but it's much
+simpler to keep track of that separately if you're the one who defined the
+trials in the first place.
 
-The normal sequence of events is:
+* A **header** is returned by `ft_read_header`, and is also included in data as
+the `ft_datatype_raw.hdr` field. Relevant fields are:
+    * `Fs` is the *original* sampling rate, before any signal processing.
+    * `nChans` is the number of channels.
+    * `label` is a {Nchans x 1} cell array of channel names.
+    * `chantype` is a {Nchans x 1} cell array of channel type labels. These
+are arbitrary, but can be useful if you know the conventions used by the
+hardware-specific driver function that produced them. See the LoopUtil
+documentation for the types used by the LoopUtil library.
+    * `nTrials` is the number of trials in the raw data. This should always
+be 1 for continuous recordings like we're using.
 
-* Read header information using `ft_read_header`. This gives you a list of
-channels present and metadata like the number of samples and the sampling
-rate.
-* Read TTL and event code data using `ft_read_event`.
-* If you want monolithic data, read analog data using `ft_preprocessing`.
-* Define trial time windows using `ft_definetrial`. (**FIXME** Or custom
-code?)
-* Read trial data using `ft_preprocessing`.
-* Call `ft_preprocessing` to generate several different derived data series.
-These typically include:
-    * A low-pass-filtered and downsampled "LFP" series.
-    * A high-pass-filtered "Spike" series.
-    * A "rectified spiking activity" series. This is derived from the "Spike"
-series by rectification (absolute value) followed by low-pass filtering and
+* A **trial definition matrix** is a [Ntrials x 3] matrix defining a set of
+trials.
+    * This is passed as `config.trl` when calling `ft_preprocessing` to
+read data from disk.
+    * Columns are `first sample`, `last sample`, and `trigger offset`. The
+trigger offset is `(first sample - trigger sample)`; a positive value means
+the trial started after the trigger, and a negative value means the trial
+started before the trigger.
+    * Additional columns from custom trial definition functions get stored
+in `config.trialinfo`, which is a [Ntrials x (extra columns)] matrix.
+    * **NOTE** - According to the documentation, trial definitions (`trl`
+and `trialinfo`) can be Matlab tables instead of matrices, which allows
+column names and non-numeric data to be stored. I haven't tested this, and
+I suspect that it may misbehave in some situations. Since we're defining the
+trials ourselves instead of with `ft_definetrial`, I just store trial
+metadata in a separate Matlab variable.
+
+## Minimum Working Example
+
+For a very minimal example of Field Trip code, examine the
+`euTools_sanityCheckTree` function in `lib-exputils-tools`.
+
+* This does not do time alignment.
+* This does not read USE data.
+* This does not read TTL data (or any other events).
+* This does not integrate data from multiple pieces of equipment.
+
+What it *does* do is read individual saved datasets and perform signal
+processing on small segments of them, using Field Trip's hooks.
+
+## A More Complex Example
+
+The scripts in this directory perform all of the steps we'll want to perform
+when pre-processing data from real experiments:
+
+* Metadata for the recorder and stimulator datasets are read using
+`ft_read_header`.
+* Recorder and stimulator TTL data is read using `ft_read_event`. This is
+assembled into event codes and reward/timer events.
+* USE event data is read using `lib-exputils-use` functions. This includes
+a record of SynchBox and eye-tracker activity.
+* USE, SynchBox, eye-tracker, and TTL data are time-aligned (using event
+codes if possible, other signals if not). Time alignment tables are built
+that can translate any piece of equipment's timestamps into recorder time.
+* Trials are defined based on appropraite event codes.
+* `ft_preprocessing` is called to read the resulting trial ephys data. This
+happens in small batches of trials to avoid filling memory.
+* Signal processing is performed on the trials:
+    * Common-average referencing is performed on various pools of signals,
+if pools for this are defined.
+    * Notch filtering is applied to remove power line noise and its harmonics,
+as well as any beat frequencies introduced by equipment sampling rates.
+    * A "local field potential" signal is generated by low-pass-filtering and
 downsampling.
-* Save processed trial data to disk for further analysis.
+    * A "raw spikes" signal is generated by high-pass-filtering at the native
+sampling rate.
+    * A "rectified spiking activity" series ("multi-unit activity" series)
+is generated by rectifying the "raw spikes" series (taking the absolute
+value), followed by low-pass filtering and downsampling.
+* Eye-tracker data, TTL data, and event data that overlaps each trial is
+extracted.
+* Processed analog and digital signals and events from batches of trials
+are saved to disk, along with trial metadata.
 
-A few useful notes:
-* You'll generally save the processed trial data to disk, exit Matlab (or run
-"`close all; clear all`"), and then run analysis scripts on the trial data.
-The purpose of this is to reduce Matlab's memory footprint (which otherwise
-can grow very quickly).
-* If you're reading from multiple devices, you'll want to use
-`ft_appenddata` to merge channels from the respective datasets. **NOTE:**
-The datasets will need to have the same sampling rate before you can do this.
-It's normally done with trial data that you've already pre-processed and
-downsampled.
-* For large datasets, the raw wideband data won't fit in memory. You'll have
-to process it a few channels at a time or a few time windows at a time and
-aggregate the results.
+The intention is that after this preprocessing is done, the experiment
+analysis can be performed without having to touch the raw data again.
+
+## Miscellaneous Notes
+
+* Right now, data from each device is aligned but stored separately.
+Eventually we'll want to use `ft_appenddata` to merge data from multiple
+devices (such as multiple Intan recording controllers, if we're using more
+than 8 headstages). This can only be done for data that's at a single
+sampling rate, which may not be practical for wideband and raw spike data.
+
+* Right now, the script doesn't touch spike sorting or try to isolate
+single-unit spiking activity. The spike sorting pipeline presently needs to
+work on the entire monolithic dataset, rather than on trials, and that
+monolithic dataset won't fit in memory. What we're going to have to do is
+load monolithic data per-probe (64 or 128 channels) and re-save that for the
+spike sorting pipeline to process (after notch filtering and artifact
+removal).
 
 
 *This is the end of the file.*
