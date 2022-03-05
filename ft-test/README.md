@@ -8,6 +8,8 @@ through reading and processing our lab's data using Field Trip.
 This is done using Field Trip's functions where possible, augmented with my
 library code for experiment-specific tasks.
 
+Type `make -C manual` to rebuild the manual for these scripts.
+
 ## Getting Field Trip
 
 Field Trip is a set of libraries that reads ephys data and performs signal

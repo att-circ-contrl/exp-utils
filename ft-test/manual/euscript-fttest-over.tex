@@ -1,0 +1,68 @@
+% Field Trip sample script - Documentation - Overview
+% Written by Christopher Thomas.
+
+\chapter{Overview}
+\label{sect-over}
+
+This script is designed to show all of the steps involved in reading and
+pre-processing experiment data, integrating and aligning data from the
+Intan recorder, Intan stimulator, and from USE.
+
+The component scripts are as follows, in the order in which they're called:
+
+\begin{itemize}
+%
+\item \verb|do_test| is the entrypoint. Edit one line in this file to
+select which dataset is processed (the datasets themselves are defined
+in a different file).
+%
+\item \verb|do_test_config| sets configuration parameters. This is the file
+that you edit if you want to change how the script processes data.
+%
+\item \verb|do_test_datasets| defines the datasets that might be processed.
+Add new datasets to represent data folders in your own environment.
+%
+\item \verb|do_test_get_metadata| reads the Field Trip headers for the
+ephys data and stores relevant metadata. This also fills in most of the
+fields of the configuration structures that will get passed to
+\verb|ft_preprocessing|.
+%
+\item \verb|do_test_autoclassify_chans|, if enabled, reads a short segment
+of the recorder and stimulator ephys data and performs signal analysis on
+the resulting waveform data. This looks for several things: quantization
+noise, narrow-band spectral noise, signal drop-outs, and voltage excursions.
+This also performs a power law fit to the LFP spectrum to try to guess
+whether a channel contains neural data or noise. Finally, this computes
+correlation coefficients between channels to identify groups of channels with
+identical data (usually indicating floating channels). The intention of most
+of this is to identify "bad" channels in an automated way. The narrow-band
+noise information is used to identify beat frequencies that need to be added
+to the dataset's notch filter.
+%
+\item \verb|do_test_align| reads the Unity and SynchBox event data, reads
+the ephys TTL data, and builds lists of event codes and reward pulses. Time
+alignment tables are generated and used to align event data as well as frame
+and gaze data tables from Unity.
+%
+\item \verb|do_test_process_monolithic|, if enabled, tries to read the
+entire ephys dataset and perform signal processing on it. This may optionally
+be restricted to a subset of channels and to a shorter time window inside
+the dataset. This was mainly used during testing; keep it disabled unless
+you actually need it for something, since it takes up a lot of time and RAM.
+%
+\item \verb|do_test_define_trials| examines the event code sequence and
+defines trial boundaries and trigger points based on it. Trials are grouped
+into batches, so that trials can be read within a reasonable memory footprint.
+%
+\item \verb|do_test_process_trials| calls \verb|ft_preprocessing| to read
+each batch of trials, performs signal processing on them, extracts aligned
+event, frame, and gaze data, and saves all of the associated data series
+for each batch of trials to disk.
+%
+\end{itemize}
+
+Further processing can be performed by reading the trial data and trial
+metadata from disk, without having to touch the original data folders.
+
+%
+% This is the end of the file.
