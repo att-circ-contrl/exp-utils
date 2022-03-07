@@ -66,6 +66,26 @@
 %
 %   rec_correl
 %   stim_correl
+%
+% NOTE: rec_correl and stim_correl are nlFT_parseChannelsIntoBanks structures
+% with additional information from nlProc_findCorrelatedChannels added.
+% The rec_correl and stim_correl structures are indexed by NeuroLoop bank id,
+% and each field is a structure with the following fields:
+%
+% "label" is a cell array with Field Trip channel labels for this bank's
+%   channels.
+% "channum" is a vector with the NeuroLoop channel numbers for this bank's
+%   channels (parsed from the channel labels, just like the bank ID).
+% "wavedata" is a [ Nchannels x Nsamples ] matrix with waveform data used
+%   for evaluating channel integrity.
+% "isgood" is a boolean vector that's "true" for channels that are not
+%   strongly correlated and "false" for channels that are members of
+%   correlated groups. (Anticorrelated channels are okay.)
+% "rvalues" is a [ Nchannels x Nchannels ] matrix with correlation
+%   coefficients for channel pairs.
+% "badgrouplist" is a cell array containing vectors representing groups of
+%   mututally correlated channels. Each vector contains channel indices for
+%   the members of that group.
 
 
 
