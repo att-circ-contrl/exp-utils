@@ -34,7 +34,7 @@ function [ reporttext folderdata ] = ...
 %     needed for that channel to be flagged as bad.
 %   "lowpasscorner" is the low-pass-filter corner used for generating LFP data.
 %   "lowpassrate" is the sampling rate to use when downsampling LFP data.
-%   "correlthresabs" is the absolute r-value threshold for considering
+%   "correlthreshabs" is the absolute r-value threshold for considering
 %     channels to be correlated. This should be in the range 0..1.
 %   "correlthreshrel" is the relative r-value threshold for considering
 %     channels to be correlated. This should be greater than 1.
