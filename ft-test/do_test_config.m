@@ -282,7 +282,7 @@ name_patterns_stim_flags = { 'Flags*' };
 
 want_data_ephys = true;
 want_data_ttl = true;
-want_data_stim = true;
+want_data_stim = false;
 want_data_events = true;
 
 
