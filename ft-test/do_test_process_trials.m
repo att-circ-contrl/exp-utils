@@ -106,8 +106,11 @@ end
 
 % Extract various fields we'd otherwise have to keep looking up.
 
-times_recstim_rec = times_recorder_stimulator.recTime;
-times_recstim_stim = times_recorder_stimulator.stimTime;
+% FIXME - Tolerate failure to align recorder and stimulator.
+if ~isempty(times_recorder_stimulator)
+  times_recstim_rec = times_recorder_stimulator.recTime;
+  times_recstim_stim = times_recorder_stimulator.stimTime;
+end
 
 gamecoderectime = [];
 gamerwdArectime = [];
@@ -285,15 +288,18 @@ for caseidx = 1:length(trialcases)
       thisend = thisbatchtrials_rec(:,2);
       thisoffset = thisbatchtrials_rec(:,3);
 
-      thisstart = (thisstart - 1) / rechdr.Fs;
-      thisstart = nlProc_interpolateSeries( ...
-        times_recstim_rec, times_recstim_stim, thisstart );
-      thisstart = 1 + round(thisstart * stimhdr.Fs);
+      % FIXME - Tolerate failure to align recorder and stimulator.
+      if ~isempty(times_recorder_stimulator)
+        thisstart = (thisstart - 1) / rechdr.Fs;
+        thisstart = nlProc_interpolateSeries( ...
+          times_recstim_rec, times_recstim_stim, thisstart );
+        thisstart = 1 + round(thisstart * stimhdr.Fs);
 
-      thisend = (thisend - 1) / rechdr.Fs;
-      thisend = nlProc_interpolateSeries( ...
-        times_recstim_rec, times_recstim_stim, thisend );
-      thisend = 1 + round(thisend * stimhdr.Fs);
+        thisend = (thisend - 1) / rechdr.Fs;
+        thisend = nlProc_interpolateSeries( ...
+          times_recstim_rec, times_recstim_stim, thisend );
+        thisend = 1 + round(thisend * stimhdr.Fs);
+      end
 
       thisoffset = 1 + round((thisoffset - 1) * stimhdr.Fs / rechdr.Fs);
 
