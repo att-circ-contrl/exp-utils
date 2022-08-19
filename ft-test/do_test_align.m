@@ -501,6 +501,8 @@ else
       isok = true;
     else
       disp('-- Not enough information to align the stimulator.');
+      disp('-- FIXME - Continuing anyways.');
+      isok = true;
     end
 
   else
