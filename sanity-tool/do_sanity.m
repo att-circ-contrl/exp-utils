@@ -7,7 +7,7 @@ do_quiet;
 if ~exist('sourcedir', 'var')
   % NOTE - Pick the subfolder for a rapid test.
   %sourcedir = 'datasets';
-  sourcedir = 'datasets/*tungsten';
+  sourcedir = 'datasets-samples/*tungsten';
 end
 
 % Set up configuration to look at the early part of the data.

@@ -58,13 +58,13 @@ want_auto_channel_early = false;
 want_process_monolithic = false;
 
 % Compare and align Unity and TTL data.
-want_align = false;
+want_align = true;
 
 % Build trial definitions.
-want_define_trials = false;
+want_define_trials = true;
 
 % Process segmented data.
-want_process_trials = false;
+want_process_trials = true;
 
 % Bring up the GUI data browser after processing (for debugging).
 want_browser = true;

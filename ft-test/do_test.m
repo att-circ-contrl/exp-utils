@@ -37,8 +37,7 @@ do_test_datasets;
 % Pick the dataset we want to use.
 
 %thisdataset = dataset_big_tungsten;
-thisdataset = dataset_big_silicon_20211111;
-%thisdataset = dataset_big_silicon_20211105;
+thisdataset = dataset_big_silicon_20220504;
 
 
 
