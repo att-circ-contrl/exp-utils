@@ -232,9 +232,9 @@ firstdeltas = firstdeltas + bestdelta;
 
 
 % FIXME - Diagnostics
-if want_verbose
+if want_verbose && (~isempty(firstdeltas))
 disp(sprintf( '(%s)  Best constant time delta: %.4f', ...
-string(datetime), double(bestdelta) ));
+string(datetime), double(firstdeltas(1)) ));
 end
 
 

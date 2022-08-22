@@ -6,8 +6,8 @@ function framedata = euUSE_readRawFrameData( runtimedir )
 % in the specified directory, and converts them into an aggregated Matlab
 % table with rows sorted by timestamp.
 %
-% A new timestamp column ("time_seconds") is generated from the native gaze
-% timestamp column.
+% New timestamp columns ("SystemTimeSeconds" and "EyetrackerTimeSeconds")
+% are generated from the respective native timestamp columns.
 %
 % "runtimedir" is the "RuntimeData" directory location.
 %

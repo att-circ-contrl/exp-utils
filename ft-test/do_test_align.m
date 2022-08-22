@@ -501,12 +501,20 @@ else
       isok = true;
     else
       disp('-- Not enough information to align the stimulator.');
-      disp('-- FIXME - Continuing anyways.');
-      isok = true;
+
+      if want_force_align
+        disp('-- FIXME - Continuing anyways.');
+        isok = true;
+      end
     end
 
   else
     disp('-- Not enough information to align the recorder with Unity.');
+
+    if want_force_align
+      disp('-- FIXME - Continuing anyways.');
+      isok = true;
+    end
   end
 end
 
@@ -626,6 +634,91 @@ end
 
 
 %
+% Get time extents for each device, for fallback fake alignment.
+
+% Fallback alignment just centers the time ranges on to each other. This
+% will give incorrect results.
+% Placeholder spans are even worse.
+
+
+% Recorder and stimulator extents are taken from the headers.
+
+extents_recTime = [ 0 (rechdr.nSamples / rechdr.Fs) ];
+extents_stimTime = [ 0 (stimhdr.nSamples / rechdr.Fs) ];
+
+
+% SynchBox timestamps are taken from the serial receive data.
+% Unity timestamps are taken from the serial send and receive data.
+
+minboxtime = inf;
+maxboxtime = -inf;
+minunitytime = inf;
+maxunitytime = -inf;
+
+if ~isempty(boxcodes)
+  minboxtime = min(minboxtime, min(boxcodes.synchBoxTime));
+  maxboxtime = max(maxboxtime, max(boxcodes.synchBoxTime));
+  minunitytime = min(minunitytime, min(boxcodes.unityTime));
+  maxunitytime = max(maxunitytime, max(boxcodes.unityTime));
+end
+if ~isempty(boxrwdA)
+  minboxtime = min(minboxtime, min(boxrwdA.synchBoxTime));
+  maxboxtime = max(maxboxtime, max(boxrwdA.synchBoxTime));
+  minunitytime = min(minunitytime, min(boxrwdA.unityTime));
+  maxunitytime = max(maxunitytime, max(boxrwdA.unityTime));
+end
+if ~isempty(boxrwdB)
+  minboxtime = min(minboxtime, min(boxrwdB.synchBoxTime));
+  maxboxtime = max(maxboxtime, max(boxrwdB.synchBoxTime));
+  minunitytime = min(minunitytime, min(boxrwdB.unityTime));
+  maxunitytime = max(maxunitytime, max(boxrwdB.unityTime));
+end
+if ~isempty(boxsynchA)
+  minboxtime = min(minboxtime, min(boxsynchA.synchBoxTime));
+  maxboxtime = max(maxboxtime, max(boxsynchA.synchBoxTime));
+  minunitytime = min(minunitytime, min(boxsynchA.unityTime));
+  maxunitytime = max(maxunitytime, max(boxsynchA.unityTime));
+end
+if ~isempty(boxsynchB)
+  minboxtime = min(minboxtime, min(boxsynchB.synchBoxTime));
+  maxboxtime = max(maxboxtime, max(boxsynchB.synchBoxTime));
+  minunitytime = min(minunitytime, min(boxsynchB.unityTime));
+  maxunitytime = max(maxunitytime, max(boxsynchB.unityTime));
+end
+
+if ~isempty(gamecodes)
+  minunitytime = min(minunitytime, min(gamecodes.unityTime));
+  maxunitytime = max(maxunitytime, max(gamecodes.unityTime));
+end
+if ~isempty(gamerwdA)
+  minunitytime = min(minunitytime, min(gamerwdA.unityTime));
+  maxunitytime = max(maxunitytime, max(gamerwdA.unityTime));
+end
+if ~isempty(gamerwdB)
+  minunitytime = min(minunitytime, min(gamerwdB.unityTime));
+  maxunitytime = max(maxunitytime, max(gamerwdB.unityTime));
+end
+% NOTE - "game" SynchBox events are parsed from the serial transmit data,
+% which only includes codes and reward pulses. Synch is turned on and left
+% on, so it only shows up in the serial receive data ("box" events).
+
+extents_synchBoxTime = [ 0 3600 ];
+if isfinite(minboxtime)
+  extents_synchBoxTime = [ minboxtime maxboxtime ];
+end
+
+extents_unityTime = [ 0 3600 ];
+if isfinite(minunitytime)
+  extents_unityTime = [ minunitytime maxunitytime ];
+end
+
+
+% NOTE - Not faking gaze time. If we have gaze data at all, we have gaze
+% and unity timestamps. So, extents aren't needed.
+
+
+
+%
 % Propagate recorder timestamps to the SynchBox.
 
 % Recorder and synchbox timestamps do drift but can be aligned to about 0.1ms
@@ -682,6 +775,14 @@ elseif (~isempty(recrwdB)) && (~isempty(boxrwdB))
   disp('.. Finished aligning.');
 else
   disp('###  Not enough information to align recorder and SynchBox!');
+
+  if want_force_align
+    disp('... Faking alignment using extents.');
+    times_recorder_synchbox = euAlign_fakeAlignmentWithExtents( ...
+      'recTime', extents_recTime, 'synchBoxTime', extents_synchBoxTime );
+    % Recorder timestamps get propagated to "box" tables below.
+    % We aren't propagating box timestamps to "rec" tables.
+  end
 end
 
 
@@ -765,6 +866,14 @@ elseif (~isempty(recrwdB)) && (~isempty(gamerwdB))
   disp('.. Finished aligning.');
 else
   disp('###  Not enough information to align recorder and USE!');
+
+  if want_force_align
+    disp('... Faking alignment using extents.');
+    times_recorder_game = euAlign_fakeAlignmentWithExtents( ...
+      'recTime', extents_recTime, 'unityTime', extents_unityTime );
+    % Recorder timestamps get propagated to "game" tables below.
+    % We aren't propagating game timestamps to "rec" tables.
+  end
 end
 
 
@@ -880,6 +989,14 @@ elseif (~isempty(boxrwdB)) && (~isempty(stimrwdB))
   disp('.. Finished aligning.');
 else
   disp('###  Not enough information to align recorder and stimulator!');
+
+  if want_force_align
+    disp('... Faking alignment using extents.');
+    times_recorder_stimulator = euAlign_fakeAlignmentWithExtents( ...
+      'recTime', extents_recTime, 'stimTime', extents_stimTime );
+    % Recorder timestamps get propagated to "stim" tables below.
+    % We aren't propagating stimulator timestamps to "rec" tables.
+  end
 end
 
 

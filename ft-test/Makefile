@@ -9,6 +9,8 @@ default: clean run gallery
 
 force: allclean run gallery
 
+debug: clean rundebug gallery
+
 clean:
 	rm -f plots/*
 
@@ -19,6 +21,10 @@ run:
 	./checkdirs.sh
 	nice -n +10 $(MATLAB) $(MATFLAGS) \
 		-r "run('do_test.m'); exit;"
+rundebug:
+	./checkdirs.sh
+	nice -n +10 $(MATLAB) $(MATFLAGS) \
+		-r "dbstop if error; run('do_test.m'); exit;"
 
 docs:
 #	make -C manual

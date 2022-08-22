@@ -59,6 +59,8 @@ want_process_monolithic = false;
 
 % Compare and align Unity and TTL data.
 want_align = true;
+% Pretend to align data even if we don't have enough information.
+want_force_align = true;
 
 % Build trial definitions.
 want_define_trials = true;
@@ -78,10 +80,10 @@ want_plots = true;
 
 want_save_data = true;
 
-want_cache_autoclassify = false;
+want_cache_autoclassify = true;
 want_cache_monolithic = true;
 want_cache_align_raw = true;
-want_cache_align_done = true;
+want_cache_align_done = false;
 % Trial _definitions_ aren't cached; it's faster to rebuild them.
 % Trial _data_ can be cached.
 want_cache_epoched = false;
