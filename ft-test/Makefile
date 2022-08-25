@@ -27,10 +27,10 @@ rundebug:
 		-r "dbstop if error; run('do_test.m'); exit;"
 
 docs:
-#	make -C manual
+	make -C manual
 
 dclean:
-#	make -C manual clean
+	make -C manual clean
 
 gallery:
 	cd plots; makegallery.pl --width=24% --nofolders *png; cd ..
