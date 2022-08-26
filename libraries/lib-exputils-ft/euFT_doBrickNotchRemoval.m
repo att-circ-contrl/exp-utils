@@ -1,8 +1,8 @@
 function newdata = ...
-  euFT_doBrickBandStop( olddata, notch_freq, notch_modes, notch_bw )
+  euFT_doBrickNotchRemoval( olddata, notch_list, notch_bw )
 
 % function newdata = ...
-%   euFT_doBrickBandStop( olddata, notch_freq, notch_modes, notch_bw )
+%   euFT_doBrickNotchRemoval( olddata, notch_list, notch_bw )
 %
 % This performs band-stop filtering in the frequency domain by squashing
 % frequency components (a "brick wall" filter). This causes ringing near
@@ -14,10 +14,8 @@ function newdata = ...
 % filter configuration structure.
 %
 % "olddata" is the FT data structure to process.
-% "notch_freq" is the fundamental frequency of the family of notches.
-% "notch_modes" is the number of frequency modes to remove (1 = fundamental,
-%   2 = fundamental and first harmonic, etc).
-% "notch_bw" is the width of the notch. Harmonics have the same width.
+% "notch_list" is a vector containing notch center frequencies to remove.
+% "notch_bw" is the width of the notch. All notches have the same width.
 %
 % "newdata" is a copy of "olddata" with trial data waveforms filtered.
 
@@ -29,20 +27,18 @@ function newdata = ...
 newdata = olddata;
 
 
-% FIXME - Clamp bandwidth to a reasonable minimum fraction of the frequency.
-bandwidth_minimum = 0.02;
-
-
 % Build a list of notches.
 
-notch_list = {};
-for nidx = 1:notch_modes
-  this_freq = notch_freq * nidx;
-  % FIXME - Make sure bandwidth isn't too narrow.
-  this_bw = max(notch_bw, this_freq * bandwidth_minimum);
+% FIXME - Clamp bandwidth to a reasonable minimum fraction of the frequency.
+bandwidth_minimum = 0.02;
+bw_list = max(notch_bw, notch_list * bandwidth_minimum);
 
-  notch_list{nidx} = ...
-    [ (this_freq - 0.5 * this_bw), (this_freq + 0.5 * this_bw) ];
+low_corners = notch_list - 0.5 * bw_list;
+high_corners = notch_list + 0.5 * bw_list;
+
+notch_corners = {};
+for nidx = 1:length(notch_list)
+  notch_corners{nidx} = [ low_corners(nidx), high_corners(nidx) ];
 end
 
 
@@ -57,7 +53,7 @@ for tidx = 1:trialcount
 
   for cidx = 1:chancount
     thiswave = thistrial(cidx,:);
-    thiswave = nlProc_filterBrickBandStop( thiswave, samprate, notch_list );
+    thiswave = nlProc_filterBrickBandStop( thiswave, samprate, notch_corners );
     thistrial(cidx,:) = thiswave;
   end
 

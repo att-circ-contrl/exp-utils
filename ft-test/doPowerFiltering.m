@@ -30,7 +30,7 @@ if want_looputil_brick && strcmp('brickwall', filter_type)
   % Brick-wall frequency-domain filter.
   notch_bw = 2.0;
   newsignal = ...
-    euFT_doBrickBandStop( oldsignal, power_freq, power_modes, notch_bw );
+    euFT_doBrickPowerFilter( oldsignal, power_freq, power_modes, notch_bw );
 else
   % Use Field Trip to do the filtering.
 

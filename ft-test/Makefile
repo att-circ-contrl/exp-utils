@@ -21,6 +21,12 @@ run:
 	./checkdirs.sh
 	nice -n +10 $(MATLAB) $(MATFLAGS) \
 		-r "run('do_test.m'); exit;"
+
+rungui:
+	./checkdirs.sh
+	nice -n +10 $(MATLAB) $(MATGUIFLAGS) \
+		-r "run('do_test.m'); exit;"
+
 rundebug:
 	./checkdirs.sh
 	nice -n +10 $(MATLAB) $(MATFLAGS) \

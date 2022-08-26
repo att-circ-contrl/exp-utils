@@ -66,7 +66,7 @@ want_force_align = true;
 want_define_trials = true;
 
 % Process segmented data.
-want_process_trials = true;
+want_process_trials = false;
 
 % Bring up the GUI data browser after processing (for debugging).
 want_browser = true;
@@ -83,10 +83,10 @@ want_save_data = true;
 want_cache_autoclassify = true;
 want_cache_monolithic = true;
 want_cache_align_raw = true;
-want_cache_align_done = false;
+want_cache_align_done = true;
 % Trial _definitions_ aren't cached; it's faster to rebuild them.
 % Trial _data_ can be cached.
-want_cache_epoched = false;
+want_cache_epoched = true;
 
 
 
