@@ -298,8 +298,7 @@ if have_recdata_auto
   end
 
   recdata_wideband = doSignalConditioning( recdata_auto, ...
-    power_freq, power_filter_modes, filter_type_long, ...
-    extra_notches );
+    power_freq, power_filter_modes, extra_notches );
 
   thisduration = euUtil_makePrettyTime(toc());
   disp(sprintf( '.. [Rec] Power line noise removed in %s.', thisduration ));
@@ -352,8 +351,7 @@ if have_stimdata_auto
   end
 
   stimdata_wideband = doSignalConditioning( stimdata_auto, ...
-    power_freq, power_filter_modes, filter_type_long, ...
-    extra_notches );
+    power_freq, power_filter_modes, extra_notches );
 
   thisduration = euUtil_makePrettyTime(toc());
   disp(sprintf( '.. [Stim] Power line noise removed in %s.', thisduration ));

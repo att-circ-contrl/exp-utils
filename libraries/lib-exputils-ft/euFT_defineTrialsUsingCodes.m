@@ -117,20 +117,28 @@ for eidx = 1:length(evlabels)
         timestart = timestart - padbefore;
         timestop = timestop + padafter;
 
-        trltab.sampstart(trialcount) = round(timestart * samprate);
-        trltab.sampend(trialcount) = round(timestop * samprate);
-        trltab.sampoffset(trialcount) = ...
+        % Build the new table row in a scratch variable, to avoid warnings
+        % about updating once cell at a time in the existing table.
+
+        scratchtab = table();
+
+        scratchtab.sampstart = round(timestart * samprate);
+        scratchtab.sampend = round(timestop * samprate);
+        scratchtabtab.sampoffset = ...
           round((timestart - timealign) * samprate);
 
-        trltab.timestart(trialcount) = timestart;
-        trltab.timeend(trialcount) = timestop;
-        trltab.timetrigger(trialcount) = timealign;
+        scratchtab.timestart = timestart;
+        scratchtab.timeend = timestop;
+        scratchtab.timetrigger = timealign;
 
         for fidx = 1:length(codemetafields)
           metalabel = codemetafields{fidx};
           % Metadata values might be NaN if we didn't see appropriate codes.
-          trltab.(metalabel)(trialcount) = thismetastruct.(metalabel);
+          scratchtab.(metalabel) = thismetastruct.(metalabel);
         end
+
+        % Append the new row to the trial table.
+        trltab(trialcount,:) = scratchtab(1,:);
       end
     end
 

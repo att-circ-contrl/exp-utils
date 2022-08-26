@@ -80,7 +80,7 @@ want_plots = true;
 
 want_save_data = true;
 
-want_cache_autoclassify = true;
+want_cache_autoclassify = false;
 want_cache_monolithic = true;
 want_cache_align_raw = true;
 want_cache_align_done = true;
@@ -158,21 +158,6 @@ correl_rel_thresh = 4.0;
 
 
 % Analog signal filtering.
-
-% Valid filter types are 'fir', 'dft', 'cosine', 'brickwall', and 'thilo'.
-
-% Filter type to use for long data.
-% The brick-wall filter is the only one that works on long-duration signals
-% with acceptable time and memory costs.
-filter_type_long = 'brickwall';
-
-% Filter type to use for trial data.
-% The "dft" and "brickwall" filters are the only ones that work while using
-% a reasonable amount of time and memory.
-% Alarmingly, the brick-wall filter has fewer artifacts at high frequencies
-% than the "dft" band-stop filter.
-%filter_type_short = 'dft';
-filter_type_short = 'brickwall';
 
 % The power frequency filter filters the fundamental mode and some of the
 % harmonics of the power line frequency. Mode count should be 2-3 typically.

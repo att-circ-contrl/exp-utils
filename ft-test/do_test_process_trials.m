@@ -264,7 +264,7 @@ for caseidx = 1:length(trialcases)
           extra_notches = thisdataset.extra_notches;
         end
         batchdata_rec_wb = doSignalConditioning( batchdata_rec_wb, ...
-          power_freq, power_filter_modes, filter_type_short, extra_notches );
+          power_freq, power_filter_modes, extra_notches );
 
         % Extract processed signals of interest.
         [ batchdata_rec_lfp batchdata_rec_spike batchdata_rec_rect ] = ...
@@ -333,7 +333,7 @@ for caseidx = 1:length(trialcases)
           extra_notches = thisdataset.extra_notches;
         end
         batchdata_stim_wb = doSignalConditioning( batchdata_stim_wb, ...
-          power_freq, power_filter_modes, filter_type_short, extra_notches );
+          power_freq, power_filter_modes, extra_notches );
 
         % Extract processed signals of interest.
         [ batchdata_stim_lfp batchdata_stim_spike batchdata_stim_rect ] = ...

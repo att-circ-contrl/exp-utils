@@ -264,6 +264,9 @@ dataset_big_silicon_20220504 = struct( ...
      'stimrwdB', 'Din_002' ), ...
   'use_looputil', true );
 
+% One stimulator channel has narrow-band noise. Remove it from all channels.
+dataset_big_silicon_20220504.extra_notches = [ 600.0 1200.0 1800.0 ];
+
 % Crop the dataset if desired.
 
 if want_crop_big
