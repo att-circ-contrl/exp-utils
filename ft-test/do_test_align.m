@@ -122,44 +122,23 @@ else
 
     have_unity = true;
 
-    disp('-- Reading Unity event data.');
+    [ boxevents gameevents gamegaze_raw gameframedata_raw evcodedefs ] = ...
+      euUSE_readAllUSEData( thisdataset.unityfile, ...
+        'dupbyte', evcodebytes, evcodeendian );
 
-    [ sentdata recvdata ] = euUSE_readRawSerialData(thisdataset.unityfile);
-    [ boxsynchA boxsynchB boxrwdA boxrwdB boxcodes_raw ] = ...
-      euUSE_parseSerialRecvData(recvdata, 'dupbyte');
-    [ gamerwdA gamerwdB gamecodes_raw ] = ...
-      euUSE_parseSerialSentData(sentdata, 'dupbyte');
+    % Unpack the returned structures into our global variables.
 
-    evcodedefs = euUSE_readEventCodeDefs(thisdataset.unityfile);
+    boxsynchA = boxevents.synchA;
+    boxsynchB = boxevents.synchB;
+    boxrwdA = boxevents.rwdA;
+    boxrwdB = boxevents.rwdB;
+    boxcodes_raw = boxevents.rawcodes;
+    boxcodes = boxevents.cookedcodes;;
 
-    % Translate raw code bytes into cooked codes.
-    [ boxcodes origlocations ] = euUSE_reassembleEventCodes( ...
-      boxcodes_raw, evcodedefs, evcodebytes, evcodeendian, 'codeValue' );
-    [ gamecodes origlocations ] = euUSE_reassembleEventCodes( ...
-      gamecodes_raw, evcodedefs, evcodebytes, evcodeendian, 'codeValue' );
-
-    disp('-- Finished reading Unity event data.');
-
-
-    disp('-- Reading Unity gaze data.');
-
-    % FIXME - This should be turned into waveform data. For now, keep it
-    % as a not-quite-uniformly-sampled data table.
-    % NOTE - This uses its own timestamps and time quantum, not unity's.
-    % The loading function gives us a 'time_seconds' column.
-    gamegaze_raw = euUSE_readRawGazeData(thisdataset.unityfile);
-
-    disp('-- Finished reading Unity gaze data.');
-
-
-    disp('-- Reading Unity frame data.');
-
-    % NOTE - This has eye-tracker and unity timestamps.
-    % The loading function adds "SystemTimeSeconds" and
-    % "EyetrackerTimeSeconds" columns with timestamps in seconds.
-    gameframedata_raw = euUSE_readRawFrameData(thisdataset.unityfile);
-
-    disp('-- Finished reading Unity frame data.');
+    gamerwdA = gameevents.rwdA;
+    gamerwdB = gameevents.rwdB;
+    gamecodes_raw = gameevents.rawcodes;
+    gamecodes = gameevents.cookedcodes;
 
   end
 
