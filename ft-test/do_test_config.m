@@ -82,7 +82,7 @@ want_save_data = true;
 
 want_cache_autoclassify = true;
 want_cache_monolithic = true;
-want_cache_align_raw = false;
+want_cache_align_raw = true;
 want_cache_align_done = true;
 % Trial _definitions_ aren't cached; it's faster to rebuild them.
 % Trial _data_ can be cached.

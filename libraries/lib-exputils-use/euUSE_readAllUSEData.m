@@ -19,9 +19,12 @@ function [ boxevents gameevents rawgazedata rawframedata evcodedefs ] = ...
 % "runtimefolder" is the path to the "RuntimeData" folder.
 % "codeformat" is the event code format used by the SynchBox. This is 'word',
 %   'hibyte', 'lobyte', or 'dupbyte', per euUSE_parseSerialRecvData().
+%   This defaults to 'dupbyte' if unspecified.
 % "codebytes" is the number of bytes used to encode each event code.
+%   This defaults to 2 if unspecified.
 % "codeendian" is 'big' if the most significant byte is received first or
 %   'little' if the least-significant byte is received first.
+%    This defaults to 'big' if unspecified.
 %
 % "boxevents" is a structure with fields "synchA", "synchB", "rwdA", "rwdB",
 %   "rawcodes", and "cookedcodes". These each contain tables of events.
@@ -41,10 +44,25 @@ function [ boxevents gameevents rawgazedata rawframedata evcodedefs ] = ...
 %   translated from the 'FrameStartSystem' column, and an
 %   'EyetrackerTimeSeconds' column translated from the 'EyetrackerTimeStamp'
 %   column.
-% "evcodedefs" is an event code definition structure per EVCODEDEFS.txt.
+% "evcodedefs" is a USE event code definition structure per EVCODEDEFS.txt.
 
 
 disp('-- Reading USE event data.');
+
+
+% FIXME - Set defaults if not specified.
+
+if ~exist('codeformat', 'var')
+  codeformat = 'dupbyte';
+end
+
+if ~exist('codebytes', 'var')
+  codebytes = 2;
+end
+
+if ~exist('codeendian', 'var')
+  codeendian = 'big';
+end
 
 
 % Read and parse serial data.

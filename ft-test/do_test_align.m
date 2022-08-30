@@ -122,9 +122,14 @@ else
 
     have_unity = true;
 
+    % Baseline version: Manually specify how event codes are encoded.
     [ boxevents gameevents gamegaze_raw gameframedata_raw evcodedefs ] = ...
       euUSE_readAllUSEData( thisdataset.unityfile, ...
         'dupbyte', evcodebytes, evcodeendian );
+
+    % Alternate version: Use default encoding.
+%    [ boxevents gameevents gamegaze_raw gameframedata_raw evcodedefs ] = ...
+%      euUSE_readAllUSEData( thisdataset.unityfile );
 
     % Unpack the returned structures into our global variables.
 
@@ -146,6 +151,145 @@ else
   %
   % Read TTL data from ephys recorders.
 
+
+if true
+% FIXME - New way.
+
+  % FIXME - The only situation where we have to assemble from bits is with
+  % the Intan machine, and channel numbering starts at 1 in that situation.
+  firstbit = 1;
+
+
+  % FIXME - Kludge the old signal definition structure into new structures.
+
+  synchboxsignals = struct();
+  if isfield(thisdataset, 'synchbox')
+    synchboxsignals = thisdataset.synchbox;
+  end
+
+  recbitsignals = { 'recsynchA', 'recsynchB', 'recrwdA', 'recrwdB' };
+  bitsignaldefsrec = struct();
+  for fidx = 1:length(recbitsignals)
+    thisfield = recbitsignals{fidx};
+    if isfield(synchboxsignals, thisfield)
+      bitsignaldefsrec.(thisfield) = synchboxsignals.(thisfield);
+    end
+  end
+
+  stimbitsignals = { 'stimsynchA', 'stimsynchB', 'stimrwdA', 'stimrwdB' };
+  bitsignaldefsstim = struct();
+  for fidx = 1:length(stimbitsignals)
+    thisfield = stimbitsignals{fidx};
+    if isfield(synchboxsignals, thisfield)
+      bitsignaldefsstim.(thisfield) = synchboxsignals.(thisfield);
+    end
+  end
+
+  codesignaldefsrec = struct();
+  if isfield(synchboxsignals, 'reccodes')
+    codesignaldefsrec = struct( ...
+      'signameraw', 'reccodes_raw', 'signamecooked', 'reccodes', ...
+      'channame', synchboxsignals.reccodes );
+    if isfield(synchboxsignals, 'recshift')
+      codesignaldefsrec.bitshift = synchboxsignals.recshift + firstbit;
+    elseif (firstbit > 0)
+      codesignaldefsrec.bitshift = firstbit;
+    end
+  end
+
+  codesignaldefsstim = struct();
+  if isfield(synchboxsignals, 'stimcodes')
+    codesignaldefsstim = struct( ...
+      'signameraw', 'stimcodes_raw', 'signamecooked', 'stimcodes', ...
+      'channame', synchboxsignals.stimcodes );
+    if isfield(synchboxsignals, 'stimshift')
+      codesignaldefsstim.bitshift = synchboxsignals.stimshift + firstbit;
+    elseif (firstbit > 0)
+      codesignaldefsstim.bitshift = firstbit;
+    end
+  end
+
+
+  % Read the events.
+
+  [recevents_dig recevents_packed] = euUSE_readAllEphysEvents( ...
+    thisdataset.recfile, bitsignaldefsrec, codesignaldefsrec, ...
+    evcodedefs, evcodebytes, evcodeendian );
+
+  [stimevents_dig stimevents_packed] = euUSE_readAllEphysEvents( ...
+    thisdataset.stimfile, bitsignaldefsstim, codesignaldefsstim, ...
+    evcodedefs, evcodebytes, evcodeendian );
+
+  have_recevents_dig = ~isempty(recevents_dig);
+  have_stimevents_dig = ~isempty(stimevents_dig);
+
+
+  % Unpack the events.
+
+  % FIXME - "Save" expects empty tables for missing events.
+  recrwdA = table();
+  recrwdB = table();
+  recsynchA = table();
+  recsynchB = table();
+  reccodes_raw = table();
+  reccodes = table();
+
+  have_recrwdA = isfield(recevents_packed, 'recrwdA');
+  have_recrwdB = isfield(recevents_packed, 'recrwdB');
+  have_recsynchA = isfield(recevents_packed, 'recsynchA');
+  have_recsynchB = isfield(recevents_packed, 'recsynchB');
+  have_reccodes = isfield(recevents_packed, 'reccodes');
+
+  if have_recrwdA
+    recrwdA = recevents_packed.recrwdA;
+  end
+  if have_recrwdB
+    recrwdB = recevents_packed.recrwdB;
+  end
+  if have_recsynchA
+    recsynchA = recevents_packed.recsynchA;
+  end
+  if have_recsynchB
+    recsynchB = recevents_packed.recsynchB;
+  end
+  if have_reccodes
+    reccodes_raw = recevents_packed.reccodes_raw;
+    reccodes = recevents_packed.reccodes;
+  end
+
+  % FIXME - "Save" expects empty tables for missing events.
+  stimrwdA = table();
+  stimrwdB = table();
+  stimsynchA = table();
+  stimsynchB = table();
+  stimcodes_raw = table();
+  stimcodes = table();
+
+  have_stimrwdA = isfield(stimevents_packed, 'stimrwdA');
+  have_stimrwdB = isfield(stimevents_packed, 'stimrwdB');
+  have_stimsynchA = isfield(stimevents_packed, 'stimsynchA');
+  have_stimsynchB = isfield(stimevents_packed, 'stimsynchB');
+  have_stimcodes = isfield(stimevents_packed, 'stimcodes');
+
+  if have_stimrwdA
+    stimrwdA = stimevents_packed.stimrwdA;
+  end
+  if have_stimrwdB
+    stimrwdB = stimevents_packed.stimrwdB;
+  end
+  if have_stimsynchA
+    stimsynchA = stimevents_packed.stimsynchA;
+  end
+  if have_stimsynchB
+    stimsynchB = stimevents_packed.stimsynchB;
+  end
+  if have_stimcodes
+    stimcodes_raw = stimevents_packed.stimcodes_raw;
+    stimcodes = stimevents_packed.stimcodes;
+  end
+
+else
+% FIXME - Old way.
 
   % First, get the ephys TTL events themselves if we don't already have them.
 
@@ -316,6 +460,7 @@ else
   % Done.
 
   disp('-- Finished looking for SynchBox signals in ephys data.');
+end
 
 
   %
