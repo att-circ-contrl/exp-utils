@@ -483,8 +483,8 @@ squashmask = isnan(fitresidue);
 % Diagnostics.
 squashcount = sum(squashmask) - beforecount;
 if want_verbose
-  disp(sprintf( '.. Squashed %d outliers (%.1f sigma).', ...
-    squashcount, outliersigma ));
+  disp(sprintf( '.. Squashed %d outliers out of %d samples (%.1f sigma).', ...
+    squashcount, length(fitresidue), outliersigma ));
 end
 
 % NOTE - We need to have a series of deltas with no NaNs.

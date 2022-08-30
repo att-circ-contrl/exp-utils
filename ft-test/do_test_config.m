@@ -83,10 +83,17 @@ want_save_data = true;
 want_cache_autoclassify = true;
 want_cache_monolithic = true;
 want_cache_align_raw = true;
-want_cache_align_done = true;
+want_cache_align_done = false;
 % Trial _definitions_ aren't cached; it's faster to rebuild them.
 % Trial _data_ can be cached.
 want_cache_epoched = true;
+
+
+% Debugging switch - skip dealing with USE gaze and frame data, as they're
+% enormous and take a while to save/load.
+
+debug_skip_gaze = false;
+debug_skip_frame = false;
 
 
 
@@ -208,7 +215,8 @@ alignfinewindow = 0.1;
 alignoutliersigma = 4.0;
 
 % This should either be 'quiet' or 'normal'. 'verbose' is for debugging.
-alignverbosity = 'normal';
+%alignverbosity = 'normal';
+alignverbosity = 'verbose';
 
 
 % Epoch segmentation.

@@ -42,22 +42,38 @@ for sidx = 1:length(newdata)
     windata = windata(~isnan(windata));
     if length(windata) >= 6
 
+% NOTE - Using > and <, not >= and <=, to handle the pathological case where
+% values are nearly-constant, resulting in a very low deviation.
+
 % FIXME - Standard deviation approach.
 if false
       datasigma = std(windata);
       datamean = mean(windata);
-      if abs(thisval - datamean) >= (outliersigma * datasigma)
+      if abs(thisval - datamean) > (outliersigma * datasigma)
         newdata(sidx) = NaN;
       end
 end
 
 % FIXME - Percentile approach.
-if true
+if false
       % One sigma is roughly 16%..84%.
       percvec = prctile(windata, [16 50 84]);
       datamean = percvec(2);
       datasigma = 0.5 * (percvec(3) - percvec(1));
-      if abs(thisval - datamean) >= (outliersigma * datasigma)
+      if abs(thisval - datamean) > (outliersigma * datasigma)
+        newdata(sidx) = NaN;
+      end
+end
+
+% FIXME - Two-sided (asymmetric) percentile approach.
+if true
+      % One sigma is roughly 16%..84%.
+      percvec = prctile(windata, [16 50 84]);
+      datamean = percvec(2);
+      datasigmalow = percvec(2) - percvec(1);
+      datasigmahigh = percvec(3) - percvec(2);
+      if ( thisval > (datamean + outliersigma * datasigmahigh) ) ...
+        || ( thisval < (datamean - outliersigma * datasigmalow) )
         newdata(sidx) = NaN;
       end
 end

@@ -98,7 +98,7 @@ for cidx = 1:length(candidatetimes)
     winfirstdata = [];
 
     if ~isempty(firstdata)
-      winfirstdata = seconddata(thisstart:thisend);
+      winfirstdata = firstdata(thisstart:thisend);
     end
 
     thisstart = spansecondstart(cidx);

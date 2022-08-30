@@ -93,11 +93,21 @@ if want_cache_align_raw ...
 
   disp('-- Loading raw Unity gaze data.');
 
-  load(fname_rawgaze);
+  if debug_skip_gaze
+    disp('### Skipping loading gaze data.');
+    gamegaze_raw = table();
+  else
+    load(fname_rawgaze);
+  end
 
   disp('-- Loading raw Unity frame data.');
 
-  load(fname_rawframe);
+  if debug_skip_frame
+    disp('### Skipping loading frame data.');
+    gameframedata_raw = table();
+  else
+    load(fname_rawframe);
+  end
 
   disp('-- Finished loading.');
 
@@ -335,11 +345,19 @@ else
 
     disp('-- Saving raw Unity gaze data.');
 
-    save( fname_rawgaze, 'gamegaze_raw', '-v7.3' );
+    if debug_skip_gaze
+      disp('### Skipping saving gaze data.');
+    else
+      save( fname_rawgaze, 'gamegaze_raw', '-v7.3' );
+    end
 
     disp('-- Saving raw Unity frame data.');
 
-    save( fname_rawframe, 'gameframedata_raw', '-v7.3' );
+    if debug_skip_frame
+      disp('### Skipping saving frame data.');
+    else
+       save( fname_rawframe, 'gameframedata_raw', '-v7.3' );
+    end
 
     disp('-- Finished saving.');
   end
@@ -664,6 +682,22 @@ end
 % and unity timestamps. So, extents aren't needed.
 
 
+if true  % Old vs new alignment.
+
+%
+% New alignment.
+
+
+% Configuration for time alignment.
+
+% Values from do_test_config.m.
+alignconfig = struct( 'coarsewindows', aligncoarsewindows, ...
+  'medwindows', alignmedwindows, 'finewindow', alignfinewindow, ...
+  'outliersigma', alignoutliersigma, 'verbosity', alignverbosity );
+
+% Defaults.
+%alignconfig = struct();
+
 
 %
 % Propagate recorder timestamps to the SynchBox.
@@ -676,6 +710,168 @@ end
 % FIXME - Reward line alignment will take much longer due to not being able
 % to filter based on data values.
 
+% NOTE - We can fall back to reward alignment but not synch pulse alignment.
+% The synch pulses are at regular intervals, so alignment is ambiguous.
+
+% NOTE - Event code alignment with the SynchBox has to use raw codes.
+% The alignment routines misbehave trying to line up the SynchBox with
+% the ephys machines based on cooked codes, due to a large number of
+% dropped bytes (the synchbox-to-unity reply link is saturated).
+
+disp('.. Aligning SynchBox and recorder.');
+
+% Pack the event tables. These may be empty.
+eventtables = ...
+  { reccodes_raw, boxcodes_raw ; recrwdA, boxrwdA ; recrwdB, boxrwdB };
+
+% Do the alignment.
+[ alignedevents times_recorder_synchbox ] = euUSE_alignTwoDevices( ...
+  eventtables, 'recTime', 'synchBoxTime', alignconfig );
+
+% Unpack the augmented event tables.
+reccodes_raw = alignedevents{1,1};
+recrwdA = alignedevents{2,1};
+recrwdB = alignedevents{3,1};
+boxcodes_raw = alignedevents{1,2};
+boxrwdA = alignedevents{2,2};
+boxrwdB = alignedevents{3,2};
+
+% Propagate recorder timestamps to boxcodes, boxsynchA, and boxsynchB.
+% NOTE - Not propagating box timestamps to recorder synch or cooked codes!
+if ~isempty(times_recorder_synchbox)
+  % This checks for cases where translation can't be done or where the
+  % new timestamps are already present.
+
+  boxcodes = euAlign_addTimesToTable( boxcodes, ...
+    'synchBoxTime', 'recTime', times_recorder_synchbox );
+
+  boxsynchA = euAlign_addTimesToTable( boxsynchA, ...
+    'synchBoxTime', 'recTime', times_recorder_synchbox );
+
+  boxsynchB = euAlign_addTimesToTable( boxsynchB, ...
+    'synchBoxTime', 'recTime', times_recorder_synchbox );
+end
+
+disp('.. Finished aligning.');
+
+
+%
+% Propagate recorder timestamps to USE.
+
+% Unity timestamps have a lot more jitter (about 1.0 to 1.5 ms total).
+
+% Do alignment using event codes if possible. Failing that, using reward
+% lines.
+% FIXME - Reward line alignment will take much longer due to not being able
+% to filter based on data values.
+
+% NOTE - USE's record of event codes is complete, so we can align on cooked
+% codes without problems.
+
+disp('.. Aligning USE and recorder.');
+
+% Pack the event tables. These may be empty.
+eventtables = ...
+  { reccodes, gamecodes ; recrwdA, gamerwdA ; recrwdB, gamerwdB };
+
+% Do the alignment.
+[ alignedevents times_recorder_game ] = euUSE_alignTwoDevices( ...
+  eventtables, 'recTime', 'unityTime', alignconfig );
+
+% Unpack the augmented event tables.
+reccodes = alignedevents{1,1};
+recrwdA = alignedevents{2,1};
+recrwdB = alignedevents{3,1};
+gamecodes = alignedevents{1,2};
+gamerwdA = alignedevents{2,2};
+gamerwdB = alignedevents{3,2};
+
+% Propagate recorder timestamps to gamecodes_raw.
+% NOTE - Not propagating game timestamps to recorder synch or raw codes!
+if ~isempty(times_recorder_game)
+  % This checks for cases where translation can't be done or where the
+  % new timestamps are already present.
+  gamecodes_raw = euAlign_addTimesToTable( gamecodes_raw, ...
+    'unityTime', 'recTime', times_recorder_game );
+end
+
+disp('.. Finished aligning.');
+
+
+%
+% Propagate recorder timestamps to the stimulator.
+
+% If we can do this directly, that's ideal. Otherwise go through the SynchBox.
+% Case priority order is direct codes, synchbox codes, direct reward, then
+% synchbox reward. We can't usefully align based on periodic synch signals.
+
+% FIXME - Reward line alignment will take much longer due to not being able
+% to filter based on data values.
+
+% NOTE - SynchBox codes are incomplete, so we need to use raw rather than
+% cooked for it to avoid larger disturbances from dropped codes.
+
+disp('.. Aligning stimulator and recorder.');
+
+% Pack the event tables. These may be empty.
+% "box" tables are already augmented with recTime.
+eventtables = ...
+  { reccodes, stimcodes ; boxcodes_raw, stimcodes_raw ; ...
+    recrwdA, stimrwdA ; recrwdB, stimrwdB ; ...
+    boxrwdA, stimrwdA ; boxrwdB, stimrwdB };
+
+% Do the alignment.
+[ alignedevents times_recorder_stimulator ] = euUSE_alignTwoDevices( ...
+  eventtables, 'recTime', 'stimTime', alignconfig );
+
+% Unpack the augmented event tables.
+% The two versions of "stimrwdA" and "stimrwdB" should be identical;
+% we'll just take the first ones.
+reccodes = alignedevents{1,1};
+boxcodes_raw = alignedevents{2,1};
+recrwdA = alignedevents{3,1};
+recrwdB = alignedevents{4,1};
+recrwdA = alignedevents{5,1};
+recrwdB = alignedevents{6,1};
+stimcodes = alignedevents{1,2};
+stimcodes_raw = alignedevents{2,2};
+stimrwdA = alignedevents{3,2};
+stimrwdB = alignedevents{4,2};
+% {5,2} and {6,2} are duplicates of stimrwdA and stimrwdB, respectively.
+
+% Propagate recorder timestamps to stimsynchA and stimsynchB.
+% NOTE - Not propagating stimulator timestamps to recorder synch!
+if ~isempty(times_recorder_stimulator)
+  % This checks for cases where translation can't be done or where the
+  % new timestamps are already present.
+
+  stimsynchA = euAlign_addTimesToTable( stimsynchA, ...
+    'stimTime', 'recTime', times_recorder_stimulator );
+
+  stimsynchB = euAlign_addTimesToTable( stimsynchB, ...
+    'stimTime', 'recTime', times_recorder_stimulator );
+end
+
+disp('.. Finished aligning.');
+
+
+
+else  % Old vs new alignment.
+
+%
+% Old alignment.
+
+
+%
+% Propagate recorder timestamps to the SynchBox.
+
+% Recorder and synchbox timestamps do drift but can be aligned to about 0.1ms
+% precision locally (using raw, not cooked, event codes).
+
+% Do alignment using event codes if possible. Failing that, using reward
+% lines. We can't usefully align based on periodic synch signals.
+% FIXME - Reward line alignment will take much longer due to not being able
+% to filter based on data values.
 
 % NOTE - We can fall back to reward alignment but not synch pulse alignment.
 % The synch pulses are at regular intervals, so alignment is ambiguous.
@@ -977,6 +1173,10 @@ end
 
 
 
+end % Old vs new alignment.
+
+
+
 %
 % Time-align gaze data and frame data if possible.
 
@@ -1129,11 +1329,19 @@ if want_save_data
 
   disp('-- Saving time-aligned gaze data.');
 
-  save( fname_cookedgaze, 'gamegaze_raw', '-v7.3' );
+  if debug_skip_gaze
+    disp('### Skipping saving gaze data.');
+  else
+    save( fname_cookedgaze, 'gamegaze_raw', '-v7.3' );
+  end
 
   disp('-- Saving time-aligned Unity frame data.');
 
-  save( fname_cookedframe, 'gameframedata_raw', '-v7.3' );
+  if debug_skip_frame
+    disp('### Skipping saving frame data.');
+  else
+    save( fname_cookedframe, 'gameframedata_raw', '-v7.3' );
+  end
 
   disp('-- Finished saving.');
 end
