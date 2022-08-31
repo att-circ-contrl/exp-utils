@@ -92,8 +92,8 @@ want_cache_epoched = true;
 % Debugging switch - skip dealing with USE gaze and frame data, as they're
 % enormous and take a while to save/load.
 
-debug_skip_gaze = false;
-debug_skip_frame = false;
+debug_skip_gaze = true;
+debug_skip_frame = true;
 
 
 
@@ -215,8 +215,7 @@ alignfinewindow = 0.1;
 alignoutliersigma = 4.0;
 
 % This should either be 'quiet' or 'normal'. 'verbose' is for debugging.
-%alignverbosity = 'normal';
-alignverbosity = 'verbose';
+alignverbosity = 'normal';
 
 
 % Epoch segmentation.

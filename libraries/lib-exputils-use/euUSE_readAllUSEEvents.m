@@ -1,11 +1,11 @@
-function [ boxevents gameevents rawgazedata rawframedata evcodedefs ] = ...
-  euUSE_readAllUSEData( runtimefolder, codeformat, codebytes, codeendian )
+function [ boxevents gameevents evcodedefs ] = ...
+  euUSE_readAllUSEEvents( runtimefolder, codeformat, codebytes, codeendian )
 
-% function [ boxevents gameevents rawgazedata rawframedata evcodedefs ] = ...
-%   euUSE_readAllUSEData( runtimefolder, codeformat, codebytes, codeendian )
+% function [ boxevents gameevents evcodedefs ] = ...
+%   euUSE_readAllUSEEvents( runtimefolder, codeformat, codebytes, codeendian )
 %
-% This function reads and parses serial data, gaze data, and frame data from
-% a USE "RuntimeData" folder.
+% This function reads and parses serial data from a USE "RuntimeData" folder.
+% This gives events and timestamps from USE and from the SynchBox.
 %
 % This is a wrapper for the following functions:
 %   euUSE_readRawSerialData()
@@ -13,8 +13,6 @@ function [ boxevents gameevents rawgazedata rawframedata evcodedefs ] = ...
 %   euUSE_parseSerialSentData()
 %   euUSE_readEventCodeDefs()
 %   euUSE_reassembleEventCodes()
-%   euUSE_readRawGazeData()
-%   euUSE_readRawFrameData()
 %
 % "runtimefolder" is the path to the "RuntimeData" folder.
 % "codeformat" is the event code format used by the SynchBox. This is 'word',
@@ -36,14 +34,6 @@ function [ boxevents gameevents rawgazedata rawframedata evcodedefs ] = ...
 %   a 'unityTime' column. Additional columns are 'pulseDuration' (for
 %   rewards), 'codeValue' (for raw codes), and 'codeWord', 'codeData', and
 %   'codeLabel' (for cooked codes).
-% "rawgazedata" is a table containing aggregated gaze data in native USE
-%   format. This table is augmented with a 'time_seconds' column translated
-%   from the 'system_time_stamp' column.
-% "rawframedata" is a table containing aggregated frame data in native USE
-%   format. This table is augmented with a 'SystemTimeSeconds' column
-%   translated from the 'FrameStartSystem' column, and an
-%   'EyetrackerTimeSeconds' column translated from the 'EyetrackerTimeStamp'
-%   column.
 % "evcodedefs" is a USE event code definition structure per EVCODEDEFS.txt.
 
 
@@ -103,23 +93,6 @@ gameevents.cookedcodes = gamecodes_cooked;
 
 
 disp('-- Finished reading USE event data.');
-
-
-disp('-- Reading USE gaze data.');
-
-% FIXME - The raw data is nonuniformly sampled. This should be converted
-% to FT waveform data at some point.
-
-rawgazedata = euUSE_readRawGazeData(runtimefolder);
-
-disp('-- Finished reading USE gaze dfata.');
-
-
-disp('-- Reading USE frame data.');
-
-rawframedata = euUSE_readRawFrameData(runtimefolder);
-
-disp('-- Finished reading USE frame data.');
 
 
 % Done.

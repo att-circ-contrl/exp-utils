@@ -132,14 +132,16 @@ else
 
     have_unity = true;
 
+    %
+    % Read event data.
+
     % Baseline version: Manually specify how event codes are encoded.
-    [ boxevents gameevents gamegaze_raw gameframedata_raw evcodedefs ] = ...
-      euUSE_readAllUSEData( thisdataset.unityfile, ...
-        'dupbyte', evcodebytes, evcodeendian );
+    [ boxevents gameevents evcodedefs ] = euUSE_readAllUSEEvents( ...
+      thisdataset.unityfile, 'dupbyte', evcodebytes, evcodeendian );
 
     % Alternate version: Use default encoding.
-%    [ boxevents gameevents gamegaze_raw gameframedata_raw evcodedefs ] = ...
-%      euUSE_readAllUSEData( thisdataset.unityfile );
+%    [ boxevents gameevents evcodedefs ] = ...
+%      euUSE_readAllUSEEvents( thisdataset.unityfile );
 
     % Unpack the returned structures into our global variables.
 
@@ -154,6 +156,38 @@ else
     gamerwdB = gameevents.rwdB;
     gamecodes_raw = gameevents.rawcodes;
     gamecodes = gameevents.cookedcodes;
+
+
+    %
+    % Read gaze and frame data.
+
+    % These take a while.
+
+    disp('-- Reading USE gaze data.');
+
+    % FIXME - The raw data is nonuniformly sampled. This should be converted
+    % to FT waveform data at some point.
+
+    if debug_skip_gaze
+      disp('### Skipping reading gaze data.');
+      gamegaze_raw = table();
+    else
+      gamegaze_raw = euUSE_readRawGazeData( thisdataset.unityfile );
+    end
+
+    disp('-- Finished reading USE gaze dfata.');
+
+    disp('-- Reading USE frame data.');
+
+    if debug_skip_frame
+      disp('### Skipping reading frame data.');
+      gameframedata_raw = table();
+    else
+      gameframedata_raw = euUSE_readRawFrameData( thisdataset.unityfile );
+    end
+
+    disp('-- Finished reading USE frame data.');
+
 
   end
 
