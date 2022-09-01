@@ -7,26 +7,37 @@
 
 % Change these to specify what you want to do.
 
+
+% Folders.
+
 plotdir = 'plots';
 outdatadir = 'output';
 
 inputfolder = 'datasets/20220504-frey-silicon';
 
+
+% Channels we care about.
+
 % These are the channels that Louie flagged as particularly interesting.
 % Louie says that channel 106 in particular was task-modulated.
-desired_rechannels = ...
-    { 'CH_020', 'CH_021', 'CH_022',   'CH_024', 'CH_026', 'CH_027', ...
-      'CH_028', 'CH_030', 'CH_035',   'CH_042', 'CH_060', 'CH_019', ...
-      'CH_043', ...
-      'CH_071', 'CH_072', 'CH_073',   'CH_075', 'CH_100', 'CH_101', ...
-      'CH_106', 'CH_107', 'CH_117',   'CH_116', 'CH_120', 'CH_125', ...
-      'CH_067', 'CH_123', 'CH_109',   'CH_122' };
+desired_recchannels = ...
+  { 'CH_020', 'CH_021', 'CH_022',   'CH_024', 'CH_026', 'CH_027', ...
+    'CH_028', 'CH_030', 'CH_035',   'CH_042', 'CH_060', 'CH_019', ...
+    'CH_043', ...
+    'CH_071', 'CH_072', 'CH_073',   'CH_075', 'CH_100', 'CH_101', ...
+    'CH_106', 'CH_107', 'CH_117',   'CH_116', 'CH_120', 'CH_125', ...
+    'CH_067', 'CH_123', 'CH_109',   'CH_122' };
+
+desired_stimchannels = {};
+
+
+% Where to look for event codes and TTL signals in the ephys data.
 
 % These structures describe which TTL bit-lines in the recorder and
 % stimulator encode which event signals for this dataset.
 
 recbitsignals = struct();
-stimbitsignals = struct('stimrwdB', 'Din_002');
+stimbitsignals = struct('rwdB', 'Din_002');
 
 % These structures describe which TTL bit-lines or word data channels
 % encode event codes for the recorder and stimulator.
@@ -35,16 +46,42 @@ stimbitsignals = struct('stimrwdB', 'Din_002');
 % Intan code words are shifted by 9 bits to get the same data.
 
 reccodesignals = struct( ...
-  'signameraw', 'reccodes_raw', 'signamecooked', 'reccodes', ...
+  'signameraw', 'rawcodes', 'signamecooked', 'cookedcodes', ...
   'channame', 'DigWordsA_000', 'bitshift', 8 );
 stimcodesignals = struct( ...
-  'signameraw', 'stimcodes_raw', 'signamecooked', 'stimcodes', ...
+  'signameraw', 'rawcodes', 'signamecooked', 'cookedcodes', ...
   'channame', 'Din_*', 'bitshift', 9 );
+
+
+% How to define trials.
+
+% This is the code we want to be at time zero.
+trial_align_evcode = 'StimOn';
+
+% These are codes that carry extra metadata that we want to save; they'll
+% show up in "trialinfo" after processing (and in "trl" before that).
+trial_metadata_events = ...
+  struct( 'trialnum', 'TrialNumber', 'trialindex', 'TrialIndex' );
+
+% This is how much padding we want before 'TrlStart' and after 'TrlEnd'.
+padtime = 3.0;
+
+
+% Narrow-band frequencies to filter out.
+
+% We have power line peaks at 60 Hz and its harmonics, and also often
+% have a peak at around 600 Hz and its harmonics.
+
+notch_filter_freqs = [ 60, 120, 180 ];
+notch_filter_bandwidth = 2.0;
 
 
 % Debug switches for testing.
 
 debug_skip_gaze_and_frame = true;
+
+debug_use_fewer_trials = true;
+debug_trials_to_use = 30;
 
 
 
@@ -85,7 +122,7 @@ ft_warning('off');
 oldwarnstate = warning('off');
 
 % Limit the number of channels LoopUtil will load into memory at a time.
-% Raw data takes up about 1 GB per channel-hour.
+% 30 ksps double-precision data takes up about 1 GB per channel-hour.
 nlFT_setMemChans(8);
 
 
@@ -101,9 +138,10 @@ nlFT_setMemChans(8);
 % FIXME - For now, assume we're using Open Ephys for the recorder.
 % FIXME - Assume one recorder dataset and 0 or 1 stimulator datasets.
 folder_record = folders_openephys{1};
-folder_stim = '';
+have_stim = false;
 if ~isempty(folders_intanstim)
   folder_stim = folders_intanstim{1};
+  have_stim = true;
 end
 folder_game = folders_unity{1};
 
@@ -113,7 +151,9 @@ folder_game = folders_unity{1};
 % NOTE - Field Trip will throw an exception if this fails.
 % Add a try/catch block if you want to fail gracefully.
 rechdr = ft_read_header( folder_record, 'headerformat', 'nlFT_readHeader' );
-stimhdr = ft_read_header( folder_stim, 'headerformat', 'nlFT_readHeader' );
+if have_stim
+  stimhdr = ft_read_header( folder_stim, 'headerformat', 'nlFT_readHeader' );
+end
 
 
 % Figure out what channels we want.
@@ -129,6 +169,13 @@ stim_channels_digital = ft_channelselection( pat_digital, stimhdr.label, {} );
 stim_channels_current = ...
   ft_channelselection( pat_stimcurrent, stimhdr.label, {} );
 stim_channels_flags = ft_channelselection( pat_stimflags, stimhdr.label, {} );
+
+% Keep desired channels that match actual channels.
+% FIXME - Ignoring stimulation current and flags!
+desired_recchannels = ...
+  desired_recchannels( ismember(desired_recchannels, rec_channels_ephys) );
+desired_stimchannels = ...
+  desired_stimchannels( ismember(desired_stimchannels, stim_channels_ephys) );
 
 
 
@@ -151,10 +198,7 @@ stim_channels_flags = ft_channelselection( pat_stimflags, stimhdr.label, {} );
 [ recevents_ttl recevents ] = euUSE_readAllEphysEvents( ...
   folder_record, recbitsignals, reccodesignals, evcodedefs );
 
-if isempty(folder_stim)
-  stimevents_ttl = table();
-  stimevents = struct();
-else
+if have_stim
   [ stimevents_ttl stimevents ] = euUSE_readAllEphysEvents( ...
     folder_stim, stimbitsignals, stimcodesignals, evcodedefs );
 end
@@ -162,13 +206,13 @@ end
 % Read USE gaze and framedata tables.
 % These return concatenated table data from the relevant USE folders.
 % These take a while, so stub them out for testing.
-gamegaze_raw = table();
-gameframedata_raw = table();
+gamegazedata = table();
+gameframedata = table();
 if ~debug_skip_gaze_and_frame
   disp('-- Reading USE gaze data.');
-  gamegaze_raw = euUSE_readRawGazeData(folder_game);
+  gamegazedata = euUSE_readRawGazeData(folder_game);
   disp('-- Reading USE frame data.');
-  gameframedata_raw = euUSE_readRawFrameData(folder_game);
+  gameframedata = euUSE_readRawFrameData(folder_game);
   disp('-- Finished reading USE gaze and frame data.');
 end
 
@@ -201,6 +245,192 @@ recevents = ...
 stimevents = ...
   euFT_addEventTimestamps( stimevents, stimhdr.Fs, 'sample', 'stimTime' );
 
+
+
+%
+% Do time alignment.
+
+% Default alignment config is fine.
+alignconfig = struct();
+
+% Just align using event codes. Falling back to reward pulses takes too long.
+
+
+disp('.. Propagating recorder timestamps to SynchBox.');
+
+% Use raw code bytes for this, to avoid glitching from missing box codes.
+eventtables = { recevents.rawcodes, boxevents.rawcodes };
+[ newtables times_recorder_synchbox ] = euUSE_alignTwoDevices( ...
+  eventtables, 'recTime', 'synchBoxTime', alignconfig );
+
+boxevents = euAlign_addTimesToAllTables( ...
+  boxevents, 'synchBoxTime', 'recTime', times_recorder_synchbox );
+
+
+disp('.. Propagating recorder timestamps to USE.');
+
+% Use cooked codes for this, since both sides have a complete event list.
+eventtables = { recevents.cookedcodes, gameevents.cookedcodes };
+[ newtables times_recorder_game ] = euUSE_alignTwoDevices( ...
+  eventtables, 'recTime', 'unityTime', alignconfig );
+
+gameevents = euAlign_addTimesToAllTables( ...
+  gameevents, 'unityTime', 'recTime', times_recorder_game );
+
+
+if have_stim
+  disp('.. Propagating recorder timestamps to stimulator.');
+
+  % The old test script aligned using SynchBox TTL signals as a fallback.
+  % Since we're only using codes here, we don't have a fallback option. Use
+  % event codes or fail.
+
+  eventtables = { recevents.cookedcodes, stimevents.cookedcodes };
+  [ newtables times_recorder_stimulator ] = euUSE_alignTwoDevices( ...
+    eventtables, 'recTime', 'stimTime', alignconfig );
+
+  stimevents = euAlign_addTimesToAllTables( ...
+    stimevents, 'stimTime', 'recTime', times_recorder_stimulator );
+end
+
+
+if ~debug_skip_gaze_and_frame
+
+  % First, make "eyeTime" and "unityTime" columns.
+  % Remember to subtract the offset from Unity timestamps.
+
+  gameframedata.eyeTime = gameframedata.EyetrackerTimeSeconds;
+  gameframedata.unityTime = ...
+    gameframedata.SystemTimeSeconds - unityreftime;
+
+  gamegazedata.eyeTime = gamegazedata.time_seconds;
+
+
+  % Get alignment information for Unity and eye-tracker timestamps.
+  % This information is already in gameframedata; we just have to extract
+  % it.
+
+  % Timestamps are not guaranteed to be unique, so filter them.
+  times_game_eyetracker = euAlign_getUniqueTimestampTuples( ...
+    gameframedata, {'unityTime', 'eyeTime'} );
+
+
+  % Unity timestamps are unique but ET timestamps aren't.
+  % Interpolate new ET timestamps from the Unity timestamps.
+
+  disp('.. Cleaning up eye tracker timestamps in frame data.');
+
+  gameframedata = euAlign_addTimesToTable( gameframedata, ...
+    'unityTime', 'eyeTime', times_game_eyetracker );
+
+
+  % Add recorder timestamps to game and frame data tables.
+  % To do this, we'll also have to augment gaze data with unity timestamps.
+
+  disp('.. Propagating recorder timestamps to frame data table.');
+
+  gameframedata = euAlign_addTimesToTable( gameframedata, ...
+    'unityTime', 'recTime', times_recorder_game );
+
+  disp('.. Propagating Unity and recorder timestamps to gaze data table.');
+
+  gamegazedata = euAlign_addTimesToTable( gamegazedata, ...
+    'eyeTime', 'unityTime', times_game_eyetracker );
+  gamegazedata = euAlign_addTimesToTable( gamegazedata, ...
+    'unityTime', 'recTime', times_recorder_game );
+
+end
+
+
+disp('.. Finished time alignment.');
+
+
+
+%
+% Get trial definitions.
+
+% Get event code sequences for "valid" trials (ones where "TrialNumber"
+% increased afterwards).
+
+[ trialcodes_each trialcodes_concat ] = euUSE_segmentTrialsByCodes( ...
+  gameevents.cookedcodes, 'codeLabel', 'codeData', true );
+
+
+% FIXME - For debugging (faster and less memory), keep only a few trials.
+
+if debug_use_fewer_trials
+  trialcount = length(trialcodes_each);
+  if trialcount > debug_trials_to_use
+    firsttrial = round(0.5 * (trialcount - debug_trials_to_use));
+    lasttrial = firsttrial + debug_trials_to_use - 1;
+    firsttrial = max(firsttrial, 1);
+    lasttrial = min(lasttrial, trialcount);
+
+    trialcodes_each = trialcodes_each(firsttrial:lasttrial);
+    trialcodes_concat = vertcat(trialcodes_each{:});
+  end
+end
+
+
+% Get trial definitions.
+% This replaces ft_definetrial().
+
+[ rectrialdefs rectrialdeftable ] = euFT_defineTrialsUsingCodes( ...
+  trialcodes_concat, 'codeLabel', 'recTime', rechdr.Fs, ...
+  padtime, padtime, 'TrlStart', 'TrlEnd', trial_align_evcode, ...
+  trial_metadata_events, 'codeData' );
+
+if have_stim
+  trialcodes_concat = euAlign_addTimesToTable( trialcodes_concat, ...
+    'recTime', 'stimTime', times_recorder_stimulator );
+
+  [ stimtrialdefs stimtrialdeftable ] = euFT_defineTrialsUsingCodes( ...
+    trialcodes_concat, 'codeLabel', 'stimTime', stimhdr.Fs, ...
+    padtime, padtime, 'TrlStart', 'TrlEnd', trial_align_evcode, ...
+    trial_metadata_events, 'codeData' );
+end
+
+
+% NOTE - You'd normally discard known artifact trials here.
+
+
+
+%
+% Read the Field Trip data.
+
+% NOTE - We're reading everything into memory at once. This will only work
+% if we have few enough channels to fit in memory. To process more data,
+% either read it a few trials at a time or a few channels at a time or at
+% a lower sampling rate.
+
+
+% First step: Get wideband data into memory and remove any global ramp.
+
+preproc_config = ...
+{ 'headerfile', folder_record, 'datafile', folder_record, ...
+  'headerformat', 'nlFT_readHeader', 'dataformat', 'nlFT_readDataDouble', ...
+  'trl', rectrialdefs, 'channel', desired_recchannels, ...
+  'detrend', 'yes', 'feedback', 'text' };
+
+disp('.. Reading wideband recorder data.');
+recdata_wideband = ft_preprocessing( preproc_config );
+
+
+% Second step: Do notch filtering using our own filter, as FT's brick wall
+% filter acts up as of 2021.
+
+disp('.. Performing notch filtering (recorder).');
+recdata_wideband = euFT_doBrickNotchRemoval( ...
+  recdata_wideband, notch_filter_freqs, notch_filter_bandwidth );
+
+
+
+% FIXME - Stopped here.
+
+
+
+%
+% Done.
 
 
 %
