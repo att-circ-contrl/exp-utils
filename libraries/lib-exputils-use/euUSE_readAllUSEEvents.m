@@ -37,7 +37,7 @@ function [ boxevents gameevents evcodedefs ] = ...
 % "evcodedefs" is a USE event code definition structure per EVCODEDEFS.txt.
 
 
-disp('-- Reading USE event data.');
+disp('-- Reading USE serial event data.');
 
 
 % FIXME - Set defaults if not specified.
@@ -92,7 +92,7 @@ gameevents.rawcodes = gamecodes_raw;
 gameevents.cookedcodes = gamecodes_cooked;
 
 
-disp('-- Finished reading USE event data.');
+disp('-- Finished reading USE serial event data.');
 
 
 % Done.

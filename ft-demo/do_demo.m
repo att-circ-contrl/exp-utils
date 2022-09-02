@@ -109,7 +109,7 @@ gaze_samprate = lfp_samprate;
 
 % Debug switches for testing.
 
-debug_skip_gaze_and_frame = true;
+debug_skip_gaze_and_frame = false;
 
 debug_use_fewer_trials = true;
 debug_trials_to_use = 30;
@@ -226,10 +226,12 @@ desired_stimchannels = ...
 % These each return a table of TTL events, and a structure with tables for
 % each extracted signal we asked for.
 
+disp('-- Reading digital events from recorder.');
 [ recevents_ttl recevents ] = euUSE_readAllEphysEvents( ...
   folder_record, recbitsignals, reccodesignals, evcodedefs );
 
 if have_stim
+  disp('-- Reading digital events from stimulator.');
   [ stimevents_ttl stimevents ] = euUSE_readAllEphysEvents( ...
     folder_stim, stimbitsignals, stimcodesignals, evcodedefs );
 end
@@ -440,14 +442,15 @@ end
 
 % First step: Get wideband data into memory and remove any global ramp.
 
-preproc_config = ...
-{ 'headerfile', folder_record, 'datafile', folder_record, ...
+preproc_config_rec = struct( ...
+  'headerfile', folder_record, 'datafile', folder_record, ...
   'headerformat', 'nlFT_readHeader', 'dataformat', 'nlFT_readDataDouble', ...
-  'trl', rectrialdefs, 'channel', desired_recchannels, ...
-  'detrend', 'yes', 'feedback', 'text' };
+  'trl', rectrialdefs, 'detrend', 'yes', 'feedback', 'text' );
+preproc_config_rec.channel = ...
+  ft_channelselection( desired_recchannels, rechdr.label, {} );
 
 disp('.. Reading wideband recorder data.');
-recdata_wideband = ft_preprocessing( preproc_config );
+recdata_wideband = ft_preprocessing( preproc_config_rec );
 
 
 % NOTE - You'd normally do re-referencing here.
@@ -472,11 +475,53 @@ disp('.. Getting LFP, spike, and rectified activity signals.');
 
 % Fourth step: Pull in gaze data as well.
 
-if ~debug_skip_gaze_and_frame
+gazedata_ft = struct([]);
+
+if (~debug_skip_gaze_and_frame) && (~isempty(gameframedata))
+
   disp('.. Reading and resampling gaze data.');
+
+  % We're reading this from the USE FrameData table.
+  % The cooked gaze information gives XY positions.
+  % The raw gaze information in "gamegazedata" uses three different
+  % eye-tracker-specific coordinate systems. We don't want to deal with that.
+
+  % Trick Field Trip into reading nonuniform tabular data as if it was a file.
+
+  gaze_columns_wanted = { 'EyePositionX', 'EyePositionY', ...
+    'RelativeEyePositionX', 'RelativeEyePositionY' };
+  gazemaxrectime = max(gameframedata.recTime);
+  nlFT_initReadTable( gameframedata, gaze_columns_wanted, ...
+    'recTime', 0.0, 10.0 + gazemaxrectime, gaze_samprate, gaze_samprate );
+
+  % Adjust trial definition sample numbers.
+  % Time 0 is consistent between recorder and gaze, since we're using
+  % "recTime" as the timestamp in both. So all we're doing is resampling.
+
+  gazetrialdefs = ...
+    euFT_resampleTrialDefs( rectrialdefs, rechdr.Fs, gaze_samprate );
+
+
+  % We're not reading from a file, but Field Trip wants it to still
+  % exist, so give it a real folder.
+
+  gazehdr = ...
+    ft_read_header( folder_game, 'headerFormat', 'nlFT_readTableHeader' );
+
+  preproc_config_gaze = struct( ...
+    'headerfile', folder_game, 'datafile', folder_game, ...
+    'headerformat', 'nlFT_readTableHeader', ...
+    'dataformat', 'nlFT_readTableData', ...
+    'trl', gazetrialdefs, 'feedback', 'text' );
+  preproc_config_gaze.channel = ...
+    ft_channelselection( gaze_columns_wanted, gazehdr.label, {} );
+
+  gazedata_ft = ft_preprocessing( preproc_config_gaze );
+
 end
 
 % FIXME - Stopped here.
+% To do: Get windowed event subsets for plotting, maybe?
 
 
 

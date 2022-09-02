@@ -455,22 +455,8 @@ for caseidx = 1:length(trialcases)
         % Convert recorder trial definition samples to gaze samples.
         % These are already aligned to recTime 0 (sample 1); just rescale.
 
-        thisstart = thisbatchtrials_rec(:,1);
-        thisend = thisbatchtrials_rec(:,2);
-        thisoffset = thisbatchtrials_rec(:,3);
-
-        thisstart = (thisstart - 1) / rechdr.Fs;
-        thisstart = 1 + round(thisstart * gazehdr.Fs);
-
-        thisend = (thisend - 1) / rechdr.Fs;
-        thisend = 1 + round(thisend * gazehdr.Fs);
-
-        thisoffset = 1 + round((thisoffset - 1) * gazehdr.Fs / rechdr.Fs);
-
-        thisbatchtrials_gaze = [];
-        thisbatchtrials_gaze(:,1) = thisstart;
-        thisbatchtrials_gaze(:,2) = thisend;
-        thisbatchtrials_gaze(:,3) = thisoffset;
+        thisbatchtrials_gaze = euFT_resampleTrialDefs( ...
+          thisbatchtrials_rec, rechdr.Fs, gazehdr.Fs );
 
 
         % Read and process gaze trials.
