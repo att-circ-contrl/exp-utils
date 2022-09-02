@@ -175,7 +175,7 @@ else
       gamegaze_raw = euUSE_readRawGazeData( thisdataset.unityfile );
     end
 
-    disp('-- Finished reading USE gaze dfata.');
+    disp('-- Finished reading USE gaze data.');
 
     disp('-- Reading USE frame data.');
 

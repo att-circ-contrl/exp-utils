@@ -55,7 +55,7 @@ want_auto_channel_early = false;
 
 % Process continuous data before aligning and segmenting.
 % This is mostly for debugging.
-want_process_monolithic = true;
+want_process_monolithic = false;
 
 % Compare and align Unity and TTL data.
 want_align = true;
@@ -86,7 +86,7 @@ want_cache_align_raw = true;
 want_cache_align_done = true;
 % Trial _definitions_ aren't cached; it's faster to rebuild them.
 % Trial _data_ can be cached.
-want_cache_epoched = false;
+want_cache_epoched = true;
 
 
 % Debugging switch - skip dealing with USE gaze and frame data, as they're
