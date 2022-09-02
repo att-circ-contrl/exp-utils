@@ -76,6 +76,37 @@ notch_filter_freqs = [ 60, 120, 180 ];
 notch_filter_bandwidth = 2.0;
 
 
+% Frequency cutoffs for getting the LFP, spike, and rectified signals.
+
+% The LFP signal is low-pass filtered and downsampled. Typical features are
+% in the range of 2 Hz to 200 Hz.
+
+lfp_maxfreq = 300;
+lfp_samprate = 2000;
+
+% The spike signal is high-pass filtered. Typical features have a time scale
+% of 1 ms or less, but there's often a broad tail lasting several ms.
+
+spike_minfreq = 100;
+
+% The rectified signal is a measure of spiking activity. The signal is
+% band-pass filtered, then rectified (absolute value), then low-pass filtered
+% at a frequency well below the lower corner, then downsampled.
+
+rect_bandfreqs = [ 1000 3000 ];
+rect_lowpassfreq = 500;
+rect_samprate = lfp_samprate;
+
+
+% Nominal frequency for reading gaze data.
+
+% As long as this is higher than the device's sampling rate (300-600 Hz),
+% it doesn't really matter what it is.
+% The gaze data itself is non-uniformly sampled.
+
+gaze_samprate = lfp_samprate;
+
+
 % Debug switches for testing.
 
 debug_skip_gaze_and_frame = true;
@@ -396,12 +427,15 @@ end
 
 
 %
-% Read the Field Trip data.
+% Read the ephys data.
 
 % NOTE - We're reading everything into memory at once. This will only work
 % if we have few enough channels to fit in memory. To process more data,
 % either read it a few trials at a time or a few channels at a time or at
 % a lower sampling rate.
+
+% NOTE - For demonstration purposes, I'm just processing recorder series
+% here. For stimulator series, use "stimtrialdefs" and "desired_stimchannels".
 
 
 % First step: Get wideband data into memory and remove any global ramp.
@@ -416,6 +450,9 @@ disp('.. Reading wideband recorder data.');
 recdata_wideband = ft_preprocessing( preproc_config );
 
 
+% NOTE - You'd normally do re-referencing here.
+
+
 % Second step: Do notch filtering using our own filter, as FT's brick wall
 % filter acts up as of 2021.
 
@@ -424,6 +461,20 @@ recdata_wideband = euFT_doBrickNotchRemoval( ...
   recdata_wideband, notch_filter_freqs, notch_filter_bandwidth );
 
 
+% Third step: Get derived signals (LFP, spike, and rectified activity).
+
+disp('.. Getting LFP, spike, and rectified activity signals.');
+
+[ recdata_lfp, recdata_spike, recdata_activity ] = euFT_getDerivedSignals( ...
+  recdata_wideband, lfp_maxfreq, lfp_samprate, spike_minfreq, ...
+  rect_bandfreqs, rect_lowpassfreq, rect_samprate, false);
+
+
+% Fourth step: Pull in gaze data as well.
+
+if ~debug_skip_gaze_and_frame
+  disp('.. Reading and resampling gaze data.');
+end
 
 % FIXME - Stopped here.
 

@@ -124,7 +124,7 @@ for eidx = 1:length(evlabels)
 
         scratchtab.sampstart = round(timestart * samprate);
         scratchtab.sampend = round(timestop * samprate);
-        scratchtabtab.sampoffset = ...
+        scratchtab.sampoffset = ...
           round((timestart - timealign) * samprate);
 
         scratchtab.timestart = timestart;

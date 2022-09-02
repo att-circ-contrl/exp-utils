@@ -134,9 +134,12 @@ end
 % we'd have in the ephys data, but instead just pad the last gaze recTime by
 % 10 seconds.
 
-frametimes = gameframedata_raw.recTime;
+maxgameframerectime = 10.0;
+if ~isempty(gameframerectime)
+  maxgameframerectime = max(gameframerectime) + 10.0;
+end
 nlFT_initReadTable( gameframedata_raw, frame_gaze_cols, 'recTime', ...
-  0.0, 10.0 + max(frametimes), gaze_rate, gaze_rate );
+  0.0, maxgameframerectime, gaze_rate, gaze_rate );
 
 
 %
@@ -268,7 +271,7 @@ for caseidx = 1:length(trialcases)
 
         % Extract processed signals of interest.
         [ batchdata_rec_lfp batchdata_rec_spike batchdata_rec_rect ] = ...
-          doFeatureFiltering( batchdata_rec_wb, ...
+          euFT_getDerivedSignals( batchdata_rec_wb, ...
             lfp_corner, lfp_rate, spike_corner, ...
             rect_corners, rect_lowpass, rect_rate );
 
@@ -337,7 +340,7 @@ for caseidx = 1:length(trialcases)
 
         % Extract processed signals of interest.
         [ batchdata_stim_lfp batchdata_stim_spike batchdata_stim_rect ] = ...
-          doFeatureFiltering( batchdata_stim_wb, ...
+          euFT_getDerivedSignals( batchdata_stim_wb, ...
             lfp_corner, lfp_rate, spike_corner, ...
             rect_corners, rect_lowpass, rect_rate );
 
@@ -361,8 +364,8 @@ for caseidx = 1:length(trialcases)
       batchevents_rwdB = {};
 
       for tidx = 1:height(thisbatchtable_rec)
-        thisrectimestart = thisbatchtable_rec.rectimestart(tidx);
-        thisrectimeend = thisbatchtable_rec.rectimeend(tidx);
+        thisrectimestart = thisbatchtable_rec.timestart(tidx);
+        thisrectimeend = thisbatchtable_rec.timeend(tidx);
 
         thistrial_codes = table();
         thistrial_rwdA = table();
@@ -400,8 +403,8 @@ for caseidx = 1:length(trialcases)
       batchrows_frame = {};
 
       for tidx = 1:height(thisbatchtable_rec)
-        thisrectimestart = thisbatchtable_rec.rectimestart(tidx);
-        thisrectimeend = thisbatchtable_rec.rectimeend(tidx);
+        thisrectimestart = thisbatchtable_rec.timestart(tidx);
+        thisrectimeend = thisbatchtable_rec.timeend(tidx);
 
         thistrial_gaze = table();
         thistrial_frame = table();
@@ -438,57 +441,64 @@ for caseidx = 1:length(trialcases)
       % We're calling ft_read_header() and ft_read_data() with LoopUtil
       % hooks that make it read from tabular data in memory.
 
+      % FIXME - Check for an empty table. FT really doesn't like that.
+      if ~isempty(gameframedata_raw)
 
-      % Read the header. Among other things this gives use the sampling rate
-      % (that we set earlier).
-      % NOTE - Field Trip tests that the file exists, so give it the
-      % Unity folder.
-      gazehdr = ft_read_header( thisdataset.unityfile, ...
-        'headerformat', 'nlFT_readTableHeader' );
-
-
-      % Convert recorder trial definition samples to gaze samples.
-      % These are already aligned to recTime 0 (sample 1); just rescale.
-
-      thisstart = thisbatchtrials_rec(:,1);
-      thisend = thisbatchtrials_rec(:,2);
-      thisoffset = thisbatchtrials_rec(:,3);
-
-      thisstart = (thisstart - 1) / rechdr.Fs;
-      thisstart = 1 + round(thisstart * gazehdr.Fs);
-
-      thisend = (thisend - 1) / rechdr.Fs;
-      thisend = 1 + round(thisend * gazehdr.Fs);
-
-      thisoffset = 1 + round((thisoffset - 1) * gazehdr.Fs / rechdr.Fs);
-
-      thisbatchtrials_gaze = [];
-      thisbatchtrials_gaze(:,1) = thisstart;
-      thisbatchtrials_gaze(:,2) = thisend;
-      thisbatchtrials_gaze(:,3) = thisoffset;
+        % Read the header. Among other things this gives use the sampling
+        % rate (that we set earlier).
+        % NOTE - Field Trip tests that the file exists, so give it the
+        % Unity folder, even though we're reading from a table in memory.
+        gazehdr = ft_read_header( thisdataset.unityfile, ...
+          'headerformat', 'nlFT_readTableHeader' );
 
 
-      % Read and process gaze trials.
+        % Convert recorder trial definition samples to gaze samples.
+        % These are already aligned to recTime 0 (sample 1); just rescale.
 
-      % NOTE - Field Trip tests that the file exists, so give it the
-      % Unity folder.
-      preproc_config_gaze = struct( ...
-        'headerfile', thisdataset.unityfile, ...
-        'datafile', thisdataset.unityfile, ...
-        'headerformat', 'nlFT_readTableHeader', ...
-        'dataformat', 'nlFT_readTableData', ...
-        'trl', thisbatchtrials_gaze );
+        thisstart = thisbatchtrials_rec(:,1);
+        thisend = thisbatchtrials_rec(:,2);
+        thisoffset = thisbatchtrials_rec(:,3);
 
-      % Turn off the progress bar.
-      preproc_config_gaze.feedback = 'no';
+        thisstart = (thisstart - 1) / rechdr.Fs;
+        thisstart = 1 + round(thisstart * gazehdr.Fs);
 
-      % Select channels.
-      preproc_config_gaze.channel = ...
-        ft_channelselection( frame_gaze_cols, gazehdr.label, {} );
+        thisend = (thisend - 1) / rechdr.Fs;
+        thisend = 1 + round(thisend * gazehdr.Fs);
 
-      % Read the gaze data out of the table.
-      batchdata_gaze = ft_preprocessing(preproc_config_gaze);
+        thisoffset = 1 + round((thisoffset - 1) * gazehdr.Fs / rechdr.Fs);
 
+        thisbatchtrials_gaze = [];
+        thisbatchtrials_gaze(:,1) = thisstart;
+        thisbatchtrials_gaze(:,2) = thisend;
+        thisbatchtrials_gaze(:,3) = thisoffset;
+
+
+        % Read and process gaze trials.
+
+        % NOTE - Field Trip tests that the file exists, so give it the
+        % Unity folder.
+        preproc_config_gaze = struct( ...
+          'headerfile', thisdataset.unityfile, ...
+          'datafile', thisdataset.unityfile, ...
+          'headerformat', 'nlFT_readTableHeader', ...
+          'dataformat', 'nlFT_readTableData', ...
+          'trl', thisbatchtrials_gaze );
+
+        % Turn off the progress bar.
+        preproc_config_gaze.feedback = 'no';
+
+        % Select channels.
+        preproc_config_gaze.channel = ...
+          ft_channelselection( frame_gaze_cols, gazehdr.label, {} );
+
+        % Read the gaze data out of the table.
+        batchdata_gaze = ft_preprocessing(preproc_config_gaze);
+
+      else
+        % We didn't have gaze data.
+        thisbatchtrials_gaze = [];
+        batchdata_gaze = struct([]);
+      end
 
       %
       % Save this batch of trial data.

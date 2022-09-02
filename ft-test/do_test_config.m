@@ -55,7 +55,7 @@ want_auto_channel_early = false;
 
 % Process continuous data before aligning and segmenting.
 % This is mostly for debugging.
-want_process_monolithic = false;
+want_process_monolithic = true;
 
 % Compare and align Unity and TTL data.
 want_align = true;
@@ -66,10 +66,10 @@ want_force_align = true;
 want_define_trials = true;
 
 % Process segmented data.
-want_process_trials = false;
+want_process_trials = true;
 
 % Bring up the GUI data browser after processing (for debugging).
-want_browser = true;
+want_browser = false;
 
 % Generate plots (for debugging).
 want_plots = true;
@@ -83,17 +83,17 @@ want_save_data = true;
 want_cache_autoclassify = true;
 want_cache_monolithic = true;
 want_cache_align_raw = true;
-want_cache_align_done = false;
+want_cache_align_done = true;
 % Trial _definitions_ aren't cached; it's faster to rebuild them.
 % Trial _data_ can be cached.
-want_cache_epoched = true;
+want_cache_epoched = false;
 
 
 % Debugging switch - skip dealing with USE gaze and frame data, as they're
 % enormous and take a while to save/load.
 
-debug_skip_gaze = true;
-debug_skip_frame = true;
+debug_skip_gaze = false;
+debug_skip_frame = false;
 
 
 

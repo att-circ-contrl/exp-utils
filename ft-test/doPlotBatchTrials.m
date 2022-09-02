@@ -17,7 +17,7 @@ function doPlotBatchTrials( obase, batchlabel, batchtrialtable, ...
 % "batchlabel" is a filename-safe string identifying this batch of trials.
 % "batchtrialtable" is a table providing trial definitions for the trials in
 %   this batch. Relevant columns are "trialindex", "trialnum",
-%   "rectimestart", "rectimeend", and "rectimeevent".
+%   "timestart", "timeend", and "timetrigger".
 % "ft_rec_wb" is a Field Trip raw data structure with wideband waveforms from
 %   the ephys recorder.
 % "ft_rec_lfp" is a Field Trip raw data structure with LFP waveforms from
@@ -35,6 +35,7 @@ function doPlotBatchTrials( obase, batchlabel, batchtrialtable, ...
 % "ft_stim_rect" is a Field Trip raw data structure with rectified activity
 %   waveforms from the ephys stimulator.
 % "ft_gaze" is a Field Trip raw data structure with gaze waveforms.
+%   NOTE - An empty structure ("struct([])") may be passed here.
 % "events_codes" is a table containing event codes for each trial's span.
 % "events_rwdA" is a table containing "reward A" events for each trial's span.
 % "events_rwdB" is a table containing "reward B" events for each trial's span.
@@ -115,15 +116,18 @@ helper_plotStack( [ obase '-stim-hp' ], ...
   ft_stim_spike, events_codes, events_rwdA, events_rwdB );
 
 
-% For gaze, use a wider version of "glose".
+% For gaze, use a wider version of "close".
 % Even "wide" isn't very readable.
 
 timeranges = struct( 'wide', 'auto', 'close', rangegaze );
 
-helper_plotGaze( [ obase '-gaze' ], ...
-  sprintf( 'Trials - %s - Gaze', batchlabel ), ...
-  batchtrialtable, ymax_gaze, gaze_scale_relative, timeranges, ...
-  ft_gaze, events_codes, events_rwdA, events_rwdB );
+% FIXME - If we stubbed out or failed to read gaze data, ft_gaze is empty.
+if ~isempty(ft_gaze)
+  helper_plotGaze( [ obase '-gaze' ], ...
+    sprintf( 'Trials - %s - Gaze', batchlabel ), ...
+    batchtrialtable, ymax_gaze, gaze_scale_relative, timeranges, ...
+    ft_gaze, events_codes, events_rwdA, events_rwdB );
+end
 
 
 % Done.
@@ -150,9 +154,9 @@ function helper_plotStack( ...
   lasttimes = [];
   reftimes = [];
   if ~isempty(batchdefs)
-    firsttimes = batchdefs.rectimestart;
-    lasttimes = batchdefs.rectimeend;
-    reftimes = batchdefs.rectimeevent;
+    firsttimes = batchdefs.timestart;
+    lasttimes = batchdefs.timeend;
+    reftimes = batchdefs.timetrigger;
   end
 
   waverate = 1000;
@@ -309,9 +313,9 @@ function helper_plotGaze( ...
   lasttimes = [];
   reftimes = [];
   if ~isempty(batchdefs)
-    firsttimes = batchdefs.rectimestart;
-    lasttimes = batchdefs.rectimeend;
-    reftimes = batchdefs.rectimeevent;
+    firsttimes = batchdefs.timestart;
+    lasttimes = batchdefs.timeend;
+    reftimes = batchdefs.timetrigger;
   end
 
   waverate = 1000;
