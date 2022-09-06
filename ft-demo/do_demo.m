@@ -109,10 +109,17 @@ gaze_samprate = lfp_samprate;
 
 % Debug switches for testing.
 
-debug_skip_gaze_and_frame = false;
+debug_skip_gaze_and_frame = true;
+
+debug_use_fewer_chans = true;
 
 debug_use_fewer_trials = true;
-debug_trials_to_use = 30;
+%debug_trials_to_use = 30;
+debug_trials_to_use = 10;
+
+if debug_use_fewer_chans
+  desired_recchannels = desired_recchannels(1:3:length(desired_recchannels));
+end
 
 
 
@@ -520,8 +527,46 @@ if (~debug_skip_gaze_and_frame) && (~isempty(gameframedata))
 
 end
 
+
+
+%
+% Plot trial data.
+
+disp('-- Plotting trials.');
+
+euPlot_plotFTTrials( recdata_wideband, rechdr.Fs, ...
+  rectrialdefs, rechdr.Fs, recevents, rechdr.Fs, ...
+  { 'oneplot', 'perchannel', 'pertrial' }, ...
+  'Recorder Trials - Wideband', [ plotdir filesep 'rec-wb' ] );
+
+euPlot_plotFTTrials( recdata_lfp, lfp_samprate, ...
+  rectrialdefs, rechdr.Fs, recevents, rechdr.Fs, ...
+  { 'oneplot', 'perchannel', 'pertrial' }, ...
+  'Recorder Trials - LFP', [ plotdir filesep 'rec-lfp' ] );
+
+euPlot_plotFTTrials( recdata_spike, rechdr.Fs, ...
+  rectrialdefs, rechdr.Fs, recevents, rechdr.Fs, ...
+  { 'oneplot', 'perchannel', 'pertrial' }, ...
+  'Recorder Trials - High-Pass', [ plotdir filesep 'rec-hpf' ] );
+
+
 % FIXME - Stopped here.
-% To do: Get windowed event subsets for plotting, maybe?
+
+disp('-- Finished plotting.');
+
+
+
+%
+% Do timelock analysis and plot the results.
+
+% FIXME - NYI.
+
+
+
+%
+% Write data to disk.
+
+% FIXME - NYI.
 
 
 

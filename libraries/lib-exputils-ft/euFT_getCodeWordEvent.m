@@ -64,6 +64,8 @@ end
 % Look for events.
 % Give priority to whole-word channels if present.
 
+thisevlist = [];
+
 if ~isempty(wordchanlist)
 
   % We only want a single channel's events.
@@ -77,12 +79,6 @@ if ~isempty(wordchanlist)
   thismask = strcmp(thischan, thisevlabels);
   thisevlist = allevents(thismask);
 
-  % If we still have events, build and save the table.
-  if ~isempty(thisevlist)
-    evtable = struct2table(thisevlist);
-    have_events = true;
-  end
-
 elseif ~isempty(bitschanlist)
 
   % Get raw event words by merging bit channels.
@@ -92,18 +88,20 @@ elseif ~isempty(bitschanlist)
   thisevlist = ...
     euFT_assembleEventWords( bitschanlist, allevents, 'Words', firstbit );
 
-  % If we found events, build and save the table and apply the bit shift.
-  if ~isempty(thisevlist)
-    evtable = struct2table(thisevlist);
-    have_events = true;
+end
 
-    if shiftbitcount ~= 0
-      % Negative counts shift to the right.
-      % FIXME - Blithely assuming that the default type has enough bits!
-      evtable.value = bitshift(evtable.value, -shiftbitcount);
-    end
+
+% If we found events, build and save the table and apply the bit shift.
+
+if ~isempty(thisevlist)
+  evtable = struct2table(thisevlist);
+  have_events = true;
+
+  if shiftbitcount ~= 0
+    % Negative counts shift to the right.
+    % FIXME - Blithely assuming that the default type has enough bits!
+    evtable.value = bitshift(evtable.value, -shiftbitcount);
   end
-
 end
 
 

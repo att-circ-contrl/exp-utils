@@ -30,17 +30,17 @@ thisoffset = newtrialdefs(:,3);
 
 
 % Convert to the new sampling rate. Remember that sample 1, not sample 0,
-% is time zero.
+% is time zero, for start and end (but not offset).
 
 % Convert from samples to seconds.
 thisstart = (thisstart - 1) / oldrate;
 thisend = (thisend - 1) / oldrate;
-thisoffset = (thisoffset - 1) / oldrate;
+thisoffset = thisoffset / oldrate;
 
 % Convert from seconds back to samples.
 thisstart = round(thisstart * newrate) + 1;
 thisend = round(thisend * newrate) + 1;
-thisoffset = round(thisoffset * newrate) + 1;
+thisoffset = round(thisoffset * newrate);
 
 
 % Store the modified series.
