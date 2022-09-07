@@ -109,7 +109,7 @@ gaze_samprate = lfp_samprate;
 
 % Debug switches for testing.
 
-debug_skip_gaze_and_frame = true;
+debug_skip_gaze_and_frame = false;
 
 debug_use_fewer_chans = true;
 
@@ -532,7 +532,7 @@ end
 %
 % Plot trial data.
 
-disp('-- Plotting trials.');
+disp('-- Plotting ephys signals.');
 
 euPlot_plotFTTrials( recdata_wideband, rechdr.Fs, ...
   rectrialdefs, rechdr.Fs, recevents, rechdr.Fs, ...
@@ -548,6 +548,30 @@ euPlot_plotFTTrials( recdata_spike, rechdr.Fs, ...
   rectrialdefs, rechdr.Fs, recevents, rechdr.Fs, ...
   { 'oneplot', 'perchannel', 'pertrial' }, ...
   'Recorder Trials - High-Pass', [ plotdir filesep 'rec-hpf' ] );
+
+euPlot_plotFTTrials( recdata_activity, rect_samprate, ...
+  rectrialdefs, rechdr.Fs, recevents, rechdr.Fs, ...
+  { 'oneplot', 'perchannel', 'pertrial' }, ...
+  'Recorder Trials - Multi-Unit Activity', [ plotdir filesep 'rec-mua' ] );
+
+
+disp('-- Plotting gaze.');
+
+
+gaze_chans_abs = { 'EyePositionX', 'EyePositionY' };
+gaze_chans_rel = { 'RelativeEyePositionX', 'RelativeEyePositionY' };
+
+% Per-trial doesn't tell us much when glancing at it, so just do the stack.
+
+euPlot_plotAuxData( gazedata_ft, gaze_samprate, ...
+  gazetrialdefs, gaze_samprate, recevents, rechdr.Fs, ...
+  gaze_chans_abs, { 'oneplot' }, ...
+  'Gaze - Absolute', [ plotdir filesep 'gaze-abs' ] );
+
+euPlot_plotAuxData( gazedata_ft, gaze_samprate, ...
+  gazetrialdefs, gaze_samprate, recevents, rechdr.Fs, ...
+  gaze_chans_rel, { 'oneplot' }, ...
+  'Gaze - Relative', [ plotdir filesep 'gaze-rel' ] );
 
 
 % FIXME - Stopped here.

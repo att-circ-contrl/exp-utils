@@ -83,7 +83,7 @@ end
 
 if ismember('perchannel', plots_wanted)
 
-  legendpos = 'southeast';
+  legendpos = 'northeast';
   if trialcount > maxlegendsize
     legendpos = 'off';
   end
@@ -106,7 +106,7 @@ end
 
 if ismember('pertrial', plots_wanted)
 
-  legendpos = 'southeast';
+  legendpos = 'northeast';
   if chancount > maxlegendsize
     legendpos = 'off';
   end
