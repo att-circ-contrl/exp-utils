@@ -64,7 +64,7 @@ trial_metadata_events = ...
   struct( 'trialnum', 'TrialNumber', 'trialindex', 'TrialIndex' );
 
 % This is how much padding we want before 'TrlStart' and after 'TrlEnd'.
-padtime = 3.0;
+padtime = 1.0;
 
 
 % Narrow-band frequencies to filter out.
@@ -273,7 +273,7 @@ helper_reportEvents('.. From stimulator:', stimevents);
 
 [ unityreftime gameevents ] = ...
   euUSE_removeLargeTimeOffset( gameevents, 'unityTime' );
-% We have a reference time now; use it instead of picking a new one.
+% We have a reference time now; pass it as an argument to ensure consistency.
 [ unityreftime boxevents ] = ...
   euUSE_removeLargeTimeOffset( boxevents, 'unityTime', unityreftime );
 

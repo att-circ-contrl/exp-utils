@@ -95,7 +95,6 @@ for tidx = 1:trialcount
   timelength = timelength(2);
 
   thistimeseries = 0:(timelength-1);
-  thistimeseries = thistimeseries + trialtriggers(tidx);
   thistimeseries = ...
     (thistimeseries / wavedata_samprate) + triggertimes_rel(tidx);
   timeseries{tidx} = thistimeseries;

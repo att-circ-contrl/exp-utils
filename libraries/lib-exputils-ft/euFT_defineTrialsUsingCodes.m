@@ -118,12 +118,14 @@ for eidx = 1:length(evlabels)
         timestop = timestop + padafter;
 
         % Build the new table row in a scratch variable, to avoid warnings
-        % about updating once cell at a time in the existing table.
+        % about updating one cell at a time in the existing table.
 
         scratchtab = table();
 
-        scratchtab.sampstart = round(timestart * samprate);
-        scratchtab.sampend = round(timestop * samprate);
+        % Remember that global sample indices start at 1, not 0.
+        scratchtab.sampstart = round(timestart * samprate) + 1;
+        scratchtab.sampend = round(timestop * samprate) + 1;
+        % This is a relative sample offset, so it's 0-based.
         scratchtab.sampoffset = ...
           round((timestart - timealign) * samprate);
 
