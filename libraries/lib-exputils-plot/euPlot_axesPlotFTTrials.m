@@ -216,7 +216,7 @@ palette_rwdB = nlPlot_getColorSpread(cols.mag, trialcount, 60);
 
 % Render event cursors first, so that they're behind the waves.
 
-isfirsttrial = true;
+isfirstlabel = true;
 for tidx = 1:trialcount
   if ismember(tidx, trials_wanted)
 
@@ -224,56 +224,56 @@ for tidx = 1:trialcount
     for eidx = 1:length(thisevlist)
       thistime = thisevlist(eidx);
       % FIXME - We should label and colour these with code types.
-      if isfirsttrial && (1 == eidx)
+      if isfirstlabel
         plot( thisax, [ thistime thistime ], cursor_yrange, ...
           'Color', palette_codes{tidx}, 'DisplayName', 'EvCodes' );
+       isfirstlabel = false;
       else
         plot( thisax, [ thistime thistime ], cursor_yrange, ...
           'Color', palette_codes{tidx}, 'HandleVisibility', 'off' );
       end
     end
 
-    isfirsttrial = false;
   end
 end
 
-isfirsttrial = true;
+isfirstlabel = true;
 for tidx = 1:trialcount
   if ismember(tidx, trials_wanted)
 
     thisevlist = rwdAtrials{tidx};
     for eidx = 1:length(thisevlist)
       thistime = thisevlist(eidx);
-      if isfirsttrial && (1 == eidx)
+      if isfirstlabel
         plot( thisax, [ thistime thistime ], cursor_yrange, ...
           'Color', palette_rwdA{tidx}, 'DisplayName', 'Rwd A' );
+        isfirstlabel = false;
       else
         plot( thisax, [ thistime thistime ], cursor_yrange, ...
           'Color', palette_rwdA{tidx}, 'HandleVisibility', 'off' );
       end
     end
 
-    isfirsttrial = false;
   end
 end
 
-isfirsttrial = true;
+isfirstlabel = true;
 for tidx = 1:trialcount
   if ismember(tidx, trials_wanted)
 
     thisevlist = rwdBtrials{tidx};
     for eidx = 1:length(thisevlist)
       thistime = thisevlist(eidx);
-      if isfirsttrial && (1 == eidx)
+      if isfirstlabel
         plot( thisax, [ thistime thistime ], cursor_yrange, ...
           'Color', palette_rwdB{tidx}, 'DisplayName', 'Rwd B' );
+        isfirstlabell = false;
       else
         plot( thisax, [ thistime thistime ], cursor_yrange, ...
           'Color', palette_rwdB{tidx}, 'HandleVisibility', 'off' );
       end
     end
 
-    isfirsttrial = false;
   end
 end
 

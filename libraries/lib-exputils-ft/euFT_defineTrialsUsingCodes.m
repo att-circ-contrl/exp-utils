@@ -21,6 +21,10 @@ function [ trl trltab ] = euFT_defineTrialsUsingCodes( ...
 %
 % This can tolerate event labels that are numbers or character arrays.
 %
+% NOTE - An event table may also be passed instead of "alignlabel". In this
+% case, all events in the passed table are treatd as triggers. The table
+% must have a timestamp column with the "timefield" name.
+%
 % "eventtable" is a table containing event information. This must at minimum
 %   contain event labels and timestamps.
 % "labelfield" is the name of the event table column holding event labels.
@@ -32,7 +36,8 @@ function [ trl trltab ] = euFT_defineTrialsUsingCodes( ...
 % "startlabel" is the event label that indicates the start of a trial.
 % "stoplabel" is the event label that indicates the end of a trial.
 % "alignlabel" is the event label that indicates the trigger to align trials
-%    with.
+%    with. NOTE - Alternatively, this may be a table containing trigger
+%    events with timestamps.
 % "codemetatosave" is a structure describing event code value information to
 %    be saved as trial metadata. Each field is an output metadata column
 %    name, and that field's value is the event label to look for. When that
@@ -53,6 +58,67 @@ trl = [];
 trltab = table();
 
 
+
+%
+% Preprocessing: If we were passed an event table instead of an alignment
+% code, add fake codes at the specified times.
+
+% "evlabels" will either be a matrix column or a cell array.
+evlabels = eventtable.(labelfield);
+evtimes = eventtable.(timefield);
+
+if istable(alignlabel)
+  ttltimes = alignlabel.(timefield);
+
+  if iscell(evlabels)
+    alignlabel = 'BogusTTLDetectLabel';
+  else
+    % FIXME - Store a complex number as the label. This should never show up
+    % in data.
+    alignlabel = 1 + i;
+  end
+
+  if ~isempty(eventtable)
+
+    % Build a dummy row template.
+
+    bogusrow = eventtable(1,:);
+
+    for cidx = 1:width(bogusrow)
+      thisval = bogusrow{1,cidx};
+      if iscell(thisval)
+        thisval = {''};
+      else
+        thisval = nan;
+      end
+      bogusrow{1,cidx} = thisval;
+    end
+
+    if iscell(evlabels)
+      bogusrow.(labelfield){1} = alignlabel;
+    else
+      bogusrow.(labelfield)(1) = alignlabel;
+    end
+
+
+    % Add TTL event rows.
+    % FIXME - Do this by appending and then sorting on timestamp. This
+    % may shuffle event order if there are duplicate timestamps!
+
+    ttltable = table();
+    for ridx = 1:length(ttltimes)
+      thisrow = bogusrow;
+      thisrow.(timefield)(1) = ttltimes(ridx);
+      ttltable(ridx,:) = thisrow;
+    end
+
+    eventtable = vertcat(eventtable, ttltable);
+    eventtable = sortrows(eventtable, timefield);
+
+  end
+end
+
+
 %
 % First pass: Scan through the event data collecting everything we need.
 % Do this sequentially to catch malformed trials.
@@ -61,9 +127,11 @@ codemetafields = fieldnames(codemetatosave);
 trialcount = 0;
 intrial = false;
 
+% If we added TTL events, this will have changed, so re-read it.
 % "evlabels" will either be a matrix column or a cell array.
 evlabels = eventtable.(labelfield);
 evtimes = eventtable.(timefield);
+
 evvalues = [];
 emptymetastruct = struct();
 if ~isempty(codemetafields)

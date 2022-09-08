@@ -56,7 +56,9 @@ stimcodesignals = struct( ...
 % How to define trials.
 
 % This is the code we want to be at time zero.
+% FIXME - This can also be "RwdA" or "RwdB" to align to TTL events.
 trial_align_evcode = 'StimOn';
+%trial_align_evcode = 'RwdA';
 
 % These are codes that carry extra metadata that we want to save; they'll
 % show up in "trialinfo" after processing (and in "trl" before that).
@@ -109,7 +111,7 @@ gaze_samprate = lfp_samprate;
 
 % Debug switches for testing.
 
-debug_skip_gaze_and_frame = false;
+debug_skip_gaze_and_frame = true;
 
 debug_use_fewer_chans = true;
 
@@ -118,6 +120,7 @@ debug_use_fewer_trials = true;
 debug_trials_to_use = 10;
 
 if debug_use_fewer_chans
+  % Take every third channel (hardcoded).
   desired_recchannels = desired_recchannels(1:3:length(desired_recchannels));
 end
 
@@ -331,6 +334,15 @@ if have_stim
 
   stimevents = euAlign_addTimesToAllTables( ...
     stimevents, 'stimTime', 'recTime', times_recorder_stimulator );
+
+
+  % Propagate stimulator timestamps to the SynchBox, in case we need to
+  % use the SynchBox's event records with the stimulator.
+
+  disp('.. Propagating stimulator timestamps to SynchBox.');
+
+  boxevents = euAlign_addTimesToAllTables( ...
+    boxevents, 'recTime', 'stimTime', times_recorder_stimulator );
 end
 
 
@@ -387,6 +399,31 @@ disp('.. Finished time alignment.');
 
 
 %
+% Propagate any missing events to the recorder and stimulator.
+
+% We have SynchBox events with accurate timestamps, and we've aligned
+% the synchbox to the ephys machines with high precision.
+
+% NOTE - This only works if we do have accurate time alignment. If we fell
+% back to guessing in the previous step, the events will be at the wrong
+% times.
+
+
+% Copy missing events from the SynchBox to the recorder.
+disp('-- Checking for missing recorder events.');
+recevents = euAlign_copyMissingEventTables( ...
+  boxevents, recevents, 'recTime', rechdr.Fs );
+
+% Copy missing events from the SynchBox to the stimulator.
+if have_stim
+  disp('-- Checking for missing stimulator events.');
+  stimevents = euAlign_copyMissingEventTables( ...
+    boxevents, stimevents, 'stimTime', stimhdr.Fs );
+end
+
+
+
+%
 % Get trial definitions.
 
 % Get event code sequences for "valid" trials (ones where "TrialNumber"
@@ -415,18 +452,37 @@ end
 % Get trial definitions.
 % This replaces ft_definetrial().
 
+% FIXME - Special-case 'RwdA' and 'RwdB' and pass those event tables instead
+% of a code label.
+
+align_code = trial_align_evcode;
+
+if strcmp('RwdA', trial_align_evcode)
+  align_code = recevents.rwdA;
+elseif strcmp('RwdB', trial_align_evcode)
+  align_code = recevents.rwdB;
+end
+
 [ rectrialdefs rectrialdeftable ] = euFT_defineTrialsUsingCodes( ...
   trialcodes_concat, 'codeLabel', 'recTime', rechdr.Fs, ...
-  padtime, padtime, 'TrlStart', 'TrlEnd', trial_align_evcode, ...
+  padtime, padtime, 'TrlStart', 'TrlEnd', align_code, ...
   trial_metadata_events, 'codeData' );
 
 if have_stim
+  align_code = trial_align_evcode;
+
+  if strcmp('RwdA', trial_align_evcode)
+    align_code = stimevents.rwdA;
+  elseif strcmp('RwdB', trial_align_evcode)
+    align_code = stimevents.rwdB;
+  end
+
   trialcodes_concat = euAlign_addTimesToTable( trialcodes_concat, ...
     'recTime', 'stimTime', times_recorder_stimulator );
 
   [ stimtrialdefs stimtrialdeftable ] = euFT_defineTrialsUsingCodes( ...
     trialcodes_concat, 'codeLabel', 'stimTime', stimhdr.Fs, ...
-    padtime, padtime, 'TrlStart', 'TrlEnd', trial_align_evcode, ...
+    padtime, padtime, 'TrlStart', 'TrlEnd', align_code, ...
     trial_metadata_events, 'codeData' );
 end
 
@@ -555,26 +611,26 @@ euPlot_plotFTTrials( recdata_activity, rect_samprate, ...
   'Recorder Trials - Multi-Unit Activity', [ plotdir filesep 'rec-mua' ] );
 
 
-disp('-- Plotting gaze.');
+if (~debug_skip_gaze_and_frame) && (~isempty(gameframedata))
 
+  disp('-- Plotting gaze.');
 
-gaze_chans_abs = { 'EyePositionX', 'EyePositionY' };
-gaze_chans_rel = { 'RelativeEyePositionX', 'RelativeEyePositionY' };
+  gaze_chans_abs = { 'EyePositionX', 'EyePositionY' };
+  gaze_chans_rel = { 'RelativeEyePositionX', 'RelativeEyePositionY' };
 
-% Per-trial doesn't tell us much when glancing at it, so just do the stack.
+  % Per-trial doesn't tell us much when glancing at it, so just do the stack.
 
-euPlot_plotAuxData( gazedata_ft, gaze_samprate, ...
-  gazetrialdefs, gaze_samprate, recevents, rechdr.Fs, ...
-  gaze_chans_abs, { 'oneplot' }, ...
-  'Gaze - Absolute', [ plotdir filesep 'gaze-abs' ] );
+  euPlot_plotAuxData( gazedata_ft, gaze_samprate, ...
+    gazetrialdefs, gaze_samprate, recevents, rechdr.Fs, ...
+    gaze_chans_abs, { 'oneplot' }, ...
+    'Gaze - Absolute', [ plotdir filesep 'gaze-abs' ] );
 
-euPlot_plotAuxData( gazedata_ft, gaze_samprate, ...
-  gazetrialdefs, gaze_samprate, recevents, rechdr.Fs, ...
-  gaze_chans_rel, { 'oneplot' }, ...
-  'Gaze - Relative', [ plotdir filesep 'gaze-rel' ] );
+  euPlot_plotAuxData( gazedata_ft, gaze_samprate, ...
+    gazetrialdefs, gaze_samprate, recevents, rechdr.Fs, ...
+    gaze_chans_rel, { 'oneplot' }, ...
+    'Gaze - Relative', [ plotdir filesep 'gaze-rel' ] );
 
-
-% FIXME - Stopped here.
+end
 
 disp('-- Finished plotting.');
 
