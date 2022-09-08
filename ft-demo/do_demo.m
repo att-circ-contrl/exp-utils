@@ -109,6 +109,12 @@ rect_samprate = lfp_samprate;
 gaze_samprate = lfp_samprate;
 
 
+% Plotting configuration.
+
+% Number of standard deviations to draw as the confidence interval.
+confsigma = 2;
+
+
 % Debug switches for testing.
 
 debug_skip_gaze_and_frame = true;
@@ -676,6 +682,10 @@ disp('-- Finished plotting.');
 %
 % Do timelock analysis and plot the results.
 
+% NOTE - Just working with the recorder data, not the stimulator data.
+% We didn't load and segment the stimulator data for the demo script.
+
+
 disp('-- Computing time-locked average and variance of ephys signals.')
 
 % For now, just looing at LFP and MUA. Wideband/HPF is less useful.
@@ -686,12 +696,20 @@ disp('-- Computing time-locked average and variance of ephys signals.')
 recavg_activity = ft_timelockanalysis(struct(), recdata_activity);
 recavg_lfp = ft_timelockanalysis(struct(), recdata_lfp);
 
-if have_stim
-  stimavg_activity = ft_timelockanalysis(struct(), stimdata_activity);
-  stimavg_lfp = ft_timelockanalysis(struct(), stimdata_lfp);
-end
 
-% FIXME - NYI.
+disp('-- Plotting time-locked average data.');
+
+euPlot_plotFTTimelock( recavg_activity, confsigma, ...
+  { 'oneplot', 'perchannel' }, ...
+  'Recorder Trials - Average Multi-Unit Activity', ...
+  [ plotdir filesep 'rec-avg-mua' ] );
+
+euPlot_plotFTTimelock( recavg_lfp, confsigma, ...
+  { 'oneplot', 'perchannel' }, ...
+  'Recorder Trials - Average LFP', ...
+  [ plotdir filesep 'rec-avg-lfp' ] );
+
+disp('-- Finished plotting.');
 
 
 
