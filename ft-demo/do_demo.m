@@ -56,9 +56,9 @@ stimcodesignals = struct( ...
 % How to define trials.
 
 % This is the code we want to be at time zero.
-% FIXME - This can also be "RwdA" or "RwdB" to align to TTL events.
+% NOTE - We're adding "RwdA" and "RwdB" as codes "TTLRwdA" and "TTLRwdB".
 trial_align_evcode = 'StimOn';
-%trial_align_evcode = 'RwdA';
+%trial_align_evcode = 'TTLRwdA';
 
 % These are codes that carry extra metadata that we want to save; they'll
 % show up in "trialinfo" after processing (and in "trl" before that).
@@ -399,6 +399,8 @@ disp('.. Finished time alignment.');
 
 
 %
+% Clean up the event tables.
+
 % Propagate any missing events to the recorder and stimulator.
 
 % We have SynchBox events with accurate timestamps, and we've aligned
@@ -407,7 +409,6 @@ disp('.. Finished time alignment.');
 % NOTE - This only works if we do have accurate time alignment. If we fell
 % back to guessing in the previous step, the events will be at the wrong
 % times.
-
 
 % Copy missing events from the SynchBox to the recorder.
 disp('-- Checking for missing recorder events.');
@@ -422,9 +423,51 @@ if have_stim
 end
 
 
+% Copy TTL events into the event code tables, if present.
+
+disp('-- Copying TTL events into event code streams.');
+
+if isfield(recevents, 'cookedcodes')
+
+  if isfield(recevents, 'rwdA')
+    recevents.cookedcodes = euFT_addTTLEventsAsCodes( ...
+      recevents.cookedcodes, recevents.rwdA, ...
+      'recTime', 'codeLabel', 'TTLRwdA' );
+  end
+
+  if isfield(recevents, 'rwdB')
+    recevents.cookedcodes = euFT_addTTLEventsAsCodes( ...
+      recevents.cookedcodes, recevents.rwdB, ...
+      'recTime', 'codeLabel', 'TTLRwdB' );
+  end
+
+end
+
+if have_stim
+  if isfield(stimevents, 'cookedcodes')
+
+    if isfield(stimevents, 'rwdA')
+      stimevents.cookedcodes = euFT_addTTLEventsAsCodes( ...
+        stimevents.cookedcodes, stimevents.rwdA, ...
+        'recTime', 'codeLabel', 'TTLRwdA' );
+    end
+
+    if isfield(stimevents, 'rwdB')
+      stimevents.cookedcodes = euFT_addTTLEventsAsCodes( ...
+        stimevents.cookedcodes, stimevents.rwdB, ...
+        'recTime', 'codeLabel', 'TTLRwdB' );
+    end
+
+  end
+end
+
+
 
 %
 % Get trial definitions.
+
+
+disp('-- Segmenting data into trials.');
 
 % Get event code sequences for "valid" trials (ones where "TrialNumber"
 % increased afterwards).
@@ -452,38 +495,30 @@ end
 % Get trial definitions.
 % This replaces ft_definetrial().
 
-% FIXME - Special-case 'RwdA' and 'RwdB' and pass those event tables instead
-% of a code label.
-
-align_code = trial_align_evcode;
-
-if strcmp('RwdA', trial_align_evcode)
-  align_code = recevents.rwdA;
-elseif strcmp('RwdB', trial_align_evcode)
-  align_code = recevents.rwdB;
-end
-
 [ rectrialdefs rectrialdeftable ] = euFT_defineTrialsUsingCodes( ...
   trialcodes_concat, 'codeLabel', 'recTime', rechdr.Fs, ...
-  padtime, padtime, 'TrlStart', 'TrlEnd', align_code, ...
+  padtime, padtime, 'TrlStart', 'TrlEnd', trial_align_evcode, ...
   trial_metadata_events, 'codeData' );
 
 if have_stim
-  align_code = trial_align_evcode;
-
-  if strcmp('RwdA', trial_align_evcode)
-    align_code = stimevents.rwdA;
-  elseif strcmp('RwdB', trial_align_evcode)
-    align_code = stimevents.rwdB;
-  end
-
   trialcodes_concat = euAlign_addTimesToTable( trialcodes_concat, ...
     'recTime', 'stimTime', times_recorder_stimulator );
 
   [ stimtrialdefs stimtrialdeftable ] = euFT_defineTrialsUsingCodes( ...
     trialcodes_concat, 'codeLabel', 'stimTime', stimhdr.Fs, ...
-    padtime, padtime, 'TrlStart', 'TrlEnd', align_code, ...
+    padtime, padtime, 'TrlStart', 'TrlEnd', trial_align_evcode, ...
     trial_metadata_events, 'codeData' );
+end
+
+
+% FIXME - Sanity check.
+
+if isempty(rectrialdefs)
+  error('No valid recorder trial epochs defined!');
+end
+
+if have_stim && isempty(stimtrialdefs)
+  error('No valid stimulator trial epochs defined!');
 end
 
 
@@ -588,6 +623,8 @@ end
 %
 % Plot trial data.
 
+% NOTE - Just plotting recorder, not stimulator, for the demo.
+
 disp('-- Plotting ephys signals.');
 
 euPlot_plotFTTrials( recdata_wideband, rechdr.Fs, ...
@@ -638,6 +675,21 @@ disp('-- Finished plotting.');
 
 %
 % Do timelock analysis and plot the results.
+
+disp('-- Computing time-locked average and variance of ephys signals.')
+
+% For now, just looing at LFP and MUA. Wideband/HPF is less useful.
+% It won't be meaningful to compute this for eye movements, I don't think.
+
+% Default configuration is fine.
+
+recavg_activity = ft_timelockanalysis(struct(), recdata_activity);
+recavg_lfp = ft_timelockanalysis(struct(), recdata_lfp);
+
+if have_stim
+  stimavg_activity = ft_timelockanalysis(struct(), stimdata_activity);
+  stimavg_lfp = ft_timelockanalysis(struct(), stimdata_lfp);
+end
 
 % FIXME - NYI.
 
