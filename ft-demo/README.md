@@ -1,19 +1,17 @@
-# Chris's Field Trip Test Scripts
+# Chris's Field Trip Example Script
 
 ## Overview
 
-This is a set of test scripts for reading and processing our lab's data
-using Field Trip. This is done using Field Trip's functions where possible,
-augmented with my library code for experiment-specific tasks.
+This is a minimum working script showing how to read data from one of our
+lab's experiments into Field Trip and perform processing with it.
 
-This was originally intended to be used as sample code, in addition to being
-test code, but it turned out to be too complicated to be useful for that.
-The `ft-demo` script is the sample code version.
+About half of this is done using Field Trip's functions directly, and the
+remainder is done with wrapper functions that combine many common Field Trip
+operations. If you're not sure what a step is doing or how it's doing it,
+looking at that function's documentation and function body will help.
 
-Type `make -C manual` to rebuild the manual for these scripts.
-
-To run these test scripts, you'll need Field Trip and several libraries
-installed; details are below.
+To run this script, you'll need Field Trip and several libraries installed;
+details are below.
 
 ## Getting Field Trip
 
@@ -36,6 +34,13 @@ GitHub link (example:
 * Unpack the archive somewhere appropriate, and add that directory to
 Matlab's search path.
 
+Bookmark the following reference pages:
+* [Tutorial list.](https://www.fieldtriptoolbox.org/tutorial)
+* [Function reference.](https://www.fieldtriptoolbox.org/reference)
+
+More documentation can be found at the
+[documentation link](https://www.fieldtriptoolbox.org/documentation).
+
 ## Other Libraries Needed
 
 You're also going to need the following libraries. Download the relevant
@@ -53,28 +58,45 @@ on path.)
 (Needed for processing steps that are specific to our lab, and more Field
 Trip integration; the "libraries" subfolder needs to be on path.)
 
-## Field Trip Notes
+## Using Field Trip
+
+A Field Trip script needs to do the following:
+* Read the TTL data from ephys machines and SynchBox data from USE.
+* Assemble event code information, reward triggers, and stimulation triggers
+from TTL and SynchBox data.
+* Time-align signals from different machines (recorder, stimulator, SynchBox,
+and USE) to produce a unified dataset.
+* Segment the data into trials using event code information.
+* Read the analog data trial by trial (to keep memory footprint reasonable).
+* Perform re-referencing and artifact rejection.
+* Filter the wideband data to get clean LFP-band and high-pass signals.
+* Extract spike events and waveforms from the high-pass signal.
+* Extract average spike activity (multi-unit activity) from a band-pass signal.
+* Stack trigger-aligned trials on to each other and get the average response
+and variance of time-aligned trials (a "timelock analysis").
+* Perform experiment-specific analysis.
 
 ### Reading Data with Field Trip
 
-* `ft_read_header` reads a dataset's configuration information. You can
-pass it a custom reading function to read data types it doesn't know about.
-For Intan or Open Ephys data that will be a LoopUtil function.
+* `ft_read_header` reads a dataset's configuration information.
 * `ft_read_event` reads a dataset's event lists (TTL data is often stored as
-events). You can pass it a custom reading function to read data types it
-doesn't know about it.
+events).
 * `ft_preprocessing` is a "do-everything" function. It can either read data
 without processing it, process data that's already read, or read data and then
 process it. At minimum you'll use it to read data.
+
+For all of these, you can pass it a custom reading function to read data
+types it doesn't know about it. We need to do this for all of our data (Intan,
+Open Ephys, and USE). You can tell it to use appropriate NeuroLoop functions
+to read these types of data, per the sample code. It can also be told to
+read events from tables in memory using NeuroLoop functions.
 
 **NOTE** - When reading data, you pass a trial definition table as part of
 the configuration structure. Normally this is built using `ft_definetrial`,
 but because of the way our event codes are set up and because we have to
 do time alignment between multiple devices, we build this table manually.
 
-This is done in `do_test_define_trials.m`. At some point this will get
-cleaned up and folded into library functions (along with much of the rest
-of this script).
+We're using `euFT_defineTrialsUsingCodes()` for this.
 
 ### Signal Processing with Field Trip
 
@@ -146,40 +168,44 @@ metadata in a separate Matlab variable.
 
 ## What This Script Does
 
-The scripts in this directory perform all of the steps we'll want to perform
-when pre-processing data from real experiments:
+This script performs most of the steps we'll want to perform when
+pre-processing data from real experiments:
 
-* Metadata for the recorder and stimulator datasets are read using
-`ft_read_header`.
-* Recorder and stimulator TTL data is read using `ft_read_event`. This is
-assembled into event codes and reward/timer events.
-* USE event data is read using `lib-exputils-use` functions. This includes
-a record of SynchBox and eye-tracker activity.
-* USE, SynchBox, eye-tracker, and TTL data are time-aligned (using event
-codes if possible, other signals if not). Time alignment tables are built
-that can translate any piece of equipment's timestamps into recorder time.
-* Trials are defined based on appropraite event codes.
-* `ft_preprocessing` is called to read the resulting trial ephys data. This
-happens in small batches of trials to avoid filling memory.
-* Signal processing is performed on the trials:
-    * Common-average referencing is performed on various pools of signals,
-if pools for this are defined.
-    * Notch filtering is applied to remove power line noise and its harmonics,
-as well as any beat frequencies introduced by equipment sampling rates.
-    * A "local field potential" signal is generated by low-pass-filtering and
-downsampling.
-    * A "raw spikes" signal is generated by high-pass-filtering at the native
-sampling rate.
-    * A "rectified spiking activity" series ("multi-unit activity" series)
-is generated by rectifying the "raw spikes" series (taking the absolute
-value), followed by low-pass filtering and downsampling.
-* Eye-tracker data, TTL data, and event data that overlaps each trial is
-extracted.
-* Processed analog and digital signals and events from batches of trials
-are saved to disk, along with trial metadata.
+* It finds the recorder, stimulator, and USE folders and reads metadata
+from the recorder and stimulator.
+* It reads digital/TTL events from the recorder, stimulator, and USE folders.
+The USE data includes what USE sent to the SynchBox (only USE timestamps) and
+what the SynchBox sent back (also has SynchBox timestamps).
+* It reads gaze and frame data tables from USE.
+* It aligns timestamps from all of these sources and translates everything
+into the recorder's timeframe.
+* It makes sure there's a consistent list with all of the events, since
+the recorder and stimulator are sometimes not set up to save all TTL inputs.
+* It processes the list of event codes to find out when trials should happen.
+This is done using `euFT_defineTrialsUsingCodes()`, since we need metadata
+that `ft_definetrial()` doesn't usually look at, and since we're using
+`TrlStart` and `TrlEnd` to define the trial boundaries instead of fixed
+padding times.
+* It reads the ephys data for all trials, performing filtering:
+    * Power line noise and other narrow-band noise is filtered out of the
+wideband data.
+    * The wideband data is low-pass filtered and downsampled to get LFP data.
+    * The wideband data is high-pass filtered to get spike waveform data.
+    * The wideband data is band-pass filtered, rectified, low-pass filtered,
+and downsampled to get multi-unit activity data.
+* It segments USE event and gaze data per trial as well.
+* It computes timelock averages of LFP and MUA data.
+* It generates example plots for all of these.
 
-The intention is that after this preprocessing is done, the experiment
-analysis can be performed without having to touch the raw data again.
+Things that are missing:
+
+* We're not identifying trials with artifacts. This is typically done
+manually, though automated tools are provided in the LoopUtil library.
+
+* We're not re-referencing the data. Field Trip provides preprocessing
+options for this, but we'll probably have to do it probe by probe rather
+than across the whole dataset (common-average referencing the recording
+channels for each probe).
 
 ## Miscellaneous Notes
 

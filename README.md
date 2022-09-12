@@ -37,6 +37,9 @@ Time-alignment of event lists from different sources.
 * `lib-exputils-ft` --
 Field Trip utility functions that aren't general enough to migrate to
 LoopUtil.
+* `lib-exputils-plot` --
+Plotting functions that are used by the test and demo scripts. These
+aren't paper-quality plots; they're for testing.
 * `lib-exputils-tools` --
 Helper functions used by specific tools and scripts that aren't general
 enough to migrate to LoopUtil.
@@ -50,15 +53,24 @@ general enough to migrate to LoopUtil.
 
 ## Sample Code
 
-Sample code project folders are as follows:
+Sample code suitable for reference use is in the following folders:
+
+* `ft-demo` --
+Sample code for using Field Trip with our lab's datasets (including time
+alignment and USE integration). This version was made as simple as possible,
+and is intended as a starting point for analysis projects.
+
+Test code that may be useful as auxiliary sample code is in the following
+folders:
 
 * `evcode-align` --
-Sample code for reading event codes from a dataset, performing time alignment
+Test code for reading event codes from a dataset, performing time alignment
 between the ephys recorder, the USE computer, and the SynchBox, and
 reporting time alignment precision statistics.
 * `ft-test` --
 Test scripts, sample code, and documentation for using Field Trip with our
-lab's datasets (including time alignment and USE integration).
+lab's datasets (including time alignment and USE integration). This version
+is big and complicated and tests a large number of features.
 * `sanity-tool` --
 A quick and dirty script for running sanity checks on dataset folders. This
 looks for obvious artifacts in the data.
