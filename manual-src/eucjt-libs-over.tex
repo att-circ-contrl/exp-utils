@@ -1,0 +1,65 @@
+% Chris's expriment utility libraries - Library reference - Overview
+% Written by Christopher Thomas.
+
+% Dummy out chapter; this is now front-matter.
+\iffalse
+%
+\chapter{Overview}
+%
+\else
+%
+\vspace*{0.75in}
+{\Huge \bfseries Overview}
+\vspace*{\baselineskip}
+\label{sect-over}
+%
+\fi
+
+This is a set of libraries and utilities written to support ephys experiment
+analyses in Thilo's lab.
+
+This is intended to be a private project for lab-specific code that is not
+specific to individual experiments. Code that lends itself to reuse outside
+our lab can be migrated to public projects. Code that's experiment-specific
+should be in projects associated with those experiments.
+
+Libraries are provided in the ``\texttt{libraries}'' directory. With that
+directory on path, call the \linebreak ``\texttt{addPathsExpUtilsCjt}''
+function to add sub-folders.
+
+The following sets of library functions are provided:
+\begin{itemize}
+%
+\item \textbf{``\texttt{euAlign}''} functions (Chapter \ref{sect-align})
+perform time-alignment of event lists from different sources.
+%
+\item \textbf{``\texttt{euFT}''} functions (Chapter \ref{sect-ft})
+provide wrappers for Field Trip functions and combine commonly-used sets
+of Field Trip function calls.
+%
+\item \textbf{``\texttt{euPlot}''} functions (Chapter \ref{sect-plot})
+plot experiment data for testing. These don't make paper-quality plots.
+%
+\item \textbf{``\texttt{euTools}''} functions (Chapter \ref{sect-tools})
+are helper functions used by specific tools and scripts.
+%
+\item \textbf{``\texttt{euUSE}''} functions (Chapter \ref{sect-use})
+are functions for reading and interpreting USE data (event codes, SynchBox
+activity, gaze data, and frame data).
+%
+\item \textbf{``\texttt{euUtil}''} functions (Chapter \ref{sect-util})
+are utility functions that don't fit into other categories.
+%
+\end{itemize}
+
+The following sample code is provided:
+\begin{itemize}
+%
+\item \textbf{``\texttt{ft\_demo.m}''} -- Simplest practical script for
+reading our lab's datasets into Field Trip. This is described in Chapter
+\ref{sect-sample-demo}.
+%
+\end{itemize}
+
+%
+% This is the end of the file.

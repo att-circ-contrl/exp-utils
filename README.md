@@ -17,8 +17,8 @@ The following files and directories contain documentation:
 
 * The `manuals` directory contains PDF documentation files produced by
 the sources described below.
-* The `latex-build` directory is the LaTeX build directory for project-wide
-documentation. Use `make -C latex-build` to rebuild these documents.
+* The `manual-src` directory is the LaTeX build directory for project-wide
+documentation. Use `make -C manual-src` to rebuild these documents.
 * Individual tool folders will usually contain `README.md` files.
 * Individual tool folders may also contain `manual` directories as local
 LaTeX build directories. Run `make` in these folders to rebuild the associated
