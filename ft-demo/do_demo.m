@@ -184,6 +184,7 @@ nlFT_setMemChans(8);
 
 % FIXME - For now, assume we're using Open Ephys for the recorder.
 % FIXME - Assume one recorder dataset and 0 or 1 stimulator datasets.
+
 folder_record = folders_openephys{1};
 have_stim = false;
 if ~isempty(folders_intanstim)
@@ -191,6 +192,16 @@ if ~isempty(folders_intanstim)
   have_stim = true;
 end
 folder_game = folders_unity{1};
+
+
+% Read Open Ephys channel mappings and config files, if we can find them.
+% This looks for anything with "config" or "mapping" in the filename.
+% FIXME - This is upstream from the "structure.oebin" folder! Search the
+% whole tree and hope Intan and Unity don't confuse it.
+% FIXME - Assume exactly one valid entry. Sometimes we have multiple configs!
+
+chanmap_rec = euUtil_getOpenEphysChannelMap_v5(inputfolder);
+
 
 
 % Get headers.
