@@ -13,22 +13,34 @@
 plotdir = 'plots';
 outdatadir = 'output';
 
-inputfolder = 'datasets/20220504-frey-silicon';
 
+% Data folder and channels we care about.
 
-% Channels we care about.
+if false
+  % Silicon test.
+  inputfolder = 'datasets/20220504-frey-silicon';
 
-% These are the channels that Louie flagged as particularly interesting.
-% Louie says that channel 106 in particular was task-modulated.
-desired_recchannels = ...
-  { 'CH_020', 'CH_021', 'CH_022',   'CH_024', 'CH_026', 'CH_027', ...
-    'CH_028', 'CH_030', 'CH_035',   'CH_042', 'CH_060', 'CH_019', ...
-    'CH_043', ...
-    'CH_071', 'CH_072', 'CH_073',   'CH_075', 'CH_100', 'CH_101', ...
-    'CH_106', 'CH_107', 'CH_117',   'CH_116', 'CH_120', 'CH_125', ...
-    'CH_067', 'CH_123', 'CH_109',   'CH_122' };
+  % These are the channels that Louie flagged as particularly interesting.
+  % Louie says that channel 106 in particular was task-modulated.
+  desired_recchannels = ...
+    { 'CH_020', 'CH_021', 'CH_022',   'CH_024', 'CH_026', 'CH_027', ...
+      'CH_028', 'CH_030', 'CH_035',   'CH_042', 'CH_060', 'CH_019', ...
+      'CH_043', ...
+      'CH_071', 'CH_072', 'CH_073',   'CH_075', 'CH_100', 'CH_101', ...
+      'CH_106', 'CH_107', 'CH_117',   'CH_116', 'CH_120', 'CH_125', ...
+      'CH_067', 'CH_123', 'CH_109',   'CH_122' };
 
-desired_stimchannels = {};
+  desired_stimchannels = {};
+end
+
+if true
+  % Tungsten test with stimulation.
+  inputfolder = 'datasets/20220324-frey-tungsten-stim';
+
+  % There were only three channels used in total.
+  desired_recchannels = { 'AmpA_045', 'AmpA_047' };
+  desired_stimchannels = { 'AmpC_011' };
+end
 
 
 % Where to look for event codes and TTL signals in the ephys data.
@@ -36,7 +48,9 @@ desired_stimchannels = {};
 % These structures describe which TTL bit-lines in the recorder and
 % stimulator encode which event signals for this dataset.
 
-recbitsignals = struct();
+% FIXME - We want reward and stim TTLs to be cabled to both machines.
+recbitsignals_openephys = struct();
+recbitsignals_intan = struct();
 stimbitsignals = struct('rwdB', 'Din_002');
 
 % These structures describe which TTL bit-lines or word data channels
@@ -45,9 +59,15 @@ stimbitsignals = struct('rwdB', 'Din_002');
 % start with bit 1. So Open Ephys code words are shifted by 8 bits and
 % Intan code words are shifted by 9 bits to get the same data.
 
-reccodesignals = struct( ...
+reccodesignals_openephys = struct( ...
   'signameraw', 'rawcodes', 'signamecooked', 'cookedcodes', ...
   'channame', 'DigWordsA_000', 'bitshift', 8 );
+
+reccodesignals_intan = struct( ...
+  'signameraw', 'rawcodes', 'signamecooked', 'cookedcodes', ...
+  'channame', 'Din_*', 'bitshift', 9 );
+
+% FIXME - This might not actually be cabled in some datasets.
 stimcodesignals = struct( ...
   'signameraw', 'rawcodes', 'signamecooked', 'cookedcodes', ...
   'channame', 'Din_*', 'bitshift', 9 );
@@ -95,7 +115,7 @@ spike_minfreq = 100;
 % band-pass filtered, then rectified (absolute value), then low-pass filtered
 % at a frequency well below the lower corner, then downsampled.
 
-rect_bandfreqs = [ 1000 3000 ];
+rect_bandfreqs = [ 1000 4000 ];
 rect_lowpassfreq = 500;
 rect_samprate = lfp_samprate;
 
@@ -125,7 +145,8 @@ debug_use_fewer_trials = true;
 %debug_trials_to_use = 30;
 debug_trials_to_use = 10;
 
-if debug_use_fewer_chans
+if debug_use_fewer_chans && (length(desired_recchans) > 10)
+  % Only drop channels if we have more than 10.
   % Take every third channel (hardcoded).
   desired_recchannels = desired_recchannels(1:3:length(desired_recchannels));
 end
@@ -182,15 +203,21 @@ nlFT_setMemChans(8);
 [ folders_openephys folders_intanrec folders_intanstim folders_unity ] = ...
   euUtil_getExperimentFolders(inputfolder);
 
-% FIXME - For now, assume we're using Open Ephys for the recorder.
 % FIXME - Assume one recorder dataset and 0 or 1 stimulator datasets.
 
-folder_record = folders_openephys{1};
+have_openephys = ~isempty(folders_openephys);
+if have_openephys
+  folder_record = folders_openephys{1};
+else
+  folder_record = folders_intanrec{1};
+end
+
 have_stim = false;
 if ~isempty(folders_intanstim)
   folder_stim = folders_intanstim{1};
   have_stim = true;
 end
+
 folder_game = folders_unity{1};
 
 
@@ -211,22 +238,25 @@ end
 % FIXME - Assume exactly one valid entry. Sometimes we have multiple configs!
 
 chanmap_rec = euUtil_getOpenEphysChannelMap_v5(inputfolder);
+have_chanmap = ~isempty(chanmap_rec);
 
-% Turn this into a label-based map.
-[ chanmap_rec_raw chanmap_rec_cooked ] = ...
-  nlFT_getLabelChannelMapFromNumbers( chanmap_rec.oldchan, ...
-    rechdr.label, rechdr.label );
+if have_chanmap
+  % Turn this into a label-based map.
+  [ chanmap_rec_raw chanmap_rec_cooked ] = ...
+    nlFT_getLabelChannelMapFromNumbers( chanmap_rec.oldchan, ...
+      rechdr.label, rechdr.label );
 
-% Translate cooked desired channel names into raw desired channel names.
-% FIXME - Only doing this for the recorder!
+  % Translate cooked desired channel names into raw desired channel names.
+  % FIXME - Only doing this for the recorder!
 
-desired_recchannels = nlFT_mapChannelLabels( desired_recchannels, ...
-  chanmap_rec_cooked, chanmap_rec_raw );
+  desired_recchannels = nlFT_mapChannelLabels( desired_recchannels, ...
+    chanmap_rec_cooked, chanmap_rec_raw );
 
-badmask = strcmp(desired_recchannels, '');
-if sum(badmask) > 0
-  disp('###  Couldn''t map all requested recorder channels!');
-  desired_recchannels = desired_recchannels(~badmask);
+  badmask = strcmp(desired_recchannels, '');
+  if sum(badmask) > 0
+    disp('###  Couldn''t map all requested recorder channels!');
+    desired_recchannels = desired_recchannels(~badmask);
+  end
 end
 
 
@@ -270,6 +300,14 @@ desired_stimchannels = ...
 % each extracted signal we asked for.
 
 disp('-- Reading digital events from recorder.');
+
+recbitsignals = recbitsignals_openephys;
+reccodesignals = reccodesignals_openephys;
+if ~have_openephys
+  recbitsignals = recbitsignals_intan;
+  reccodesignals = reccodesignals_intan;
+end
+
 [ recevents_ttl recevents ] = euUSE_readAllEphysEvents( ...
   folder_record, recbitsignals, reccodesignals, evcodedefs );
 
@@ -586,16 +624,18 @@ recdata_wideband = ft_preprocessing( preproc_config_rec );
 
 % NOTE - We need to turn raw channel labels into cooked channel labels here.
 
-newlabels = nlFT_mapChannelLabels( recdata_wideband.label, ...
-  chanmap_rec_raw, chanmap_rec_cooked );
+if have_chanmap
+  newlabels = nlFT_mapChannelLabels( recdata_wideband.label, ...
+    chanmap_rec_raw, chanmap_rec_cooked );
 
-badmask = strcmp(newlabels, '');
-if sum(badmask) > 0
-  disp('###  Couldn''t map all recorder labels!');
-  newlabels(badmask) = {'bogus'};
+  badmask = strcmp(newlabels, '');
+  if sum(badmask) > 0
+    disp('###  Couldn''t map all recorder labels!');
+    newlabels(badmask) = {'bogus'};
+  end
+
+  recdata_wideband.label = newlabels;
 end
-
-recdata_wideband.label = newlabels;
 
 
 % NOTE - You'd normally do re-referencing here.

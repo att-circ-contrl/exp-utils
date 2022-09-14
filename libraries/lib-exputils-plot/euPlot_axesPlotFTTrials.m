@@ -64,7 +64,6 @@ is_multichannel = (sum(chanmask) > 1);
 
 
 % Get trial timing information.
-% FIXME - Recomputing time ranges by hand to get time relative to trigger.
 % NOTE - Get actual Y range here too, for cursor geometry.
 
 % Get the trial trigger times.
@@ -74,9 +73,6 @@ trialtriggers = trialdefs(:,3);
 
 triggertimes_abs = (trialstarts - 1) - trialtriggers;
 triggertimes_abs = triggertimes_abs / trialdefs_samprate;
-
-triggertimes_rel = trialtriggers;
-triggertimes_rel = triggertimes_rel / trialdefs_samprate;
 
 % Process the trials themselves.
 
@@ -91,13 +87,7 @@ trialcount = length(wavedata_ft.trial);
 
 for tidx = 1:trialcount
   thiswavedata = wavedata_ft.trial{tidx};
-  timelength = size(thiswavedata);
-  timelength = timelength(2);
-
-  thistimeseries = 0:(timelength-1);
-  thistimeseries = ...
-    (thistimeseries / wavedata_samprate) + triggertimes_rel(tidx);
-  timeseries{tidx} = thistimeseries;
+  thistimeseries = wavedata_ft.time{tidx};
 
   thistimemax = max(thistimeseries);
   thistimemin = min(thistimeseries);
@@ -227,7 +217,7 @@ for tidx = 1:trialcount
       if isfirstlabel
         plot( thisax, [ thistime thistime ], cursor_yrange, ...
           'Color', palette_codes{tidx}, 'DisplayName', 'EvCodes' );
-       isfirstlabel = false;
+        isfirstlabel = false;
       else
         plot( thisax, [ thistime thistime ], cursor_yrange, ...
           'Color', palette_codes{tidx}, 'HandleVisibility', 'off' );
@@ -267,7 +257,7 @@ for tidx = 1:trialcount
       if isfirstlabel
         plot( thisax, [ thistime thistime ], cursor_yrange, ...
           'Color', palette_rwdB{tidx}, 'DisplayName', 'Rwd B' );
-        isfirstlabell = false;
+        isfirstlabel = false;
       else
         plot( thisax, [ thistime thistime ], cursor_yrange, ...
           'Color', palette_rwdB{tidx}, 'HandleVisibility', 'off' );
@@ -286,7 +276,7 @@ for tidx = 1:trialcount
   if ismember(tidx, trials_wanted)
 
     thiswavedata = wavedata_ft.trial{tidx};
-    thistimeseries = timeseries{tidx};
+    thistimeseries = wavedata_ft.time{tidx};
 
     isfirstchan = true;
     for cidx = 1:chancount

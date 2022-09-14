@@ -71,10 +71,17 @@ trialcount = trialcount(1);
 
 if ismember('oneplot', plots_wanted)
 
+  legendpos = 'northeast';
+  if chancount > maxlegendsize
+    legendpos = 'off';
+  elseif (1 == chancount) && (trialcount > maxlegendsize)
+    legendpos = 'off';
+  end
+
   helper_plotAllZooms( thisfig, wavedata_ft, wavesamprate, ...
     trialdefs, trialsamprate, {}, [], ...
     evcodes, evrwdA, evrwdB, evsamprate, ...
-    'off', [ figtitle ' - All' ], [ obase '-all' ], zoomranges );
+    legendpos, [ figtitle ' - All' ], [ obase '-all' ], zoomranges );
 
 end
 
