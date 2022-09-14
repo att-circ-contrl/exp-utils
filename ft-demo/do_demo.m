@@ -194,6 +194,16 @@ end
 folder_game = folders_unity{1};
 
 
+% Get headers.
+
+% NOTE - Field Trip will throw an exception if this fails.
+% Add a try/catch block if you want to fail gracefully.
+rechdr = ft_read_header( folder_record, 'headerformat', 'nlFT_readHeader' );
+if have_stim
+  stimhdr = ft_read_header( folder_stim, 'headerformat', 'nlFT_readHeader' );
+end
+
+
 % Read Open Ephys channel mappings and config files, if we can find them.
 % This looks for anything with "config" or "mapping" in the filename.
 % FIXME - This is upstream from the "structure.oebin" folder! Search the
@@ -202,15 +212,21 @@ folder_game = folders_unity{1};
 
 chanmap_rec = euUtil_getOpenEphysChannelMap_v5(inputfolder);
 
+% Turn this into a label-based map.
+[ chanmap_rec_raw chanmap_rec_cooked ] = ...
+  nlFT_getLabelChannelMapFromNumbers( chanmap_rec.oldchan, ...
+    rechdr.label, rechdr.label );
 
+% Translate cooked desired channel names into raw desired channel names.
+% FIXME - Only doing this for the recorder!
 
-% Get headers.
+desired_recchannels = nlFT_mapChannelLabels( desired_recchannels, ...
+  chanmap_rec_cooked, chanmap_rec_raw );
 
-% NOTE - Field Trip will throw an exception if this fails.
-% Add a try/catch block if you want to fail gracefully.
-rechdr = ft_read_header( folder_record, 'headerformat', 'nlFT_readHeader' );
-if have_stim
-  stimhdr = ft_read_header( folder_stim, 'headerformat', 'nlFT_readHeader' );
+badmask = strcmp(desired_recchannels, '');
+if sum(badmask) > 0
+  disp('###  Couldn''t map all requested recorder channels!');
+  desired_recchannels = desired_recchannels(~badmask);
 end
 
 
@@ -561,11 +577,25 @@ preproc_config_rec = struct( ...
   'headerfile', folder_record, 'datafile', folder_record, ...
   'headerformat', 'nlFT_readHeader', 'dataformat', 'nlFT_readDataDouble', ...
   'trl', rectrialdefs, 'detrend', 'yes', 'feedback', 'text' );
+
 preproc_config_rec.channel = ...
   ft_channelselection( desired_recchannels, rechdr.label, {} );
 
 disp('.. Reading wideband recorder data.');
 recdata_wideband = ft_preprocessing( preproc_config_rec );
+
+% NOTE - We need to turn raw channel labels into cooked channel labels here.
+
+newlabels = nlFT_mapChannelLabels( recdata_wideband.label, ...
+  chanmap_rec_raw, chanmap_rec_cooked );
+
+badmask = strcmp(newlabels, '');
+if sum(badmask) > 0
+  disp('###  Couldn''t map all recorder labels!');
+  newlabels(badmask) = {'bogus'};
+end
+
+recdata_wideband.label = newlabels;
 
 
 % NOTE - You'd normally do re-referencing here.
