@@ -32,7 +32,8 @@ function euPlot_plotFTTrials( wavedata_ft, wavesamprate, ...
 
 
 % Hard-code zoom ranges.
-zoomranges = struct( 'full', [], 'zoom', [ -0.3 0.6 ] );
+zoomranges = struct( 'full', [], ...
+  'zoom', [ -0.3 0.6 ], 'detail', [ -0.03 0.06 ] );
 
 % Magic number for pretty display.
 maxlegendsize = 20;

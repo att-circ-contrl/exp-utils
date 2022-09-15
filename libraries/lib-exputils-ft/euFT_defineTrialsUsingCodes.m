@@ -113,8 +113,12 @@ for eidx = 1:length(evlabels)
         disp(sprintf( ...
           '### Missing trial stop time at row %d (how?).', eidx ));
       elseif isnan(timealign)
-        disp(sprintf( ...
-          '### No trigger found in trial ending at row %d. Skipping.', eidx ));
+        % FIXME - Suppress this warning.
+        % We'll quite often be looking for events that don't happen in every
+        % trial.
+%        disp(sprintf( ...
+%          '### No trigger found in trial ending at row %d. Skipping.', ...
+%           eidx ));
       else
         % Everything looks okay; record this trial.
 

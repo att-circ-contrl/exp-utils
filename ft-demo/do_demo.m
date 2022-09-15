@@ -31,6 +31,11 @@ if false
       'CH_067', 'CH_123', 'CH_109',   'CH_122' };
 
   desired_stimchannels = {};
+
+  % This is the code we want to be at time zero.
+  % NOTE - We're adding "RwdA" and "RwdB" as codes "TTLRwdA" and "TTLRwdB".
+  trial_align_evcode = 'StimOn';
+%  trial_align_evcode = 'TTLRwdA';
 end
 
 if true
@@ -40,6 +45,10 @@ if true
   % There were only three channels used in total.
   desired_recchannels = { 'AmpA_045', 'AmpA_047' };
   desired_stimchannels = { 'AmpC_011' };
+
+  % This is the code we want to be at time zero.
+  % NOTE - We're adding "RwdA" and "RwdB" as codes "TTLRwdA" and "TTLRwdB".
+  trial_align_evcode = 'TTLRwdB';
 end
 
 
@@ -75,10 +84,7 @@ stimcodesignals = struct( ...
 
 % How to define trials.
 
-% This is the code we want to be at time zero.
-% NOTE - We're adding "RwdA" and "RwdB" as codes "TTLRwdA" and "TTLRwdB".
-trial_align_evcode = 'StimOn';
-%trial_align_evcode = 'TTLRwdA';
+% NOTE - We're setting trial_align_evcode earlier in the script now.
 
 % These are codes that carry extra metadata that we want to save; they'll
 % show up in "trialinfo" after processing (and in "trl" before that).
@@ -145,7 +151,7 @@ debug_use_fewer_trials = true;
 %debug_trials_to_use = 30;
 debug_trials_to_use = 10;
 
-if debug_use_fewer_chans && (length(desired_recchans) > 10)
+if debug_use_fewer_chans && (length(desired_recchannels) > 10)
   % Only drop channels if we have more than 10.
   % Take every third channel (hardcoded).
   desired_recchannels = desired_recchannels(1:3:length(desired_recchannels));
@@ -498,6 +504,8 @@ end
 
 disp('-- Copying TTL events into event code streams.');
 
+% NOTE - Not copying into "gameevents" for now.
+
 if isfield(recevents, 'cookedcodes')
 
   if isfield(recevents, 'rwdA')
@@ -520,13 +528,13 @@ if have_stim
     if isfield(stimevents, 'rwdA')
       stimevents.cookedcodes = euFT_addTTLEventsAsCodes( ...
         stimevents.cookedcodes, stimevents.rwdA, ...
-        'recTime', 'codeLabel', 'TTLRwdA' );
+        'stimTime', 'codeLabel', 'TTLRwdA' );
     end
 
     if isfield(stimevents, 'rwdB')
       stimevents.cookedcodes = euFT_addTTLEventsAsCodes( ...
         stimevents.cookedcodes, stimevents.rwdB, ...
-        'recTime', 'codeLabel', 'TTLRwdB' );
+        'stimTime', 'codeLabel', 'TTLRwdB' );
     end
 
   end
@@ -543,24 +551,11 @@ disp('-- Segmenting data into trials.');
 % Get event code sequences for "valid" trials (ones where "TrialNumber"
 % increased afterwards).
 
+% NOTE - We have to use the recorder code list for this.
+% Using the Unity code list gets about 1 ms of jitter.
+
 [ trialcodes_each trialcodes_concat ] = euUSE_segmentTrialsByCodes( ...
-  gameevents.cookedcodes, 'codeLabel', 'codeData', true );
-
-
-% FIXME - For debugging (faster and less memory), keep only a few trials.
-
-if debug_use_fewer_trials
-  trialcount = length(trialcodes_each);
-  if trialcount > debug_trials_to_use
-    firsttrial = round(0.5 * (trialcount - debug_trials_to_use));
-    lasttrial = firsttrial + debug_trials_to_use - 1;
-    firsttrial = max(firsttrial, 1);
-    lasttrial = min(lasttrial, trialcount);
-
-    trialcodes_each = trialcodes_each(firsttrial:lasttrial);
-    trialcodes_concat = vertcat(trialcodes_each{:});
-  end
-end
+  recevents.cookedcodes, 'codeLabel', 'codeData', true );
 
 
 % Get trial definitions.
@@ -572,6 +567,10 @@ end
   trial_metadata_events, 'codeData' );
 
 if have_stim
+  % FIXME - We're assuming that we'll get the same set of trials for the
+  % recorder and stimulator. That's only the case if the event code
+  % sequences received by each are the same and start at the same time!
+
   trialcodes_concat = euAlign_addTimesToTable( trialcodes_concat, ...
     'recTime', 'stimTime', times_recorder_stimulator );
 
@@ -579,6 +578,39 @@ if have_stim
     trialcodes_concat, 'codeLabel', 'stimTime', stimhdr.Fs, ...
     padtime, padtime, 'TrlStart', 'TrlEnd', trial_align_evcode, ...
     trial_metadata_events, 'codeData' );
+end
+
+
+% FIXME - For debugging (faster and less memory), keep only a few trials.
+
+if debug_use_fewer_trials
+  % Don't touch trialcodes_each and trialcodes_concat; they're not used
+  % past here.
+
+  % FIXME - We're assuming the recorder and stimulator trial tables are
+  % consistent with each other.
+
+  trialcount = height(rectrialdeftable);
+  if trialcount > debug_trials_to_use
+    firsttrial = round(0.5 * (trialcount - debug_trials_to_use));
+    lasttrial = firsttrial + debug_trials_to_use - 1;
+    firsttrial = max(firsttrial, 1);
+    lasttrial = min(lasttrial, trialcount);
+
+    rectrialdeftable = rectrialdeftable(firsttrial:lasttrial,:);
+    rectrialdefs = rectrialdefs(firsttrial:lasttrial,:);
+  end
+
+  trialcount = height(stimtrialdeftable);
+  if trialcount > debug_trials_to_use
+    firsttrial = round(0.5 * (trialcount - debug_trials_to_use));
+    lasttrial = firsttrial + debug_trials_to_use - 1;
+    firsttrial = max(firsttrial, 1);
+    lasttrial = min(lasttrial, trialcount);
+
+    stimtrialdeftable = stimtrialdeftable(firsttrial:lasttrial,:);
+    stimtrialdefs = stimtrialdefs(firsttrial:lasttrial,:);
+  end
 end
 
 
