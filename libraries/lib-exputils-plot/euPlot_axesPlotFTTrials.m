@@ -1,11 +1,13 @@
 function euPlot_axesPlotFTTrials( thisax, ...
-  wavedata_ft, wavedata_samprate, trialdefs, trialdefs_samprate, ...
+  wavedata_ft, wavedata_samprate, ...
+  trialdefs, trialnames, trialdefs_samprate, ...
   chans_wanted, trials_wanted, plot_timerange, plot_yrange, ...
   events_codes, events_rwdA, events_rwdB, events_samprate, ...
   legendpos, figtitle )
 
 % function euPlot_axesPlotFTTrials( thisax, ...
-%   wavedata_ft, wavedata_samprate, trialdefs, trialdef_samprate, ...
+%   wavedata_ft, wavedata_samprate, ...
+%   trialdefs, trialnames, trialdef_samprate, ...
 %   chans_wanted, plot_timerange, plot_yrange, ...
 %   events_codes, events_rwdA, events_rwdB, event_samprate, ...
 %   legendpos, figtitle )
@@ -19,11 +21,14 @@ function euPlot_axesPlotFTTrials( thisax, ...
 % "wavedata_samprate" is the sampling rate of "wavedata_ft".
 % "trialdefs" is the Field Trip trial definition matrix or table that was
 %   used to generate the trial data.
+% "trialnames" is either a vector of trial numbers or a cell array of trial
+%   labels, corresponding to the trials in "trialdefs". An empty vector or
+%   cell array auto-generates labels.
 % "trialdefs_samprate" is the sampling rate used when generating "trialdefs".
 % "chans_wanted" is a cell array with channel names to plot. Pass an empty
 %   cell array to plot all channels.
-% "trials_wanted" is a vector with trial indices to plot. Pass an empty
-%   vector to plot all trials.
+% "trials_wanted" is a cell array with labels of trials to plot. Pass an
+%   empty cell array to plot all trials.
 % "plot_timerange" [ min max ] is the time range (X range) of the plot axes.
 %   Pass an empty range for auto-ranging.
 % "plot_yrange" [ min max ] is the Y range of the plot axes.
@@ -62,6 +67,13 @@ end
 
 is_multichannel = (sum(chanmask) > 1);
 
+trialcount = size(trialdefs);
+trialcount = trialcount(1);
+
+
+% Convert whatever we were given for trial names into text labels.
+trialnames = euPlot_helperMakeTrialNames(trialnames, trialcount);
+
 
 % Get trial timing information.
 % NOTE - Get actual Y range here too, for cursor geometry.
@@ -82,8 +94,6 @@ autotime_min = inf;
 
 true_ymax = -inf;
 true_ymin = inf;
-
-trialcount = length(wavedata_ft.trial);
 
 for tidx = 1:trialcount
   thiswavedata = wavedata_ft.trial{tidx};
@@ -114,10 +124,10 @@ if ~isempty(plot_yrange)
 end
 
 
-% Sanity check the trial selection, now that we have the trial count.
+% Sanity check the trial selection.
 
 if isempty(trials_wanted)
-  trials_wanted = 1:trialcount;
+  trials_wanted = trialnames;
 end
 
 
@@ -208,7 +218,7 @@ palette_rwdB = nlPlot_getColorSpread(cols.mag, trialcount, 60);
 
 isfirstlabel = true;
 for tidx = 1:trialcount
-  if ismember(tidx, trials_wanted)
+  if ismember(trialnames{tidx}, trials_wanted)
 
     thisevlist = codetrials{tidx};
     for eidx = 1:length(thisevlist)
@@ -229,7 +239,7 @@ end
 
 isfirstlabel = true;
 for tidx = 1:trialcount
-  if ismember(tidx, trials_wanted)
+  if ismember(trialnames{tidx}, trials_wanted)
 
     thisevlist = rwdAtrials{tidx};
     for eidx = 1:length(thisevlist)
@@ -249,7 +259,7 @@ end
 
 isfirstlabel = true;
 for tidx = 1:trialcount
-  if ismember(tidx, trials_wanted)
+  if ismember(trialnames{tidx}, trials_wanted)
 
     thisevlist = rwdBtrials{tidx};
     for eidx = 1:length(thisevlist)
@@ -273,7 +283,7 @@ end
 
 isfirsttrial = true;
 for tidx = 1:trialcount
-  if ismember(tidx, trials_wanted)
+  if ismember(trialnames{tidx}, trials_wanted)
 
     thiswavedata = wavedata_ft.trial{tidx};
     thistimeseries = wavedata_ft.time{tidx};
@@ -300,7 +310,9 @@ for tidx = 1:trialcount
         else
           % Use one legend line per trial.
           if isfirstchan
-            thislabel = sprintf('Tr %04d', tidx);
+            [ safetriallabel safetrialtitle ] = ...
+              euUtil_makeSafeString( trialnames{tidx} );
+            thislabel = safetrialtitle;
           end
         end
 

@@ -1,9 +1,9 @@
 function euPlot_plotAuxData( auxdata_ft, auxsamprate, ...
-  trialdefs, trialsamprate, evlists, evsamprate, ...
+  trialdefs, trialnames, trialsamprate, evlists, evsamprate, ...
   chans_wanted, plots_wanted, figtitle, obase )
 
 % function euPlot_plotAuxData( auxdata_ft, auxsamprate, ...
-%   trialdefs, trialsamprate, evlists, evsamprate, ...
+%   trialdefs, trialnames, trialsamprate, evlists, evsamprate, ...
 %   chans_wanted, plots_wanted, figtitle, obase )
 %
 % This plots several channels of auxiliary data in strip chart form and
@@ -19,6 +19,9 @@ function euPlot_plotAuxData( auxdata_ft, auxsamprate, ...
 % "auxsamprate" is the sampling rate of "auxdata_ft".
 % "trialdefs" is the field trip trial definition matrix or table that was
 %   used to generate the trial data.
+% "trialnames" is either a vector of trial numbers or a cell array of trial
+%   labels, corresponding to the trials in "trialdefs". An empty vector or
+%   cell array auto-generates labels.
 % "trialsamprate" is the sampling rate used when generating "trialdefs".
 % "evlists" is a structure containing event lists or tables, with one event
 %   list or table per field. Fields tested are 'cookedcodes', 'rwdA', and
@@ -65,11 +68,15 @@ trialcount = size(trialdefs);
 trialcount = trialcount(1);
 
 
+% Convert whatever we were given for trial names into text labels.
+trialnames = euPlot_helperMakeTrialNames(trialnames, trialcount);
+
+
 % Generate the single-plot plot.
 
 if ismember('oneplot', plots_wanted)
   helper_plotAllZooms( thisfig, auxdata_ft, auxsamprate, ...
-    trialdefs, trialsamprate, chanlist, [], ...
+    trialdefs, trialnames, trialsamprate, chanlist, {}, ...
     evcodes, evrwdA, evrwdB, evsamprate, ...
     [ figtitle ' - All' ], [ obase '-all' ], zoomranges );
 end
@@ -79,12 +86,12 @@ end
 
 if ismember('pertrial', plots_wanted)
   for tidx = 1:trialcount
-    thistidx = sprintf('%04d', tidx);
+    [ triallabel trialtitle ] = euUtil_makeSafeString( trialnames{tidx} );
 
     helper_plotAllZooms( thisfig, auxdata_ft, auxsamprate, ...
-      trialdefs, trialsamprate, chanlist, [ tidx ], ...
+      trialdefs, trialnames, trialsamprate, chanlist, trialnames(tidx), ...
       evcodes, evrwdA, evrwdB, evsamprate, ...
-      [ figtitle ' - Tr ' thistidx ], [ obase '-tr' thistidx ], zoomranges );
+      [ figtitle ' - ' trialtitle ], [ obase '-' triallabel ], zoomranges );
   end
 end
 
@@ -103,7 +110,7 @@ end
 
 
 function helper_plotAllZooms( thisfig, auxdata_ft, auxsamprate, ...
-  trialdefs, trialsamprate, chanlist, triallist, ...
+  trialdefs, trialnames, trialsamprate, chanlist, triallist, ...
   evcodes, evrwdA, evrwdB, evsamprate, ...
   titlebase, obase, zoomranges )
 
@@ -114,9 +121,8 @@ function helper_plotAllZooms( thisfig, auxdata_ft, auxsamprate, ...
   chancount = length(chanlabels);
 
   if isempty(triallist)
-    triallist = 1:length(auxdata_ft.trial);
+    triallist = trialnames;
   end
-  trialcount = length(triallist);
 
 
   % First pass - Auto-range the data, to keep sub-plots at consistent scale.
@@ -124,15 +130,19 @@ function helper_plotAllZooms( thisfig, auxdata_ft, auxsamprate, ...
   data_ymax = -inf;
   data_ymin = inf;
 
-  for tidx = triallist
-    thisdata = auxdata_ft.trial{tidx};
-    thisdata = thisdata(chanmask,:);
+  trialcount = length(trialnames);
 
-    this_ymax = max(max(thisdata));
-    this_ymin = min(min(thisdata));
+  for tidx = 1:trialcount
+    if ismember(trialnames{tidx}, triallist)
+      thisdata = auxdata_ft.trial{tidx};
+      thisdata = thisdata(chanmask,:);
 
-    data_ymax = max(data_ymax, this_ymax);
-    data_ymin = min(data_ymin, this_ymin);
+      this_ymax = max(max(thisdata));
+      this_ymin = min(min(thisdata));
+
+      data_ymax = max(data_ymax, this_ymax);
+      data_ymin = min(data_ymin, this_ymin);
+    end
   end
 
 
@@ -152,7 +162,7 @@ function helper_plotAllZooms( thisfig, auxdata_ft, auxsamprate, ...
 
       thisax = subplot(chancount, 1, cidx);
       euPlot_axesPlotFTTrials( thisax, auxdata_ft, auxsamprate, ...
-        trialdefs, trialsamprate, { thischan }, triallist, ...
+        trialdefs, trialnames, trialsamprate, { thischan }, triallist, ...
         thiszoom, [ data_ymin, data_ymax ], ...
         evcodes, evrwdA, evrwdB, evsamprate, 'off', ...
         [ titlebase ' - ' safechantitle ] );
