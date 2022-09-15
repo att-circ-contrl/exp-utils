@@ -145,11 +145,11 @@ confsigma = 2;
 
 debug_skip_gaze_and_frame = true;
 
-debug_use_fewer_chans = false;
+debug_use_fewer_chans = true;
 
 debug_use_fewer_trials = true;
-debug_trials_to_use = 30;
-%debug_trials_to_use = 10;
+%debug_trials_to_use = 30;
+debug_trials_to_use = 10;
 
 if debug_use_fewer_chans && (length(desired_recchannels) > 10)
   % Only drop channels if we have more than 10.
