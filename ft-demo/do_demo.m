@@ -16,6 +16,8 @@ outdatadir = 'output';
 
 % Data folder and channels we care about.
 
+want_channel_remap = true;
+
 if true
   % Silicon test.
   inputfolder = 'datasets/20220504-frey-silicon';
@@ -245,6 +247,11 @@ end
 
 chanmap_rec = euUtil_getOpenEphysChannelMap_v5(inputfolder);
 have_chanmap = ~isempty(chanmap_rec);
+
+% NOTE - Forcibly disable channel mapping if we don't want it.
+if ~want_channel_remap
+  have_chanmap = false;
+end
 
 if have_chanmap
   % Turn this into a label-based map.
