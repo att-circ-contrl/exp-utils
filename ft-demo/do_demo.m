@@ -239,28 +239,22 @@ if have_stim
 end
 
 
-% Read Open Ephys channel mappings and config files, if we can find them.
-% This looks for anything with "config" or "mapping" in the filename.
-% FIXME - This is upstream from the "structure.oebin" folder! Search the
-% whole tree and hope Intan and Unity don't confuse it.
-% FIXME - Assume exactly one valid entry. Sometimes we have multiple configs!
+% Read Open Ephys channel mapping, if we can find it.
+% FIXME - Only doing this for the recorder!
 
-chanmap_rec = euUtil_getOpenEphysChannelMap_v5(inputfolder);
-have_chanmap = ~isempty(chanmap_rec);
+% NOTE - We're searching the entire tree, not just the recorder folder,
+% for the channel map.
+[ chanmap_rec_raw chanmap_rec_cooked ] = ...
+  euUtil_getLabelChannelMap_OEv5(inputfolder, folder_record);
+have_chanmap = ~isempty(chanmap_rec_raw);
 
-% NOTE - Forcibly disable channel mapping if we don't want it.
+% Forcibly disable channel mapping if we don't want it.
 if ~want_channel_remap
   have_chanmap = false;
 end
 
 if have_chanmap
-  % Turn this into a label-based map.
-  [ chanmap_rec_raw chanmap_rec_cooked ] = ...
-    nlFT_getLabelChannelMapFromNumbers( chanmap_rec.oldchan, ...
-      rechdr.label, rechdr.label );
-
   % Translate cooked desired channel names into raw desired channel names.
-  % FIXME - Only doing this for the recorder!
 
   desired_recchannels = nlFT_mapChannelLabels( desired_recchannels, ...
     chanmap_rec_cooked, chanmap_rec_raw );
