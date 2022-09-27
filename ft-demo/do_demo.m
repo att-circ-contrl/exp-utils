@@ -254,6 +254,7 @@ if ~want_channel_remap
 end
 
 if have_chanmap
+  % Raw labels are what we get when loading the save file.
   % Translate cooked desired channel names into raw desired channel names.
 
   desired_recchannels = nlFT_mapChannelLabels( desired_recchannels, ...
@@ -667,7 +668,11 @@ if have_chanmap
     newlabels(badmask) = {'bogus'};
   end
 
+  % There are at least three places where the labels are stored.
+  % Update all copies.
   recdata_wideband.label = newlabels;
+  recdata_wideband.hdr.label = newlabels;
+  rechdr.label = newlabels;
 end
 
 
