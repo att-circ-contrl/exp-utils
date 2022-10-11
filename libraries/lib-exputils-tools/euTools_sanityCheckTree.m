@@ -563,13 +563,9 @@ for fidx = 1:length(folderlist)
       thisreportshort = [ thisreportshort scratch ];
       thisreportlong = [ thisreportlong scratch ];
 
-      thisreportlong = [ thisreportlong sprintf('  Channel LFPs:\n') ];
-      for cidx = 1:chancount
-        thisreportlong = [ thisreportlong sprintf( ...
-          '%12s :   exp %4.1f   (%s)\n', ...
-          chanlist{cidx}, fitexponents(cidx), fitlabels{cidx} ) ];
-      end
-      thisreportlong = [ thisreportlong sprintf('  End of list.\n') ];
+      thisreportlong = [ thisreportlong sprintf('  Channel LFPs:\n') ...
+        helper_listLFPs(chanlist, fitexponents, fitlabels), ...
+        sprintf('  End of list.\n') ];
 
     end
 
@@ -624,6 +620,10 @@ function message = helper_listFlaggedChans( flagvec, chanlist )
 
   message = '';
 
+  % Sort the input lists before displaying.
+  [ chanlist sortidx ] = sort(chanlist);
+  flagvec = flagvec(sortidx);
+
   for cidx = 1:length(chanlist)
     if flagvec(cidx)
       if ~isempty(message)
@@ -635,6 +635,21 @@ function message = helper_listFlaggedChans( flagvec, chanlist )
 
 end
 
+
+function message = helper_listLFPs( chanlist, fitexponents, fitlabels )
+
+  message = '';
+
+  % Sort the input lists before displaying.
+  [ chanlist sortidx ] = sort(chanlist);
+  fitexponents = fitexponents(sortidx);
+  fitlabels = fitlabels(sortidx);
+
+  for cidx = 1:length(chanlist)
+    message = [ message sprintf( '%12s :   exp %4.1f   (%s)\n', ...
+      chanlist{cidx}, fitexponents(cidx), fitlabels{cidx} ) ];
+  end
+end
 
 
 %

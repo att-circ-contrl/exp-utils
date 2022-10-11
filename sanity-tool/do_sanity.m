@@ -5,9 +5,10 @@ do_paths;
 do_quiet;
 
 if ~exist('sourcedir', 'var')
-  % NOTE - Pick the subfolder for a rapid test.
-  %sourcedir = 'datasets';
-  sourcedir = 'datasets-samples/*tungsten';
+  % NOTE - Pick the tungsten folders for a rapid test.
+%  sourcedir = 'datasets';
+%  sourcedir = 'datasets-samples/*tungsten';
+  sourcedir = 'datasets-samples/20220504*';
 end
 
 % Set up configuration to look at the early part of the data.
