@@ -742,6 +742,8 @@ if have_recdata_auto
 
     [ thisgood thisrvals badgrouplist ] = nlProc_findCorrelatedChannels( ...
       rec_correl.(thisbank).wavedata, correl_abs_thresh, correl_rel_thresh );
+    % Convert the chan-to-group list into an is-unique list.
+    thisgood = isnan(thisgood);
 
     rec_correl.(thisbank).isgood = thisgood;
     rec_correl.(thisbank).rvalues = thisrvals;
@@ -769,6 +771,8 @@ if have_stimdata_auto
 
     [ thisgood thisrvals badgrouplist] = nlProc_findCorrelatedChannels( ...
       stim_correl.(thisbank).wavedata, correl_abs_thresh, correl_rel_thresh );
+    % Convert the chan-to-group list into an is-unique list.
+    thisgood = isnan(thisgood);
 
     stim_correl.(thisbank).isgood = thisgood;
     stim_correl.(thisbank).rvalues = thisrvals;

@@ -14,12 +14,18 @@ end
 % This avoids stimulation artifacts.
 config = struct( 'readposition', 0.05 );
 
-[ reporttext folderdata ] = euTools_sanityCheckTree( sourcedir, config );
+[ reportshort reportlong folderdata ] = ...
+  euTools_sanityCheckTree( sourcedir, config );
 
-save( 'output/sanitydata.mat', 'reporttext', 'folderdata', '-v7.3' );
+save( 'output/sanitydata.mat', ...
+  'reportshort', 'reportlong', 'folderdata', '-v7.3' );
+
+thisfid = fopen('output/sanitysummary.txt', 'w');
+fwrite(thisfid, reportshort, 'char*1');
+fclose(thisfid);
 
 thisfid = fopen('output/sanityreport.txt', 'w');
-fwrite(thisfid, reporttext);
+fwrite(thisfid, reportlong, 'char*1');
 fclose(thisfid);
 
 %
