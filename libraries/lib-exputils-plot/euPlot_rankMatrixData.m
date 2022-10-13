@@ -1,12 +1,12 @@
 function [ rankreport ranktable ] = rankMatrixData( ...
   matrixdata, dataformat, datatitle, ...
   columncats, columnformat, columntitle, desiredcolidx, ...
-  chanlabels, sortwanted )
+  chanlabelsraw, chanlabelscooked, sortwanted )
 
 % function [ rankreport ranktable ] = rankMatrixData( ...
 %   matrixdata, dataformat, datatitle, ...
 %   columncats, columnformat, columntitle, desiredcolidx, ...
-%   chanlabels, sortwanted )
+%   chanlabelsraw, chanlabelscooked, sortwanted )
 %
 % This searches a matrix containing per-channel data, sorts it along a
 % specified column, and produces a human-readable report describing the
@@ -26,7 +26,8 @@ function [ rankreport ranktable ] = rankMatrixData( ...
 %   data the categories are.
 % "desiredcolindex" is an index into "matrixdata" and "columncats" indicating
 %   the desired column to sort on.
-% "chanlabels" is a cell array containing channel names.
+% "chanlabelsraw" is a cell array containing raw channel names.
+% "chanlabelscooked" is a cell array containing cooked channel names.
 % "sortwanted" indicates how to sort; 'min' finds the smallest values, 'max'
 %   finds the largest values, 'absmin' the smallest magnitudes, and 'absmax'
 %   the largest magnitudes.
@@ -53,9 +54,11 @@ desiredcolidx = max(desiredcolidx, 1);
 if ~isrow(columncats)
   columncats = columncats';
 end
-
-if ~iscolumn(chanlabels)
-  chanlabels = chanlabels';
+if ~iscolumn(chanlabelsraw)
+  chanlabelsraw = chanlabelsraw';
+end
+if ~iscolumn(chanlabelscooked)
+  chanlabelscooked = chanlabelscooked';
 end
 
 columncount = size(matrixdata);
@@ -86,7 +89,8 @@ sortcol = matrixdata(:,desiredcolidx);
 %
 % Generate a human-readable report.
 
-sortlabels = chanlabels(sortidx);
+sortlabelsraw = chanlabelsraw(sortidx);
+sortlabelscooked = chanlabelscooked(sortidx);
 
 if isempty(columncats)
   rankreport = '';
@@ -117,9 +121,10 @@ end
 
 rankreport = [ rankreport sprintf('Channels ranked by %s:\n', datatitle) ];
 
-for cidx = 1:length(sortlabels)
-  rankreport = [ rankreport sprintf( [ '%12s : ' dataformat '\n' ], ...
-    sortlabels{cidx}, sortcol(cidx)) ];
+for cidx = 1:length(sortlabelsraw)
+  rankreport = [ rankreport ...
+    sprintf( [ '%12s (raw %8s): ' dataformat '\n' ], ...
+      sortlabelscooked{cidx}, sortlabelsraw{cidx}, sortcol(cidx)) ];
 end
 
 
@@ -149,12 +154,14 @@ end
 
 if (~isempty(columncats)) && (~iscell(columncats))
   matrixdata = vertcat(columncats, matrixdata);
-  chanlabels = vertcat({columntitle}, chanlabels);
+  chanlabelsraw = vertcat({columntitle}, chanlabelsraw);
+  chanlabelscooked = vertcat({columntitle}, chanlabelscooked);
 end
 
 % Build the table.
 
-ranktable.('Channel') = chanlabels;
+ranktable.('Channel') = chanlabelscooked;
+ranktable.('RawChannel') = chanlabelsraw;
 for pidx = 1:columncount
   ranktable.(tabcols{pidx}) = matrixdata(:,pidx);
 end
