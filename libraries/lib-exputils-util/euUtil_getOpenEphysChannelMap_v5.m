@@ -7,7 +7,7 @@ function chanmap = euUtil_getOpenEphysChannelMap_v5( inputfolder )
 % the filename). Channel maps are extracted, and the first map found is
 % returned. If no maps are found, an empty structure array is returned.
 %
-% This is a wrapped for "euUtil_getOpenEphysConfigFiles",
+% This is a wrapper for "euUtil_getOpenEphysConfigFiles",
 % "nlOpenE_parseChannelMapJSON_v5", and "nlOpenE_parseChannelMapXML_v5".
 %
 % "inputfolder" is the top-level folder to search.
