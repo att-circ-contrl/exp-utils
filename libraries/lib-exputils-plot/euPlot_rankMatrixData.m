@@ -154,14 +154,14 @@ end
 
 if (~isempty(columncats)) && (~iscell(columncats))
   matrixdata = vertcat(columncats, matrixdata);
-  chanlabelsraw = vertcat({columntitle}, chanlabelsraw);
-  chanlabelscooked = vertcat({columntitle}, chanlabelscooked);
+  sortlabelsraw = vertcat({columntitle}, sortlabelsraw);
+  sortlabelscooked = vertcat({columntitle}, sortlabelscooked);
 end
 
 % Build the table.
 
-ranktable.('Channel') = chanlabelscooked;
-ranktable.('RawChannel') = chanlabelsraw;
+ranktable.('Channel') = sortlabelscooked;
+ranktable.('RawChannel') = sortlabelsraw;
 for pidx = 1:columncount
   ranktable.(tabcols{pidx}) = matrixdata(:,pidx);
 end
