@@ -19,6 +19,7 @@ fullname = which('addPathsExpUtilsCjt');
 
 addpath([ thisdir filesep 'lib-exputils-align' ]);
 addpath([ thisdir filesep 'lib-exputils-ft' ]);
+addpath([ thisdir filesep 'lib-exputils-highlevel' ]);
 addpath([ thisdir filesep 'lib-exputils-plot' ]);
 addpath([ thisdir filesep 'lib-exputils-tools' ]);
 addpath([ thisdir filesep 'lib-exputils-use' ]);
