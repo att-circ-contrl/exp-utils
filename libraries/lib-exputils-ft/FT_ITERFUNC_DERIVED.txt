@@ -1,0 +1,54 @@
+A derived-signal iteration processing function handle is called to perform
+signal processing on wideband, LFP, spike, and MUA signals when iterating
+across trials and channels within a Field Trip data structure.
+
+As of 2023 this type of iterator is only used when processing FT data in
+batches (to allow separation of FT and non-FT operations and to hide
+channel batch logic).
+
+
+A derived-signal iteration processing function has the form:
+
+result = iterfunc_derived( ...
+  wbseries, wbtimes, wbrate, lfpseries, lfptimes, lfprate, ...
+  spikeseries, spiketimes, spikerate, muaseries, muatimes, muarate, ...
+  trialidx, chanidx, chanlabel )
+
+"wbseries" is a vector containing wideband samples (from FT's "trial").
+"wbtimes" is a vector containing wideband sample times (from FT's "time").
+"wbrate" is the wideband sampling rate (from FT's "fsample").
+"lfpseries" is a vector containing low-pass-filtered LFP samples.
+"lfptimes" is a vector containing low-pass-filtered LFP sample times.
+"lfprate" is the low-pass-filtered LFP sampling rate.
+"spikeseries" is a vector containing high-pass-filtered spike samples.
+"spiketimes" is a vector containing high-pass-filtered spike sample times.
+"spikerate" is the high-pass-filtered spike series sampling rate.
+"muaseries" is a vector containing rectified activity samples.
+"muatimes" is a vector containing rectified activity sample times.
+"muarate" is the rectified multi-unit activity sampling rate.
+"trialidx" is the trial number.
+"chanidx" is the channel number.
+"chanlabel" is the corresponding channel label (from the Field Trip data's
+  "label" field).
+
+"result" is an arbitrary data type containing the output of processing this
+  trial and channel's data. This is typically a struct aggregating several
+  different processing results.
+
+
+A typical derived-signal iteration processing function definition would be
+as follows. This example wraps a helper function that is passed additional
+arguments set at the time the processing function is defined, and that only
+operates on the LFP portion of the input data.
+
+tuning_parameters = (stuff);
+other_parameters = (stuff);
+iterfunc_derived = @( ...
+  wbseries, wbtimes, wbrate, lfpseries, lfptimes, lfprate, ...
+  spikeseries, spiketimes, spikerate, muaseries, muatimes, muarate, ...
+  trialidx, chanidx, chanlabel ) ...
+  helper_do_iteration_processing( lfpseries, lfptimes, lfprate, ...
+    trialidx, chanidx, chanlabel, tuning_parameters, other_parameters );
+
+
+This is the end of the file.
