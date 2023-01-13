@@ -10,12 +10,13 @@ clean:
 	rm -f plots/*
 
 run:
+	./checkdirs.sh
 	nice -n +10 $(MATLAB) $(MATFLAGS) -r "run('do_test.m'); exit;"
 
 gallery:
 	cd plots; makegallery.pl --width=24% *png; cd ..
 
-package: clean
-	tar -cvf ~/evcode-dev-tree.tar --exclude=milestones *
+#package: clean
+#	tar -cvf ~/evcode-dev-tree.tar --exclude=milestones *
 
 # This is the end of the file.
