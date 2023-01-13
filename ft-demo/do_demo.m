@@ -166,11 +166,11 @@ end
 
 % Adjust these to match your development environment.
 
-addpath('../lib-ext/lib-exp-utils-cjt');
-addpath('../lib-ext/lib-looputil');
-addpath('../lib-ext/lib-fieldtrip');
-addpath('../lib-ext/lib-openephys');
-addpath('../lib-ext/lib-npy-matlab');
+addpath('../libs-ext/lib-exp-utils-cjt');
+addpath('../libs-ext/lib-looputil');
+addpath('../libs-ext/lib-fieldtrip');
+addpath('../libs-ext/lib-openephys');
+addpath('../libs-ext/lib-npy-matlab');
 
 % This automatically adds sub-folders.
 addPathsExpUtilsCjt;
