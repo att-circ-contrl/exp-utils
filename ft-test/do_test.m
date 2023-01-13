@@ -9,11 +9,11 @@
 % These should be changed to match your system's locations, or you can set
 % them as part of Matlab's global configuration.
 
-addpath('lib-exp-utils-cjt');
-addpath('lib-looputil');
-addpath('lib-fieldtrip');
-addpath('lib-openephys');
-addpath('lib-npy-matlab');
+addpath('../libs-ext/lib-exp-utils-cjt');
+addpath('../libs-ext/lib-looputil');
+addpath('../libs-ext/lib-fieldtrip');
+addpath('../libs-ext/lib-openephys');
+addpath('../libs-ext/lib-npy-matlab');
 
 % Second step: Call various functions to add library sub-folders.
 
