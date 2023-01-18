@@ -10,10 +10,11 @@ function [ newlabel newtitle ] = euUtil_makeSafeString( oldstring )
 % particular, underscores are interpreted as typesetting metacharacters
 % in plot labels and titles.
 %
-% "oldstring" is the string to convert.
+% "oldstring" is a character vector to convert.
 %
-% "newlabel" is a string with only alphanumeric characters.
-% "newtitle" is a string with non-alphanumeric characters replaced with spaces.
+% "newlabel" is a character vector with only alphanumeric characters.
+% "newtitle" is a character vector with non-alphanumeric characters replaced
+%   with spaces.
 
 
 newlabel = '';
