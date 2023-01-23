@@ -10,7 +10,11 @@ function [ header chans_ephys chans_digital chanmap_raw chanmap_cooked ] = ...
 %
 % This is a wrapper for various Field Trip and euUtil_ functions.
 %
-% "configfolder" is the folder to search for the channel map.
+% NOTE - "ephysfolder" can be a cell array ("configfolder" shouldn't be).
+% If "ephysfolder" is a cell array, each entry is treated as a folder to be
+% checked, and all return values are also per-folder cell arrays.
+%
+% "configfolder" is the folder to search for the channel map. Empty to skip.
 % "ephysfolder" is the folder to search for ephys metadata.
 %
 % "header" is the Field Trip ephys header.
@@ -20,16 +24,47 @@ function [ header chans_ephys chans_digital chanmap_raw chanmap_cooked ] = ...
 % "chanmap_cooked" is a list of corresponding cooked ephys channel names.
 
 
-header = ft_read_header( ephysfolder, 'headerformat', 'nlFT_readHeader' );
+if iscell(ephysfolder)
 
-[ pat_ephys pat_digital pat_stimcurrent pat_stimflags ] = ...
-  euFT_getChannelNamePatterns();
+  % Testing multiple folders. Recurse.
 
-chans_ephys = ft_channelselection( pat_ephys, header.label, {} );
-chans_digital = ft_channelselection( pat_digital, header.label, {} );
+  header = {};
+  chans_ephys = {};
+  chans_digital = {};
+  chanmap_raw = {};
+  chanmap_cooked = {};
 
-[ chanmap_raw chanmap_cooked ] = ...
-  euUtil_getLabelChannelMap_OEv5( configfolder, ephysfolder );
+  for fidx = 1:length(ephysfolder)
+    [ thisheader thisephys thisdigital thisraw thiscooked ] = ...
+      euHLev_getOpenEHeaderChannels( configfolder, ephysfolder{fidx} );
+
+    header{fidx} = thisheader;
+    chans_ephys{fidx} = thisephys;
+    chans_digital{fidx} = thisdigital;
+    chanmap_raw{fidx} = thisraw;
+    chanmap_cooked{fidx} = thiscooked;
+  end
+
+else
+
+  % Testing a single folder.
+
+  header = ft_read_header( ephysfolder, 'headerformat', 'nlFT_readHeader' );
+
+  [ pat_ephys pat_digital pat_stimcurrent pat_stimflags ] = ...
+    euFT_getChannelNamePatterns();
+
+  chans_ephys = ft_channelselection( pat_ephys, header.label, {} );
+  chans_digital = ft_channelselection( pat_digital, header.label, {} );
+
+  chanmap_raw = {};
+  chanmap_cooked = {};
+  if ~isempty(configfolder)
+    [ chanmap_raw chanmap_cooked ] = ...
+      euUtil_getLabelChannelMap_OEv5( configfolder, ephysfolder );
+  end
+
+end
 
 
 % Done.
