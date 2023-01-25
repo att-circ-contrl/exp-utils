@@ -16,6 +16,9 @@ function [ ftdata_ephys ftdata_events ] = euHLev_readAndCleanSignals( ...
 % NOTE - This does _not_ detrend or demean data, so it's safe for reading
 % magnitudes, phase angles, event codes, and so forth.
 %
+% NOTE - Events and waveforms have timestamps relative to the start of the
+% recording, not the start of the trim window.
+%
 % "folder" is the folder to read from.
 % "ephys_chans" is a cell array containing channel names to read. If this is
 %   empty, no ephys data is read (an empty struct array is returned).
@@ -55,7 +58,7 @@ if ~isempty(ephys_chans)
   trimlength = round(sampcount * trim_fraction);
   trimlength = max(trimlength, 0);
   trimlength = min(trimlength, round(0.45 * sampcount));
-  trialdef = [ (1 + trimlength), (sampcount - trimlength), 0 ];
+  trialdef = [ (1 + trimlength), (sampcount - trimlength), trimlength ];
 
   config_load = struct( ...
     'headerfile', folder, 'headerformat', 'nlFT_readHeader', ...
