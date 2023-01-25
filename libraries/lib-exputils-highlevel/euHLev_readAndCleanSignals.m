@@ -54,11 +54,9 @@ if ~isempty(ephys_chans)
 
   chans_wanted = ft_channelselection( ephys_chans, header.label, {} );
 
-  sampcount = header.nSamples;
-  trimlength = round(sampcount * trim_fraction);
-  trimlength = max(trimlength, 0);
-  trimlength = min(trimlength, round(0.45 * sampcount));
-  trialdef = [ (1 + trimlength), (sampcount - trimlength), trimlength ];
+  [ sampfirst samplast ] = ...
+    nlUtil_getTrimmedSampleSpan( header.nSamples, trim_fraction );
+  trialdef = [ sampfirst, samplast, (sampfirst - 1) ];
 
   config_load = struct( ...
     'headerfile', folder, 'headerformat', 'nlFT_readHeader', ...
