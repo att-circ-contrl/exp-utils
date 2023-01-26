@@ -197,13 +197,14 @@ for sizeidx = 1:length(window_sizes)
       thistime = thistime(thismask);
       thisamp = vcursorsizes(cidx) * maxrange;
 
+      % Show markers for this, since events often overlap.
       for tidx = 1:length(thistime)
         if (tidx == 1) && (~isempty(thislabel))
           plot([ thistime(tidx) thistime(tidx) ], [ (-thisamp) thisamp ], ...
-            'Color', thiscol, 'DisplayName', thislabel);
+            '-o', 'Color', thiscol, 'DisplayName', thislabel);
         else
           plot([ thistime(tidx) thistime(tidx) ], [ (-thisamp) thisamp ], ...
-            'Color', thiscol, 'HandleVisibility', 'off');
+            '-o', 'Color', thiscol, 'HandleVisibility', 'off');
         end
       end
     end
