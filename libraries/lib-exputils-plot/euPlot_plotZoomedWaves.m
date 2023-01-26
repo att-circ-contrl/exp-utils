@@ -1,9 +1,9 @@
-function euPlot_plotZoomedWaves( wave_list, flag_list, cursor_list, ...
-  window_sizes, size_labels, max_count_per_size, ...
+function euPlot_plotZoomedWaves( wave_list, flag_list, vert_cursor_list, ...
+  horiz_cursor_list, window_sizes, size_labels, max_count_per_size, ...
   legendpos, titlebase, fnamebase )
 
-% function euPlot_plotZoomedWaves( wave_list, flag_list, cursor_list, ...
-%   window_sizes, size_labels, max_count_per_size, ...
+% function euPlot_plotZoomedWaves( wave_list, flag_list, vert_cursor_list, ...
+%  horiz_cursor_list, window_sizes, size_labels, max_count_per_size, ...
 %   legendpos, titlebase, fnamebase )
 %
 % This generates a series of plots of multiple signals, stepping the plot
@@ -15,8 +15,10 @@ function euPlot_plotZoomedWaves( wave_list, flag_list, cursor_list, ...
 %   the waves to plot: { time_series, wave_series, colour, legend_label }.
 % "flag_list" is a cell array. Each cell contains a cell array describing
 %   boolean data to plot: { time_series, flag_series, colour, legend_label }.
-% "cursor_list" is a cell array. Each cell contains a cell array describing
-%   events to plot: { event_times, colour, legend_label }.
+% "vert_cursor_list" is a cell array. Each cell contains a cell array
+%   describing events to plot: { event_times, colour, legend_label }.
+% "horiz_cursor_list" is a cell array. Each cell contains a cell array
+%   describing horizontal lines to plot: { line_yvals, colour, legend_label }.
 % "window_sizes" is a vector containing plot durations in seconds, stepped
 %   across the time series.
 % "size_labels" is a filename-safe label used when creating filenames and
@@ -33,15 +35,23 @@ function euPlot_plotZoomedWaves( wave_list, flag_list, cursor_list, ...
 
 % Figure out what the Y range is.
 
-maxrange = 1.0;
+maxrange = -inf;
 wavecount = length(wave_list);
-if ~isempty(wave_list)
-  maxrange = max(abs( wave_list{1}{2} ));
-  for widx = 2:wavecount
-    thisrange = max(abs( wave_list{widx}{2} ));
-    maxrange = max(maxrange, thisrange);
-  end
+for widx = 1:wavecount
+  thisrange = max(abs( wave_list{widx}{2} ));
+  maxrange = max(maxrange, thisrange);
 end
+
+hcursorcount = length(horiz_cursor_list);
+for cidx = 1:hcursorcount
+  thisrange = max(abs( horiz_cursor_list{cidx}{1} ));
+  maxrange = max(maxrange, thisrange);
+end
+
+if ~isfinite(maxrange)
+  maxrange = 1.0;
+end
+
 
 % Convert boolean flags to signal values.
 
@@ -53,13 +63,13 @@ for fidx = 1:flagcount
 end
 
 
-% Get size multipliers for flag and cursor series.
+% Get size multipliers for flag and vertical cursor series.
 
-cursorcount = length(cursor_list);
-bothcount = flagcount + cursorcount;
+vcursorcount = length(vert_cursor_list);
+bothcount = flagcount + vcursorcount;
 
 flagsizes = [];
-cursorsizes = [];
+vcursorsizes = [];
 
 bothsizes = [];
 if bothcount > 0
@@ -70,8 +80,8 @@ if flagcount > 0
   flagsizes = bothsizes(1:flagcount);
 end
 
-if cursorcount > 0
-  cursorsizes = bothsizes((flagcount + 1):bothcount);
+if vcursorcount > 0
+  vcursorsizes = bothsizes((flagcount + 1):bothcount);
 end
 
 
@@ -94,11 +104,18 @@ for fidx = 1:flagcount
   maxtime = max(maxtime, thismax);
 end
 
-for cidx = 1:cursorcount
-  thismin = min(cursor_list{cidx}{1});
-  thismax = max(cursor_list{cidx}{1});
+for cidx = 1:vcursorcount
+  thismin = min(vert_cursor_list{cidx}{1});
+  thismax = max(vert_cursor_list{cidx}{1});
   mintime = min(mintime, thismin);
   maxtime = max(maxtime, thismax);
+end
+
+if ~isfinite(mintime)
+  mintime = 0.0;
+end
+if ~isfinite(maxtime)
+  maxtime = 1.0;
 end
 
 
@@ -120,7 +137,7 @@ for sizeidx = 1:length(window_sizes)
 
   % Plots are centered in N segments, not spanning all the way to the ends.
   winpitch = fullsize / wincount;
-  winfirsttime = 0.5 * (winpitch - thiswinsize);
+  winfirsttime = mintime + 0.5 * (winpitch - thiswinsize);
 
 
   % Walk through the window locations, generating plots.
@@ -171,21 +188,37 @@ for sizeidx = 1:length(window_sizes)
       end
     end
 
-    for cidx = 1:cursorcount
-      thistime = cursor_list{cidx}{1};
-      thiscol = cursor_list{cidx}{3};
-      thislabel = cursor_list{cidx}{4};
+    for cidx = 1:vcursorcount
+      thistime = vert_cursor_list{cidx}{1};
+      thiscol = vert_cursor_list{cidx}{2};
+      thislabel = vert_cursor_list{cidx}{3};
 
       thismask = (thistime >= thisstarttime) & (thistime <= thisendtime);
       thistime = thistime(thismask);
-      thisamp = cursorsizes(cidx) * maxrange;
+      thisamp = vcursorsizes(cidx) * maxrange;
 
       for tidx = 1:length(thistime)
         if (tidx == 1) && (~isempty(thislabel))
-          plot([ thistime(tidx) thistime(tidx) ], [ thisamp thisamp ], ...
+          plot([ thistime(tidx) thistime(tidx) ], [ (-thisamp) thisamp ], ...
             'Color', thiscol, 'DisplayName', thislabel);
         else
-          plot([ thistime(tidx) thistime(tidx) ], [ thisamp thisamp ], ...
+          plot([ thistime(tidx) thistime(tidx) ], [ (-thisamp) thisamp ], ...
+            'Color', thiscol, 'HandleVisibility', 'off');
+        end
+      end
+    end
+
+    for cidx = 1:hcursorcount
+      thislevel = horiz_cursor_list{cidx}{1};
+      thiscol = horiz_cursor_list{cidx}{2};
+      thislabel = horiz_cursor_list{cidx}{3};
+
+      for lidx = 1:length(thislevel)
+        if (lidx == 1) && (~isempty(thislabel))
+          plot([ thisstarttime thisendtime ], [ thislevel thislevel ], ...
+            'Color', thiscol, 'DisplayName', thislabel);
+        else
+          plot([ thisstarttime thisendtime ], [ thislevel thislevel ], ...
             'Color', thiscol, 'HandleVisibility', 'off');
         end
       end
