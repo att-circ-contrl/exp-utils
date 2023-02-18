@@ -11,6 +11,7 @@ function found = euHLev_checkChannelsExist( header_ft, headername, chanlist )
 %   reporting missing channels (e.g. 'FooHeader', for "FooHeader doesn't
 %   contain..."). If this is [], no messages are produced.
 % "chanlist" is a cell array containing the channel names to search for.
+%   Channel names that are empty character arrays ('') are skipped.
 %
 % "found" is true if all of the requested channels are found and false
 %   otherwise.
@@ -22,7 +23,7 @@ for cidx = 1:length(chanlist)
 
   thisname = chanlist{cidx};
 
-  if ~ismember(thisname, header_ft.label)
+  if (~isempty(thisname)) && (~ismember(thisname, header_ft.label))
 
     found = false;
     if ~isempty(headername)

@@ -9,6 +9,9 @@ function [ ftdata_ephys ftdata_events ] = euHLev_readAndCleanSignals( ...
 % This reads Field Trip trial data and event data from the specified folder,
 % performing notch filtering and artifact rejection.
 %
+% NOTE - Channel names specified as '' are skipped (removed from the list
+% before calling FT's read functions).
+%
 % NOTE - For large datasets, call euFT_iterateAcrossFolderBatchingDerived
 % instead. This is intended for quick and dirty processing of datasets that
 % fit in memory, without splitting into LFP/spike waveforms.
@@ -42,6 +45,19 @@ function [ ftdata_ephys ftdata_events ] = euHLev_readAndCleanSignals( ...
 
 ftdata_ephys = struct([]);
 ftdata_events = {};
+
+
+chanmask = logical([]);
+for lidx = 1:length(ephys_chans)
+  chanmask(lidx) = ~isempty(ephys_chans{lidx});
+end
+ephys_chans = ephys_chans(chanmask);
+
+chanmask = logical([]);
+for lidx = 1:length(event_chans)
+  chanmask(lidx) = ~isempty(event_chans{lidx});
+end
+event_chans = event_chans(chanmask);
 
 
 if ~isempty(ephys_chans)
