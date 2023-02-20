@@ -49,6 +49,12 @@ bestdeltalist = [];
 bestcostlist = [];
 
 
+% Sanity check: handle empty input.
+if isempty(firsttimes) || isempty(secondtimes) || isempty(firstcandidates)
+  return;
+end
+
+
 % Get a list of candidate times, and corresponding data if it exists.
 
 candidatetimes = firsttimes(firstcandidates);
