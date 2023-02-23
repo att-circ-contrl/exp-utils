@@ -18,6 +18,7 @@ fullname = which('addPathsExpUtilsCjt');
 % (This checks for duplicates, so we don't have to.)
 
 addpath([ thisdir filesep 'lib-exputils-align' ]);
+addpath([ thisdir filesep 'lib-exputils-chris' ]);
 addpath([ thisdir filesep 'lib-exputils-ft' ]);
 addpath([ thisdir filesep 'lib-exputils-highlevel' ]);
 addpath([ thisdir filesep 'lib-exputils-plot' ]);
