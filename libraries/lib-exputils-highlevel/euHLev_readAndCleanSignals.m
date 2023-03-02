@@ -37,7 +37,7 @@ function [ ftdata_ephys ftdata_events ] = euHLev_readAndCleanSignals( ...
 %
 % "ftdata_ephys" is a Field Trip data structure containing ephys data for
 %   the specified ephys channels. NOTE - This will be an empty cell array
-%   if there were no events at all in the data folder.
+%   if there were no ephys channels specified or no matching channels found.
 % "ftdata_events" is a cell array with the same number of elements as
 %   "event_chans". Each cell contains a vector of Field Trip event records
 %   (per "nlFT_readEvents") from the associated event channel.
@@ -70,42 +70,47 @@ if ~isempty(ephys_chans)
 
   chans_wanted = ft_channelselection( ephys_chans, header.label, {} );
 
-  [ sampfirst samplast ] = ...
-    nlUtil_getTrimmedSampleSpan( header.nSamples, trim_fraction );
-  trialdef = [ sampfirst, samplast, (sampfirst - 1) ];
+  % Only continue if we actually found channels.
+  if ~isempty(chans_wanted)
 
-  config_load = struct( ...
-    'headerfile', folder, 'headerformat', 'nlFT_readHeader', ...
-    'datafile', folder, 'dataformat', 'nlFT_readDataDouble', ...
-    'trl', trialdef, ...
-    'detrend', 'no', 'demean', 'no', 'feedback', 'no' );
-  config_load.channel = chans_wanted;
+    [ sampfirst samplast ] = ...
+      nlUtil_getTrimmedSampleSpan( header.nSamples, trim_fraction );
+    trialdef = [ sampfirst, samplast, (sampfirst - 1) ];
 
-  ftdata_ephys = ft_preprocessing( config_load );
+    config_load = struct( ...
+      'headerfile', folder, 'headerformat', 'nlFT_readHeader', ...
+      'datafile', folder, 'dataformat', 'nlFT_readDataDouble', ...
+      'trl', trialdef, ...
+      'detrend', 'no', 'demean', 'no', 'feedback', 'no' );
+    config_load.channel = chans_wanted;
 
-
-  % Perform artifact removal first, so that artifacts don't cause ringing.
-
-  if ~isnan(artifact_level)
-    artparams = nlChan_getArtifactDefaults();
-    artparams.ampthresh = artparams.ampthresh + artifact_level;
-    artparams.diffthresh = artparams.diffthresh + artifact_level;
-
-    iterfunc_art = ...
-      @( wavedata, timedata, samprate, trialidx, chanidx, chanlabel ) ...
-        helper_iterate_artifacts( artparams, wavedata, samprate );
-
-    [ newtrials fracbad ] = ...
-      nlFT_iterateAcrossData( ftdata_ephys, iterfunc_art );
-    ftdata_ephys.trial = newtrials;
-  end
+    ftdata_ephys = ft_preprocessing( config_load );
 
 
-  % Perform notch filtering second.
+    % Perform artifact removal first, so that artifacts don't cause ringing.
 
-  if (~isempty(notch_freqs)) && (~isnan(notch_bw))
-    ftdata_ephys = ...
-      euFT_doBrickNotchRemoval( ftdata_ephys, notch_freqs, notch_bw );
+    if ~isnan(artifact_level)
+      artparams = nlChan_getArtifactDefaults();
+      artparams.ampthresh = artparams.ampthresh + artifact_level;
+      artparams.diffthresh = artparams.diffthresh + artifact_level;
+
+      iterfunc_art = ...
+        @( wavedata, timedata, samprate, trialidx, chanidx, chanlabel ) ...
+          helper_iterate_artifacts( artparams, wavedata, samprate );
+
+      [ newtrials fracbad ] = ...
+        nlFT_iterateAcrossData( ftdata_ephys, iterfunc_art );
+      ftdata_ephys.trial = newtrials;
+    end
+
+
+    % Perform notch filtering second.
+
+    if (~isempty(notch_freqs)) && (~isnan(notch_bw))
+      ftdata_ephys = ...
+        euFT_doBrickNotchRemoval( ftdata_ephys, notch_freqs, notch_bw );
+    end
+
   end
 
 end

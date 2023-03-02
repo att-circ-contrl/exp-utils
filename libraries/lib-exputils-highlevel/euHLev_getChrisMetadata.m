@@ -78,6 +78,17 @@ for cidx = 1:length(caselist)
   [ thismeta errmsgs ] = ...
     euChris_parseExperimentConfig( thisrawmeta, thistype, thishint );
 
+  % FIXME - Debugging. Force this to return something even on error.
+  if isempty(thismeta)
+%    thismeta = struct();
+  end
+
+  if ~isempty(thismeta)
+    % Debugging - Copy the case information and raw metadata as well.
+    thismeta.caseinfo = thiscase;
+    thismeta.rawmeta = thisrawmeta;
+  end
+
   if ~isempty(errmsgs)
     disp(errmsgs);
   end
