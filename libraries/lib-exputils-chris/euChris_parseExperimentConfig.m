@@ -32,7 +32,52 @@ expmeta = struct([]);
 errmsgs = {};
 
 
+if strcmp(exptype, 'loop2302')
+
+  % Closed-loop experiments from early 2023.
+  % This should have at least one Open Ephys recording folder and possibly
+  % Intan stimulator folders as well.
+
+  rawmeta_open = {};
+  rawmeta_stim = {};
+
+  for midx = 1:length(rawmetalist)
+    thisrawmeta = rawmetalist(midx);
+    if strcmp(thisrawmeta.type, 'openephys')
+      rawmeta_open = [ rawmeta_open { thisrawmeta } ];
+    elseif strcmp(thisrawmeta.type, 'intanstim')
+      rawmeta_stim = [ rawmeta_stim { thisrawmeta } ];
+    end
+  end
+
+  % FIXME - Diagnostics.
+  disp(sprintf( ...
+    '.. Found %d Open Ephys folders and %d Intan stim folders.', ...
+    length(rawmeta_open), length(rawmeta_stim) ));
+
+
+  % Process the Open Ephys folders.
+
+  for fidx = 1:length(rawmeta_open)
+
+    % Get all processor nodes in the signal chain.
+    proclist = nlUtil_findXMLStructNodesRecursing( ...
+      thisrawmeta.settings, { 'processor' }, {} );
+
+    % FIXME - Diagnostics.
+    disp(sprintf( '.. Found %d processor nodes.', length(proclist) ));
+
 % FIXME - NYI.
+  end
+
+  % FIXME - Intan stim folders NYI!
+
+else
+
+  % No idea how to parse this.
+  errmsgs = [ errmsgs { [ 'Unrecognized experiment type "' exptype '".' ] } ];
+
+end
 
 
 % Done.

@@ -64,7 +64,7 @@ for cidx = 1:length(caselist)
 
     % Aggregate this folder's raw metadata.
     thisrawmeta(fidx).folder = thisfolder;
-    thisrawmeta(fidx).header = header_ft;
+    thisrawmeta(fidx).header_ft = header_ft;
     thisrawmeta(fidx).chans_an = chans_ephys;
     thisrawmeta(fidx).chans_dig = chans_digital;
     thisrawmeta(fidx).settings = settings_oe;
