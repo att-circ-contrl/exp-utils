@@ -50,11 +50,15 @@ for cidx = 1:length(caselist)
       euHLev_getOpenEHeaderChannels( '', thisfolder );
 
     % Open Ephys signal chain configuration.
-    % FIXME - Cheat. The settings file is two levels up from here in v0.5.
-    settingsfile = ...
-      [ thisfolder filesep '..' filesep '..' filesep 'settings.xml' ];
+
+    % NOTE - Folder "experimentN/recordingM" uses "settings_N.xml", except
+    % for the first one, which is just "settings.xml".
+    settingsfile = nlOpenE_getSettingsFileFromDataFolder_v5(thisfolder);
+
     settings_oe = struct([]);
-    if ~isfile(settingsfile)
+    if isempty(settingsfile)
+      disp([ '###  Can''t find settings file for folder "' thisfolder '".']);
+    elseif ~isfile(settingsfile)
       disp([ '###  Can''t open "' settingsfile '".' ]);
     elseif ~exist('readstruct')
       disp('### Can''t read "settings.xml"; needs R2020b or later.');
