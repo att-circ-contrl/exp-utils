@@ -1,0 +1,39 @@
+The "euChris_parseExperimentConfig()" function returns metadata structures
+describing the configuration of experiments that used Chris's signal chains.
+The contents of these metadata structures is described below.
+
+
+
+Fields common to all types of metadata structure:
+
+"summary" is a human-readable short summary of the experiment configuration.
+"details" is a human-readable detailed description of the experiment config.
+
+"diagmsgs" is a cell array containing diagnostic messages _and_ error and
+  warning messages generated during processing.
+"errmsgs" is a cell array containing _only_ error and warning messages
+  generated during processing.
+
+"rawmetalist" is a copy of the "rawmetalist" structure array passed to
+  "euChris_parseExperimentConfig()". It contains the following fields:
+  "folder" is the data folder (containing structure.oebin, *.rhd, etc).
+  "header_ft" is the Field Trip header read from this folder.
+  "chans_an"  is a cell array containing ephys analog channel names.
+  "chans_dig" is a cell array containing digital TTL channel names.
+  "settings" is a structure containing native configuration information
+    (such as the XML parse of Open Ephys's "settings.xml").
+  "type" is 'openephys', 'intanrec', or 'intanstim'.
+
+"exptype" is a label defining the type of signal chain used; e.g. 'loop2023'.
+"hintdata" is a structure containing hints for processing metadata. If there
+  are no hints, this will be a structure with no fields.
+
+
+
+Fields specific to 'loop2302' type metadata:
+
+FIXME - NYI.
+
+
+
+(This is the end of the file.)

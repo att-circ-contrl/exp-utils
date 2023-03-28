@@ -35,6 +35,10 @@ for cidx = 1:length(caselist)
   thishint = thiscase.hint;
 
 
+  % Progress banner.
+  disp([ '.. Reading "' thiscase.folder '".' ]);
+
+
   [ folders_openephys folders_intanrec folders_intanstim folders_unity ] = ...
     euUtil_getExperimentFolders(thiscase.folder);
 
@@ -88,9 +92,9 @@ for cidx = 1:length(caselist)
   end
 
   if ~isempty(thismeta)
-    % Debugging - Copy the case information and raw metadata as well.
+    % Debugging - Copy the case information as well.
+    % Raw metadata is already saved by parseExperimentConfig().
     thismeta.caseinfo = thiscase;
-    thismeta.rawmeta = thisrawmeta;
   end
 
   if ~isempty(errmsgs)
@@ -100,6 +104,10 @@ for cidx = 1:length(caselist)
   casemetalist{cidx} = thismeta;
 
 end
+
+
+% Progress banner.
+disp('.. Finished reading metadata for all experiments.');
 
 
 % Done.
