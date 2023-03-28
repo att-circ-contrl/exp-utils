@@ -58,6 +58,11 @@ if strcmp(exptype, 'loop2302')
   % Diagnostics.
   diagmsgs = [ diagmsgs { '.. Experiment type is "2023 Feb closed-loop".' } ];
 
+
+
+  %
+  % Extract raw metadata.
+
   rawmeta_open = {};
   rawmeta_stim = {};
 
@@ -76,6 +81,14 @@ if strcmp(exptype, 'loop2302')
     length(rawmeta_open), length(rawmeta_stim) ) } ];
 
 
+  %
+  % Initialize cooked metadata.
+
+  intanreccount = 0;
+  intanrecmeta = {};
+
+
+  %
   % Process the Open Ephys folders.
 
   for fidx = 1:length(rawmeta_open)
@@ -94,10 +107,36 @@ if strcmp(exptype, 'loop2302')
     diagmsgs = [ diagmsgs { sprintf( ...
       '.. Found %d processor nodes.', length(proclist) ) } ];
 
+    % Walk through the nodes looking for ones relevant to us.
+    for pidx = 1:length(proclist)
+
+      thisproc = proclist{pidx};
+      [ thismeta thiseditor ] = ...
+        nlOpenE_parseProcessorNodeXML_v5(thisproc);
+
+      if strcmp(thismeta.procname, 'Intan Rec. Controller')
+
+        % Recording controller. Support more than one of these.
+
+        thismeta = nlOpenE_parseIntanRecorderXML_v5(thisproc);
+
+        intanreccount = intanreccount + 1;
+        intanrecmeta{intanreccount} = thismeta;
+
+        diagmsgs = [ diagmsgs { sprintf( ...
+          [ '.. Node %d is an Intan recording controller' ...
+            ' (%.1f-%d Hz, %.1f ksps, %d ch).' ], thismeta.procnode, ...
+          min(thismeta.bandpass), round( max(thismeta.bandpass) ), ...
+          thismeta.samprate / 1000, length(thismeta.chanlabels) ) } ];
+
+      end
+
+    end
 % FIXME - NYI; stopped here.
   end
 
 
+  %
   % Process Intan stimulator folders.
 
   for fidx = 1:length(rawmeta_stim)
@@ -114,6 +153,10 @@ if strcmp(exptype, 'loop2302')
     diagmsgs = [ diagmsgs { thismsg } ];
     errmsgs = [ errmsgs { thismsg } ];
   end
+
+
+  %
+  % Build the metadata record and remaining auxiliary info.
 
   % Get a human-readable summary.
   [ thissummary thisdetails ] = euChris_summarizeConfigLoop2302( expmeta );
