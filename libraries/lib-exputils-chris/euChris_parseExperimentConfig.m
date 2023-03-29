@@ -84,6 +84,9 @@ if strcmp(exptype, 'loop2302')
   %
   % Initialize cooked metadata.
 
+  cookedmeta_open = {};
+  cookedmeta_stim = {};
+
   intanreccount = 0;
   intanrecmeta = {};
 
@@ -103,35 +106,42 @@ if strcmp(exptype, 'loop2302')
     proclist = nlUtil_findXMLStructNodesRecursing( ...
       thisrawmeta.settings, { 'processor' }, {} );
 
+    % Try to parse all of them.
+    thiscookedmetalist = nlOpenE_parseProcessorNodesXML_v5(proclist);
+    cookedmetaopen{fidx} = thiscookedmetalist;
+
+
     % Diagnostics.
     diagmsgs = [ diagmsgs { sprintf( ...
       '.. Found %d processor nodes.', length(proclist) ) } ];
 
+    for midx = 1:length(thiscookedmetalist)
+      thismeta = thiscookedmetalist{midx};
+      thissummary = thismeta.descsummary;
+      if ~isempty(thissummary)
+        diagmsgs = [ diagmsgs thissummary ];
+      end
+    end
+
+
     % Walk through the nodes looking for ones relevant to us.
-    for pidx = 1:length(proclist)
-
-      thisproc = proclist{pidx};
-      [ thismeta thiseditor ] = ...
-        nlOpenE_parseProcessorNodeXML_v5(thisproc);
-
+    for midx = 1:length(thiscookedmetalist)
+      thismeta = thiscookedmetalist{midx};
       if strcmp(thismeta.procname, 'Intan Rec. Controller')
 
-        % Recording controller. Support more than one of these.
+% FIXME - NYI; stopped here.
 
-        thismeta = nlOpenE_parseIntanRecorderXML_v5(thisproc);
+        % Recording controller. Support more than one of these.
 
         intanreccount = intanreccount + 1;
         intanrecmeta{intanreccount} = thismeta;
 
-        diagmsgs = [ diagmsgs { sprintf( ...
-          [ '.. Node %d is an Intan recording controller' ...
-            ' (%.1f-%d Hz, %.1f ksps, %d ch).' ], thismeta.procnode, ...
-          min(thismeta.bandpass), round( max(thismeta.bandpass) ), ...
-          thismeta.samprate / 1000, length(thismeta.chanlabels) ) } ];
+        diagmsgs = [ diagmsgs thismeta.descsummary ];
 
       end
 
     end
+
 % FIXME - NYI; stopped here.
   end
 
