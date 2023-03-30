@@ -102,19 +102,16 @@ if strcmp(exptype, 'loop2302')
     diagmsgs = [ diagmsgs { [ '.. Parsing Open Ephys metadata for "' ...
       thisrawmeta.folder '".' ] } ];
 
-    % Get all processor nodes in the signal chain.
-    proclist = nlUtil_findXMLStructNodesRecursing( ...
-      thisrawmeta.settings, { 'processor' }, {} );
-
-    % Try to parse all of them.
-    thiscookedmetalist = nlOpenE_parseProcessorNodesXML_v5(proclist);
+    % Get all processor nodes in the signal chain and try to parse them.
+    thiscookedmetalist = ...
+      nlOpenE_parseConfigProcessorsXML_v5(thisrawmeta.settings);
     cookedmetaopen{fidx} = thiscookedmetalist;
-
 
     % Diagnostics.
     diagmsgs = [ diagmsgs { sprintf( ...
-      '.. Found %d processor nodes.', length(proclist) ) } ];
+      '.. Found %d processor nodes.', length(thiscookedmetalist) ) } ];
 
+    % Record human-readable summaries.
     for midx = 1:length(thiscookedmetalist)
       thismeta = thiscookedmetalist{midx};
       thissummary = thismeta.descsummary;
@@ -122,6 +119,10 @@ if strcmp(exptype, 'loop2302')
         diagmsgs = [ diagmsgs thissummary ];
       end
     end
+
+% FIXME - Get audio metadata too.
+% This is in thisrawmeta.settings.AUDIO.sampleRateAttribute and
+% bufferSizeAttribute (sample count).
 
 
     % Walk through the nodes looking for ones relevant to us.
