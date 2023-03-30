@@ -115,9 +115,13 @@ if strcmp(exptype, 'loop2302')
     for midx = 1:length(thiscookedmetalist)
       thismeta = thiscookedmetalist{midx};
       thissummary = thismeta.descsummary;
-      if ~isempty(thissummary)
-        diagmsgs = [ diagmsgs thissummary ];
+      if isempty(thissummary)
+        % Flag anything we didn't recognize.
+        thissummary = ...
+          { sprintf( '-- Node %d has no cooked metadata (%s).', ...
+            thismeta.procnode, thismeta.procname ) };
       end
+      diagmsgs = [ diagmsgs thissummary ];
     end
 
 % FIXME - Get audio metadata too.
