@@ -14,23 +14,65 @@ Fields common to all types of metadata structure:
 "errmsgs" is a cell array containing _only_ error and warning messages
   generated during processing.
 
-"rawmetalist" is a copy of the "rawmetalist" structure array passed to
-  "euChris_parseExperimentConfig()". It contains the following fields:
-  "folder" is the data folder (containing structure.oebin, *.rhd, etc).
-  "header_ft" is the Field Trip header read from this folder.
-  "chans_an"  is a cell array containing ephys analog channel names.
-  "chans_dig" is a cell array containing digital TTL channel names.
-  "settings" is a structure containing native configuration information
-    (such as the XML parse of Open Ephys's "settings.xml").
-  "type" is 'openephys', 'intanrec', or 'intanstim'.
+"rawmetalist" is a copy of the "rawmetalist" cell array passed to
+  "euChris_parseExperimentConfig()". This contains metadata structures
+  returned by euHLev_getAllMetadata_XXX, per RAWFOLDERMETA.txt.
 
 "exptype" is a label defining the type of signal chain used; e.g. 'loop2023'.
 "hintdata" is a structure containing hints for processing metadata. If there
   are no hints, this will be a structure with no fields.
 
+"cookedmeta" is a structure containing type-specific derived metadata.
+  Fields are described below.
+
 
 
 Fields specific to 'loop2302' type metadata:
+
+Fields in "cookedmeta" (NaN or empty vectors/arrays if undefined):
+
+  "samprate" is the acquisition sampling rate.
+
+  "torteband" [ low high ] has the Phase Calculator's band corners.
+  "torteinchan" is the channel number of the Phase Calculator's input.
+
+  "crossmagchan" is the channel number of the magnitude detector's input.
+  "crossmagthresh" is the multiplier used to get the magnitude threshold
+    from the RMS average magnitude.
+  "crossmagtau" is the decay time in seconds for computing this RMS average.
+  "crossmagbank" is the bank index (0-based) of the detector's TTL output.
+  "crossmagbit" is the bit number (0-based) of the detector's TTL output.
+
+  "crossphasechan" is the channel number of the phase detector's input.
+  "crossphaseval" is the target value (phase threshold) for the detector.
+  "crossphasebank" is the bank index (0-based) of the detector's TTL output.
+  "crossphasebit" is the bit number (0-based) of the detector's TTL output.
+
+  "crossrandchan" is the channel number of the random phase comparator's
+    input.
+  "crossrandbank" is the bank index (0-based) of the detector's TTL output.
+  "crossrandbit" is the bit number (0-based) of the detector's TTL output.
+
+  "randwasjitter" is true if the conditional trigger faked random phase
+    targets by adding jitter to a fixed phase target.
+
+  "trigbank" is the bank index (0-based) of the conditional trigger's TTL
+    outputs.
+  "trigphasebit" is the bit index (0-based) of the phase-aligned trigger
+    output.
+  "trigrandbit" is the bit index (0-based) of the random-phase trigger
+    output.
+  "trigmagbit" is the bit index (0-based) of the power excursion trigger
+    output.
+  "trignowbit" is the bit index (0-based) of the "trigger immediately when
+    RwdB goes high" trigger output.
+
+  "ardinbit" is the bit index (0-based) of the Arduino's triggering input.
+
+
+FIXME - Need channel labels and maybe map and file output channel lists.
+
+FIXME - Convert channel numbers to labels? Or keep as channel numbers?
 
 FIXME - NYI.
 
