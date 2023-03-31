@@ -25,8 +25,8 @@ isok = true;
 
 diagmsgs = {};
 errmsgs = {};
-thissummary = '-bogus-';
-thisdetails = '-bogus-';
+expsummary = '-bogus-';
+expdetails = '-bogus-';
 
 % Regularlize the hint data. If an empty array was provided, make a struct
 % with no fields instead.
@@ -131,7 +131,7 @@ if strcmp(exptype, 'loop2302')
         intanreccount = intanreccount + 1;
         intanrecmeta{intanreccount} = thismeta;
 
-        diagmsgs = [ diagmsgs thismeta.descsummary ];
+%        diagmsgs = [ diagmsgs thismeta.descsummary ];
 
       end
 
@@ -164,7 +164,7 @@ if strcmp(exptype, 'loop2302')
   % Build the metadata record and remaining auxiliary info.
 
   % Get a human-readable summary.
-  [ thissummary thisdetails ] = euChris_summarizeConfigLoop2302( expmeta );
+  [ expsummary expdetails ] = euChris_summarizeConfigLoop2302( expmeta );
 
 else
 
@@ -184,8 +184,8 @@ diagmsgs = [ diagmsgs { '== Finished experiment parse.' } ];
 % we weren't able to finish parsing.
 
 if isok
-  expmeta.('summary') = thissummary;
-  expmeta.('details') = thisdetails;
+  expmeta.('summary') = expsummary;
+  expmeta.('details') = expdetails;
 
   expmeta.('diagmsgs') = diagmsgs;
   expmeta.('errmsgs') = errmsgs;
