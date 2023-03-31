@@ -7,14 +7,8 @@ function [ expmeta errmsgs ] = ...
 % This is a top-level entry point for parsing configuration data for
 % one of Chris's experiment runs.
 %
-% "rawmetalist" is a structure array with the following fields:
-%   "folder" is the data folder (containing structure.oebin, *.rhd, etc).
-%   "header_ft" is the Field Trip header for this dataset.
-%   "chans_an" is a cell array containing ephys analog channel names.
-%   "chans_dig" is a cell array containing digital TTL channel names.
-%   "settings" is a struture containing configuration information (such
-%     as the XML parse of Open Ephys's "settings.xml").
-%   "type" is 'openephys', 'intanrec', or 'intanstim'.
+% "rawmetalist" is a cell array containing metadata structures returned by
+%   euHLev_getAllMetadata_XXX, per RAWFOLDERMETA.txt.
 % "exptype" is a label defining the type of dataset being processed.
 %   E.g.: 'loop2302'
 % "hintdata" is a structure containing hints for processing metadata. This
@@ -67,7 +61,7 @@ if strcmp(exptype, 'loop2302')
   rawmeta_stim = {};
 
   for midx = 1:length(rawmetalist)
-    thisrawmeta = rawmetalist(midx);
+    thisrawmeta = rawmetalist{midx};
     if strcmp(thisrawmeta.type, 'openephys')
       rawmeta_open = [ rawmeta_open { thisrawmeta } ];
     elseif strcmp(thisrawmeta.type, 'intanstim')
@@ -97,17 +91,17 @@ if strcmp(exptype, 'loop2302')
   for fidx = 1:length(rawmeta_open)
 
     thisrawmeta = rawmeta_open{fidx};
-
-    % Diagnostics.
-    diagmsgs = [ diagmsgs { [ '.. Parsing Open Ephys metadata for "' ...
-      thisrawmeta.folder '".' ] } ];
-
-    % Get all processor nodes in the signal chain and try to parse them.
-    thiscookedmetalist = ...
-      nlOpenE_parseConfigProcessorsXML_v5(thisrawmeta.settings);
+    thiscookedmetalist = thisrawmeta.oesigchain;
     cookedmetaopen{fidx} = thiscookedmetalist;
 
     % Diagnostics.
+    diagmsgs = [ diagmsgs { [ '== Analyzing Open Ephys metadata for "' ...
+      thisrawmeta.folder '".' ] } ];
+
+    % Diagnostics.
+    diagmsgs = ...
+      [ diagmsgs { sprintf( '.. Signal chain buffer was %.1f ms.', ...
+        thisrawmeta.oebufinfo.bufms ) } ];
     diagmsgs = [ diagmsgs { sprintf( ...
       '.. Found %d processor nodes.', length(thiscookedmetalist) ) } ];
 
@@ -123,10 +117,6 @@ if strcmp(exptype, 'loop2302')
       end
       diagmsgs = [ diagmsgs thissummary ];
     end
-
-% FIXME - Get audio metadata too.
-% This is in thisrawmeta.settings.AUDIO.sampleRateAttribute and
-% bufferSizeAttribute (sample count).
 
 
     % Walk through the nodes looking for ones relevant to us.

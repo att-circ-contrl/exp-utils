@@ -1,0 +1,31 @@
+Folder metadata as returned by euHLev_getAllMetadata_XXX is encapsulated as
+a structure with the fields described below.
+
+
+Common to all folder types:
+
+"folder" is the folder path (as returned by euUtil_getExperimentFolders()).
+"type" is 'openephys', 'intanrec', or 'intanstim'.
+
+"header_ft" is the Field Trip header structure for this folder.
+"chans_an" is a cell array containing analog channel FT labels.
+"chans_dig" is a cell array containing digital channel FT labels.
+
+"chanmap_raw" is a cell array with FT channel names before mapping.
+"chanmap_cooked" is a cell array with FT channel names after mapping.
+
+...The channel map is a "best guess", and might not be defined if the
+helper function couldn't find appropriate configuration files.
+
+
+Fields for type 'openephys' (Open Ephys v0.5):
+
+"settings" is a copy of the XML parse of "settings.xml", as returned by
+  readstruct().
+"oebufinfo" is Open Ephys buffer metadata as returned by
+  nlOpenE_parseConfigAudioBufferInfo_v5().
+"oesigchain" is a cell array containing metadata for all processor nodes
+  found by nlOpenE_parseConfigProcessorsXML_v5().
+
+
+(This is the end of the file.)

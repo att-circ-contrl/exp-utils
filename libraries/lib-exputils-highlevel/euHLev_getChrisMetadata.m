@@ -42,49 +42,18 @@ for cidx = 1:length(caselist)
   [ folders_openephys folders_intanrec folders_intanstim folders_unity ] = ...
     euUtil_getExperimentFolders(thiscase.folder);
 
-  thisrawmeta = struct();
+  thisrawmetalist = {};
 
   for fidx = 1:length(folders_openephys)
-
     thisfolder = folders_openephys{fidx};
-
-    % Field Trip information.
-    % We just want the header and channel lists, not the channel map.
-    [ header_ft, chans_ephys, chans_digital, map_raw, map_cooked ] = ...
-      euHLev_getOpenEHeaderChannels( '', thisfolder );
-
-    % Open Ephys signal chain configuration.
-
-    % NOTE - Folder "experimentN/recordingM" uses "settings_N.xml", except
-    % for the first one, which is just "settings.xml".
-    settingsfile = nlOpenE_getSettingsFileFromDataFolder_v5(thisfolder);
-
-    settings_oe = struct([]);
-    if isempty(settingsfile)
-      disp([ '###  Can''t find settings file for folder "' thisfolder '".']);
-    elseif ~isfile(settingsfile)
-      disp([ '###  Can''t open "' settingsfile '".' ]);
-    elseif ~exist('readstruct')
-      disp('### Can''t read "settings.xml"; needs R2020b or later.');
-    else
-      settings_oe = readstruct(settingsfile, 'FileType', 'xml');
-    end
-
-    % Aggregate this folder's raw metadata.
-    thisrawmeta(fidx).folder = thisfolder;
-    thisrawmeta(fidx).header_ft = header_ft;
-    thisrawmeta(fidx).chans_an = chans_ephys;
-    thisrawmeta(fidx).chans_dig = chans_digital;
-    thisrawmeta(fidx).settings = settings_oe;
-    thisrawmeta(fidx).type = 'openephys';
-
+    thisrawmetalist{fidx} = euHLev_getAllMetadata_OpenEv5(thisfolder);
   end
 
 
   % This will return an empty structure if it couldn't figure out the config.
 
   [ thismeta errmsgs ] = ...
-    euChris_parseExperimentConfig( thisrawmeta, thistype, thishint );
+    euChris_parseExperimentConfig( thisrawmetalist, thistype, thishint );
 
   % FIXME - Debugging. Force this to return something even on error.
   if isempty(thismeta)
