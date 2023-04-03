@@ -1,0 +1,11 @@
+High-level experiment configuration is stored as a structure, with fields
+depending on the experiment type.
+
+
+For experiments of type 'loop2302', fields are as follows:
+
+FIXME - NYI.
+
+
+
+(This is the end of the file.)

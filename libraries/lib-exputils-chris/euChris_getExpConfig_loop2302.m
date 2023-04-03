@@ -37,15 +37,70 @@ diagmsgs = {};
 errmsgs = {};
 
 
+%
+% Check that we _have_ everything.
 
-% FIXME - NYI!
-thismsg = 'FIXME - NYI.';
-summary = [ summary { thismsg } ];
-details = [ details { thismsg } ];
+have_torte = ~isempty(cookedmeta.torteband);
+have_magdetect = ~isnan(cookedmeta.crossmagchan);
+have_phasedetect = ~isnan(cookedmeta.crossphasechan);
+have_randdetect = ~isnan(cookedmeta.crossrandchan);
+have_fakerand = cookedmeta.randwasjitter;
+have_arduino = ~isnan(cookedmeta.ardinbit);
+have_firstfile = length(cookedmeta.filewritenodes) > 0;
+have_secondfile = length(cookedmeta.filewritenodes) > 1;
+
+thismsg = '   Found torte: ';
+thismsg = helper_addYN(thismsg, have_torte);
+thismsg = [ thismsg '  mag: ' ];
+thismsg = helper_addYN(thismsg, have_magdetect);
+thismsg = [ thismsg '  phase: ' ];
+thismsg = helper_addYN(thismsg, have_phasedetect);
+thismsg = [ thismsg '  rand: ' ];
+thismsg = helper_addYN(thismsg, have_randdetect);
+thismsg = [ thismsg '  fakerand: ' ];
+thismsg = helper_addYN(thismsg, have_fakerand);
+thismsg = [ thismsg '  ard: ' ];
+thismsg = helper_addYN(thismsg, have_arduino);
+thismsg = [ thismsg '  files: ' num2str(length(cookedmeta.filewritenodes)) ];
+
+diagmsgs = [ diagmsgs { thismsg } ];
+
+
+% See if we have enough information to proceed.
+
+if have_torte && have_magdetect && have_phasedetect ...
+  && (have_randdetect || have_fakerand) && have_firstfile
+
+
+  %
+  % Check to see if wiring is consistent, and identify channel names.
+  % NOTE - These are not the same names Field Trip uses!
+
+  % NOTE - Some of these are 0-based. FIXME - Some, or all?
+%  chanwb_num = 
+
+% FIXME - NYI. Stopped here.
+end
+
 
 
 % Done.
 end
+
+
+
+%
+% Helper Functions
+
+
+function newmsg = helper_addYN(oldmsg, flagval)
+  if flagval
+    newmsg = [ oldmsg 'Y' ];
+  else
+    newmsg = [ oldmsg 'N' ];
+  end
+end
+
 
 
 %
