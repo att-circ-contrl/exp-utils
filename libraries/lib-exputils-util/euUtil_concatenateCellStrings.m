@@ -22,7 +22,23 @@ end
 
 
 for sidx = 1:length(oldstrings)
-  newstring = [ newstring oldstrings{sidx} suffixstr ];
+  thisold = oldstrings{sidx};
+
+  if iscell(thisold)
+    % This shouldn't happen, but can happen if the user gets careless.
+    disp('### [euUtil_concatenateCellStrings]  Nested cell data found.');
+
+% FIXME - Diagnostics.
+newstring = [ newstring '(nested content begins.)' suffixstr ];
+
+    thisold = euUtil_concatenateCellStrings( thisold, suffixstr );
+    newstring = [ newstring thisold ];
+
+% FIXME - Diagnostics.
+newstring = [ newstring '(nested content ends.)' suffixstr ];
+  else
+    newstring = [ newstring thisold suffixstr ];
+  end
 end
 
 

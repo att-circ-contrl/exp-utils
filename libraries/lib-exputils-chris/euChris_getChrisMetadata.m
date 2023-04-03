@@ -67,7 +67,7 @@ for cidx = 1:length(caselist)
   end
 
   if ~isempty(errmsgs)
-    disp(errmsgs);
+    disp( euUtil_concatenateCellStrings( errmsgs ) );
   end
 
   casemetalist{cidx} = thismeta;

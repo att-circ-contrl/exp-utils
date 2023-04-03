@@ -6,8 +6,10 @@ The contents of these metadata structures is described below.
 
 Fields common to all types of metadata structure:
 
-"summary" is a human-readable short summary of the experiment configuration.
-"details" is a human-readable detailed description of the experiment config.
+"summary" is a cell array of character vectors containing a short
+  human-readable summary of the experiment configuration.
+"details" is a cell array of character vectors containing a human-readable
+  detailed description of the experiment config.
 
 "diagmsgs" is a cell array containing diagnostic messages _and_ error and
   warning messages generated during processing.
@@ -25,6 +27,9 @@ Fields common to all types of metadata structure:
 "cookedmeta" is a structure containing type-specific derived metadata.
   Fields are described below.
 
+"expconfig" is a structure describing the experiment configuration, per
+  CHRISEXPCONFIGS.txt.
+
 
 
 Fields specific to 'loop2302' type metadata:
@@ -33,8 +38,13 @@ Fields in "cookedmeta" (NaN or empty vectors/arrays if undefined):
 
   "samprate" is the acquisition sampling rate.
 
+  "rawchans" is a list of input channel labels before channel mapping.
+  "cookedchans" is a list of input channel labels after channel mapping.
+
   "torteband" [ low high ] has the Phase Calculator's band corners.
-  "torteinchan" is the channel number of the Phase Calculator's input.
+  "tortemode" is the output mode. We want a value of 'both'.
+  "torteinchans" is a vector of channel numbers used as the Phase
+    Calculator's input. We usually want exactly one channel here.
 
   "crossmagchan" is the channel number of the magnitude detector's input.
   "crossmagthresh" is the multiplier used to get the magnitude threshold
@@ -69,12 +79,12 @@ Fields in "cookedmeta" (NaN or empty vectors/arrays if undefined):
 
   "ardinbit" is the bit index (0-based) of the Arduino's triggering input.
 
+  "filewritenodes" is a vector containing node ID numbers of file writers.
+  "filewritechanmasks" is a cell array containing logical vectors indicating
+    which channels were saved for each file writing node.
 
-FIXME - Need channel labels and maybe map and file output channel lists.
-
-FIXME - Convert channel numbers to labels? Or keep as channel numbers?
-
-FIXME - NYI.
+FIXME - Channel labels will be iffy. They won't match the FT labels' naming
+conventions and may be in a different order (due to aux channels etc).
 
 
 
