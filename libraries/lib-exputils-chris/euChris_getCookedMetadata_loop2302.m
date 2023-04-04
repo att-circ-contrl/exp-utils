@@ -32,6 +32,7 @@ ardinbit = NaN;
 
 torteband = [];
 torteinchans = [];
+torteextrachan = NaN;
 tortemode = '';
 
 crossmagchan = NaN;
@@ -124,6 +125,11 @@ for pidx = 1:length(sigchain)
     tortemode = thisproc.outputmode;
     torteinchans = find(thisproc.channelselect);
 
+    % Figure out what the new (magnitude) channel number is.
+    % It's the one that we added to the end of the channel list.
+    % NOTE - This is 1-based.
+    torteextrachan = length(thisproc.channelselect);
+
   elseif strcmp(thisproc.procname, 'Crossing Detector')
 
     % Figure out which detector this is and store its metadata.
@@ -131,22 +137,22 @@ for pidx = 1:length(sigchain)
       % Phase threshold.
       crossphasechan = thisproc.inputchan;
       crossphaseval = thisproc.threshold;
-      crossphasebit = thisproc.outputTTLchan;
       % Convert to 0-based.
+      crossphasebit = thisproc.outputTTLchan - 1;
       crossphasebank = thisproc.eventbanks - 1;
     elseif strcmp(thisproc.threshtype, 'random')
       % Randomly-drawn phase.
       crossrandchan = thisproc.inputchan;
-      crossrandbit = thisproc.outputTTLchan;
       % Convert to 0-based.
+      crossrandbit = thisproc.outputTTLchan - 1;
       crossrandbank = thisproc.eventbanks - 1;
     elseif strcmp(thisproc.threshtype, 'averagemult')
       % Magnitude threshold.
       crossmagchan = thisproc.inputchan;
       crossmagthresh = thisproc.threshold;
       crossmagtau = thisproc.averageseconds;
-      crossmagbit = thisproc.outputTTLchan;
       % Convert to 0-based.
+      crossmagbit = thisproc.outputTTLchan - 1;
       crossmagbank = thisproc.eventbanks - 1;
     end
 
@@ -247,6 +253,7 @@ cookedmeta.cookedchans = cookedchans;
 cookedmeta.torteband = torteband;
 cookedmeta.tortemode = tortemode;
 cookedmeta.torteinchans = torteinchans;
+cookedmeta.torteextrachan = torteextrachan;
 
 cookedmeta.crossmagchan = crossmagchan;
 cookedmeta.crossmagthresh = crossmagthresh;

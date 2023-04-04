@@ -40,7 +40,8 @@ errmsgs = {};
 %
 % Check that we _have_ everything.
 
-have_torte = ~isempty(cookedmeta.torteband);
+have_torte = (~isempty(cookedmeta.torteband)) ...
+  && (~isempty(cookedmeta.torteinchans));
 have_magdetect = ~isnan(cookedmeta.crossmagchan);
 have_phasedetect = ~isnan(cookedmeta.crossphasechan);
 have_randdetect = ~isnan(cookedmeta.crossrandchan);
@@ -76,8 +77,13 @@ if have_torte && have_magdetect && have_phasedetect ...
   % Check to see if wiring is consistent, and identify channel names.
   % NOTE - These are not the same names Field Trip uses!
 
-  % NOTE - Some of these are 0-based. FIXME - Some, or all?
-%  chanwb_num = 
+  % These are 1-based.
+  chan_wb_num = cookedmeta.torteinchans(1);
+  chan_mag_num = cookedmeta.torteextrachan;
+  chan_phase_num = chan_wb_num;
+
+  % FIXME - This will probably fail if aux channels are moved around!
+  chan_wb_ft_label = rawmeta.chans_an{chan_wb_num};
 
 % FIXME - NYI. Stopped here.
 end

@@ -39,12 +39,15 @@ Fields in "cookedmeta" (NaN or empty vectors/arrays if undefined):
   "samprate" is the acquisition sampling rate.
 
   "rawchans" is a list of input channel labels before channel mapping.
+    This is extracted from the Intan recorder, not FT, if possible.
   "cookedchans" is a list of input channel labels after channel mapping.
 
   "torteband" [ low high ] has the Phase Calculator's band corners.
   "tortemode" is the output mode. We want a value of 'both'.
   "torteinchans" is a vector of channel numbers used as the Phase
     Calculator's input. We usually want exactly one channel here.
+  "torteextrachan" is the channel number that the Phase Calculator adds
+    for magnitude output, in mag+phase mode (this is 1-based).
 
   "crossmagchan" is the channel number of the magnitude detector's input.
   "crossmagthresh" is the multiplier used to get the magnitude threshold
@@ -69,13 +72,13 @@ Fields in "cookedmeta" (NaN or empty vectors/arrays if undefined):
   "trigbank" is the bank index (0-based) of the conditional trigger's TTL
     outputs.
   "trigphasebit" is the bit index (0-based) of the phase-aligned trigger
-    output.
+    output, or NaN if this wasn't generated.
   "trigrandbit" is the bit index (0-based) of the random-phase trigger
-    output.
+    output, or NaN if this wasn't generated.
   "trigmagbit" is the bit index (0-based) of the power excursion trigger
-    output.
+    output, or NaN if this wasn't generated.
   "trignowbit" is the bit index (0-based) of the "trigger immediately when
-    RwdB goes high" trigger output.
+    RwdB goes high" trigger output, or NaN if this wasn't generated.
 
   "ardinbit" is the bit index (0-based) of the Arduino's triggering input.
 
