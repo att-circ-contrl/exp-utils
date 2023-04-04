@@ -8,12 +8,13 @@ if ~exist('sourcedir', 'var')
   % NOTE - Pick the tungsten folders for a rapid test.
 %  sourcedir = 'datasets';
 %  sourcedir = 'datasets-samples/*tungsten';
-  sourcedir = 'datasets-samples/20220504*';
+%  sourcedir = 'datasets-samples/20220504*';
+  sourcedir = 'datasets-teba/igor-vu595-recording-duplicates/';
 end
 
 % Set up configuration to look at the early part of the data.
 % This avoids stimulation artifacts.
-config = struct( 'readposition', 0.05 );
+%config = struct( 'readposition', 0.05 );
 
 [ reportshort reportlong folderdata ] = ...
   euTools_sanityCheckTree( sourcedir, config );
@@ -21,13 +22,8 @@ config = struct( 'readposition', 0.05 );
 save( 'output/sanitydata.mat', ...
   'reportshort', 'reportlong', 'folderdata', '-v7.3' );
 
-thisfid = fopen('output/sanitysummary.txt', 'w');
-fwrite(thisfid, reportshort, 'char*1');
-fclose(thisfid);
-
-thisfid = fopen('output/sanityreport.txt', 'w');
-fwrite(thisfid, reportlong, 'char*1');
-fclose(thisfid);
+nlIO_writeTextFile('output/sanitysummary.txt', reportshort);
+nlIO_writeTextFile('output/sanityreport.txt', reportlong);
 
 %
 % This is the end of the file.
