@@ -42,6 +42,14 @@ Fields in "cookedmeta" (NaN or empty vectors/arrays if undefined):
     This is extracted from the Intan recorder, not FT, if possible.
   "cookedchans" is a list of input channel labels after channel mapping.
 
+  "chanmapoldnums" is a vector indexed by new channel number containing the
+    corresponding old channel numbers. This is taken from the Open Ephys
+    channel mapping node, and is [] if that node wasn't found.
+  "chanmapftraw" is a cell array containing FT channel names before mapping.
+    This may be {} if the FT channel map couldn't be extracted.
+  "chanmapftcooked" is a cell array containing FT channel names after mapping.
+    This may be {} if the FT channel map couldn't be extracted.
+
   "torteband" [ low high ] has the Phase Calculator's band corners.
   "tortemode" is the output mode. We want a value of 'both'.
   "torteinchans" is a vector of channel numbers used as the Phase

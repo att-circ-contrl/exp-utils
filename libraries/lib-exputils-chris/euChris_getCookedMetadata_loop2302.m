@@ -70,8 +70,10 @@ filewritechanmasks = {};
 
 sigchain = rawmeta.oesigchain;
 
-chanmap_raw = rawmeta.chanmap_raw;
-chanmap_cooked = rawmeta.chanmap_cooked;
+ft_chanmap_raw = rawmeta.chanmap_raw;
+ft_chanmap_cooked = rawmeta.chanmap_cooked;
+
+oe_chanmap_oldchans = [];
 
 
 % Walk through the processing nodes, gathering selected metadata.
@@ -103,6 +105,15 @@ for pidx = 1:length(sigchain)
     rawchans = rawmeta.header_ft.label;
     mincount = min(length(rawchans), thisproc.chancount);
     rawchans = rawchans(1:mincount);
+
+  elseif strcmp(thisproc.procname, 'Channel Map')
+
+    % Open Ephys channel map. This will match the channel list extracted
+    % from the signal chain.
+    oe_chanmap_oldchans = thisproc.chanmap.oldchan;
+    if ~isrow(oe_chanmap_oldchans)
+      oe_chanmap_oldchans = transpose(oe_chanmap_oldchans);
+    end
 
   elseif strcmp(thisproc.procname, 'Record Node')
 
@@ -236,9 +247,11 @@ end
 % This falls back to reasonable defaults.
 
 cookedchans = rawchans;
-if (~isempty(chanmap_raw)) && (~isempty(chanmap_cooked))
+if ~isempty(oe_chanmap_oldchans)
+  cookedchans = rawchans(oe_chanmap_oldchans);
+elseif (~isempty(ft_chanmap_raw)) && (~isempty(ft_chanmap_cooked))
   cookedchans = ...
-    nlFT_mapChannelLabels( rawchans, chanmap_raw, chanmap_cooked );
+    nlFT_mapChannelLabels( rawchans, ft_chanmap_raw, ft_chanmap_cooked );
 end
 
 
@@ -249,6 +262,10 @@ cookedmeta.samprate = samprate;
 
 cookedmeta.rawchans = rawchans;
 cookedmeta.cookedchans = cookedchans;
+
+cookedmeta.chanmapoldnums = oe_chanmap_oldchans;
+cookedmeta.chanmapftraw = ft_chanmap_raw;
+cookedmeta.chanmapftcooked = ft_chanmap_cooked;
 
 cookedmeta.torteband = torteband;
 cookedmeta.tortemode = tortemode;
