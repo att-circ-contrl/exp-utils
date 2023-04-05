@@ -364,12 +364,6 @@ if have_torte && have_magdetect && have_phasedetect ...
   %
   % Finished aggregating and reporting experiment configuration.
 
-% FIXME - Stick on the FT digital channel list.
-% We also have chans_an and header_ft.label available.
-thislist = rawmeta.chans_dig;
-if ~isrow(thislist) ; thislist = transpose(thislist) ; end
-diagmsgs = [ diagmsgs thislist ];
-
 end
 
 
