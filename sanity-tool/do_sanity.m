@@ -12,9 +12,15 @@ if ~exist('sourcedir', 'var')
   sourcedir = 'datasets-teba/igor-vu595-recording-duplicates/';
 end
 
+config = struct();
+
 % Set up configuration to look at the early part of the data.
 % This avoids stimulation artifacts.
-%config = struct( 'readposition', 0.05 );
+%config.readposition = 0.05;
+
+% Hand-tuned thresholds for 2023 Igor data.
+config.correlthreshabslfp = 0.999;
+config.correlthreshabsspike = 0.99;
 
 [ reportshort reportlong folderdata ] = ...
   euTools_sanityCheckTree( sourcedir, config );

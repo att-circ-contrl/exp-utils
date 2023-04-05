@@ -53,10 +53,14 @@ function [ reportshort reportlong folderdata ] = ...
 %
 %   "wantcorrel" is true to check for correlated groups of channels and false
 %     otherwise.
-%   "correlthreshabs" is the absolute r-value threshold for considering
-%     channels to be correlated. This should be in the range 0..1.
-%   "correlthreshrel" is the relative r-value threshold for considering
-%     channels to be correlated. This should be greater than 1.
+%   "correlthreshabslfp" is the absolute r-value threshold for considering
+%     LFP channels to be correlated. This should be in the range 0..1.
+%   "correlthreshrellfp" is the relative r-value threshold for considering
+%     LFP channels to be correlated. This should be greater than 1.
+%   "correlthreshabsspike" is the absolute r-value threshold for considering
+%     spike channels to be correlated. This should be in the range 0..1.
+%   "correlthreshrelspike" is the relative r-value threshold for considering
+%     spike channels to be correlated. This should be greater than 1.
 %
 %   "wantspect" is true to check the LFP power spectrum and false otherwise.
 %   "spectrange" [ min max ] is the range of frequencies to perform the LFP
@@ -185,13 +189,22 @@ if ~isfield(config, 'wantcorrel')
   config.wantcorrel = true;
 end
 
-if ~isfield(config, 'correlthreshabs')
+if ~isfield(config, 'correlthreshabslfp')
   % This is an absolute r-value.
-  config.correlthreshabs = 0.95;
+  config.correlthreshabslfp = 0.998;
 end
-if ~isfield(config, 'correlthreshrel')
+if ~isfield(config, 'correlthreshrellfp')
   % This is relative to the median r-value.
-  config.correlthreshrel = 4.0;
+  config.correlthreshrellfp = 4.0;
+end
+
+if ~isfield(config, 'correlthreshabsspike')
+  % This is an absolute r-value.
+  config.correlthreshabsspike = 0.98;
+end
+if ~isfield(config, 'correlthreshrelspike')
+  % This is relative to the median r-value.
+  config.correlthreshrelspike = 4.0;
 end
 
 
@@ -457,7 +470,7 @@ for fidx = 1:length(folderlist)
 
       [ lfpchangroups rvalues_lfp lfpgroupdefs ] = ...
         nlProc_findCorrelatedChannels( lfpdata.trial{1}, ...
-        config.correlthreshabs, config.correlthreshrel );
+        config.correlthreshabslfp, config.correlthreshrellfp );
 
       if config.wantprogress
         disp(sprintf( '.. Finished in %d seconds.', round(toc) ));
@@ -467,7 +480,7 @@ for fidx = 1:length(folderlist)
 
       [ spikechangroups rvalues_spike spikegroupdefs ] = ...
         nlProc_findCorrelatedChannels( ephysdata.trial{1}, ...
-        config.correlthreshabs, config.correlthreshrel );
+        config.correlthreshabsspike, config.correlthreshrelspike );
 
       if config.wantprogress
         disp(sprintf( '.. Finished in %d seconds.', round(toc) ));
