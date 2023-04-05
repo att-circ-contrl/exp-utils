@@ -158,13 +158,15 @@ for pidx = 1:length(sigchain)
       crossphaseval = thisproc.threshold;
       % Convert to 0-based.
       crossphasebit = thisproc.outputTTLchan - 1;
-      crossphasebank = thisproc.eventbanks - 1;
+      % FIXME - Empirical bank ID count. May break on other chains!
+      crossphasebank = thisproc.eventbanks - 2;
     elseif strcmp(thisproc.threshtype, 'random')
       % Randomly-drawn phase.
       crossrandchan = thisproc.inputchan;
       % Convert to 0-based.
       crossrandbit = thisproc.outputTTLchan - 1;
-      crossrandbank = thisproc.eventbanks - 1;
+      % FIXME - Empirical bank ID count. May break on other chains!
+      crossrandbank = thisproc.eventbanks - 2;
     elseif strcmp(thisproc.threshtype, 'averagemult')
       % Magnitude threshold.
       crossmagchan = thisproc.inputchan;
@@ -172,7 +174,8 @@ for pidx = 1:length(sigchain)
       crossmagtau = thisproc.averageseconds;
       % Convert to 0-based.
       crossmagbit = thisproc.outputTTLchan - 1;
-      crossmagbank = thisproc.eventbanks - 1;
+      % FIXME - Empirical bank ID count. May break on other chains!
+      crossmagbank = thisproc.eventbanks - 2;
     end
 
   end
@@ -186,7 +189,8 @@ for pidx = 1:length(sigchain)
   if strcmp(thisproc.procname, 'TTL Cond Trigger')
 
     % Convert to 0-based.
-    trigbank = thisproc.eventbanks - 1;
+    % FIXME - Empirical bank ID count. May break on other chains!
+    trigbank = thisproc.eventbanks - 2;
 
     % Walk through the outputs, figuring out what they are.
     for outidx = 1:length(thisproc.outconditions)
