@@ -4,7 +4,58 @@ depending on the experiment type.
 
 For experiments of type 'loop2302', fields are as follows:
 
-FIXME - NYI.
+"chan_wb_num" is the Open Ephys channel number of the wideband signal.
+"chan_mag_num" is the Open Ephys channel number with the analytic magnitude.
+"chan_phase_num" is the Open Ephys channel number with the analytic phase.
+
+"chan_wb_oelabel" is the Open Ephys name of the wideband channel.
+
+"trigtype" is 'phase', 'random', 'power', 'immediate', or 'none'. This
+  indicates how the Arduino output, if any, was generated.
+
+"file_node_first" is the Record Node node number of the primary file writing
+  node (saving wideband data and the loopback trigger signal).
+"file_node_second" is the Record Node node number of the secondary file
+  writing node (saving derived and internally generated signals), or NaN if
+  this node wasn't present.
+
+
+(Signals saved by the primary file writing node:)
+
+"chan_wb_ftlabel" is the Field Trip name of the saved wideband signal,
+  or '' if this wasn't saved.
+
+"chan_ttl_loopback_trig_ftlabel" is the Field Trip name of the saved
+  stimulation trigger TTL signal as read back by the Intan recorder,
+  or '' if this wasn't saved.
+
+
+(Signals saved by the secondary file writing node:)
+
+"chan_mag_ftlabel" is the Field Trip name of the saved magnitude signal,
+  or '' if this wasn't saved.
+"chan_phase_ftlabel" is the Field Trip name of the saved phase signal,
+  or '' if this wasn't saved.
+
+"chan_ttl_detect_mag_ftlabel" is the Field Trip name of the saved magnitude
+  detection TTL signal, or '' if this wasn't saved.
+"chan_ttl_detect_phase_ftlabel" is the Field Trip name of the saved
+  desired-phase detection TTL signal, or '' if this wasn't saved.
+"chan_ttl_detect_rand_ftlabel" is the Field Trip name of the saved
+  random-phase detection TTL signal, or '' if this wasn't saved.
+
+"chan_ttl_trig_phase_ftlabel" is the Field Trip name of the saved stimulation
+  trigger TTL signal for fixed-phase stimulation, or '' if this wasn't saved.
+"chan_ttl_trig_rand_ftlabel" is the Field Trip name of the saved stimulation
+  trigger TTL signal for random-phase stimulation, or '' if this wasn't saved.
+"chan_ttl_trig_power_ftlabel" is the Field Trip name of the saved stimulation
+  trigger TTL signal for magnitude excursion stimulation, or '' if this wasn't
+  saved.
+"chan_ttl_trig_immed_ftlabel" is the Field Trip name of the saved stimulation
+  trigger TTL signal for immediate stimulation, or '' if this wasn't saved.
+
+"chan_ttl_trig_selected_ftlabel" is the Field Trip name of the saved
+  stimulation trigger TTL signal that was actually sent to the stimulator.
 
 
 

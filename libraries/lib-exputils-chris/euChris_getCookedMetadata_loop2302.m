@@ -62,6 +62,7 @@ randwasjitter = false;
 
 filewritenodes = [];
 filewritechanmasks = {};
+filewritehasevents = logical([]);
 
 
 
@@ -127,6 +128,7 @@ for pidx = 1:length(sigchain)
     filewritecount = length(filewritenodes) + 1;
     filewritenodes(filewritecount) = thisproc.procnode;
     filewritechanmasks{filewritecount} = thisproc.savedchans;
+    filewritehasevents(filewritecount) = thisproc.wantevents;
 
   elseif strcmp(thisproc.procname, 'Arduino Output')
 
@@ -305,6 +307,7 @@ cookedmeta.ardinbit = ardinbit;
 
 cookedmeta.filewritenodes = filewritenodes;
 cookedmeta.filewritechanmasks = filewritechanmasks;
+cookedmeta.filewritehasevents = filewritehasevents;
 
 
 % Done.

@@ -93,6 +93,8 @@ Fields in "cookedmeta" (NaN or empty vectors/arrays if undefined):
   "filewritenodes" is a vector containing node ID numbers of file writers.
   "filewritechanmasks" is a cell array containing logical vectors indicating
     which channels were saved for each file writing node.
+  "filewritehasevents" is a logical vector indicating whether each node
+    saved TTL events or not.
 
 FIXME - Channel labels will be iffy. They won't match the FT labels' naming
 conventions and may be in a different order (due to aux channels etc).
