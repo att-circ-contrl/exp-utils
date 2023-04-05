@@ -96,15 +96,21 @@ for pidx = 1:length(sigchain)
 
   elseif strcmp(thisproc.procname, 'File Reader')
 
-    % We don't have useful information about the input channels from the
-    % node metadata.
+    % NOTE - We can't copy FT metadata, since that's what the _wrote_, not
+    % what we read.
 
-    % FIXME - Copy it from the Field Trip metadata.
+    % FIXME - Make up channel names based on the channel count.
+    % Use the same conventions as Open Ephys's Intan recorder node
+    % (CHn, starting with n=1).
+    rawchans = {};
+    for cidx = 1:thisproc.chancount
+      rawchans{cidx} = sprintf('CH%d', cidx);
+    end
+
+    % FIXME - Take the sampling rate from FT metadata, since we have no
+    % other choice.
     % This is a kludge! It tells us what we _saved_, not what we _read_.
     samprate = rawmeta.header_ft.Fs;
-    rawchans = rawmeta.header_ft.label;
-    mincount = min(length(rawchans), thisproc.chancount);
-    rawchans = rawchans(1:mincount);
 
   elseif strcmp(thisproc.procname, 'Channel Map')
 

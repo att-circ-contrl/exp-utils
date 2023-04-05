@@ -17,7 +17,7 @@ function [ config summary details diagmsgs errmsgs ] = ...
 %   there are no hints, this will be a structure with no fields.
 %
 % "config" is a structure describing the experiment configuration, per
-%   CHRISEXPCONFIGS.txt.
+%   CHRISEXPCONFIGS.txt. It will be empty if parsing failed.
 % "summary" is a cell array of character vectors containing a short
 %   human-readable summary of the configuration.
 % "details" is a cell array of character vectors containing a
@@ -65,6 +65,7 @@ thismsg = helper_addYN(thismsg, have_arduino);
 thismsg = [ thismsg '  files: ' num2str(length(cookedmeta.filewritenodes)) ];
 
 diagmsgs = [ diagmsgs { thismsg } ];
+details = [ details { thismsg } ];
 
 
 % See if we have enough information to proceed.
@@ -82,8 +83,49 @@ if have_torte && have_magdetect && have_phasedetect ...
   chan_mag_num = cookedmeta.torteextrachan;
   chan_phase_num = chan_wb_num;
 
-  % FIXME - This will probably fail if aux channels are moved around!
-  chan_wb_ft_label = rawmeta.chans_an{chan_wb_num};
+  % If we had an Intan recorder, we got channel labels from it.
+  % Otherwise we're using FT labels.
+  % If we had an internal channel map, we applied it.
+  % Otherwise, we're using an external channel map or no channel map.
+  chan_wb_label = cookedmeta.cookedchans{chan_wb_num};
+
+  thismsg = [ '   WB channel is ' num2str(chan_wb_num) ' ("' ...
+    chan_wb_label '");  magnitude is channel ' num2str(chan_mag_num) '.' ];
+
+  diagmsgs = [ diagmsgs { thismsg } ];
+  summary = [ summary { thismsg } ];
+  details = [ details { thismsg } ];
+
+  % We may or may not have a random crossing detector. We do have the others.
+  if chan_mag_num ~= cookedmeta.crossmagchan
+    thismsg = [ '###  Magnitude detector is reading from channel ' ...
+      num2str(cookedmeta.crossmagchan) ' instead of ' ...
+      num2str(chan_mag_num) '.' ];
+    diagmsgs = [ diagmsgs { thismsg } ];
+    errmsgs = [ errmsgs { thismsg } ];
+    summary = [ summary { thismsg } ];
+    details = [ details { thismsg } ];
+  end
+  if chan_phase_num ~= cookedmeta.crossphasechan
+    thismsg = [ '###  Phase detector is reading from channel ' ...
+      num2str(cookedmeta.crossphasechan) ' instead of ' ...
+      num2str(chan_phase_num) '.' ];
+    diagmsgs = [ diagmsgs { thismsg } ];
+    errmsgs = [ errmsgs { thismsg } ];
+    summary = [ summary { thismsg } ];
+    details = [ details { thismsg } ];
+  end
+  if have_randdetect && (chan_phase_num ~= cookedmeta.crossrandchan)
+    thismsg = [ '###  Random detector is reading from channel ' ...
+      num2str(cookedmeta.crossrandchan) ' instead of ' ...
+      num2str(chan_phase_num) '.' ];
+    diagmsgs = [ diagmsgs { thismsg } ];
+    errmsgs = [ errmsgs { thismsg } ];
+    summary = [ summary { thismsg } ];
+    details = [ details { thismsg } ];
+  end
+
+
 
 % FIXME - NYI. Stopped here.
 end
