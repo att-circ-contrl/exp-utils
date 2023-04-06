@@ -255,6 +255,8 @@ if have_torte && have_magdetect && have_phasedetect ...
     % We don't know if we're looking at the first or second node. If we
     % find a label with "CHMAG", it's the second; otherwise assume the first.
 
+    oldlabel = chan_wb_ftlabel;
+
     hasmagvec = contains( rawmeta.chans_an, 'CHMAG' );
     if any(hasmagvec)
       % Just parse the label instead of looking for the corresponding
@@ -281,11 +283,14 @@ if have_torte && have_magdetect && have_phasedetect ...
       helper_getFTLabels(chan_wb_ftlabel);
 
     % Tell the user that we remapped things.
-    thismsg = [ '*** NOTE - Corrected input label to "' chan_wb_ftlabel '".' ];
-    diagmsgs = [ diagmsgs { thismsg } ];
-    errmsgs = [ errmsgs { thismsg } ];
-    summary = [ summary { thismsg } ];
-    details = [ details { thismsg } ];
+    if ~strcmp(chan_wb_ftlabel, oldlabel)
+      thismsg = [ '*** NOTE - Corrected input label to "' ...
+        chan_wb_ftlabel '" (was "' oldlabel '").' ];
+      diagmsgs = [ diagmsgs { thismsg } ];
+      errmsgs = [ errmsgs { thismsg } ];
+      summary = [ summary { thismsg } ];
+      details = [ details { thismsg } ];
+    end
   end
 
 
