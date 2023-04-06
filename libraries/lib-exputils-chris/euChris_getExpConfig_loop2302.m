@@ -217,15 +217,84 @@ if have_torte && have_magdetect && have_phasedetect ...
   firstchanmask = cookedmeta.filewritechanmasks{firstidx};
   firstsavedcount = sum(firstchanmask);
 
-  if ~firstchanmask(chan_wb_num)
-    chan_wb_ftlabel = '';
-  end
-
   secondsavedcount = 0;
   if have_secondfile
     secondchanmask = cookedmeta.filewritechanmasks{secondidx};
     secondsavedcount = sum(secondchanmask);
+  end
 
+
+  % Squash any labels that weren't saved.
+
+  if ~firstchanmask(chan_wb_num)
+    chan_wb_ftlabel = '';
+  end
+
+  if have_secondfile
+    if ~secondchanmask(chan_mag_num)
+      chan_mag_ftlabel = '';
+    end
+    if ~secondchanmask(chan_phase_num)
+      chan_phase_ftlabel = '';
+    end
+  else
+    chan_mag_ftlabel = '';
+    chan_phase_ftlabel = '';
+  end
+
+
+  % FIXME - Channel label kludge for situations where we used a
+  % File Reader node.
+
+  % This pulls channel labels from the file it's reading, but doesn't
+  % save them anywhere, so we have to take them from the file we wrote.
+
+  if cookedmeta.readfromfile && (~isempty(chan_wb_ftlabel))
+    % The raw folder metadata contains analog channel FT labels.
+
+    % We don't know if we're looking at the first or second node. If we
+    % find a label with "CHMAG", it's the second; otherwise assume the first.
+
+    hasmagvec = contains( rawmeta.chans_an, 'CHMAG' );
+    if any(hasmagvec)
+      % Just parse the label instead of looking for the corresponding
+      % phase label.
+
+      thisidx = find(hasmagvec);
+      thisidx = thisidx(1);
+      thislabel = rawmeta.chans_an(thisidx);
+
+      tokenlist = regexp(thislabel, '(\d+)');
+      if length(tokenlist) > 0
+        % It's already a "%03d" string.
+        chan_wb_ftlabel = [ 'CH_' tokenlist{1}{1} ];
+      end
+    else
+      % Figure out where this was saved to, and extract the label.
+      thismask = firstchanmask(1:chan_wb_num);
+      thisidx = sum(thismask);
+      chan_wb_ftlabel = rawmeta.chans_an{thisidx};
+    end
+
+    % Rebuild the labels.
+    [ chan_wb_ftlabel chan_mag_ftlabel chan_phase_ftlabel ] = ...
+      helper_getFTLabels(chan_wb_ftlabel);
+
+    % Tell the user that we remapped things.
+    thismsg = [ '   NOTE - Corrected input label to "' chan_wb_ftlabel '".' ];
+    diagmsgs = [ diagmsgs { thismsg } ];
+    summary = [ summary { thismsg } ];
+    details = [ details { thismsg } ];
+  end
+
+
+  % Squash any labels that weren't saved, again.
+
+  if ~firstchanmask(chan_wb_num)
+    chan_wb_ftlabel = '';
+  end
+
+  if have_secondfile
     if ~secondchanmask(chan_mag_num)
       chan_mag_ftlabel = '';
     end
@@ -252,20 +321,38 @@ if have_torte && have_magdetect && have_phasedetect ...
 
   % Report this information.
 
-  thismsg = [ '   Wideband saved as "' chan_wb_ftlabel '" by record node ' ...
-    num2str(config.file_node_first) '.' ];
+  if isempty(chan_wb_ftlabel)
+    thismsg = [ '   Wideband not saved.' ];
+  else
+    thismsg = ...
+      [ '   Wideband saved as "' chan_wb_ftlabel '" by record node ' ...
+        num2str(config.file_node_first) '.' ];
+  end
   diagmsgs = [ diagmsgs { thismsg } ];
   summary = [ summary { thismsg } ];
   details = [ details { thismsg } ];
 
-  if have_secondfile
-    thismsg = [ '   Mag saved as "' chan_mag_ftlabel '" and phase as "' ...
-      chan_phase_ftlabel '" by record node ' ...
-      num2str(config.file_node_second) '.' ];
-    diagmsgs = [ diagmsgs { thismsg } ];
-    summary = [ summary { thismsg } ];
-    details = [ details { thismsg } ];
+  if isempty(chan_mag_ftlabel)
+    thismsg = [ '   Magnitude not saved.' ];
+  else
+    thismsg = ...
+      [ '   Magnitude saved as "' chan_mag_ftlabel '" by record node ' ...
+        num2str(config.file_node_second) '.' ];
   end
+  diagmsgs = [ diagmsgs { thismsg } ];
+  summary = [ summary { thismsg } ];
+  details = [ details { thismsg } ];
+
+  if isempty(chan_mag_ftlabel)
+    thismsg = [ '   Phase not saved.' ];
+  else
+    thismsg = ...
+      [ '   Phase saved as "' chan_phase_ftlabel '" by record node ' ...
+        num2str(config.file_node_second) '.' ];
+  end
+  diagmsgs = [ diagmsgs { thismsg } ];
+  summary = [ summary { thismsg } ];
+  details = [ details { thismsg } ];
 
 
   % Get TTL channel information.
@@ -328,36 +415,34 @@ if have_torte && have_magdetect && have_phasedetect ...
 
   % Report this information.
 
-  thismsg = ...
-    [ '   Loopback trigger saved as "' chan_ttl_loopback_trig_ftlabel ...
-      '" by record node ' num2str(config.file_node_first) '.' ];
+  if isempty(chan_ttl_loopback_trig_ftlabel)
+    thismsg = '   Loopback trigger not saved.';
+  else
+    thismsg = ...
+      [ '   Loopback trigger saved as "' chan_ttl_loopback_trig_ftlabel ...
+        '" by record node ' num2str(config.file_node_first) '.' ];
+  end
   diagmsgs = [ diagmsgs { thismsg } ];
   summary = [ summary { thismsg } ];
   details = [ details { thismsg } ];
 
   if have_secondfile
-    thismsg = [ '   Detect flags saved as "' chan_ttl_detect_mag_ftlabel ...
-      ' (mag), "' chan_ttl_detect_phase_ftlabel '" (phase),"' ];
-    diagmsgs = [ diagmsgs { thismsg } ];
-    summary = [ summary { thismsg } ];
-    details = [ details { thismsg } ];
-    thismsg = [ '   and "' chan_ttl_detect_rand_ftlabel ...
-      '" (rand) by record node ' num2str(config.file_node_second) '.' ];
-    diagmsgs = [ diagmsgs { thismsg } ];
-    summary = [ summary { thismsg } ];
-    details = [ details { thismsg } ];
+    thismsglist = helper_buildSavedMessage('   ', 'Detect flags', ...
+      { chan_ttl_detect_mag_ftlabel, 'mag', ...
+        chan_ttl_detect_phase_ftlabel, 'phase', ...
+        chan_ttl_detect_rand_ftlabel, 'rand' }, config.file_node_second );
+    diagmsgs = [ diagmsgs thismsglist ];
+    summary = [ summary thismsglist ];
+    details = [ details thismsglist ];
 
-    thismsg = [ '   Triggers saved as "' chan_ttl_trig_phase_ftlabel ...
-      ' (phase), "' chan_ttl_trig_rand_ftlabel '" (rand),' ];
-    diagmsgs = [ diagmsgs { thismsg } ];
-    summary = [ summary { thismsg } ];
-    details = [ details { thismsg } ];
-    thismsg = [ '   "' chan_ttl_trig_power_ftlabel '" (power), and "' ...
-      chan_ttl_trig_immed_ftlabel '" (immed) by record node ' ...
-      num2str(config.file_node_second) '.' ];
-    diagmsgs = [ diagmsgs { thismsg } ];
-    summary = [ summary { thismsg } ];
-    details = [ details { thismsg } ];
+    thismsglist = helper_buildSavedMessage('   ', 'Triggers', ...
+      { chan_ttl_trig_phase_ftlabel, 'phase', ...
+        chan_ttl_trig_rand_ftlabel, 'rand', ...
+        chan_ttl_trig_power_ftlabel, 'power', ...
+        chan_ttl_trig_immed_ftlabel, 'immed' }, config.file_node_second );
+    diagmsgs = [ diagmsgs thismsglist ];
+    summary = [ summary thismsglist ];
+    details = [ details thismsglist ];
   end
 
 
@@ -421,6 +506,68 @@ function ftlabel = helper_makeTTLName( bankidx, bitidx )
 
 end
 
+
+function msglist = ...
+  helper_buildSavedMessage( prefix, startstr, siglist, nodeid )
+
+  msglist = {};
+
+  thismsg = [ prefix startstr ];
+
+  sigchans = {};
+  signametags = {};
+  for lidx = 2:2:length(siglist)
+    nidx = lidx/2;
+    sigchans{nidx} = siglist{lidx - 1};
+    signametags{nidx} = siglist{lidx};
+  end
+
+  emptymask = logical([]);
+  for nidx = 1:length(sigchans)
+    emptymask(nidx) = isempty(sigchans{nidx});
+  end
+
+  % Keep only non-empty entries.
+  sigchans = sigchans(~emptymask);
+  signametags = signametags(~emptymask);
+
+
+  if isempty(sigchans)
+    thismsg = [ thismsg ' not saved.' ];
+    msglist = { thismsg };
+  else
+
+    thismsg = [ thismsg ' saved as ' ];
+    sigcount = length(sigchans);
+
+    for nidx = 1:length(sigchans)
+      linestart = logical(mod(nidx,2));
+
+      if linestart && (~isempty(msglist))
+        thismsg = [ prefix ];
+      end
+
+      if nidx >= sigcount
+        thismsg = [ thismsg 'and' ];
+      end
+
+      thismsg = [ thismsg '"' sigchans{nidx} '" (' signametags{nidx} ')' ];
+
+      if nidx >= sigcount
+        thismsg = [ thismsg ' by record node ' num2str(nodeid) '.' ];
+      else
+        thismsg = [ thismsg ',' ];
+      end
+
+      if (~linestart) || (nidx >= sigcount)
+        msglist = [ msglist { thismsg } ];
+        thismsg = '';
+      end
+    end
+
+  end
+
+end
 
 
 %
