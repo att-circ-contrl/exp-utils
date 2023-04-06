@@ -1,0 +1,75 @@
+The "euChris_getCookedMetadata_XXX()" functions transform a raw metadata
+structure for one folder (per RAWFOLDERMETA.txt) into an interpreted
+("cooked") metadata structure, with the fields described below.
+
+
+Fields specific to 'loop2302' type metadata:
+
+(These are NaN or empty vectors/arrays if undefined.)
+
+  "samprate" is the acquisition sampling rate.
+
+  "rawchans" is a list of input channel labels before channel mapping.
+    This is extracted from the Intan recorder, not FT, if possible.
+  "cookedchans" is a list of input channel labels after channel mapping.
+
+  "chanmapoldnums" is a vector indexed by new channel number containing the
+    corresponding old channel numbers. This is taken from the Open Ephys
+    channel mapping node, and is [] if that node wasn't found.
+  "chanmapftraw" is a cell array containing FT channel names before mapping.
+    This may be {} if the FT channel map couldn't be extracted.
+  "chanmapftcooked" is a cell array containing FT channel names after mapping.
+    This may be {} if the FT channel map couldn't be extracted.
+
+  "torteband" [ low high ] has the Phase Calculator's band corners.
+  "tortemode" is the output mode. We want a value of 'both'.
+  "torteinchans" is a vector of channel numbers used as the Phase
+    Calculator's input. We usually want exactly one channel here.
+  "torteextrachan" is the channel number that the Phase Calculator adds
+    for magnitude output, in mag+phase mode (this is 1-based).
+
+  "crossmagchan" is the channel number of the magnitude detector's input.
+  "crossmagthresh" is the multiplier used to get the magnitude threshold
+    from the RMS average magnitude.
+  "crossmagtau" is the decay time in seconds for computing this RMS average.
+  "crossmagbank" is the bank index (0-based) of the detector's TTL output.
+  "crossmagbit" is the bit number (0-based) of the detector's TTL output.
+
+  "crossphasechan" is the channel number of the phase detector's input.
+  "crossphaseval" is the detector's target value (phase threshold in degrees).
+  "crossphasebank" is the bank index (0-based) of the detector's TTL output.
+  "crossphasebit" is the bit number (0-based) of the detector's TTL output.
+
+  "crossrandchan" is the channel number of the random phase comparator's
+    input.
+  "crossrandbank" is the bank index (0-based) of the detector's TTL output.
+  "crossrandbit" is the bit number (0-based) of the detector's TTL output.
+
+  "randwasjitter" is true if the conditional trigger faked random phase
+    targets by adding jitter to a fixed phase target.
+
+  "trigbank" is the bank index (0-based) of the conditional trigger's TTL
+    outputs.
+  "trigphasebit" is the bit index (0-based) of the phase-aligned trigger
+    output, or NaN if this wasn't generated.
+  "trigrandbit" is the bit index (0-based) of the random-phase trigger
+    output, or NaN if this wasn't generated.
+  "trigmagbit" is the bit index (0-based) of the power excursion trigger
+    output, or NaN if this wasn't generated.
+  "trignowbit" is the bit index (0-based) of the "trigger immediately when
+    RwdB goes high" trigger output, or NaN if this wasn't generated.
+
+  "ardinbit" is the bit index (0-based) of the Arduino's triggering input.
+
+  "filewritenodes" is a vector containing node ID numbers of file writers.
+  "filewritechanmasks" is a cell array containing logical vectors indicating
+    which channels were saved for each file writing node.
+  "filewritehasevents" is a logical vector indicating whether each node
+    saved TTL events or not.
+
+FIXME - Channel labels will be iffy. They use OE's naming conventions rather
+than FT's, and may be in a different order (due to aux channels etc).
+
+
+
+(This is the end of the file.)
