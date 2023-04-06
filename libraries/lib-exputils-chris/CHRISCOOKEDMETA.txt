@@ -13,6 +13,10 @@ Fields specific to 'loop2302' type metadata:
     This is extracted from the Intan recorder, not FT, if possible.
   "cookedchans" is a list of input channel labels after channel mapping.
 
+  "readfromfile" is true if a File Reader node was used and false otherwise.
+    Channel labels are unreliable in this situation (the reader takes them
+    from the file being read but doesn't save them anywhere).
+
   "chanmapoldnums" is a vector indexed by new channel number containing the
     corresponding old channel numbers. This is taken from the Open Ephys
     channel mapping node, and is [] if that node wasn't found.

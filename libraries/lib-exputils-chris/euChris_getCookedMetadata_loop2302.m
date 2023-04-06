@@ -11,7 +11,7 @@ function cookedmeta = euChris_getCookedMetadata_loop2302( rawmeta, hintdata )
 %   may be a structure with no fields or an empty structure array.
 %
 % "cookedmeta" is a metadata structure containing derived configuration
-% information, per CHRISEXPMETA.txt.
+% information, per CHRISCOOKEDMETA.txt.
 
 
 cookedmeta = struct();
@@ -26,6 +26,8 @@ end
 
 rawchans = {};
 cookedchans = {};
+
+readfromfile = false;
 
 samprate = NaN;
 ardinbit = NaN;
@@ -96,6 +98,9 @@ for pidx = 1:length(sigchain)
     samprate = thisproc.samprate;
 
   elseif strcmp(thisproc.procname, 'File Reader')
+
+    % Flag the fact that we used this.
+    readfromfile = true;
 
     % NOTE - We can't copy FT metadata, since that's what the _wrote_, not
     % what we read.
@@ -274,6 +279,8 @@ cookedmeta.samprate = samprate;
 
 cookedmeta.rawchans = rawchans;
 cookedmeta.cookedchans = cookedchans;
+
+cookedmeta.readfromfile = readfromfile;
 
 cookedmeta.chanmapoldnums = oe_chanmap_oldchans;
 cookedmeta.chanmapftraw = ft_chanmap_raw;

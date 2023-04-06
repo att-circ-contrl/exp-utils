@@ -393,7 +393,8 @@ function [ wb_ftlabel mag_ftlabel phase_ftlabel ] = ...
   mag_ftlabel = '';
   phase_ftlabel = '';
 
-  tokenlist = regexp(wb_oelabel, 'CH(\d+)', 'tokens');
+  % NOTE - Make this tolerate getting a FT label as input.
+  tokenlist = regexp(wb_oelabel, 'CH\D*(\d+)', 'tokens');
   if length(tokenlist) > 0
     thisnumstr = tokenlist{1}{1};
     thisnum = str2num(thisnumstr);
