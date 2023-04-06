@@ -281,8 +281,9 @@ if have_torte && have_magdetect && have_phasedetect ...
       helper_getFTLabels(chan_wb_ftlabel);
 
     % Tell the user that we remapped things.
-    thismsg = [ '   NOTE - Corrected input label to "' chan_wb_ftlabel '".' ];
+    thismsg = [ '*** NOTE - Corrected input label to "' chan_wb_ftlabel '".' ];
     diagmsgs = [ diagmsgs { thismsg } ];
+    errmsgs = [ errmsgs { thismsg } ];
     summary = [ summary { thismsg } ];
     details = [ details { thismsg } ];
   end
@@ -511,8 +512,9 @@ function msglist = ...
   helper_buildSavedMessage( prefix, startstr, siglist, nodeid )
 
   msglist = {};
+  maxlen = 78;
 
-  thismsg = [ prefix startstr ];
+  % Get a channel name list and a name tag list.
 
   sigchans = {};
   signametags = {};
@@ -532,36 +534,53 @@ function msglist = ...
   signametags = signametags(~emptymask);
 
 
+  % Build the output.
+
+  thismsg = [ prefix startstr ];
+
   if isempty(sigchans)
     thismsg = [ thismsg ' not saved.' ];
     msglist = { thismsg };
   else
 
-    thismsg = [ thismsg ' saved as ' ];
+    thismsg = [ thismsg ' saved as' ];
     sigcount = length(sigchans);
 
-    for nidx = 1:length(sigchans)
-      linestart = logical(mod(nidx,2));
-
-      if linestart && (~isempty(msglist))
-        thismsg = [ prefix ];
-      end
+    for nidx = 1:sigcount
+      thisfragment = '';
 
       if nidx >= sigcount
-        thismsg = [ thismsg 'and' ];
+        thisfragment = [ thisfragment 'and ' ];
       end
 
-      thismsg = [ thismsg '"' sigchans{nidx} '" (' signametags{nidx} ')' ];
+      thisfragment = [ thisfragment ...
+        '"' sigchans{nidx} '" (' signametags{nidx} ')' ];
 
-      if nidx >= sigcount
-        thismsg = [ thismsg ' by record node ' num2str(nodeid) '.' ];
+      if (nidx < sigcount) && (sigcount > 2)
+        thisfragment = [ thisfragment ',' ];
+      end
+
+
+      if length(thismsg) + length(thisfragment) < maxlen
+        thismsg = [ thismsg ' ' thisfragment ];
       else
-        thismsg = [ thismsg ',' ];
+        msglist = [ msglist { thismsg } ];
+        thismsg = [ prefix thisfragment ];
       end
 
-      if (~linestart) || (nidx >= sigcount)
+
+      if nidx >= sigcount
+        thisfragment = [ 'by record node ' num2str(nodeid) '.' ];
+
+        if length(thismsg) + length(thisfragment) < maxlen
+          thismsg = [ thismsg ' ' thisfragment ];
+        else
+          msglist = [ msglist { thismsg } ];
+          thismsg = [ prefix thisfragment ];
+        end
+
+        % This is the last line, so append it.
         msglist = [ msglist { thismsg } ];
-        thismsg = '';
       end
     end
 
