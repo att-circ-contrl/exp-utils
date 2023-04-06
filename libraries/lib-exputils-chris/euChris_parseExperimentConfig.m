@@ -131,9 +131,10 @@ if strcmp(exptype, 'loop2302')
 
 
   % Get experiment configuration information.
+  % NOTE - We need to pass the full list of folder metadata structures here.
 
   [ expconfig expsummary expdetails thisdiaglist thiserrlist ] = ...
-    euChris_getExpConfig_loop2302( thisrawmeta, cookedmeta, hintdata );
+    euChris_getExpConfig_loop2302( rawmeta_open, cookedmeta, hintdata );
 
   expmeta.('expconfig') = expconfig;
 

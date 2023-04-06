@@ -13,11 +13,10 @@ For experiments of type 'loop2302', fields are as follows:
 "trigtype" is 'phase', 'random', 'power', 'immediate', or 'none'. This
   indicates how the Arduino output, if any, was generated.
 
-"file_node_first" is the Record Node node number of the primary file writing
-  node (saving wideband data and the loopback trigger signal).
-"file_node_second" is the Record Node node number of the secondary file
-  writing node (saving derived and internally generated signals), or NaN if
-  this node wasn't present.
+"file_path_first" is the folder containing the wideband data and loopback
+  trigger signal.
+"file_path_second" is the folder containing derived and internally generated
+  signals, or '' if these weren't saved.
 
 
 (Signals saved by the primary file writing node:)

@@ -1,16 +1,16 @@
 function [ config summary details diagmsgs errmsgs ] = ...
-  euChris_getExpConfig_loop2302( rawmeta, cookedmeta, hintdata )
+  euChris_getExpConfig_loop2302( rawmetalist, cookedmeta, hintdata )
 
 % function [ config summary details diagmsgs errmsgs ] = ...
-%   euChris_getExpConfig_loop2302( rawmeta, cookedmeta, hintdata )
+%   euChris_getExpConfig_loop2302( rawmetalist, cookedmeta, hintdata )
 %
 % This examines an experiment session's metadata and builds an experiment
 % configuration structure describing the experiment.
 %
 % This function works with 'loop2302' type metadata.
 %
-% "rawmeta" is the raw metadata structure for this experiment folder, per
-%   RAWFOLDERMETA.txt.
+% "rawmetalist" is a cell array containing per-folder raw metadata
+%   structures for this experiment, per RAWFOLDERMETA.txt.
 % "cookedmeta" is the cooked (derived) metadata for this experiment, per
 %   CHRISEXPMETA.txt.
 % "hintdata" is a structure containing hints for processing metadata. If
@@ -24,7 +24,7 @@ function [ config summary details diagmsgs errmsgs ] = ...
 %   human-readable detailed description of the configuration.
 % "diagmsgs" is a cell array containing diagnostic messages _and_ error
 %   and warning messages generated during processing.
-% "errmsg" is a cell array containing _only_ error and warning messages
+% "errmsgs" is a cell array containing _only_ error and warning messages
 %   generated during processing.
 
 
@@ -35,6 +35,30 @@ details = {};
 
 diagmsgs = {};
 errmsgs = {};
+
+
+%
+% Extract the first raw metadata structure, and file node path information.
+
+% Almost all of the raw metadata should be the same between folders, since
+% the config files are the same. At least one folder will exist.
+thisrawmeta = rawmetalist{1};
+
+folderpaths = {};
+for fidx = 1:length(rawmetalist)
+  folderpaths{fidx} = rawmetalist{fidx}.folder;
+end
+
+foldernodes = [];
+for fidx = 1:length(folderpaths)
+  foldernodes(fidx) = NaN;
+  thispath = folderpaths{fidx};
+
+  tokenlist = regexp(thispath, 'Record Node (\d+)', 'tokens');
+  if length(tokenlist) > 0
+    foldernodes(fidx) = str2num(tokenlist{1}{1});
+  end
+end
 
 
 %
@@ -175,6 +199,81 @@ if have_torte && have_magdetect && have_phasedetect ...
 
 
   %
+  % Get file node information.
+
+  % FIXME - Rely on the file recorder nodes being saved in signal chain order.
+  % We always have at least one recording node.
+  % Assume that this is saving raw input, and the next is saving derived
+  % signals.
+
+  firstidx = 1;
+  secondidx = NaN;
+
+  if have_secondfile
+    secondidx = 2;
+  end
+
+
+  file_node_first = cookedmeta.filewritenodes(firstidx);
+  file_node_second = NaN;
+  if have_secondfile
+    file_node_second = cookedmeta.filewritenodes(secondidx);
+  end
+
+  % If there's only one recording node, we sometimes symlink into the node's
+  % folder for convenience. In that situation, we won't have any node IDs
+  % for the folders, and won't match.
+
+  config.file_path_first = folderpaths{1};
+
+  if any(foldernodes == file_node_first)
+    thisidx = find(foldernodes == file_node_first);
+    thisidx = thisidx(1);
+    config.file_path_first = folderpaths{thisidx};
+  end
+
+  % If we have a second recording node, we should have node IDs for folders.
+  config.file_path_second = '';
+  if ~isnan(file_node_second)
+    if any(foldernodes == file_node_second)
+      thisidx = find(foldernodes == file_node_second);
+      thisidx = thisidx(1);
+      config.file_path_second = folderpaths{thisidx};
+    else
+      thismsg = [ '###  Couldn''t find folder path for record node ' ...
+        num2str(file_node_second) '.' ];
+      diagmsgs = [ diagmsgs { thismsg } ];
+      errmsgs = [ errmsgs { thismsg } ];
+      summary = [ summary { thismsg } ];
+      details = [ details { thismsg } ];
+    end
+  end
+
+  % Report the paths and file node IDs.
+
+  thismsg = [ '   First file writer is node ' num2str(file_node_first) ...
+    ' with path:' ];
+  diagmsgs = [ diagmsgs { thismsg } ];
+  details = [ details { thismsg } ];
+
+  thismsg = [ '   "' config.file_path_first '"' ];
+  diagmsgs = [ diagmsgs { thismsg } ];
+  details = [ details { thismsg } ];
+
+  if have_secondfile
+    thismsg = [ '   Second file writer is node ' num2str(file_node_second) ...
+      ' with path:' ];
+    diagmsgs = [ diagmsgs { thismsg } ];
+    details = [ details { thismsg } ];
+
+    thismsg = [ '   "' config.file_path_second '"' ];
+    diagmsgs = [ diagmsgs { thismsg } ];
+    details = [ details { thismsg } ];
+  end
+
+
+
+  %
   % Figure out what we're saving.
 
 
@@ -194,19 +293,6 @@ if have_torte && have_magdetect && have_phasedetect ...
   chan_ttl_trig_immed_ftlabel = '';
 
   chan_ttl_trig_selected_ftlabel = '';
-
-
-  % FIXME - Rely on the file recorder nodes being saved in signal chain order.
-  % We always have at least one recording node.
-  % Assume that this is saving raw input, and the next is saving derived
-  % signals.
-
-  firstidx = 1;
-  secondidx = NaN;
-
-  if have_secondfile
-    secondidx = 2;
-  end
 
 
   % Get analog channel information.
@@ -257,16 +343,16 @@ if have_torte && have_magdetect && have_phasedetect ...
 
     oldlabel = chan_wb_ftlabel;
 
-    hasmagvec = contains( rawmeta.chans_an, 'CHMAG' );
+    hasmagvec = contains( thisrawmeta.chans_an, 'CHMAG' );
     if any(hasmagvec)
       % Just parse the label instead of looking for the corresponding
       % phase label.
 
       thisidx = find(hasmagvec);
       thisidx = thisidx(1);
-      thislabel = rawmeta.chans_an(thisidx);
+      thislabel = thisrawmeta.chans_an(thisidx);
 
-      tokenlist = regexp(thislabel, '(\d+)');
+      tokenlist = regexp(thislabel, '(\d+)', 'tokens');
       if length(tokenlist) > 0
         % It's already a "%03d" string.
         chan_wb_ftlabel = [ 'CH_' tokenlist{1}{1} ];
@@ -275,7 +361,7 @@ if have_torte && have_magdetect && have_phasedetect ...
       % Figure out where this was saved to, and extract the label.
       thismask = firstchanmask(1:chan_wb_num);
       thisidx = sum(thismask);
-      chan_wb_ftlabel = rawmeta.chans_an{thisidx};
+      chan_wb_ftlabel = thisrawmeta.chans_an{thisidx};
     end
 
     % Rebuild the labels.
@@ -313,13 +399,7 @@ if have_torte && have_magdetect && have_phasedetect ...
   end
 
 
-  % Record analog channels and file node information.
-
-  config.file_node_first = cookedmeta.filewritenodes(firstidx);
-  config.file_node_second = NaN;
-  if have_secondfile
-    config.file_node_second = cookedmeta.filewritenodes(secondidx);
-  end
+  % Record analog channels.
 
   config.chan_wb_ftlabel = chan_wb_ftlabel;
   config.chan_mag_ftlabel = chan_mag_ftlabel;
@@ -332,7 +412,7 @@ if have_torte && have_magdetect && have_phasedetect ...
   else
     thismsg = ...
       [ '   Wideband saved as "' chan_wb_ftlabel '" by record node ' ...
-        num2str(config.file_node_first) '.' ];
+        num2str(file_node_first) '.' ];
   end
   diagmsgs = [ diagmsgs { thismsg } ];
   summary = [ summary { thismsg } ];
@@ -343,7 +423,7 @@ if have_torte && have_magdetect && have_phasedetect ...
   else
     thismsg = ...
       [ '   Magnitude saved as "' chan_mag_ftlabel '" by record node ' ...
-        num2str(config.file_node_second) '.' ];
+        num2str(file_node_second) '.' ];
   end
   diagmsgs = [ diagmsgs { thismsg } ];
   summary = [ summary { thismsg } ];
@@ -354,7 +434,7 @@ if have_torte && have_magdetect && have_phasedetect ...
   else
     thismsg = ...
       [ '   Phase saved as "' chan_phase_ftlabel '" by record node ' ...
-        num2str(config.file_node_second) '.' ];
+        num2str(file_node_second) '.' ];
   end
   diagmsgs = [ diagmsgs { thismsg } ];
   summary = [ summary { thismsg } ];
@@ -426,7 +506,7 @@ if have_torte && have_magdetect && have_phasedetect ...
   else
     thismsg = ...
       [ '   Loopback trigger saved as "' chan_ttl_loopback_trig_ftlabel ...
-        '" by record node ' num2str(config.file_node_first) '.' ];
+        '" by record node ' num2str(file_node_first) '.' ];
   end
   diagmsgs = [ diagmsgs { thismsg } ];
   summary = [ summary { thismsg } ];
@@ -436,7 +516,7 @@ if have_torte && have_magdetect && have_phasedetect ...
     thismsglist = helper_buildSavedMessage('   ', 'Detect flags', ...
       { chan_ttl_detect_mag_ftlabel, 'mag', ...
         chan_ttl_detect_phase_ftlabel, 'phase', ...
-        chan_ttl_detect_rand_ftlabel, 'rand' }, config.file_node_second );
+        chan_ttl_detect_rand_ftlabel, 'rand' }, file_node_second );
     diagmsgs = [ diagmsgs thismsglist ];
     summary = [ summary thismsglist ];
     details = [ details thismsglist ];
@@ -445,7 +525,7 @@ if have_torte && have_magdetect && have_phasedetect ...
       { chan_ttl_trig_phase_ftlabel, 'phase', ...
         chan_ttl_trig_rand_ftlabel, 'rand', ...
         chan_ttl_trig_power_ftlabel, 'power', ...
-        chan_ttl_trig_immed_ftlabel, 'immed' }, config.file_node_second );
+        chan_ttl_trig_immed_ftlabel, 'immed' }, file_node_second );
     diagmsgs = [ diagmsgs thismsglist ];
     summary = [ summary thismsglist ];
     details = [ details thismsglist ];
