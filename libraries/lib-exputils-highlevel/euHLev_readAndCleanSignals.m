@@ -36,7 +36,7 @@ function [ ftdata_ephys ftdata_events ] = euHLev_readAndCleanSignals( ...
 % "notch_bw" is the notch filter bandwidth in Hz. NaN disables filtering.
 %
 % "ftdata_ephys" is a Field Trip data structure containing ephys data for
-%   the specified ephys channels. NOTE - This will be an empty cell array
+%   the specified ephys channels. NOTE - This will be an empty struct array
 %   if there were no ephys channels specified or no matching channels found.
 % "ftdata_events" is a cell array with the same number of elements as
 %   "event_chans". Each cell contains a vector of Field Trip event records
