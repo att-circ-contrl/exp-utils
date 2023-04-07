@@ -1,0 +1,28 @@
+The "euHLev_getChrisMetadata()" function accepts "case" definition
+structures as arguments and augments the returned metadata structures with
+them (per CHRISEXPMETA.txt).
+
+
+Case definition structures have the following fields:
+
+"folder" is the path to extract experiment metadata from.
+"prefix" is a character vector with a filename-safe prefix to use with plots.
+"title" is a character vector with a human-readable description to use in
+  plots.
+"setprefix" is a character vector with a filename-safe prefix to use with
+  plots for the group of cases of which this case is a part.
+"settitle" is a character vector with a human-readable description to use
+  in plots for the group of cases of which this case is a part.
+"exptype" is a character vector defining the type of dataset being processed
+  (e.g. 'loop2302').
+"hint" is a structure containing hints for parsing and/or data processing.
+  This may be a structure with no fields or an empty structure array.
+
+
+Hint fields recognized by library functions are as follows:
+
+(No library-recognized hints yet.)
+
+
+
+(This is the end of the file.)

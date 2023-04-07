@@ -30,6 +30,9 @@ Fields common to all types of metadata structure:
 "expconfig" is a structure describing the experiment configuration, per
   CHRISEXPCONFIGS.txt.
 
+"casemeta" (optional) is a structure added by euChris_getChrisMetadata()
+  containing case metadata. Fields are per CHRISCASEMETA.txt.
+
 
 
 (This is the end of the file.)

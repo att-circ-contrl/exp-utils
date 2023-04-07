@@ -1,11 +1,12 @@
-function casemetalist = euHLev_getChrisMetadata( caselist )
+function casemetalist = euChris_getChrisMetadata( caselist )
 
-% function casemetalist = euHLev_getChrisMetadata( caselist )
+% function casemetalist = euChris_getChrisMetadata( caselist )
 %
 % This iterates through a list of experiment cases for Chris's tests, and
 % extracts signal chain metadata and Open Ephys metadata for each case.
 %
-% "caselist" is a struct array with the following fields:
+% "caselist" is a struct array with the following fields (per
+%   CHRISCASEMETA.txt):
 %   'folder' is a character array with the top-level save file path.
 %   'prefix' is a filename-safe label for per-case filenames.
 %   'title' is a plot-safe human-readable per-case label.
@@ -13,16 +14,15 @@ function casemetalist = euHLev_getChrisMetadata( caselist )
 %     belongs to.
 %   'settitle' is a plot-safe human-readable title for the set of cases
 %     this case belongs to.
-%   'settype' is a character array specifying the parser to use for
+%   'exptype' is a character array specifying the parser to use for
 %     processing this configuration, or '' for the default.
 %   'hint' is a structure containing hints for parsing. This may be a
 %     structure with no fields or an empty structure array.
 %
 % "casemetalist" is a cell array with one element per case, containing
-%   the metadata structures returned when parsing each case.
-%
-% FIXME - Metadata for different set types goes here!
-% - loop2302xx
+%   the metadata structures returned when parsing each case. These have
+%   the fields defined in CHRISEXPMETA.txt, augmented with a "casemeta"
+%   field containing the associated case's metadata per CHRISCASEMETA.txt.
 
 
 casemetalist = {};
@@ -31,7 +31,7 @@ for cidx = 1:length(caselist)
 
   thiscase = caselist(cidx);
 
-  thistype = thiscase.settype;
+  thistype = thiscase.exptype;
   thishint = thiscase.hint;
 
 
@@ -61,9 +61,9 @@ for cidx = 1:length(caselist)
   end
 
   if ~isempty(thismeta)
-    % Debugging - Copy the case information as well.
+    % Copy the case information as well.
     % Raw metadata is already saved by parseExperimentConfig().
-    thismeta.caseinfo = thiscase;
+    thismeta.casemeta = thiscase;
   end
 
   if ~isempty(errmsgs)
