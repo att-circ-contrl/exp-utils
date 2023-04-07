@@ -1,6 +1,6 @@
 The "euHLev_getChrisMetadata()" function accepts "case" definition
-structures as arguments and augments the returned metadata structures with
-them (per CHRISEXPMETA.txt).
+structures as arguments; these are described below. The returned metadata
+structures (per CHRISEXPMETA.txt) are augmented with these case definitions.
 
 
 Case definition structures have the following fields:
