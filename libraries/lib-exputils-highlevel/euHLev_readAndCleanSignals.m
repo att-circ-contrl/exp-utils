@@ -1,13 +1,11 @@
-function [ ftdata_ephys ftdata_events ] = euHLev_readAndCleanSignals( ...
-  folder, ephys_chans, event_chans, trim_fraction, ...
-  artifact_level, notch_freqs, notch_bw )
+function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
+  trim_fraction, artifact_level, notch_freqs, notch_bw )
 
-% function [ ftdata_ephys ftdata_events ] = euHLev_readAndCleanSignals( ...
-%   folder, ephys_chans, event_chans, trim_fraction, ...
-%   artifact_level, notch_freqs, notch_bw )
+% function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
+%   trim_fraction, artifact_level, notch_freqs, notch_bw )
 %
-% This reads Field Trip trial data and event data from the specified folder,
-% performing notch filtering and artifact rejection.
+% This reads Field Trip trial data from the specified folder, performing
+% notch filtering and artifact rejection.
 %
 % NOTE - Channel names specified as '' are skipped (removed from the list
 % before calling FT's read functions).
@@ -25,8 +23,6 @@ function [ ftdata_ephys ftdata_events ] = euHLev_readAndCleanSignals( ...
 % "folder" is the folder to read from.
 % "ephys_chans" is a cell array containing channel names to read. If this is
 %   empty, no ephys data is read (an empty struct array is returned).
-% "event_chans" is a cell array containing event channel names to read. If
-%   this is empty, no events are read (an empty cell array is returned).
 % "trim_fraction" (in the range 0 to 0.5) is the amount of time to trim from
 %   the start and end of the ephys data as a fraction of the untrimmed length.
 % "artifact_level" (-2..+2) is a tuning adjustment for artifact rejection;
@@ -38,13 +34,9 @@ function [ ftdata_ephys ftdata_events ] = euHLev_readAndCleanSignals( ...
 % "ftdata_ephys" is a Field Trip data structure containing ephys data for
 %   the specified ephys channels. NOTE - This will be an empty struct array
 %   if there were no ephys channels specified or no matching channels found.
-% "ftdata_events" is a cell array with the same number of elements as
-%   "event_chans". Each cell contains a vector of Field Trip event records
-%   (per "nlFT_readEvents") from the associated event channel.
 
 
 ftdata_ephys = struct([]);
-ftdata_events = {};
 
 
 chanmask = logical([]);
@@ -52,12 +44,6 @@ for lidx = 1:length(ephys_chans)
   chanmask(lidx) = ~isempty(ephys_chans{lidx});
 end
 ephys_chans = ephys_chans(chanmask);
-
-chanmask = logical([]);
-for lidx = 1:length(event_chans)
-  chanmask(lidx) = ~isempty(event_chans{lidx});
-end
-event_chans = event_chans(chanmask);
 
 
 if ~isempty(ephys_chans)
@@ -111,25 +97,6 @@ if ~isempty(ephys_chans)
         euFT_doBrickNotchRemoval( ftdata_ephys, notch_freqs, notch_bw );
     end
 
-  end
-
-end
-
-
-if ~isempty(event_chans)
-
-  % Read the events.
-
-  events_raw = ft_read_event( folder, ...
-    'headerformat', 'nlFT_readHeader', 'eventformat', 'nlFT_readEvents' );
-
-  if ~isempty(events_raw)
-    event_labels = { events_raw(:).type };
-
-    for cidx = 1:length(event_chans)
-      thiseventlist = events_raw( strcmp(event_labels, event_chans{cidx}) );
-      ftdata_events{cidx} = thiseventlist;
-    end
   end
 
 end
