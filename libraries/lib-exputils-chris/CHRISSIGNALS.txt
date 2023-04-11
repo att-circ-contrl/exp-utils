@@ -1,0 +1,50 @@
+Signals extracted by euChris_extractSignals_XXX are stored in a structure,
+with fields depending on experiment type.
+
+
+For experiments of type 'loop2302', fields are as follows:
+
+NOTE - Wideband and signals derived from it should always exist, but
+other fields aren't gauranteed to be present.
+
+"wb_time" and "wb_wave" are the wideband signal.
+"lfp_time" and "lfp_wave" are the wide-cut LFP signal.
+"band_time" and "band_wave" are the ideal (acausal) narrow-band signal.
+"delayband_time" and "delayband_wave" are a version of the narrow-band
+  signal produced with a causal filter. This won't match TORTE's filter.
+
+"canon_time", "canon_mag", "canon_phase", and "canon_rms" are derived
+  from the acausal band-pass signal. These are the time, analytic
+  magnitude and phase, and the acausal moving RMS average of the
+  magnitude, respectively.
+"delayed_time", "delayed_mag", "delayed_phase", and "delayed_rms"
+  are derived from the delayed (causal) band-pass signal. These are the
+  time, analytic magnitude and phase, and delayed (causal) moving RMS
+  average of the magnitude, respectively.
+"canon_magflag", "canon_phaseflag", "delayed_magflag", and
+  "delayed_phaseflag" are the magnitude excursion detection flag and
+  the phase target match flag derived from the acausal and delayed
+  (causal) signals described above.
+
+"torte_time", "torte_mag", and "torte_phase" are the recorded values
+  of the TNE Lab Phase Calculator plugin's estimates of instantaneous
+  magnitude and instantaneous phase.
+  NOTE - These signals are not guaranteed to exist!
+
+"XXX_ftevents", "XXX_wave", "XXX_times", and "XXX_edges" are stored for
+  each of several TTL signals.
+  NOTE - These signals are not guaranteed to exist!
+  "XXX_ftevents" holds a Field Trip event structure array for events
+    associated with this TTL signal, per ft_read_event().
+  "XXX_wave" is a logical vector holding time-series waveform data for
+    this TTL signal.
+  "XXX_times" is a vector holding sample timestamp data for this signal.
+  "XXX_edges" is a vector holding timestamps of rising signal edges.
+  Signals saved (values of "XXX") are "loopback", "detectmag",
+  "detectphase", "detectrand", "trigphase", "trigrand", "trigpower",
+  "trigimmed", and "trigused" (a duplicate of one of the other "trig"
+  signals).
+
+
+
+(This is the end of the file.)

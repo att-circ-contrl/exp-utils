@@ -24,7 +24,8 @@ function casesignals = ...
 %     to use when estimating what the phase detector signal should look like.
 % "verbosity" is 'normal' or 'quiet'.
 %
-% "casesignals" is a structure containing the following fields:
+% "casesignals" is a structure containing the following fields, per
+%   CHRISSIGNALS.txt:
 %
 %   "wb_time" and "wb_wave" are the wideband signal.
 %   "lfp_time" and "lfp_wave" are the wide-cut LFP signal.
@@ -52,6 +53,7 @@ function casesignals = ...
 %
 %   "XXX_ftevents", "XXX_wave", "XXX_times", and "XXX_edges" are stored for
 %     each of several TTL signals.
+%     NOTE - These signals are not guaranteed to exist!
 %     "XXX_ftevents" holds a Field Trip event structure array for events
 %       associated with this TTL signal, per ft_read_event().
 %     "XXX_wave" is a logical vector holding time-series waveform data for
