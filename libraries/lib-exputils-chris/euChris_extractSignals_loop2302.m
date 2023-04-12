@@ -204,10 +204,10 @@ casesignals.canon_phaseflag = (scratch <= (0.5 * pdetect_width_rad)) ...
 % the _midpoint_ of the phase detector's pulse, since it's centered on zero.
 [ rsamp fsamp bsamp hsamp lsamp ] = ...
   nlProc_getBooleanEdges(casesignals.canon_magflag);
-casesignals.canon_magflag_edges = caessignals.canon_time(rsamp);
+casesignals.canon_magflag_edges = casesignals.canon_time(rsamp);
 [ rsamp fsamp bsamp hsamp lsamp ] = ...
   nlProc_getBooleanEdges(casesignals.canon_phaseflag);
-casesignals.canon_phaseflag_edges = caessignals.canon_time(hsamp);
+casesignals.canon_phaseflag_edges = casesignals.canon_time(hsamp);
 
 
 % Delayed (causal).
@@ -234,10 +234,10 @@ casesignals.delayed_phaseflag = ...
 % Magnitude and phase detection times are at the rising edge.
 [ rsamp fsamp bsamp hsamp lsamp ] = ...
   nlProc_getBooleanEdges(casesignals.delayed_magflag);
-casesignals.delayed_magflag_edges = caessignals.delayed_time(rsamp);
+casesignals.delayed_magflag_edges = casesignals.delayed_time(rsamp);
 [ rsamp fsamp bsamp hsamp lsamp ] = ...
   nlProc_getBooleanEdges(casesignals.delayed_phaseflag);
-casesignals.delayed_phaseflag_edges = caessignals.delayed_time(rsamp);
+casesignals.delayed_phaseflag_edges = casesignals.delayed_time(rsamp);
 
 
 %
