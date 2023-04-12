@@ -45,6 +45,11 @@ function casesignals = ...
 %     "delayed_phaseflag" are the magnitude excursion detection flag and
 %     the phase target match flag derived from the acausal and delayed
 %     (causal) signals described above.
+%   "canon_magflag_edges", "canon_phaseflag_edges", "delayed_magflag_edges",
+%     and "delayed_phaseflag_edges" are vectors holding timestamps of rising
+%     edges of the corresponding magnitude detection flags and of the
+%     delayed phase detection flag, and timestamps of the high pulse
+%     midpoints of the acausal phase detection flag.
 %
 %   "torte_time", "torte_mag", and "torte_phase" are the recorded values
 %     of the TNE Lab Phase Calculator plugin's estimates of instantaneous
@@ -195,6 +200,15 @@ scratch = mod((scratch + pi - cookedmeta.crossphaseval), 2*pi) - pi;
 casesignals.canon_phaseflag = (scratch <= (0.5 * pdetect_width_rad)) ...
   & (scratch >= (-0.5 * pdetect_width_rad));
 
+% Magnitude detection time is the rising edge, but phase detection time is
+% the _midpoint_ of the phase detector's pulse, since it's centered on zero.
+[ rsamp fsamp bsamp hsamp lsamp ] = ...
+  nlProc_getBooleanEdges(casesignals.canon_magflag);
+casesignals.canon_magflag_edges = caessignals.canon_time(rsamp);
+[ rsamp fsamp bsamp hsamp lsamp ] = ...
+  nlProc_getBooleanEdges(casesignals.canon_phaseflag);
+casesignals.canon_phaseflag_edges = caessignals.canon_time(hsamp);
+
 
 % Delayed (causal).
 
@@ -217,6 +231,13 @@ scratch = mod((scratch + pi - cookedmeta.crossphaseval), 2*pi) - pi;
 casesignals.delayed_phaseflag = ...
   (scratch <= pdetect_width_rad) & (scratch >= 0);
 
+% Magnitude and phase detection times are at the rising edge.
+[ rsamp fsamp bsamp hsamp lsamp ] = ...
+  nlProc_getBooleanEdges(casesignals.delayed_magflag);
+casesignals.delayed_magflag_edges = caessignals.delayed_time(rsamp);
+[ rsamp fsamp bsamp hsamp lsamp ] = ...
+  nlProc_getBooleanEdges(casesignals.delayed_phaseflag);
+casesignals.delayed_phaseflag_edges = caessignals.delayed_time(rsamp);
 
 
 %

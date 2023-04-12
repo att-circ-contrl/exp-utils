@@ -25,6 +25,11 @@ other fields aren't gauranteed to be present.
   "delayed_phaseflag" are the magnitude excursion detection flag and
   the phase target match flag derived from the acausal and delayed
   (causal) signals described above.
+"canon_magflag_edges", "canon_phaseflag_edges", "delayed_magflag_edges",
+  and "delayed_phaseflag_edges" are vectors holding timestamps of rising
+  edges of the corresponding magnitude detection flags and of the
+  delayed phase detection flag, and timestamps of the high pulse
+  midpoints of the acausal phase detection flag.
 
 "torte_time", "torte_mag", and "torte_phase" are the recorded values
   of the TNE Lab Phase Calculator plugin's estimates of instantaneous
