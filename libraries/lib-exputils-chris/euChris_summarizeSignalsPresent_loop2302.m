@@ -96,6 +96,9 @@ thisline = helper_appendYN(thisline, ismember('torte_mag', siglist));
 thisline = [ thisline '  OEp: ' ];
 thisline = helper_appendYN(thisline, ismember('torte_phase', siglist));
 % There is no "torte RMS" value. Saving that was one special-case test.
+% Reconstructed wave from mag .* exp(i * phase).
+thisline = [ thisline '  OEw: ' ];
+thisline = helper_appendYN(thisline, ismember('torte_wave', siglist));
 
 % FIXME - Assume that if XXX_edges exists for a TTL signal, the other
 % TTL-associated signals for XXX also exist (don't check).

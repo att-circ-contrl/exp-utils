@@ -55,6 +55,8 @@ function casesignals = ...
 %     of the TNE Lab Phase Calculator plugin's estimates of instantaneous
 %     magnitude and instantaneous phase.
 %     NOTE - These signals are not guaranteed to exist!
+%   "torte_wave" is a reconstruction of the narrow-band signal using
+%     "torte_mag" and "torte_phase". This should look like "delayband_wave".
 %
 %   "XXX_ftevents", "XXX_wave", "XXX_times", and "XXX_edges" are stored for
 %     each of several TTL signals.
@@ -275,6 +277,10 @@ if have_torte
 
   casesignals.torte_mag = ftdata_torte.trial{1}(idxmag,:);
   casesignals.torte_phase = ftdata_torte.trial{1}(idxphase,:);
+
+  scratch = casesignals.torte_mag .* exp(i * casesignals.torte_phase);
+  % We only want the real component.
+  casesignals.torte_wave = real(scratch);
 end
 
 
