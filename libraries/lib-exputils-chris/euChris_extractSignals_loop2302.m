@@ -275,12 +275,38 @@ if have_torte
   idxmag = find(strcmp( label_mag, ftdata_torte.label ));
   idxphase = find(strcmp( label_phase, ftdata_torte.label ));
 
-  casesignals.torte_mag = ftdata_torte.trial{1}(idxmag,:);
-  casesignals.torte_phase = ftdata_torte.trial{1}(idxphase,:);
+  % Bulletproofing - Catch failure to save these signals.
+  have_torte_mag = ~isempty(idxmag);
+  have_torte_phase = ~isempty(idxphase);
 
-  scratch = casesignals.torte_mag .* exp(i * casesignals.torte_phase);
-  % We only want the real component.
-  casesignals.torte_wave = real(scratch);
+% FIXME - Diagnostics.
+oldwarn = warning('on','all');
+
+  if ~have_torte_mag
+    warning( [ '### [euChris_extractSignals_loop2302]  ' ...
+      'Can''t find signal "' label_mag '" (TORTE magnitude)!' ] );
+  end
+  if ~have_torte_phase
+    warning( [ '### [euChris_extractSignals_loop2302]  ' ...
+      'Can''t find signal "' label_phase '" (TORTE phase)!' ] );
+  end
+
+% FIXME - Diagnostics.
+warning(oldwarn);
+
+  if have_torte_mag
+    casesignals.torte_mag = ftdata_torte.trial{1}(idxmag,:);
+  end
+
+  if have_torte_phase
+    casesignals.torte_phase = ftdata_torte.trial{1}(idxphase,:);
+  end
+
+  if have_torte_mag && have_torte_phase
+    scratch = casesignals.torte_mag .* exp(i * casesignals.torte_phase);
+    % We only want the real component.
+    casesignals.torte_wave = real(scratch);
+  end
 end
 
 
