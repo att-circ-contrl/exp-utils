@@ -300,6 +300,10 @@ warning(oldwarn);
 
   if have_torte_phase
     casesignals.torte_phase = ftdata_torte.trial{1}(idxphase,:);
+    % This was in degrees; convert to radians (and re-wrap).
+    casesignals.torte_phase = casesignals.torte_phase * pi / 180;
+    casesignals.torte_phase = ...
+      mod( casesignals.torte_phase + pi, 2*pi ) - pi;
   end
 
   if have_torte_mag && have_torte_phase
