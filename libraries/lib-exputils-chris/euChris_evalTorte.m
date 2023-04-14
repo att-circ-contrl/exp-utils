@@ -25,6 +25,10 @@ function [ casefoms, newaggregate ] = ...
 %     when binning canon phase before computing phase estimation statistics.
 %
 % "casefoms" is a structure with the following fields:
+%   "canon_v_torte_mag_ideal" is a vector containing sampled acausal ground
+%     truth magnitudes, normalized to the ground truth running average.
+%   "canon_v_torte_mag_torte" is a vector containing sampled estimated
+%     magnitudes, normalized to the acausal ground truth running average.
 %   "canon_v_torte_mag_rel_error" is a vector containing sampled relative
 %     error of estimated magnitude vs acausal ground truth magnitude.
 %   "canon_v_torte_mag_cat_vals" is a vector containing magnitude error bin
@@ -33,6 +37,11 @@ function [ casefoms, newaggregate ] = ...
 %     error of estimated phase vs acausal ground truth phase.
 %   "canon_v_torte_phase_cat_vals" is a vector containing phase error bin
 %     midpoint values corresponding to each of these phase error samples.
+%   "delayed_v_torte_mag_ideal" is a vector containing sampled delayed
+%     (causal) ground truth magnitudes, normalized to the ground truth
+%     running average.
+%   "delayed_v_torte_mag_torte" is a vector containing sampled estimated
+%     magnitudes, normalized to the delayed (causal) ground truth average.
 %   "delayed_v_torte_mag_rel_error" is a vector containing sampled relative
 %     error of estimated magnitude vs delayed (causal) ground truth magnitude.
 %   "delayed_v_torte_mag_cat_vals" is a vector containing magnitude error bin
@@ -96,6 +105,8 @@ if have_canon && (have_torte_mag || have_torte_phase)
     canon_torte_mag_canon_rel = canon_torte_mag_canon ./ canon_torte_mag_avg;
     canon_torte_mag_torte_err = ...
       canon_torte_mag_torte ./ canon_torte_mag_canon;
+    % Get estimated magnitude normalized the same way reference magnitude was.
+    canon_torte_mag_torte_rel = canon_torte_mag_torte ./ canon_torte_mag_avg;
   end
 
   if have_torte_phase
@@ -135,6 +146,8 @@ if have_canon && (have_torte_mag || have_torte_phase)
     % Get derived magnitude values.
     del_torte_mag_canon_rel = del_torte_mag_canon ./ del_torte_mag_avg;
     del_torte_mag_torte_err = del_torte_mag_torte ./ del_torte_mag_canon;
+    % Get estimated magnitude normalized the same way reference magnitude was.
+    del_torte_mag_torte_rel = del_torte_mag_torte ./ del_torte_mag_avg;
   end
 
   if have_torte_phase
@@ -219,17 +232,25 @@ if have_canon && (have_torte_mag || have_torte_phase)
 
   casefoms = struct();
 
-  % FIXME - Discarding raw estimates and ground truth! Just saving error.
+  % Saving normalized estimated and ground truth magnitude.
+  % Not saving phase estimates or ground truth.
+  % Saving error for magnitude and phase.
 
   if have_torte_mag
+    casefoms.canon_v_torte_mag_ideal = canon_torte_mag_canon_rel;
+    casefoms.canon_v_torte_mag_torte = canon_torte_mag_torte_rel;
     casefoms.canon_v_torte_mag_rel_error = canon_torte_mag_torte_err;
     casefoms.canon_v_torte_mag_cat_vals = canon_torte_mag_catmidpoints;
 
+    casefoms.delayed_v_torte_mag_ideal = del_torte_mag_canon_rel;
+    casefoms.delayed_v_torte_mag_torte = del_torte_mag_torte_rel;
     casefoms.delayed_v_torte_mag_rel_error = del_torte_mag_torte_err;
     casefoms.delayed_v_torte_mag_cat_vals = del_torte_mag_catmidpoints;
 
     vector_labels = [ vector_labels { ...
+      'canon_v_torte_mag_ideal', 'canon_v_torte_mag_torte', ...
       'canon_v_torte_mag_rel_error', 'canon_v_torte_mag_cat_vals', ...
+      'delayed_v_torte_mag_ideal', 'delayed_v_torte_mag_torte', ...
       'delayed_v_torte_mag_rel_error', 'delayed_v_torte_mag_cat_vals' } ];
   end
 
