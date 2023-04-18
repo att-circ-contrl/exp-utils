@@ -58,14 +58,14 @@ function casesignals = ...
 %   "torte_wave" is a reconstruction of the narrow-band signal using
 %     "torte_mag" and "torte_phase". This should look like "delayband_wave".
 %
-%   "XXX_ftevents", "XXX_wave", "XXX_times", and "XXX_edges" are stored for
+%   "XXX_ftevents", "XXX_wave", "XXX_time", and "XXX_edges" are stored for
 %     each of several TTL signals.
 %     NOTE - These signals are not guaranteed to exist!
 %     "XXX_ftevents" holds a Field Trip event structure array for events
 %       associated with this TTL signal, per ft_read_event().
 %     "XXX_wave" is a logical vector holding time-series waveform data for
 %       this TTL signal.
-%     "XXX_times" is a vector holding sample timestamp data for this signal.
+%     "XXX_time" is a vector holding waveform timestamp data for this signal.
 %     "XXX_edges" is a vector holding timestamps of rising signal edges.
 %     Signals saved (values of "XXX") are "loopback", "detectmag",
 %     "detectphase", "detectrand", "trigphase", "trigrand", "trigpower",
@@ -375,7 +375,7 @@ if have_loopback
   if ~isempty(event_edges{1}.risetimes)
     casesignals.loopback_ftevents = event_ftdata{1};
     casesignals.loopback_wave = event_waves{1};
-    casesignals.loopback_times = event_wave_times;
+    casesignals.loopback_time = event_wave_times;
     casesignals.loopback_edges = event_edges{1}.risetimes;
   end
 end
@@ -402,56 +402,56 @@ if have_any_second_signals
   if ~isempty(event_edges{1}.risetimes)
     casesignals.detectmag_ftevents = event_ftdata{1};
     casesignals.detectmag_wave = event_waves{1};
-    casesignals.detectmag_times = event_wave_times;
+    casesignals.detectmag_time = event_wave_times;
     casesignals.detectmag_edges = event_edges{1}.risetimes;
   end
 
   if ~isempty(event_edges{2}.risetimes)
     casesignals.detectphase_ftevents = event_ftdata{2};
     casesignals.detectphase_wave = event_waves{2};
-    casesignals.detectphase_times = event_wave_times;
+    casesignals.detectphase_time = event_wave_times;
     casesignals.detectphase_edges = event_edges{2}.risetimes;
   end
 
   if ~isempty(event_edges{3}.risetimes)
     casesignals.detectrand_ftevents = event_ftdata{3};
     casesignals.detectrand_wave = event_waves{3};
-    casesignals.detectrand_times = event_wave_times;
+    casesignals.detectrand_time = event_wave_times;
     casesignals.detectrand_edges = event_edges{3}.risetimes;
   end
 
   if ~isempty(event_edges{4}.risetimes)
     casesignals.trigphase_ftevents = event_ftdata{4};
     casesignals.trigphase_wave = event_waves{4};
-    casesignals.trigphase_times = event_wave_times;
+    casesignals.trigphase_time = event_wave_times;
     casesignals.trigphase_edges = event_edges{4}.risetimes;
   end
 
   if ~isempty(event_edges{5}.risetimes)
     casesignals.trigrand_ftevents = event_ftdata{5};
     casesignals.trigrand_wave = event_waves{5};
-    casesignals.trigrand_times = event_wave_times;
+    casesignals.trigrand_time = event_wave_times;
     casesignals.trigrand_edges = event_edges{5}.risetimes;
   end
 
   if ~isempty(event_edges{6}.risetimes)
     casesignals.trigpower_ftevents = event_ftdata{6};
     casesignals.trigpower_wave = event_waves{6};
-    casesignals.trigpower_times = event_wave_times;
+    casesignals.trigpower_time = event_wave_times;
     casesignals.trigpower_edges = event_edges{6}.risetimes;
   end
 
   if ~isempty(event_edges{7}.risetimes)
     casesignals.trigimmed_ftevents = event_ftdata{7};
     casesignals.trigimmed_wave = event_waves{7};
-    casesignals.trigimmed_times = event_wave_times;
+    casesignals.trigimmed_time = event_wave_times;
     casesignals.trigimmed_edges = event_edges{7}.risetimes;
   end
 
   if ~isempty(event_edges{8}.risetimes)
     casesignals.trigused_ftevents = event_ftdata{8};
     casesignals.trigused_wave = event_waves{8};
-    casesignals.trigused_times = event_wave_times;
+    casesignals.trigused_time = event_wave_times;
     casesignals.trigused_edges = event_edges{8}.risetimes;
   end
 

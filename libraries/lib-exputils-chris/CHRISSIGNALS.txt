@@ -38,14 +38,14 @@ other fields aren't gauranteed to be present.
 "torte_wave" is a reconstruction of the narrow-band signal using
   "torte_mag" and "torte_phase". This should look like "delayband_wave".
 
-"XXX_ftevents", "XXX_wave", "XXX_times", and "XXX_edges" are stored for
+"XXX_ftevents", "XXX_wave", "XXX_time", and "XXX_edges" are stored for
   each of several TTL signals.
   NOTE - These signals are not guaranteed to exist!
   "XXX_ftevents" holds a Field Trip event structure array for events
     associated with this TTL signal, per ft_read_event().
   "XXX_wave" is a logical vector holding time-series waveform data for
     this TTL signal.
-  "XXX_times" is a vector holding sample timestamp data for this signal.
+  "XXX_time" is a vector holding waveform timestamp data for this signal.
   "XXX_edges" is a vector holding timestamps of rising signal edges.
   Signals saved (values of "XXX") are "loopback", "detectmag",
   "detectphase", "detectrand", "trigphase", "trigrand", "trigpower",
