@@ -1,10 +1,8 @@
-function euChris_plotTorteWaves( signaldata, cookedmeta, ...
-  window_sizes, size_labels, max_count_per_size, want_debug_plots, ...
-  titlebase, fnamebase )
+function euChris_plotTorteWaves( signaldata, window_sizes, size_labels, ...
+  max_count_per_size, want_debug_plots, titlebase, fnamebase )
 
-% function euChris_plotTorteWaves( signaldata, cookedmeta, ...
-%   window_sizes, size_labels, max_count_per_size, want_debug_plots, ...
-%   titlebase, fnamebase )
+% function euChris_plotTorteWaves( signaldata, window_sizes, size_labels, ...
+%   max_count_per_size, want_debug_plots, titlebase, fnamebase )
 %
 % This generates several sets of time-series plots of TORTE's estimates of
 % an ephys signal's analytic components, with detection and trigger times
@@ -12,7 +10,6 @@ function euChris_plotTorteWaves( signaldata, cookedmeta, ...
 %
 % "signaldata" is a structure returned by euChris_extractSignals_loop2302(),
 %   with fields as described in CHRISSIGNALS.txt.
-% "cookedmeta" is an experiment metadata structure per CHRISCOOKEDMETA.txt.
 % "window_sizes" is a vector containing plot durations in seconds, stepped
 %   across the time series.
 % "size_labels" is a filename-safe label used when creating filenames and
@@ -31,10 +28,6 @@ function euChris_plotTorteWaves( signaldata, cookedmeta, ...
 cols = nlPlot_getColorPalette();
 
 
-% This might be NaN.
-magthreshold = cookedmeta.crossmagthresh;
-
-
 % These should always exist.
 
 wb_time = signaldata.wb_time;
@@ -45,13 +38,11 @@ lfp_wave = signaldata.lfp_wave;
 canon_time = signaldata.canon_time;
 canon_wave = signaldata.band_wave;
 canon_mag = signaldata.canon_mag;
-canon_thresh = signaldata.canon_rms * magthreshold;
 canon_magflag = signaldata.canon_magflag;
 
 delayed_time = signaldata.delayed_time;
 delayed_wave = signaldata.delayband_wave;
 delayed_mag = signaldata.delayed_mag;
-delayed_thresh = signaldata.delayed_rms * magthreshold;
 delayed_magflag = signaldata.delayed_magflag;
 
 
