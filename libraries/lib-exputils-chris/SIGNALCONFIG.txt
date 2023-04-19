@@ -1,0 +1,32 @@
+A signal configuration structure is used by several of the
+"euChris_extractXXXX" functions. This structure has the following fields:
+
+
+Common:
+
+"notch_freqs" is a vector of frequencies to notch filter (may be empty).
+"notch_bandwidth" is the bandwidth of the notch filter.
+"head_tail_trim_fraction" is the relative amount to trim from the head
+  and tail of the data (as a fraction of the total length). This should be
+  in the range of 0 to 0.5.
+
+"artifact_suppression_level" is used to tune magnitude and derivative based
+  artifact suppression. A value of 0 uses default thresholds; positive
+  values have more suppression, negative values less, NaN disables.
+
+"lfp_band" [ min max ] is the broad-band LFP frequency range.
+
+
+
+For euChris_extractSignals_loop2302:
+
+"canon_detect_phase_width_degrees" is the width of the response window
+  to use when estimating what the phase detector signal should look like.
+
+
+
+For euChris_extractStimResponses_loop2302:
+
+
+
+(This is the end of the file.)

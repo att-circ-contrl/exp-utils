@@ -12,14 +12,15 @@ function casesignals = ...
 % "casemeta" is one of the metadata structures returned by
 %   euChris_getChrisMetadata(), with the fields described in CHRISEXPMETA.txt
 %   (including the "casemeta" additional field).
-% "signalconfig" is a structure with the following fields:
+% "signalconfig" is a structure with the following fields, per
+%   SIGNALCONFIG.txt:
 %   "notch_freqs" is a vector of frequencies to notch filter (may be empty).
 %   "notch_bandwidth" is the bandwidth of the notch filter.
 %   "artifact_suppression_level" is 0 for normal suppression, positive for
 %     more suppression, or NaN to disable suppression.
 %   "head_tail_trim_fraction" is the relative amount to trim from the head
 %     and tail of the data (as a fraction of the total length).
-%   "lfp_band" is the broad-band LFP frequency range.
+%   "lfp_band" [ min max ] is the broad-band LFP frequency range.
 %   "canon_detect_phase_width_degrees" is the width of the response window
 %     to use when estimating what the phase detector signal should look like.
 % "verbosity" is 'normal' or 'quiet'.
