@@ -1,15 +1,15 @@
 function casesignals = ...
-  euChris_extractSignals_loop2302( casemeta, signalconfig, verbosity )
+  euChris_extractSignals_loop2302( expmeta, signalconfig, verbosity )
 
 % function casesignals = ...
-%   euChris_extractSignals_loop2302( casemeta, signalconfig, verbosity )
+%   euChris_extractSignals_loop2302( expmeta, signalconfig, verbosity )
 %
 % This function reads saved signals associated with one experiment and
 % computes derived signals.
 %
 % This function works with 'loop2302' type experiments.
 %
-% "casemeta" is one of the metadata structures returned by
+% "expmeta" is one of the metadata structures returned by
 %   euChris_getChrisMetadata(), with the fields described in CHRISEXPMETA.txt
 %   (including the "casemeta" additional field).
 % "signalconfig" is a structure with the following fields, per
@@ -80,8 +80,8 @@ want_banners = ~strcmp(verbosity, 'quiet');
 
 
 % Extract relevant metadata structures, for convenience.
-expconfig = casemeta.expconfig;
-cookedmeta = casemeta.cookedmeta;
+expconfig = expmeta.expconfig;
+cookedmeta = expmeta.cookedmeta;
 
 
 
