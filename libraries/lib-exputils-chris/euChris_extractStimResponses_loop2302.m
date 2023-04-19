@@ -23,7 +23,7 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 %   "head_tail_trim_fraction" is the relative amount to trim from the head
 %     and tail of the data (as a fraction of the total length).
 %   "lfp_band" [ min max ] is the broad-band LFP frequency range.
-% "trigtimes" is a vector containing trigger timestamps.
+% "trigtimes" is a vector containing trigger timestamps in seconds.
 % "trig_window_ms" [ start stop ] is the window around stimulation events
 %   to save, in milliseconds. E.g. [ -100 300 ].
 % "train_gap_ms" is a duration in milliseconds. Stimulation events with this
@@ -89,7 +89,10 @@ wballchans = rawmeta.chans_an;
 
 
 
-%[ trialdefs trainpos ] = euFT_getTrainTrialDefs( 
+trialdefs = euFT_getTrainTrialDefs( wbheader.Fs, wbheader.nSamples, ...
+  trigtimes, trig_window_ms, train_gap_ms );
+trainpos = trialdefs(4,:);
+
 
 % FIXME - NYI.
 % FIXME - Maybe support getting MUA too? Or HPF? Call getDerivedSignals?

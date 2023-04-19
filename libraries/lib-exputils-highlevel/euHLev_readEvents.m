@@ -67,7 +67,7 @@ if ~isempty(event_chans)
   ttl_timerange = ttl_samprange / header.Fs;
 
   wave_times = sampfirst:samplast;
-  wave_times = wave_times / header.Fs;
+  wave_times = (wave_times - 1) / header.Fs;
 
 
   % Read all events, and copy the ones we wanted.
