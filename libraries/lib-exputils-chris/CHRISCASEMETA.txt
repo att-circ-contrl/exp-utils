@@ -21,7 +21,12 @@ Case definition structures have the following fields:
 
 Hint fields recognized by library functions are as follows:
 
-(No library-recognized hints yet.)
+"extrachans" is a cell array containing Field Trip channel labels of
+  additional channels to plot.
+"extrachanprefixes" is a cell array with filename-safe prefixes to use when
+  plotting data derived from the channels listed in "extrachans".
+"extrachantitles" is a cell array with human-readable titles to use when
+  plotting data derived from the channels listed in "extrachans".
 
 
 

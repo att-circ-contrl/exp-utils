@@ -84,27 +84,29 @@ if ~isempty(event_chans)
         % Get events from this specific channel. There might be none.
         this_ftdata = events_raw( strcmp(event_labels, event_chans{cidx}) );
 
-        % Remove adjacent duplicates.
-        this_ftdata = nlFT_pruneFTEvents(this_ftdata);
+        if ~isempty(this_ftdata)
+          % Remove adjacent duplicates.
+          this_ftdata = nlFT_pruneFTEvents(this_ftdata);
 
-        % Get a waveform version of this signal.
-        this_wave = ...
-          nlFT_eventListToWaveform( this_ftdata, '', ttl_samprange );
+          % Get a waveform version of this signal.
+          this_wave = ...
+            nlFT_eventListToWaveform( this_ftdata, '', ttl_samprange );
 
-        % Get edge lists.
-        [ this_rise, this_fall, this_both ] = ...
-          nlFT_getEventEdges( this_ftdata, '', header.Fs );
+          % Get edge lists.
+          [ this_rise, this_fall, this_both ] = ...
+            nlFT_getEventEdges( this_ftdata, '', header.Fs );
 
-        % Apply the time window to the edge lists.
-        this_rise = nlProc_trimTimeSequence( this_rise, ttl_timerange );
-        this_fall = nlProc_trimTimeSequence( this_fall, ttl_timerange );
-        this_both = nlProc_trimTimeSequence( this_both, ttl_timerange );
+          % Apply the time window to the edge lists.
+          this_rise = nlProc_trimTimeSequence( this_rise, ttl_timerange );
+          this_fall = nlProc_trimTimeSequence( this_fall, ttl_timerange );
+          this_both = nlProc_trimTimeSequence( this_both, ttl_timerange );
 
-        % Record this signal's data.
-        event_ftdata{cidx} = this_ftdata;
-        event_waves{cidx} = this_wave;
-        event_edges{cidx} = struct( 'risetimes', this_rise, ...
-          'falltimes', this_fall, 'bothtimes', this_both );
+          % Record this signal's data.
+          event_ftdata{cidx} = this_ftdata;
+          event_waves{cidx} = this_wave;
+          event_edges{cidx} = struct( 'risetimes', this_rise, ...
+            'falltimes', this_fall, 'bothtimes', this_both );
+        end
       end
     end
   end

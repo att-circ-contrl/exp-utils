@@ -18,11 +18,8 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 %   SIGNALCONFIG.txt:
 %   "notch_freqs" is a vector of frequencies to notch filter (may be empty).
 %   "notch_bandwidth" is the bandwidth of the notch filter.
-%   "artifact_suppression_level" is 0 for normal suppression, positive for
-%     more suppression, or NaN to disable suppression.
-%   "head_tail_trim_fraction" is the relative amount to trim from the head
-%     and tail of the data (as a fraction of the total length).
 %   "lfp_band" [ min max ] is the broad-band LFP frequency range.
+%   FIXME - Stimulation artifact suppression tuning goes here.
 % "trigtimes" is a vector containing trigger timestamps in seconds.
 % "trig_window_ms" [ start stop ] is the window around stimulation events
 %   to save, in milliseconds. E.g. [ -100 300 ].
@@ -35,7 +32,7 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 % "verbosity" is 'normal' or 'quiet'.
 %
 % "responsedata" is a structure containing the following fields, per
-%   CHRISRESPONSE.txt:
+%   CHRISSTIMRESPONSE.txt:
 %
 %   "ftdata_wb" is a Field Trip data structure containing the wideband data.
 %   "ftdata_lfp" is a Field Trip data structure with the broad-band LFP data.
@@ -44,13 +41,11 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 %     data. This is only present if "want_narrowband" was true.
 %
 %   "tortecidx" is the index of the TORTE input channel in ftdata_XXX.
-%   "hintcidx" is a vector with indices of hint channels in ftdata_XXX.
+%   "extracidx" is a vector with indices of hint channels in ftdata_XXX.
 %
 %   "trainpos" is a vector with one entry per trial, holding the relative
 %     position of each trial in an event train (1 for the first event of
 %     a train, 2 for the next, and so forth).
-%
-% FIXME - NYI.
 
 
 responsedata = struct([]);
@@ -66,6 +61,11 @@ hintdata = expmeta.casemeta.hint;
 
 wbfolder = expconfig.file_path_first;
 wbchan = expconfig.chan_wb_ftlabel;
+
+wbextrachans = {};
+if isfield(hintdata, 'extrachans')
+  wbextrachans = hintdata.extrachans;
+end
 
 % Get the raw metadata structure for the wideband folder.
 % This gives us the FT header and the analog channel list.
@@ -88,15 +88,138 @@ wballchans = rawmeta.chans_an;
 
 
 
+% Get the trial definitions.
 
 trialdefs = euFT_getTrainTrialDefs( wbheader.Fs, wbheader.nSamples, ...
   trigtimes, trig_window_ms, train_gap_ms );
 trainpos = trialdefs(4,:);
 
 
-% FIXME - NYI.
+% Get the desired channels.
+
+desiredchans = [ { wbchan } wbextrachans ];
+if want_all
+  desiredchans = wballchans;
+end
+desiredchans = unique(desiredchans);
+
+desiredchans = ft_channelselection( desiredchans, wbheader.label, {} );
+
+
+% Store channel metadata here too.
+
+tortecidx = find(strcmp( wbchan, wbheader.label ));
+if isempty(tortecidx)
+  tortecidx = NaN;
+else
+  tortecidx = tortecidx(1);
+end
+
+extracidx = [];
+for cidx = 1:length(wbextrachans)
+  thisidx = find(strcmp( wbextrachans{cidx}, wbheader.label ));
+
+  if isempty(thisidx)
+    thisidx = NaN;
+  else
+    thisidx = thisidx(1);
+  end
+
+  extracidx(cidx) = thisidx;
+end
+
+
+% Read the trials and do any desired filtering.
+
+% FIXME - We should make a helper for reading stim trials and removing
+% stimulation artifacts from the "time = 0" point.
 % FIXME - Maybe support getting MUA too? Or HPF? Call getDerivedSignals?
 % We have a batched version of that too.
+
+
+if want_banners
+  if isempty(desiredchans)
+    disp('.. [euChris_extractStimResponses_loop2302]  No channels requested.');
+  end
+  if isempty(trialdefs)
+    disp('.. [euChris_extractStimResponses_loop2302]  No trials defined.');
+  end
+end
+
+
+if (~isempty(desiredchans)) && (~isempty(trialdefs))
+
+  % Initialize the return structure.
+
+  responsedata = struct( 'tortecidx', tortecidx, 'extracidx', extracidx, ...
+    'trainpos', trainpos );
+
+
+  % Read wideband.
+
+  if want_banners
+    disp('.. Loading event trials.');
+  end
+
+  config_load = struct( ...
+    'headerfile', wbfolder, 'headerformat', 'nlFT_readHeader', ...
+    'datafile', wbfolder, 'dataformat', 'nlFT_readDataDouble', ...
+    'trl', trialdefs, ...
+    'detrend', 'no', 'demean', 'no', 'feedback', 'no' );
+  config_load.channel = desiredchans;
+
+  ftdata_wb = ft_preprocessing( config_load );
+
+  if want_banners
+    disp('.. Performing signal conditioning on event trials.');
+  end
+
+  % FIXME - Stimulation artifact rejection goes here!
+
+  if (~isempty(signalconfig.notch_freqs)) ...
+    && (~isnan(signalconfig.notch_bandwidth))
+    ftdata_wb = euFT_doBrickNotchRemoval( ...
+      ftdata_wb, signalconfig.notch_freqs, signalconfig.notch_bandwidth );
+  end
+
+  responsedata.ftdata_wb = ftdata_wb;
+
+
+  % Get broad-band LFP, if requested.
+
+  if want_lfp
+    % Don't actually remove DC; FT's low-frequency filtering is iffy.
+    config_lfp = struct( 'lpfilter', 'yes', 'lpfilttype', 'but', ...
+      'lpfreq', max(signalconfig.lfp_band), 'feedback', 'no' );
+
+    ftdata_lfp = ft_preprocessing(config_lfp, ftdata_wb);
+
+    responsedata.ftdata_lfp = ftdata_lfp;
+  end
+
+
+  % Get narrow-band LFP, if requested.
+
+  if want_narrowband
+    torteband = cookedmeta.torteband;
+    config_band = struct( 'bpfilter', 'yes', 'bpfilttype', 'but', ...
+      'bpinstabilityfix', 'split', 'feedback', 'no', ...
+      'bpfreq', [ min(torteband), max(torteband) ] );
+
+    ftdata_band = ft_preprocessing(config_band, ftdata_wb);
+
+    responsedata.ftdata_band = ftdata_band;
+  end
+
+
+  % Finished reading.
+
+  if want_banners
+    disp('.. Finished loading event trials.');
+  end
+
+end
+
 
 
 % Done.
