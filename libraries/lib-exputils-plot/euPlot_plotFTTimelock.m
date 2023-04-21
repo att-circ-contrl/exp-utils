@@ -1,8 +1,10 @@
-function euPlot_plotFTTimelock( ...
-  timelockdata_ft, bandsigma, plots_wanted, figtitle, obase )
+function euPlot_plotFTTimelock( timelockdata_ft, bandsigma, ...
+  plots_wanted, window_sizes_ms, size_labels, max_count_per_size, ...
+  figtitle, obase )
 
-% function euPlot_plotFTTimelock( ...
-%   timelockdata_ft, bandsigma, plots_wanted, figtitle, obase )
+% function euPlot_plotFTTimelock( timelockdata_ft, bandsigma, ...
+%   plots_wanted, window_sizes_ms, size_labels, max_count_per_size, ...
+%   figtitle, obase )
 %
 % This plots a series of time-locked average waveforms and saves the
 % resulting plots. Plots may have all channels stacked, or be per-channel,
@@ -18,16 +20,25 @@ function euPlot_plotFTTimelock( ...
 %   This is a multiplier for the standard deviation.
 % "plots_wanted" is a cell array containing zero or more of 'oneplot' and
 %   'perchannel', controlling which plots are produced.
+% "window_sizes_ms" is a cell array. Each cell contains a plot time range
+%   [ begin end ] in milliseconds, or [] for the full data extent.
+% "size_labels" is a cell array containing filename-safe labels used when
+%   creating filenames and annotating titles for plots of each window size.
+% "max_count_per_size" is a scalar indicating the maximum number of plots
+%   to emit at a given size level. Set to inf to not decimate plots.
 % "figtitle" is the prefix used when generating figure titles.
 % "obase" is the prefix used when generating output filenames.
 
 
-% Hard-code zoom ranges.
-zoomranges = struct( 'full', [], ...
-  'zoom', [ -0.3 0.6 ], 'detail', [ -0.03 0.06 ] );
+% Convert time ranges to seconds.
+window_sizes_sec = {};
+for zidx = 1:length(window_sizes_ms)
+  window_sizes_sec{zidx} = window_sizes_ms{zidx} * 0.001;
+end
 
 % Magic number for pretty display.
 maxlegendsize = 20;
+
 
 % Get a scratch figure.
 thisfig = figure();
@@ -37,6 +48,13 @@ thisfig = figure();
 
 chanlist = timelockdata_ft.label;
 chancount = length(chanlist);
+
+
+% Prune the channel list if we want fewer plots.
+if chancount > max_count_per_size
+  wantplot = euPlot_decimatePlotsBresenham(max_count_per_size, chanlist);
+  chanlist = chanlist(wantplot);
+end
 
 
 % Generate the single-plot plot.
@@ -49,7 +67,8 @@ if ismember('oneplot', plots_wanted)
   end
 
   helper_plotAllZooms( thisfig, timelockdata_ft, {}, bandsigma, ...
-    legendpos, [ figtitle ' - All' ], [ obase '-all' ], zoomranges );
+    legendpos, [ figtitle ' - All' ], [ obase '-all' ], ...
+    window_sizes_sec, size_labels );
 
 end
 
@@ -65,7 +84,7 @@ if ismember('perchannel', plots_wanted)
     helper_plotAllZooms( thisfig, timelockdata_ft, ...
       { thischan }, bandsigma, ...
       'off', [ figtitle ' - ' thischantitle ], ...
-      [ obase '-' thischanlabel ], zoomranges );
+      [ obase '-' thischanlabel ], window_sizes_sec, size_labels );
   end
 
 end
@@ -85,14 +104,12 @@ end
 
 
 function helper_plotAllZooms( thisfig, timelockdata_ft, ...
-  chanlist, bandsigma, legendpos, titlebase, obase, zoomranges )
-
-  zoomlabels = fieldnames(zoomranges);
+  chanlist, bandsigma, legendpos, titlebase, obase, zoomsizes, zoomlabels )
 
   for zidx = 1:length(zoomlabels)
 
     thiszlabel = zoomlabels{zidx};
-    thiszoom = zoomranges.(thiszlabel);
+    thiszoom = zoomsizes{zidx};
 
     figure(thisfig);
     clf('reset');

@@ -1,17 +1,19 @@
 function euPlot_plotFTTrials( wavedata_ft, wavesamprate, ...
   trialdefs, trialnames, trialsamprate, evlists, evsamprate, ...
-  plots_wanted, figtitle, obase )
+  plots_wanted, window_sizes, size_labels, max_count_per_size, ...
+  figtitle, obase )
 
 % function euPlot_plotFTTrials( wavedata_ft, wavesamprate, ...
 %   trialdefs, trialnames, trialsamprate, evlists, evsamprate, ...
-%   plots_wanted, figtitle, obase )
+%   plots_wanted, window_sizes, size_labels, max_count_per_size, ...
+%   figtitle, obase )
 %
 % This plots a series of stacked trial waveforms and saves the resulting
 % plots. Plots may have all trials and channels stacked, or have all
 % trials stacked and have one plot per channel, or have all channels
 % stacked and have one plot per trial, or a combination of the above.
 %
-% NOTE - Time ranges and decorations are hardcoded.
+% NOTE - Decorations are hardcoded.
 %
 % This is a wrapper for euPlot_axesPlotFTTrials().
 %
@@ -30,13 +32,15 @@ function euPlot_plotFTTrials( wavedata_ft, wavesamprate, ...
 % "evsamprate" is the sampling rate used when reading events.
 % "plots_wanted" is a cell array containing zero or more of 'oneplot',
 %   'perchannel', and 'pertrial', controlling which plots are produced.
+% "window_sizes" is a cell array. Each cell contains a plot time range
+%   [ begin end ] in seconds, or [] for the full data extent.
+% "size_labels" is a cell array containing filename-safe labels used when
+%   creating filenames and annotating titles for plots of each window size.
+% "max_count_per_size" is a scalar indicating the maximum number of plots
+%   to emit at a given size level. Set to inf to not decimate plots.
 % "figtitle" is the prefix used when generating figure titles.
 % "obase" is the prefix used when generating output filenames.
 
-
-% Hard-code zoom ranges.
-zoomranges = struct( 'full', [], ...
-  'zoom', [ -0.3 0.6 ], 'detail', [ -0.03 0.06 ] );
 
 % Magic number for pretty display.
 maxlegendsize = 20;
@@ -89,7 +93,8 @@ if ismember('oneplot', plots_wanted)
   helper_plotAllZooms( thisfig, wavedata_ft, wavesamprate, ...
     trialdefs, trialnames, trialsamprate, {}, {}, ...
     evcodes, evrwdA, evrwdB, evsamprate, ...
-    legendpos, [ figtitle ' - All' ], [ obase '-all' ], zoomranges );
+    legendpos, [ figtitle ' - All' ], [ obase '-all' ], ...
+    window_sizes, size_labels );
 
 end
 
@@ -103,15 +108,20 @@ if ismember('perchannel', plots_wanted)
     legendpos = 'off';
   end
 
-  for cidx = 1:chancount
-    thischan = chanlist{cidx};
-    [ thischanlabel thischantitle ] = euUtil_makeSafeString(chanlist{cidx});
+  % Get an acceptance mask for channels, in case there are too many.
+  wantplot = euPlot_decimatePlotsBresenham(max_count_per_size, chanlist);
 
-    helper_plotAllZooms( thisfig, wavedata_ft, wavesamprate, ...
-      trialdefs, trialnames, trialsamprate, { thischan }, {}, ...
-      evcodes, evrwdA, evrwdB, evsamprate, legendpos, ...
-      [ figtitle ' - ' thischantitle ], [ obase '-' thischanlabel ], ...
-      zoomranges );
+  for cidx = 1:chancount
+    if wantplot(cidx)
+      thischan = chanlist{cidx};
+      [ thischanlabel thischantitle ] = euUtil_makeSafeString(chanlist{cidx});
+
+      helper_plotAllZooms( thisfig, wavedata_ft, wavesamprate, ...
+        trialdefs, trialnames, trialsamprate, { thischan }, {}, ...
+        evcodes, evrwdA, evrwdB, evsamprate, legendpos, ...
+        [ figtitle ' - ' thischantitle ], [ obase '-' thischanlabel ], ...
+        window_sizes, size_labels );
+    end
   end
 
 end
@@ -126,13 +136,19 @@ if ismember('pertrial', plots_wanted)
     legendpos = 'off';
   end
 
-  for tidx = 1:trialcount
-    [ triallabel trialtitle ] = euUtil_makeSafeString( trialnames{tidx} );
+  % Get an acceptance mask for trials, in case there are too many.
+  wantplot = euPlot_decimatePlotsBresenham(max_count_per_size, trialnames);
 
-    helper_plotAllZooms( thisfig, wavedata_ft, wavesamprate, ...
-      trialdefs, trialnames, trialsamprate, {}, trialnames(tidx), ...
-      evcodes, evrwdA, evrwdB, evsamprate, legendpos, ...
-      [ figtitle ' - ' trialtitle ], [ obase '-' triallabel ], zoomranges );
+  for tidx = 1:trialcount
+    if wantplot(tidx)
+      [ triallabel trialtitle ] = euUtil_makeSafeString( trialnames{tidx} );
+
+      helper_plotAllZooms( thisfig, wavedata_ft, wavesamprate, ...
+        trialdefs, trialnames, trialsamprate, {}, trialnames(tidx), ...
+        evcodes, evrwdA, evrwdB, evsamprate, legendpos, ...
+        [ figtitle ' - ' trialtitle ], [ obase '-' triallabel ], ...
+        window_sizes, size_labels );
+    end
   end
 
 end
@@ -154,14 +170,12 @@ end
 function helper_plotAllZooms( thisfig, wavedata_ft, wavesamprate, ...
   trialdefs, trialnames, trialsamprate, chanlist, triallist, ...
   evcodes, evrwdA, evrwdB, evsamprate, ...
-  legendpos, titlebase, obase, zoomranges )
-
-  zoomlabels = fieldnames(zoomranges);
+  legendpos, titlebase, obase, zoomsizes, zoomlabels )
 
   for zidx = 1:length(zoomlabels)
 
     thiszlabel = zoomlabels{zidx};
-    thiszoom = zoomranges.(thiszlabel);
+    thiszoom = zoomsizes{zidx};
 
     figure(thisfig);
     clf('reset');

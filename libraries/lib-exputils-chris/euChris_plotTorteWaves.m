@@ -12,8 +12,8 @@ function euChris_plotTorteWaves( signaldata, window_sizes, size_labels, ...
 %   with fields as described in CHRISSIGNALS.txt.
 % "window_sizes" is a vector containing plot durations in seconds, stepped
 %   across the time series.
-% "size_labels" is a filename-safe label used when creating filenames and
-%   annotating titles for plots that use a given window size.
+% "size_labels" is a cell array containing filename-safe labels used when
+%   creating filenames and annotating titles for plots of each window size.
 % "max_count_per_size" is a scalar indicating the maximum number of plots
 %   to emit at a given size level. Plots are spaced evenly within and are
 %   centered on the full time span.

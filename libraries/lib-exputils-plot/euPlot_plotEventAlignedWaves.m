@@ -135,20 +135,8 @@ end
 %
 % Prune the plot list.
 
-wantplot = true(size(trigtimes));
-
-if trigcount > max_plot_count
-  % Use the Bresenham algorithm to decide which triggers to keep.
-  bres_err = round(0.5 * trigcount);
-  for tidx = 1:trigcount
-    bres_err = bres_err + max_plot_count;
-    if bres_err >= trigcount
-      bres_err = bres_err - trigcount;
-    else
-      wantplot(tidx) = false;
-    end
-  end
-end
+% This works fine if we already have fewer than the desired number.
+wantplot = euPlot_decimatePlotsBresenham( max_plot_count, trigtimes );
 
 
 %
