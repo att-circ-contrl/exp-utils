@@ -19,7 +19,10 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 %   "notch_freqs" is a vector of frequencies to notch filter (may be empty).
 %   "notch_bandwidth" is the bandwidth of the notch filter.
 %   "lfp_band" [ min max ] is the broad-band LFP frequency range.
-%   FIXME - Stimulation artifact suppression tuning goes here.
+%   "event_squash_type" is the stimulation artifact rejection method. Known
+%     methods: 'none', 'nan'
+%   "event_squash_window_ms" [ start stop ] is the window around stimulation
+%     events to filter for artifacts, in milliseconds. E.g. [ -0.5 1.5 ].
 % "trigtimes" is a vector containing trigger timestamps in seconds.
 % "trig_window_ms" [ start stop ] is the window around stimulation events
 %   to save, in milliseconds. E.g. [ -100 300 ].
@@ -34,7 +37,10 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 % "responsedata" is a structure containing the following fields, per
 %   CHRISSTIMRESPONSE.txt:
 %
-%   "ftdata_wb" is a Field Trip data structure containing the wideband data.
+%   "ftdata_raw" is a Field Trip data structure containing the wideband data
+%     before artifact rejection and notch filtering.
+%   "ftdata_wb" is a Field Trip data structure containing the wideband data
+%     after artifact rejection and notch filtering.
 %   "ftdata_lfp" is a Field Trip data structure with the broad-band LFP data.
 %     This is only present if "want_lfp" was true.
 %   "ftdata_band" is a Field Trip data structure with the narrow-band LFP
@@ -86,11 +92,21 @@ end
 wbheader = rawmeta.header_ft;
 wballchans = rawmeta.chans_an;
 
+squash_type = 'none';
+squash_window_ms = [ -1 2 ];
+if isfield(signalconfig, 'event_squash_type')
+  squash_type = signalconfig.event_squash_type;
+end
+if isfield(signalconfig, 'event_squash_window_ms')
+  squash_window_ms = signalconfig.event_squash_window_ms;
+end
+
 
 
 % Get the trial definitions.
 
-trialdefs = euFT_getTrainTrialDefs( wbheader.Fs, wbheader.nSamples, ...
+samprate = wbheader.Fs;
+trialdefs = euFT_getTrainTrialDefs( samprate, wbheader.nSamples, ...
   trigtimes, trig_window_ms, train_gap_ms );
 trainpos = trialdefs(4,:);
 
@@ -168,18 +184,38 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
     'detrend', 'no', 'demean', 'no', 'feedback', 'no' );
   config_load.channel = desiredchans;
 
-  ftdata_wb = ft_preprocessing( config_load );
+  ftdata_raw = ft_preprocessing( config_load );
 
   if want_banners
     disp('.. Performing signal conditioning on event trials.');
   end
 
-  % FIXME - Stimulation artifact rejection goes here!
+
+  ftdata_wb = ftdata_raw;
+  trialmasks = {};
+
+  if strcmp(squash_type, 'nan')
+    % NaN out everything in the artifact rejection window.
+    % FIXME - Since we need to do filtering after this, interpolate the gaps.
+
+    trialmasks = nlFT_getWindowsAroundEvents(ftdata_wb, squash_window_ms);
+    ftdata_wb = helper_squashEvents(ftdata_wb, trialmasks, true);
+  else
+    % No artifact rejection. Wideband stays a copy of raw.
+  end
+
+  % FIXME - Consider NaNing out anything past adjacent events.
+
 
   if (~isempty(signalconfig.notch_freqs)) ...
     && (~isnan(signalconfig.notch_bandwidth))
     ftdata_wb = euFT_doBrickNotchRemoval( ...
       ftdata_wb, signalconfig.notch_freqs, signalconfig.notch_bandwidth );
+  end
+
+  % Now that we've finished filtering, re-squash the artifact regions.
+  if strcmp(squash_type, 'nan')
+    ftdata_wb = helper_squashEvents(ftdata_wb, trialmasks, false);
   end
 
   responsedata.ftdata_wb = ftdata_wb;
@@ -193,6 +229,11 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
       'lpfreq', max(signalconfig.lfp_band), 'feedback', 'no' );
 
     ftdata_lfp = ft_preprocessing(config_lfp, ftdata_wb);
+
+    % Squash artifact regions in the filtered waveform.
+    if strcmp(squash_type, 'nan')
+      ftdata_lfp = helper_squashEvents(ftdata_lfp, trialmasks, false);
+    end
 
     responsedata.ftdata_lfp = ftdata_lfp;
   end
@@ -208,8 +249,14 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
 
     ftdata_band = ft_preprocessing(config_band, ftdata_wb);
 
+    % Squash artifact regions in the filtered waveform.
+    if strcmp(squash_type, 'nan')
+      ftdata_band = helper_squashEvents(ftdata_band, trialmasks, false);
+    end
+
     responsedata.ftdata_band = ftdata_band;
   end
+
 
 
   % Finished reading.
@@ -223,6 +270,35 @@ end
 
 
 % Done.
+end
+
+
+
+%
+% Helper functions.
+
+function newftdata = helper_squashEvents(oldftdata, trialmasks, wantinterp)
+
+  trialcount = length(trialmasks);
+  chancount = length(oldftdata.label);
+
+  newftdata = oldftdata;
+
+  for tidx = 1:trialcount
+    thistrial = newftdata.trial{tidx};
+    thismask = trialmasks{tidx};
+    thistrial(:,thismask) = NaN;
+
+    % Pave over the NaN portion, if desired.
+    if wantinterp
+      for cidx = 1:chancount
+        thiswave = thistrial(cidx,:);
+        thistrial(cidx,:) = nlProc_fillNaN(thiswave);
+      end
+    end
+
+    newftdata.trial{tidx} = thistrial;
+  end
 end
 
 

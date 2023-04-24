@@ -27,6 +27,11 @@ For euChris_extractSignals_loop2302:
 
 For euChris_extractStimResponses_loop2302:
 
+"event_squash_type" is the desired method for suppressing artifacts around
+  stimulation events. Known methods: 'none', 'nan'
+"event_squash_window_ms" [ start stop ] is the window around stimulation
+  events to filter for artifacts, in milliseconds. E.g. [ -0.5 1.5 ].
+
 
 
 (This is the end of the file.)
