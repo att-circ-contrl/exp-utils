@@ -213,12 +213,8 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
       ftdata_wb, signalconfig.notch_freqs, signalconfig.notch_bandwidth );
   end
 
-  % Now that we've finished filtering, re-squash the artifact regions.
-  if strcmp(squash_type, 'nan')
-    ftdata_wb = helper_squashEvents(ftdata_wb, trialmasks, false);
-  end
-
-  responsedata.ftdata_wb = ftdata_wb;
+  % NOTE - Defer re-squashing and storing wideband until we have any
+  % derived signals we wanted.
 
 
   % Get broad-band LFP, if requested.
@@ -256,6 +252,15 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
 
     responsedata.ftdata_band = ftdata_band;
   end
+
+
+  % Now that we've finished filtering, re-squash the artifact regions in
+  % the wideband signal and store it.
+  if strcmp(squash_type, 'nan')
+    ftdata_wb = helper_squashEvents(ftdata_wb, trialmasks, false);
+  end
+
+  responsedata.ftdata_wb = ftdata_wb;
 
 
 
