@@ -198,7 +198,7 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
     % NaN out everything in the artifact rejection window.
     % FIXME - Since we need to do filtering after this, interpolate the gaps.
 
-    trialmasks = nlFT_getWindowsAroundEvents(ftdata_wb, squash_window_ms);
+    trialmasks = nlFT_getWindowsAroundEvents(ftdata_wb, squash_window_ms, []);
     ftdata_wb = helper_squashEvents(ftdata_wb, trialmasks, true);
   else
     % No artifact rejection. Wideband stays a copy of raw.

@@ -1,11 +1,14 @@
 function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
-  trim_fraction, artifact_level, notch_freqs, notch_bw )
+  trial_config, artifact_config, notch_freqs, notch_bw )
 
 % function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
-%   trim_fraction, artifact_level, notch_freqs, notch_bw )
+%   trial_config, artifact_config, notch_freqs, notch_bw )
 %
 % This reads Field Trip trial data from the specified folder, performing
-% notch filtering and artifact rejection.
+% artifact rejection and notch filtering.
+%
+% This can be used to read continuous data or event-segmented data, depending
+% on what's passed as "trial_config".
 %
 % NOTE - Channel names specified as '' are skipped (removed from the list
 % before calling FT's read functions).
@@ -23,10 +26,28 @@ function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
 % "folder" is the folder to read from.
 % "ephys_chans" is a cell array containing channel names to read. If this is
 %   empty, no ephys data is read (an empty struct array is returned).
-% "trim_fraction" (in the range 0 to 0.5) is the amount of time to trim from
+% "trial_config" is a scalar (for monolithic data), a structure (for
+%   automatic segmentation around events), or a matrix (for manually
+%   supplied trial definitions).
+%   As a scalar (in the range 0 to 0.5) it's the amount of time to trim from
 %   the start and end of the ephys data as a fraction of the untrimmed length.
-% "artifact_level" (-2..+2) is a tuning adjustment for artifact rejection;
-%   positive values make it less sensitive. NaN disables artifact rejection.
+%   As a matrix, it's a Field Trip trial definition structure passed as "trl"
+%   when reading the data.
+%   As a structure, it has the following fields:
+%     "trigtimes" is a series of trigger event times, in seconds.
+%     "trig_window_ms" [ start stop ] is a duration span in milliseconds
+%       to capture for each event, with the trigger at time zero.
+%     "train_gap_ms" is a duration in milliseconds. Events that are separated
+%       by no more than this time are considered part of an event train, per
+%       euFT_getTrainTrialDefs().
+% "artifact_config" is a structure containing configuration information for
+%   one or more artifact detection methods.
+%   "detect_level" (-2..+2) is a tuning parameter for automated artifact
+%     detection; positive values make it less sensitive. NaN disables it.
+%   "event_squash_times" is a vector containing time values (in seconds) of
+%     known artifacts to squash (e.g. stimulation trigger times).
+%   "event_squash_window_ms" [ start stop ] is a duration span in milliseconds
+%     to NaN out around squashed events.
 % "notch_freqs" is a vector containing notch filter frequencies. An empty
 %   vector disables notch filtering.
 % "notch_bw" is the notch filter bandwidth in Hz. NaN disables filtering.
@@ -37,6 +58,14 @@ function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
 
 
 ftdata_ephys = struct([]);
+
+if isempty(trial_config)
+  trial_config = 0;
+end
+
+if isempty(artifact_config)
+  artifact_config = struct();
+end
 
 
 chanmask = logical([]);
@@ -59,9 +88,31 @@ if ~isempty(ephys_chans)
   % Only continue if we actually found channels.
   if ~isempty(chans_wanted)
 
-    [ sampfirst samplast ] = ...
-      nlUtil_getTrimmedSampleSpan( header.nSamples, trim_fraction );
-    trialdef = [ sampfirst, samplast, (sampfirst - 1) ];
+    %
+    % Figure out our trial definition(s) and read raw data.
+
+    if isstruct(trial_config)
+
+      % Data structure. Event-based trials.
+      samprate = header.Fs;
+      sampcount = header.nSamples;
+
+      % This saves train metadata as extra columns, which are preserved
+      % as "trialinfo" in the processed data structure.
+      trialdef = euFT_getTrainTrialDefs( samprate, sampcount, ...
+        trial_config.trigtimes, trial_config.trig_window_ms, ...
+        trial_config.train_gap_ms );
+
+    elseif length(trial_config) > 1
+      % Matrix. This is a native trial definition structure.
+      trialdef = trial_config;
+    else
+      % 1x1 scalar; this is a trim fraction.
+      trim_fraction = trial_config;
+      [ sampfirst samplast ] = ...
+        nlUtil_getTrimmedSampleSpan( header.nSamples, trim_fraction );
+      trialdef = [ sampfirst, samplast, (sampfirst - 1) ];
+    end
 
     config_load = struct( ...
       'headerfile', folder, 'headerformat', 'nlFT_readHeader', ...
@@ -73,12 +124,19 @@ if ~isempty(ephys_chans)
     ftdata_ephys = ft_preprocessing( config_load );
 
 
+    %
     % Perform artifact removal first, so that artifacts don't cause ringing.
+    % This will leave NaN holes.
 
-    if ~isnan(artifact_level)
+    artifact_detect_level = NaN;
+    if isfield(artifact_config, 'detect_level')
+      artifact_detect_level = artifact_config.detect_level;
+    end
+
+    if ~isnan(artifact_detect_level)
       artparams = nlChan_getArtifactDefaults();
-      artparams.ampthresh = artparams.ampthresh + artifact_level;
-      artparams.diffthresh = artparams.diffthresh + artifact_level;
+      artparams.ampthresh = artparams.ampthresh + artifact_detect_level;
+      artparams.diffthresh = artparams.diffthresh + artifact_detect_level;
 
       iterfunc_art = ...
         @( wavedata, timedata, samprate, trialidx, chanidx, chanlabel ) ...
@@ -89,12 +147,40 @@ if ~isempty(ephys_chans)
       ftdata_ephys.trial = newtrials;
     end
 
+    if isfield(artifact_config, 'event_squash_times') ...
+      && isfield(artifact_config, 'event_squash_window_ms')
 
+% FIXME - Ignoring event_squash_times and using trigger times!
+      windowmasks = ...
+        nlFT_getWindowsAroundEvents( ftdata_ephys, squash_window_ms, [] );
+%      windowmasks = ...
+%        nlFT_getWindowsAroundEvents( ftdata_ephys, squash_window_ms, ...
+%          artifact_config.event_squash_times );
+      ftdata_ephys = nlFT_applyTimeWindowSquash( ftdata_eyphs, windowmasks );
+
+    end
+%   "event_squash_times" is a vector containing time values (in seconds) of
+%     known artifacts to squash (e.g. stimulation trigger times).
+%   "event_squash_window_ms" [ start stop ] is a duration span in milliseconds
+%     to NaN out around squashed events.
+% FIXME - Stopped here. Need event-based squashing.
+
+
+    %
     % Perform notch filtering second.
 
     if (~isempty(notch_freqs)) && (~isnan(notch_bw))
+
+      % Interpolate NaNs, filter, and then restore NaNs.
+
+      thismask = nlFT_getNaNMask(ftdata_ephys);
+      ftdata_ephys = nlFT_fillNaN(ftdata_ephys);
+
       ftdata_ephys = ...
         euFT_doBrickNotchRemoval( ftdata_ephys, notch_freqs, notch_bw );
+
+      ftdata_ephys = nlFT_applyNaNMask(ftdata_ephys, thismask);
+
     end
 
   end
@@ -113,9 +199,10 @@ end
 function [ newwave fracbad ] = ...
   helper_iterate_artifacts( artparams, oldwave, samprate )
 
-  % Don't keep NaNs (interpolate instead), and don't re-reference.
+  % Keep NaNs (don't interpolate), and don't re-reference.
+  keepnan = true;
   [ newwave fracbad ] = nlChan_applyArtifactReject( ...
-    oldwave, [], samprate, artparams, false );
+    oldwave, [], samprate, artparams, keepnan );
 
 end
 
