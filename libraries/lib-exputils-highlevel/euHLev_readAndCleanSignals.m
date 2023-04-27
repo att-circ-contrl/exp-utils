@@ -45,7 +45,9 @@ function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
 %   "detect_level" (-2..+2) is a tuning parameter for automated artifact
 %     detection; positive values make it less sensitive. NaN disables it.
 %   "event_squash_times" is a vector containing time values (in seconds) of
-%     known artifacts to squash (e.g. stimulation trigger times).
+%     known artifacts to squash (e.g. stimulation trigger times). If this is
+%     absent or empty but event_squash_window_ms is provided, the t=0 time
+%     in each trial is used.
 %   "event_squash_window_ms" [ start stop ] is a duration span in milliseconds
 %     to NaN out around squashed events.
 % "notch_freqs" is a vector containing notch filter frequencies. An empty
@@ -147,23 +149,34 @@ if ~isempty(ephys_chans)
       ftdata_ephys.trial = newtrials;
     end
 
-    if isfield(artifact_config, 'event_squash_times') ...
-      && isfield(artifact_config, 'event_squash_window_ms')
+    if isfield(artifact_config, 'event_squash_window_ms')
+% FIXME - Diagnostics.
+disp('xx Squashing artifacts around events.');
 
-% FIXME - Ignoring event_squash_times and using trigger times!
-      windowmasks = ...
-        nlFT_getWindowsAroundEvents( ftdata_ephys, squash_window_ms, [] );
-%      windowmasks = ...
-%        nlFT_getWindowsAroundEvents( ftdata_ephys, squash_window_ms, ...
-%          artifact_config.event_squash_times );
-      ftdata_ephys = nlFT_applyTimeWindowSquash( ftdata_eyphs, windowmasks );
+      % Get artifact masks; either trial trigger times or a supplied list.
+      if isfield(artifact_config, 'event_squash_times') ...
+% FIXME - Diagnostics.
+disp('xx Explicit times.');
+        windowmasks = ...
+          nlFT_getWindowsAroundEvents( ftdata_ephys, ...
+            artifact_config.event_squash_window_ms, ...
+            artifact_config.event_squash_times );
+      else
+% FIXME - Diagnostics.
+disp('xx Implicit times.');
+        % Using t=0 times as event times.
+        windowmasks = ...
+          nlFT_getWindowsAroundEvents( ftdata_ephys, ...
+            artifact_config.event_squash_window_ms, [] );
+      end
 
+      % Do the artifact squashing.
+      ftdata_ephys = nlFT_applyTimeWindowSquash( ftdata_ephys, windowmasks );
+
+% FIXME - Diagnostics.
+else
+disp('xx Not squashing event artifacts.');
     end
-%   "event_squash_times" is a vector containing time values (in seconds) of
-%     known artifacts to squash (e.g. stimulation trigger times).
-%   "event_squash_window_ms" [ start stop ] is a duration span in milliseconds
-%     to NaN out around squashed events.
-% FIXME - Stopped here. Need event-based squashing.
 
 
     %

@@ -2,11 +2,9 @@ Stimulation response data is a structure containing the following fields.
 This can be used for alignment from any type of event, not just stimulation:
 
 
-"ftdata_raw" is a Field Trip data structure containing the wideband data
-  before artifact rejection and notch filtering, segmented into trials
-  triggered by stimulation events.
 "ftdata_wb" is a Field Trip data structure containing the wideband data
-  after artifact rejection and notch filtering.
+  after artifact rejection and notch filtering, segmented into trials
+  triggered by stimulation events.
 "ftdata_lfp" (optional) is a Field Trip data structure containing broad-band
   LFP data, segmented into trials triggered by stimulation events.
 "ftdata_band" (optional) is a Field Trip data structure containing narrow-band
@@ -19,6 +17,8 @@ This can be used for alignment from any type of event, not just stimulation:
 "trainpos" is a vector with one entry per trial, holding the relative
   position of each trial in its associated event train (1 for the first
   event of a train, 2 for the next, and so forth).
+"trainlast" is a logical vector with one entry per trial, which is true for
+  trials that are the last event in a train.
 
 
 (This is the end of the file.)

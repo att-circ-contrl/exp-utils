@@ -37,8 +37,6 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 % "responsedata" is a structure containing the following fields, per
 %   CHRISSTIMRESPONSE.txt:
 %
-%   "ftdata_raw" is a Field Trip data structure containing the wideband data
-%     before artifact rejection and notch filtering.
 %   "ftdata_wb" is a Field Trip data structure containing the wideband data
 %     after artifact rejection and notch filtering.
 %   "ftdata_lfp" is a Field Trip data structure with the broad-band LFP data.
@@ -52,6 +50,8 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 %   "trainpos" is a vector with one entry per trial, holding the relative
 %     position of each trial in an event train (1 for the first event of
 %     a train, 2 for the next, and so forth).
+%   "trainlast" is a vector with one entry per trial, which is true for
+%     trials that are the last event in a train.
 
 
 responsedata = struct([]);
@@ -172,49 +172,27 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
 
 
   % Read wideband.
+  % Artifacts are squashed, leaving NaN gaps.
 
   if want_banners
     disp('.. Loading event trials.');
   end
 
-  config_load = struct( ...
-    'headerfile', wbfolder, 'headerformat', 'nlFT_readHeader', ...
-    'datafile', wbfolder, 'dataformat', 'nlFT_readDataDouble', ...
-    'trl', trialdefs, ...
-    'detrend', 'no', 'demean', 'no', 'feedback', 'no' );
-  config_load.channel = desiredchans;
-
-  ftdata_raw = ft_preprocessing( config_load );
-
-  if want_banners
-    disp('.. Performing signal conditioning on event trials.');
-  end
-
-
-  ftdata_wb = ftdata_raw;
-  trialmasks = {};
-
+  artconfig = struct();
   if strcmp(squash_type, 'nan')
-    % NaN out everything in the artifact rejection window.
-    % FIXME - Since we need to do filtering after this, interpolate the gaps.
-
-    trialmasks = nlFT_getWindowsAroundEvents(ftdata_wb, squash_window_ms, []);
-    ftdata_wb = helper_squashEvents(ftdata_wb, trialmasks, true);
-  else
-    % No artifact rejection. Wideband stays a copy of raw.
+    % If we don't specify times, it defaults to "event trigger times".
+    artconfig.event_squash_window_ms = squash_window_ms;
   end
 
-  % FIXME - Consider NaNing out anything past adjacent events.
+  ftdata_wb = euHLev_readAndCleanSignals( wbfolder, desiredchans, ...
+    trialdefs, artconfig, ...
+    signalconfig.notch_freqs, signalconfig.notch_bandwidth );
 
 
-  if (~isempty(signalconfig.notch_freqs)) ...
-    && (~isnan(signalconfig.notch_bandwidth))
-    ftdata_wb = euFT_doBrickNotchRemoval( ...
-      ftdata_wb, signalconfig.notch_freqs, signalconfig.notch_bandwidth );
-  end
+  % Pave over NaN segments but remember where they were.
 
-  % NOTE - Defer re-squashing and storing wideband until we have any
-  % derived signals we wanted.
+  nanmask = nlFT_getNaNMask(ftdata_wb);
+  ftdata_wb = nlFT_fillNaN(ftdata_wb);
 
 
   % Get broad-band LFP, if requested.
@@ -228,7 +206,7 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
 
     % Squash artifact regions in the filtered waveform.
     if strcmp(squash_type, 'nan')
-      ftdata_lfp = helper_squashEvents(ftdata_lfp, trialmasks, false);
+      ftdata_lfp = nlFT_applyNaNMask(ftdata_lfp, nanmask);
     end
 
     responsedata.ftdata_lfp = ftdata_lfp;
@@ -247,7 +225,7 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
 
     % Squash artifact regions in the filtered waveform.
     if strcmp(squash_type, 'nan')
-      ftdata_band = helper_squashEvents(ftdata_band, trialmasks, false);
+      ftdata_band = nlFT_applyNaNMask(ftdata_band, nanmask);
     end
 
     responsedata.ftdata_band = ftdata_band;
@@ -257,7 +235,7 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
   % Now that we've finished filtering, re-squash the artifact regions in
   % the wideband signal and store it.
   if strcmp(squash_type, 'nan')
-    ftdata_wb = helper_squashEvents(ftdata_wb, trialmasks, false);
+    ftdata_wb = nlFT_applyNaNMask(ftdata_wb, nanmask);
   end
 
   responsedata.ftdata_wb = ftdata_wb;
