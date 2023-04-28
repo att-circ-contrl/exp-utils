@@ -15,7 +15,7 @@ function euPlot_axesPlotFTTimelock( thisax, ...
 % "chans_wanted" is a cell array with channel names to plot. Pass an empty
 %   cell array to plot all channels.
 % "bandsigma" is a scalar indicating where to draw confidence intervals.
-%   This is a multiplier for the standard deviation.
+%   This is a multiplier for the standard deviation and for SEM.
 % "plot_timerange" [ min max ] is the time range (X range) of the plot axes.
 %   Pass an empty range for auto-ranging.
 % "plot_yrange" [ min max ] is the Y range of the plot axes.
@@ -58,7 +58,14 @@ autotime_max = max(timelockdata_ft.time);
 %
 % Get our confidence interval from the variance. This may have NaNs.
 
-confband = bandsigma * sqrt(timelockdata_ft.var);
+% Get the SEM as well. This is the deviation of the mean, which is the
+% sample deviation divided by the square root of the number of trials.
+
+confband = sqrt(timelockdata_ft.var);
+confmean = confband ./ sqrt(timelockdata_ft.dof);
+
+confband = confband * bandsigma;
+confmean = confmean * bandsigma;
 
 
 %
@@ -123,11 +130,18 @@ for cidx = 1:chancount
     thistimeseries = timelockdata_ft.time;
     thisdata = timelockdata_ft.avg(cidx,:);
     thisconf = confband(cidx,:);
+    thismeanconf = confmean(cidx,:);
 
-    % Render the confidence interval.
+    % Render the sample confidence interval.
     plot( thisax, thistimeseries, thisdata + thisconf, ':', ...
       'Color', wavecol, 'HandleVisibility', 'off' );
     plot( thisax, thistimeseries, thisdata - thisconf, ':', ...
+      'Color', wavecol, 'HandleVisibility', 'off' );
+
+    % Render the mean confidence interval.
+    plot( thisax, thistimeseries, thisdata + thismeanconf, ':', ...
+      'Color', wavecol, 'HandleVisibility', 'off' );
+    plot( thisax, thistimeseries, thisdata - thismeanconf, ':', ...
       'Color', wavecol, 'HandleVisibility', 'off' );
 
     % Render the wave.
@@ -143,6 +157,11 @@ for cidx = 1:chancount
     isfirstchan = false;
   end
 end
+
+
+% FIXME - Placeholder event cursor.
+plot( thisax, [ 0 0 ], cursor_yrange, ...
+  'Color', cols.blk, 'HandleVisibility', 'off' );
 
 
 

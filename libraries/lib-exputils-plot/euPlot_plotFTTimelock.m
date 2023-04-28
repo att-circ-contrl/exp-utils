@@ -10,14 +10,14 @@ function euPlot_plotFTTimelock( timelockdata_ft, bandsigma, ...
 % resulting plots. Plots may have all channels stacked, or be per-channel,
 % or a combination of the above.
 %
-% NOTE - Time ranges and decorations are hardcoded.
+% NOTE - Decorations are hardcoded.
 %
 % This is a wrapper for euPlot_axesPlotFTTimelock().
 %
 % "timelockdata_ft" is a Field Trip structure produced by
 %   ft_timelockanalysis().
 % "bandsigma" is a scalar indicating where to draw confidence intervals.
-%   This is a multiplier for the standard deviation.
+%   This is a multiplier for the standard deviation and for SEM.
 % "plots_wanted" is a cell array containing zero or more of 'oneplot' and
 %   'perchannel', controlling which plots are produced.
 % "window_sizes_ms" is a cell array. Each cell contains a plot time range
