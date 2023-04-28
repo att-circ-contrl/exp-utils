@@ -149,13 +149,11 @@ for cidx = 1:length(wbextrachans)
 end
 
 
+%
 % Read the trials and do any desired filtering.
 
-% FIXME - We should make a helper for reading stim trials and removing
-% stimulation artifacts from the "time = 0" point.
-% FIXME - Maybe support getting MUA too? Or HPF? Call getDerivedSignals?
-% We have a batched version of that too.
-
+% FIXME - Consider supporting MUA and HPF filters too.
+% FIXME - Consider doing most of this through getDerivedSignals().
 
 if want_banners
   if isempty(desiredchans)
