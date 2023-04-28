@@ -11,6 +11,9 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 %
 % This function works with 'loop2302' type experiments.
 %
+% Wideband data has artifact regions replaced with NaN. Broad-band LFP and
+% narrow-band LFP have smoothed replacement segments in these regions.
+%
 % "expmeta" is one of the metadata structures returned by
 %   euChris_getChrisMetadata(), with the fields described in CHRISEXPMETA.txt
 %   (including the "casemeta" additional field).
@@ -23,7 +26,8 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 %     methods: 'none', 'nan'
 %   "event_squash_window_ms" [ start stop ] is the window around stimulation
 %     events to filter for artifacts, in milliseconds. E.g. [ -0.5 1.5 ].
-% "trigtimes" is a vector containing trigger timestamps in seconds.
+% "trigtimes" is a vector containing trigger timestamps in seconds. If this
+%   is [], the trials' t=0 times are used.
 % "trig_window_ms" [ start stop ] is the window around stimulation events
 %   to save, in milliseconds. E.g. [ -100 300 ].
 % "train_gap_ms" is a duration in milliseconds. Stimulation events with this
@@ -38,7 +42,7 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 %   CHRISSTIMRESPONSE.txt:
 %
 %   "ftdata_wb" is a Field Trip data structure containing the wideband data
-%     after artifact rejection and notch filtering.
+%     after artifact rejection and notch filtering. This contains NaN spans.
 %   "ftdata_lfp" is a Field Trip data structure with the broad-band LFP data.
 %     This is only present if "want_lfp" was true.
 %   "ftdata_band" is a Field Trip data structure with the narrow-band LFP
@@ -180,8 +184,8 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
 
   artconfig = struct();
   if strcmp(squash_type, 'nan')
-    % If we don't specify times, it defaults to "event trigger times".
     artconfig.event_squash_window_ms = squash_window_ms;
+    artconfig.event_squash_times = trigtimes;
   end
 
   ftdata_wb = euHLev_readAndCleanSignals( wbfolder, desiredchans, ...
@@ -204,10 +208,8 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
 
     ftdata_lfp = ft_preprocessing(config_lfp, ftdata_wb);
 
-    % Squash artifact regions in the filtered waveform.
-    if strcmp(squash_type, 'nan')
-      ftdata_lfp = nlFT_applyNaNMask(ftdata_lfp, nanmask);
-    end
+    % NOTE - Keeping the filtered interpolated version.
+    % The caller can squash NaN regions if they really want to.
 
     responsedata.ftdata_lfp = ftdata_lfp;
   end
@@ -223,21 +225,17 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
 
     ftdata_band = ft_preprocessing(config_band, ftdata_wb);
 
-    % Squash artifact regions in the filtered waveform.
-    if strcmp(squash_type, 'nan')
-      ftdata_band = nlFT_applyNaNMask(ftdata_band, nanmask);
-    end
+    % NOTE - Keeping the filtered interpolated version.
+    % The caller can squash NaN regions if they really want to.
 
     responsedata.ftdata_band = ftdata_band;
   end
 
 
-  % Now that we've finished filtering, re-squash the artifact regions in
+  % Now that we've finished filtering, re-squash the NaN regions in
   % the wideband signal and store it.
-  if strcmp(squash_type, 'nan')
-    ftdata_wb = nlFT_applyNaNMask(ftdata_wb, nanmask);
-  end
 
+  ftdata_wb = nlFT_applyNaNMask(ftdata_wb, nanmask);
   responsedata.ftdata_wb = ftdata_wb;
 
 
@@ -255,34 +253,6 @@ end
 % Done.
 end
 
-
-
-%
-% Helper functions.
-
-function newftdata = helper_squashEvents(oldftdata, trialmasks, wantinterp)
-
-  trialcount = length(trialmasks);
-  chancount = length(oldftdata.label);
-
-  newftdata = oldftdata;
-
-  for tidx = 1:trialcount
-    thistrial = newftdata.trial{tidx};
-    thismask = trialmasks{tidx};
-    thistrial(:,thismask) = NaN;
-
-    % Pave over the NaN portion, if desired.
-    if wantinterp
-      for cidx = 1:chancount
-        thiswave = thistrial(cidx,:);
-        thistrial(cidx,:) = nlProc_fillNaN(thiswave);
-      end
-    end
-
-    newftdata.trial{tidx} = thistrial;
-  end
-end
 
 
 %

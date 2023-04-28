@@ -150,20 +150,14 @@ if ~isempty(ephys_chans)
     end
 
     if isfield(artifact_config, 'event_squash_window_ms')
-% FIXME - Diagnostics.
-disp('xx Squashing artifacts around events.');
 
       % Get artifact masks; either trial trigger times or a supplied list.
       if isfield(artifact_config, 'event_squash_times') ...
-% FIXME - Diagnostics.
-disp('xx Explicit times.');
         windowmasks = ...
           nlFT_getWindowsAroundEvents( ftdata_ephys, ...
             artifact_config.event_squash_window_ms, ...
             artifact_config.event_squash_times );
       else
-% FIXME - Diagnostics.
-disp('xx Implicit times.');
         % Using t=0 times as event times.
         windowmasks = ...
           nlFT_getWindowsAroundEvents( ftdata_ephys, ...
@@ -173,9 +167,6 @@ disp('xx Implicit times.');
       % Do the artifact squashing.
       ftdata_ephys = nlFT_applyTimeWindowSquash( ftdata_ephys, windowmasks );
 
-% FIXME - Diagnostics.
-else
-disp('xx Not squashing event artifacts.');
     end
 
 
