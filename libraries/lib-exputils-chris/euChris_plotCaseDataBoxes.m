@@ -83,11 +83,22 @@ aggrydata = [];
 aggrxdata = [];
 aggrlabels = {};
 
+% FIXME - Enable warnings.
+oldwarn = warning('on', 'all');
+
 for cidx = 1:length(caselabels)
 
   thiscaselabel = caselabels{cidx};
   thiscasetitle = casetitles{cidx};
   thiscasedata = casedata{cidx};
+
+  % NOTE - Bulletproof this as a precaution.
+  if ~( isfield(thiscasedata, yfield) && isfield(thiscasedata, xfield) )
+    warning( [ '### [euChris_plotCaseDataBoxes]  Case "' thiscaselabel ...
+      '" is missing field "' xfield '" and/or "' yfield '".' ] );
+    continue;
+  end
+
   thisydata = thiscasedata.(yfield);
   thisxdata = thiscasedata.(xfield);
 
@@ -136,6 +147,10 @@ euPlot_plotMultipleBoxCharts( aggrydata, aggrxdata, aggrlabels, ...
   wantoutliers, boxwidth, plotlines, plothcursors, 'northeast', ...
   [ titleprefix 'Combined' titlesuffix ], ...
   [ fnameprefix 'all' fnamesuffix ] );
+
+
+% FIXME - Finished with warnings.
+warning(oldwarn);
 
 
 % Done.
