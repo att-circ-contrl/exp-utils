@@ -28,6 +28,11 @@ Hint fields recognized by library functions are as follows:
 "extrachantitles" is a cell array with human-readable titles to use when
   plotting data derived from the channels listed in "extrachans".
 
+"chanbatches" is a cell array defining groups of channels to process. Each
+  group is stored as four successive entries in "chanbatches": a
+  filename-safe label, a human-readable title, a bank prefix, and a vector
+  containing the channel number range to append to the bank prefix.
+
 
 
 (This is the end of the file.)
