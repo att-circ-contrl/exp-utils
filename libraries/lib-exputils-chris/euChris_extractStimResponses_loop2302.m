@@ -1,10 +1,10 @@
 function responsedata = euChris_extractStimResponses_loop2302( ...
   expmeta, signalconfig, trigtimes, trig_window_ms, train_gap_ms, ...
-  want_all, want_lfp, want_narrowband, verbosity )
+  chans_wanted, want_lfp, want_narrowband, verbosity )
 
 % function responsedata = euChris_extractStimResponses_loop2302( ...
 %   expmeta, signalconfig, trigtimes, trig_window_ms, train_gap_ms, ...
-%   want_all, want_lfp, want_narrowband, verbosity )
+%   chans_wanted, want_lfp, want_narrowband, verbosity )
 %
 % This function reads ephys data in segments centered around stimulation
 % events.
@@ -32,8 +32,11 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 %   to save, in milliseconds. E.g. [ -100 300 ].
 % "train_gap_ms" is a duration in milliseconds. Stimulation events with this
 %   separation or less are considered to be part of a pulse train.
-% "want_all" is true if all channels are to be read, false if only hint and
-%   experiment-specified channels are to be read.
+% "chans_wanted" is either a character array or a cell array. If it's a
+%   character array, it's 'trig' to read the trigger channel, 'hint' to read
+%   the hint channels (if any; trigger channel if not), and 'all' to read all
+%   ephys channels. If it's a cell array, it's treated as a list of FT
+%   channels to read.
 % "want_lfp" is true if the broad-band LFP is to be extracted.
 % "want_narrowband" is true if the narrow-band LFP is to be extracted.
 % "verbosity" is 'normal' or 'quiet'.
@@ -117,12 +120,28 @@ trainpos = trialdefs(4,:);
 
 % Get the desired channels.
 
-desiredchans = [ { wbchan } wbextrachans ];
-if want_all
-  desiredchans = wballchans;
-end
-desiredchans = unique(desiredchans);
+% The trigger channel is in "wbchan".
+% The hint channels are in "wbextrachans".
+% The full channel list is in "wballchans".
+% NOTE - Remember that "wbchan" is _not_ a cell array. The others are.
 
+desiredchans = { wbchan };
+
+if iscell(chans_wanted)
+  if ~isempty(chans_wanted)
+    desiredchans = chans_wanted;
+  end
+elseif ischar(chans_wanted)
+  if strcmp(chans_wanted, 'trig')
+    desiredchans = { wbchan };
+  elseif strcmp(chans_wanted, 'hint') && (~isempty(wbextrachans))
+    desiredchans = wbextrachans;
+  elseif strcmp(chans_wanted, 'all') && (~isempty(wballchans))
+    desiredchans = wballchans;
+  end
+end
+
+desiredchans = unique(desiredchans);
 desiredchans = ft_channelselection( desiredchans, wbheader.label, {} );
 
 

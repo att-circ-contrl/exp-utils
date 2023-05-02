@@ -50,13 +50,6 @@ chanlist = timelockdata_ft.label;
 chancount = length(chanlist);
 
 
-% Prune the channel list if we want fewer plots.
-if chancount > max_count_per_size
-  wantplot = euPlot_decimatePlotsBresenham(max_count_per_size, chanlist);
-  chanlist = chanlist(wantplot);
-end
-
-
 % Generate the single-plot plot.
 
 if ismember('oneplot', plots_wanted)
@@ -70,6 +63,15 @@ if ismember('oneplot', plots_wanted)
     legendpos, [ figtitle ' - All' ], [ obase '-all' ], ...
     window_sizes_sec, size_labels );
 
+end
+
+
+% Prune the channel list if we want fewer per-channel plots.
+
+if chancount > max_count_per_size
+  wantplot = euPlot_decimatePlotsBresenham(max_count_per_size, chanlist);
+  chanlist = chanlist(wantplot);
+  chancount = length(chanlist);
 end
 
 

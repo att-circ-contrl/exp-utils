@@ -30,8 +30,9 @@ Hint fields recognized by library functions are as follows:
 
 "chanbatches" is a cell array defining groups of channels to process. Each
   group is stored as four successive entries in "chanbatches": a
-  filename-safe label, a human-readable title, a bank prefix, and a vector
-  containing the channel number range to append to the bank prefix.
+  filename-safe label, a human-readable title, a sprintf pattern for
+  channel names that contains a channel number pattern, and a vector
+  containing channel numbers to iterate through.
 
 
 
