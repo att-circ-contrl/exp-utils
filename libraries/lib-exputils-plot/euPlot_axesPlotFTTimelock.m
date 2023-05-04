@@ -1,10 +1,10 @@
 function euPlot_axesPlotFTTimelock( thisax, ...
-  timelockdata_ft, chans_wanted, bandsigma, plot_timerange, plot_yrange, ...
-  legendpos, figtitle )
+  timelockdata_ft, chans_wanted, spread_fraction, bandsigma, ...
+  plot_timerange, plot_yrange, legendpos, figtitle )
 
 % function euPlot_axesPlotFTTimelock( thisax, ...
-%   timelockdata_ft, chans_wanted, bandsigma, plot_timerange, plot_yrange, ...
-%   legendpos, figtitle )
+%   timelockdata_ft, chans_wanted, spread_fraction, bandsigma, ...
+%   plot_timerange, plot_yrange, legendpos, figtitle )
 %
 % This plots the mean and variance of one or more channel waveforms in the
 % current axes. Events are rendered as cursors behind the waveforms.
@@ -14,8 +14,11 @@ function euPlot_axesPlotFTTimelock( thisax, ...
 %   ft_timelockanalysis().
 % "chans_wanted" is a cell array with channel names to plot. Pass an empty
 %   cell array to plot all channels.
+% "spread_fraction" specifies the Y offset spacing between channels in a
+%   plot. 1.0 offsets by the full Y range; 0 overlaps channels without offset.
 % "bandsigma" is a scalar indicating where to draw confidence intervals.
 %   This is a multiplier for the standard deviation and for SEM.
+%   Use NaN to disable these intervals.
 % "plot_timerange" [ min max ] is the time range (X range) of the plot axes.
 %   Pass an empty range for auto-ranging.
 % "plot_yrange" [ min max ] is the Y range of the plot axes.
@@ -46,6 +49,8 @@ else
   end
 end
 
+plottedcount = sum(chanmask);
+
 
 %
 % Get the time range.
@@ -71,8 +76,13 @@ confmean = confmean * bandsigma;
 %
 % Get Y ranges. This tolerates NaN without trouble.
 
-true_ymax = max(max( timelockdata_ft.avg + confband ));
-true_ymin = min(min( timelockdata_ft.avg - confband ));
+if isnan(bandsigma)
+  true_ymax = max(max( timelockdata_ft.avg ));
+  true_ymin = min(min( timelockdata_ft.avg ));
+else
+  true_ymax = max(max( timelockdata_ft.avg + confband ));
+  true_ymin = min(min( timelockdata_ft.avg - confband ));
+end
 
 % Set the time range of interest if we don't have one.
 if isempty(plot_timerange)
@@ -81,10 +91,14 @@ else
   plot_timerange = [ min(plot_timerange), max(plot_timerange) ];
 end
 
-% Set the cursor Y range.
-cursor_yrange = [ true_ymin, true_ymax ];
+% FIXME - Maybe round this to something pretty, via helper function?
+spread_offset = (true_ymax - true_ymin) * spread_fraction;
+max_spread_offset = spread_offset * (plottedcount - 1);
+
+% Set the cursor Y range. Remember to account for strip-chart spread.
+cursor_yrange = [ true_ymin - max_spread_offset, true_ymax ];
 if ~isempty(plot_yrange)
-  cursor_yrange = [ min(plot_yrange), max(plot_yrange) ];
+  cursor_yrange = [ min(plot_yrange) - max_spread_offset, max(plot_yrange) ];
 end
 
 
@@ -92,11 +106,7 @@ end
 % Set up rendering.
 
 xlim(thisax, plot_timerange);
-if isempty(plot_yrange)
-  ylim(thisax, 'auto');
-else
-  ylim(thisax, [ min(plot_yrange), max(plot_yrange) ]);
-end
+ylim(thisax, cursor_yrange);
 
 hold(thisax, 'on');
 
@@ -114,9 +124,10 @@ palette_waves = nlPlot_getColorSpread(cols.grn, chancount, 180);
 
 % Render channel waveforms with confidence bands.
 
-isfirstchan = true;
+plotidx = 0;
 for cidx = 1:chancount
   if chanmask(cidx)
+    plotidx = plotidx + 1;
 
     % Get the colour for this channel.
     wavecol = palette_waves{cidx};
@@ -132,29 +143,33 @@ for cidx = 1:chancount
     thisconf = confband(cidx,:);
     thismeanconf = confmean(cidx,:);
 
-    % Render the sample confidence interval.
-    plot( thisax, thistimeseries, thisdata + thisconf, ':', ...
-      'Color', wavecol, 'HandleVisibility', 'off' );
-    plot( thisax, thistimeseries, thisdata - thisconf, ':', ...
-      'Color', wavecol, 'HandleVisibility', 'off' );
+    % Get the y offset.
+    yoffset = spread_offset * (plotidx - 1);
 
-    % Render the mean confidence interval.
-    plot( thisax, thistimeseries, thisdata + thismeanconf, ':', ...
-      'Color', wavecol, 'HandleVisibility', 'off' );
-    plot( thisax, thistimeseries, thisdata - thismeanconf, ':', ...
-      'Color', wavecol, 'HandleVisibility', 'off' );
+    if ~isnan(bandsigma)
+      % Render the sample confidence interval.
+      plot( thisax, thistimeseries, thisdata + thisconf - yoffset, ':', ...
+        'Color', wavecol, 'HandleVisibility', 'off' );
+      plot( thisax, thistimeseries, thisdata - thisconf - yoffset, ':', ...
+        'Color', wavecol, 'HandleVisibility', 'off' );
+
+      % Render the mean confidence interval.
+      plot( thisax, thistimeseries, thisdata + thismeanconf - yoffset, ':', ...
+        'Color', wavecol, 'HandleVisibility', 'off' );
+      plot( thisax, thistimeseries, thisdata - thismeanconf - yoffset, ':', ...
+        'Color', wavecol, 'HandleVisibility', 'off' );
+    end
 
     % Render the wave.
     if ~isempty(thislabel)
-      plot( thisax, thistimeseries, thisdata, '-', ...
+      plot( thisax, thistimeseries, thisdata - yoffset, '-', ...
         'Color', wavecol, 'DisplayName', thislabel );
     else
-      plot( thisax, thistimeseries, thisdata, '-', ...
+      plot( thisax, thistimeseries, thisdata - yoffset, '-', ...
         'Color', wavecol, 'HandleVisibility', 'off' );
     end
 
     % Done.
-    isfirstchan = false;
   end
 end
 

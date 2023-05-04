@@ -59,7 +59,7 @@ if ismember('oneplot', plots_wanted)
     legendpos = 'off';
   end
 
-  helper_plotAllZooms( thisfig, timelockdata_ft, {}, bandsigma, ...
+  helper_plotAllZooms( thisfig, timelockdata_ft, {}, false, bandsigma, ...
     legendpos, [ figtitle ' - All' ], [ obase '-all' ], ...
     window_sizes_sec, size_labels );
 
@@ -84,10 +84,27 @@ if ismember('perchannel', plots_wanted)
     [ thischanlabel thischantitle ] = euUtil_makeSafeString(chanlist{cidx});
 
     helper_plotAllZooms( thisfig, timelockdata_ft, ...
-      { thischan }, bandsigma, ...
+      { thischan }, false, bandsigma, ...
       'off', [ figtitle ' - ' thischantitle ], ...
       [ obase '-' thischanlabel ], window_sizes_sec, size_labels );
   end
+
+end
+
+
+% Generate the strip-chart plot.
+% Only do this if we have more than one channel.
+
+if ismember('stripchart', plots_wanted) ...
+  && (length(timelockdata_ft.label) > 1)
+
+  % Show a legend no matter how many channels we have; it's a tall plot.
+  legendpos = 'northeast';
+
+  % Don't print confidence bands for the strip charts.
+  helper_plotAllZooms( thisfig, timelockdata_ft, {}, true, NaN, ...
+    legendpos, [ figtitle ' - All' ], [ obase '-strip' ], ...
+    window_sizes_sec, size_labels );
 
 end
 
@@ -105,25 +122,61 @@ end
 % Helper Functions
 
 
-function helper_plotAllZooms( thisfig, timelockdata_ft, ...
-  chanlist, bandsigma, legendpos, titlebase, obase, zoomsizes, zoomlabels )
+function helper_plotAllZooms( thisfig, timelockdata_ft, chanlist, ...
+  wantspread, bandsigma, legendpos, titlebase, obase, zoomsizes, zoomlabels )
+
+  figure(thisfig);
+  clf('reset');
+
+
+  % Make the figure larger if we're making a strip-chart plot.
+
+  oldpos = thisfig.Position;
+  newpos = oldpos;
+
+  spread_fraction = 0;
+
+  if wantspread
+    spread_fraction = 0.5;
+
+    chancount = length(chanlist);
+    if isempty(chanlist)
+      chancount = length(timelockdata_ft.label);
+    end
+
+    if chancount > 1
+      ysize = newpos(4);
+      ysize = round( ysize * 0.25 );
+      ystride = round( spread_fraction * ysize );
+      newpos(4) = ysize + (chancount - 1) * ystride;
+    end
+  end
+
+
+  % Make plots.
 
   for zidx = 1:length(zoomlabels)
 
     thiszlabel = zoomlabels{zidx};
     thiszoom = zoomsizes{zidx};
 
-    figure(thisfig);
     clf('reset');
+    thisfig.Position = newpos;
     thisax = gca();
 
     euPlot_axesPlotFTTimelock( thisax, timelockdata_ft, ...
-      chanlist, bandsigma, thiszoom, [], ...
+      chanlist, spread_fraction, bandsigma, thiszoom, [], ...
       legendpos, titlebase );
 
     saveas( thisfig, sprintf('%s-%s.png', obase, thiszlabel) );
 
   end
+
+
+  % Restore the original figure size.
+  clf('reset');
+  thisfig.Position = oldpos;
+
 
   % Done.
 end
