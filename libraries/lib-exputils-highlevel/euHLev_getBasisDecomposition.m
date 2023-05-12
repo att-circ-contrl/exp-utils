@@ -14,6 +14,10 @@ function [ fomlist basislist ] = euHLev_getBasisDecomposition( ...
 % NOTE - Some methods (such as PCA) remove the mean. This is added as an
 % additional basis vector, with the corresponding coefficient being 1.
 %
+% NOTE - Doing ICA _without_ prior PCA. This captures the mean but also
+% means it takes a while (full input dimensionality). It also means that
+% it might have trouble picking out faint signals.
+%
 % "datavalues" is a Nvectors x Ntimesamples matrix of sample vectors. For
 %   ephys data, this is typically Nchans x Ntimesamples.
 % "basis_counts_tested" is a vector containing different values to test
@@ -25,6 +29,12 @@ function [ fomlist basislist ] = euHLev_getBasisDecomposition( ...
 % "fomlist" is a vector with one entry per entry in "basis_counts_tested",
 %   containing a goodness-of-fit figure for each decomposition attempt.
 %   Values that are more positive are better.
+%   For 'pca', the figure of merit is the fraction of explained variance
+%   (0.0 - 1.0).
+%   For 'ica', the figure of merit is the fraction of explained variance
+%   (0.0 - 1.0).
+%   For 'kmeans', the figure of merit is the mean of the silhouette values
+%   (-1.0 - 1.0).
 % "basislist" is a cell array with one cell per entry in
 %   "basis_counts_tested". Each cell contains a structure with the following
 %   fields:
@@ -45,6 +55,13 @@ ntimesamps = scratch(2);
 maxbasiscount = max(basis_counts_tested);
 
 
+% FIXME - Magic values.
+% We have to repeat k-means many times to get somewhat-consistent results.
+
+% 100x is tolerable. 1000x is very slightly better. Compromise at 300x.
+repeat_count_kmeans = 300;
+
+
 if strcmp(method, 'kmeans')
 
   for countidx = 1:length(basis_counts_tested)
@@ -60,7 +77,8 @@ if strcmp(method, 'kmeans')
 %      disp(sprintf('.. Quantizing with k-means into %d vectors.', nbasis));
     end
 
-    [ clustlabels, clustvecs, distsums ] = kmeans( datavalues, nbasis );
+    [ clustlabels, clustvecs, distsums ] = ...
+      kmeans( datavalues, nbasis, 'Replicates', repeat_count_kmeans );
 
     thisbasis = clustvecs;
 
@@ -69,12 +87,18 @@ if strcmp(method, 'kmeans')
       thiscoeffs(vidx, clustlabels(vidx)) = 1;
     end
 
-    % Convert the distance measure into a "1 is best" measure.
-    % Make sure FOMs from different basis counts can be meaningfully comapred.
-    thisfom = mean(distsums);
-    thisfom = log( 1 / (1 + thisfom) );
 
-% FIXME - Silhouette might be a better FOM than distance. Use it instead.
+    if false
+      % Convert the distance measure into a "1 is best" measure.
+      % Don't normalize; FOMS from different basis counts have to be
+      % meaningfully compared to each other.
+      thisfom = mean(distsums);
+      thisfom = log( 1 / (1 + thisfom) );
+    else
+      % Take the mean silhouette value.
+      thisfom = mean( silhouette(datavalues, clustlabels) );
+    end
+
 
     fomlist(countidx) = thisfom;
     basislist{countidx} = ...
@@ -82,7 +106,7 @@ if strcmp(method, 'kmeans')
 
     if ~strcmp(verbosity, 'quiet')
       disp(sprintf( ...
-        '.. K-means quantization with %d vectors gave a FOM of %.2f.', ...
+        '.. K-means quantization with %d vectors gave a FOM of %.3f.', ...
         nbasis, thisfom ));
     end
 
@@ -111,6 +135,7 @@ elseif strcmp(method, 'pca')
     nbasis = basis_counts_tested(countidx);
 
     thisfom = sum( pcaexplained(1:nbasis) );
+    thisfom = thisfom / 100;
 
     % In pcabasis, the columns are basis vectors. We want rows.
     thisbasis = transpose(pcabasis);
@@ -128,7 +153,7 @@ elseif strcmp(method, 'pca')
 
     if ~strcmp(verbosity, 'quiet')
       disp(sprintf( ...
-        '.. PCA with %d basis vectors gave a FOM of %.2f.', ...
+        '.. PCA with %d basis vectors gave a FOM of %.3f.', ...
         nbasis, thisfom ));
     end
 
@@ -136,7 +161,57 @@ elseif strcmp(method, 'pca')
 
 elseif strcmp(method, 'ica')
 
-% FIXME - NYI.
+  for countidx = 1:length(basis_counts_tested)
+
+    nbasis = basis_counts_tested(countidx);
+
+    % FIXME - Bail out if we're asked for more clusters than data points.
+    if nbasis > nvectors
+      continue;
+    end
+
+    % NOTE - Adding timestamps, since this takes a while.
+
+    if ~strcmp(verbosity, 'quiet')
+      disp(sprintf( '.. Getting %d basis vectors using ICA (%s).', ...
+        nbasis, char(datetime) ));
+    end
+
+    tic;
+
+    ricamodel = rica( datavalues, nbasis);
+
+    icatime = euUtil_makePrettyTime(toc);
+
+    thisbasis = transpose( ricamodel.TransformWeights );
+    thiscoeffs = transform( ricamodel, datavalues );
+
+
+    % The FOM is the mean explained variance.
+    % The explained variance fraction is the square of the correlation
+    % coefficient, for well-behaved distributions.
+
+    datarecon = thiscoeffs * thisbasis;
+    rvalues = [];
+    for vidx = 1:nvectors
+      thisrmatrix = corrcoef( datarecon(vidx,:), datavalues(vidx,:) );
+      rvalues(vidx) = thisrmatrix(1,2);
+    end
+    thisfom = mean(rvalues .* rvalues);
+    datarecon = [];
+
+
+    fomlist(countidx) = thisfom;
+    basislist{countidx} = ...
+      struct( 'basisvecs', thisbasis, 'coeffs', thiscoeffs );
+
+    if ~strcmp(verbosity, 'quiet')
+      disp(sprintf( ...
+        '.. ICA with %d basis vectors gave a FOM of %.3f after %s.', ...
+        nbasis, thisfom, icatime ));
+    end
+
+  end
 
 else
 
