@@ -11,8 +11,8 @@ function [ fomlist basislist ] = euHLev_getBasisDecomposition( ...
 % is that for some algorithms (such as PCA) you can get all options at once
 % for the same cost as computing each of them individually.
 %
-% NOTE - Some methods (such as PCA) remove the mean. This is added as an
-% additional basis vector, with the corresponding coefficient being 1.
+% NOTE - Some methods (such as PCA) remove the mean. For these methods the
+% mean is stored as an additional structure field in "basislist", per below.
 %
 % NOTE - Doing ICA _without_ prior PCA. This captures the mean but also
 % means it takes a while (full input dimensionality). It also means that
@@ -22,8 +22,11 @@ function [ fomlist basislist ] = euHLev_getBasisDecomposition( ...
 %   ephys data, this is typically Nchans x Ntimesamples.
 % "basis_counts_tested" is a vector containing different values to test
 %   for the number of basis vectors to return.
-% "method" is 'pca' for Principal Component Analysis, 'ica' for Independent
-%   Component Analysis, and 'kmeans' for K-means vector quantization.
+% "method" is 'pca' for principal component analysis, 'ica_raw' for
+%   independent component analysis using the raw waveforms, 'ica_pca' to
+%   perform PCA and then use ICA on the transformed input (transforming back
+%   to input space after getting component vectors), and 'kmeans' for k-means
+%   vector quantization.
 % "verbosity" is 'normal' or 'quiet'.
 %
 % "fomlist" is a vector with one entry per entry in "basis_counts_tested",
@@ -43,6 +46,8 @@ function [ fomlist basislist ] = euHLev_getBasisDecomposition( ...
 %     vector.
 %   "coeffs" is a Nvectors x Nbasis matrix with basis vector weights for
 %     each input vector. (coeffs * vectors) is an estimate of (datavalues).
+%   "mean" (optional) is a 1 x Ntimesamples vector containing the mean across
+%     sample vectors, for analysis methods like PCA that otherwise discard it.
 
 
 fomlist = [];
@@ -83,7 +88,7 @@ if strcmp(method, 'kmeans')
     thisbasis = clustvecs;
 
     thiscoeffs = zeros(nvectors, nbasis);
-    for vidx = 1:length(nvectors)
+    for vidx = 1:nvectors
       thiscoeffs(vidx, clustlabels(vidx)) = 1;
     end
 
@@ -143,13 +148,11 @@ elseif strcmp(method, 'pca')
 
     thiscoeffs = pcaweights(:,1:nbasis);
 
-    % pcamean is a row vector; it gets added as an additional basis vector.
-    thisbasis( nbasis + 1, : ) = pcamean;
-    thiscoeffs( :, nbasis + 1 ) = 1;
+    % pcamean is a row vector; it gets added as an additional field.
 
     fomlist(countidx) = thisfom;
     basislist{countidx} = ...
-      struct( 'basisvecs', thisbasis, 'coeffs', thiscoeffs );
+      struct( 'basisvecs', thisbasis, 'coeffs', thiscoeffs, 'mean', pcamean );
 
     if ~strcmp(verbosity, 'quiet')
       disp(sprintf( ...
@@ -159,7 +162,7 @@ elseif strcmp(method, 'pca')
 
   end
 
-elseif strcmp(method, 'ica')
+elseif strcmp(method, 'ica_raw')
 
   for countidx = 1:length(basis_counts_tested)
 
@@ -214,6 +217,7 @@ elseif strcmp(method, 'ica')
   end
 
 else
+% FIXME - ICA-PCA goes here.
 
   disp([ '### [euHLev_getBasisDecomposition]  Unknown method "' method '".' ]);
 

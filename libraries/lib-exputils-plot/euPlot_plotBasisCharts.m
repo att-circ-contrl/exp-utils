@@ -1,8 +1,8 @@
 function euPlot_plotBasisCharts( basislist, fomlist, fompattern, ...
-  chanlist, window_sizes_ms, size_labels, titleprefix, obase )
+  timeseries, chanlist, window_sizes_ms, size_labels, titleprefix, obase )
 
 % function euPlot_plotBasisCharts( basislist, fomlist, fompattern, ...
-%   chanlist, window_sizes_ms, size_labels, titleprefix, obase )
+%   timeseries, chanlist, window_sizes_ms, size_labels, titleprefix, obase )
 %
 % This makes a spreadsheet and several plots describing the decomposition of a
 % series of channel signals into a linear combination of basis signals.
@@ -27,6 +27,8 @@ function euPlot_plotBasisCharts( basislist, fomlist, fompattern, ...
 % "fomlist" is a vector containing a figure of merit for each of the cases
 %   in "basislist".
 % "fompattern" is a sprintf pattern for formatting figures of merit.
+% "timeseries" is a vector containing time axis points for plotting basis
+%   vectors.
 % "chanlist" is a cell array containing channel names for Nchannels signals.
 % "window_sizes_ms" is a cell array. Each cell contains a plot time range
 %   [ begin end ] in milliseconds, or [] for the full data extent.
@@ -36,7 +38,129 @@ function euPlot_plotBasisCharts( basislist, fomlist, fompattern, ...
 % "obase" is the prefix used when generating output filenames.
 
 
-% FIXME - NYI.
+% Get metadata.
+
+listcount = length(basislist);
+basiscountlist = [];
+
+for lidx = 1:listcount
+  thiscoeffs = basislist{lidx}.coeffs;
+  thissize = size(thiscoeffs);
+  basiscountlist(lidx) = thissize(2);
+end
+
+% Make channel labels plot-safe.
+[ scratch chanlist ] = euUtil_makeSafeStringArray( chanlist );
+
+
+
+% Save a table with figures of merit.
+
+% NOTE - Doing this by hand instead of with tables.
+
+tabletext = sprintf( '"%s", "%s"\n', 'Basis Count', 'Score' );
+
+for lidx = 1:listcount
+  tabletext = [ tabletext sprintf( [ '%d, ' fompattern '\n' ], ...
+    basiscountlist(lidx), fomlist(lidx) ) ];
+end
+
+nlIO_writeTextFile( [ obase '-foms.csv' ], tabletext );
+
+
+
+% Prepare for plotting.
+
+% Get a scratch figure.
+thisfig = figure();
+figure(thisfig);
+
+% Get a basis vector palette.
+cols = nlPlot_getColorPalette();
+palette_basis = {};
+for lidx = 1:listcount
+  palette_basis{lidx} = ...
+    nlPlot_getColorSpread(cols.red, basiscountlist(lidx), 240);
+end
+
+
+
+% Plot the basis vectors.
+% FIXME - Not breaking this down into zoom levels!
+% FIXME - Using hard-coded cursors!
+
+for lidx = 1:listcount
+  clf('reset');
+
+  thisbasiscount = basiscountlist(lidx);
+  thisbasis = basislist{lidx}.basisvecs;
+  thispalette = palette_basis{lidx};
+
+  hold on;
+
+  plot( timeseries, zeros(size(timeseries)), 'Color', cols.blk, ...
+    'HandleVisibility', 'off' );
+
+  thismin = min(min(thisbasis));
+  thismax = max(max(thisbasis));
+
+  plot( [ 0 0 ], [ thismin thismax ], 'Color', cols.blk, ...
+    'HandleVisibility', 'off' );
+
+  for bidx = 1:thisbasiscount
+    plot( timeseries, thisbasis(bidx,:), 'Color', thispalette{bidx}, ...
+      'DisplayName', [ 'basis ' num2str(bidx) ] );
+  end
+
+  hold off;
+
+  xlabel('Time (s)');
+  ylabel('Amplitude (a.u.)');
+
+  title([ titleprefix ' - ' num2str(thisbasiscount) ' Basis Vecs' ]);
+
+  legend('Location', 'northwest');
+
+  saveas( thisfig, sprintf('%s-vecs-%02d.png', obase, thisbasiscount) );
+end
+
+
+
+% Plot the decomposition of signals into basis vectors (weight coefficients).
+
+for lidx = 1:listcount
+  clf('reset');
+
+  thisbasiscount = basiscountlist(lidx);
+  thisallcoeffs = basislist{lidx}.coeffs;
+  thispalette = palette_basis{lidx};
+  chanseries = 1:length(chanlist);
+
+  hold on;
+
+  plot( chanseries, zeros(size(chanseries)), 'Color', cols.blk, ...
+    'HandleVisibility', 'off' );
+
+  for bidx = 1:thisbasiscount
+    plot( chanseries, thisallcoeffs(:,bidx), 'Color', thispalette{bidx}, ...
+      'DisplayName', [ 'basis ' num2str(bidx) ] );
+  end
+
+  hold off;
+
+  % Kludge: Set tick labels to channels instead of using categorical data.
+  set( gca, 'XTick', chanseries, 'XTickLabel', chanlist );
+
+  xlabel('Channel');
+  ylabel('Amplitude (a.u.)');
+
+  title([ titleprefix ' - ' num2str(thisbasiscount) ' Basis Mixing' ]);
+
+  legend('Location', 'northwest');
+
+  saveas( thisfig, sprintf('%s-mix-%02d.png', obase, thisbasiscount) );
+end
+
 
 
 % Done.
