@@ -14,9 +14,7 @@ function [ fomlist basislist ] = euHLev_getBasisDecomposition( ...
 % NOTE - Some methods (such as PCA) remove the mean. For these methods the
 % mean is stored as an additional structure field in "basislist", per below.
 %
-% NOTE - Doing ICA _without_ prior PCA. This captures the mean but also
-% means it takes a while (full input dimensionality). It also means that
-% it might have trouble picking out faint signals.
+% NOTE - Some methods (like doing ICA on the raw waveforms) take a while.
 %
 % "datavalues" is a Nvectors x Ntimesamples matrix of sample vectors. For
 %   ephys data, this is typically Nchans x Ntimesamples.
@@ -65,6 +63,12 @@ maxbasiscount = max(basis_counts_tested);
 
 % 100x is tolerable. 1000x is very slightly better. Compromise at 300x.
 repeat_count_kmeans = 300;
+
+% If we're doing ICA on PCA-transformed input, PCA parameters are picked
+% by black magic.
+pca_min_explained = 0.98;
+pca_min_components = 3;
+pca_max_components = 20;
 
 
 if strcmp(method, 'kmeans')
@@ -118,9 +122,6 @@ if strcmp(method, 'kmeans')
   end
 
 elseif strcmp(method, 'pca')
-
-  % NOTE - PCA limits the number of basis vectors to the dimensionality
-  % of the sample vectors (Ntimesamps), not the nubmer of samples (Nchans)?
 
   % NOTE - Because this uses the covariance matrix, we need to have more
   % than one data vector.
@@ -176,7 +177,7 @@ elseif strcmp(method, 'ica_raw')
     % NOTE - Adding timestamps, since this takes a while.
 
     if ~strcmp(verbosity, 'quiet')
-      disp(sprintf( '.. Getting %d basis vectors using ICA (%s).', ...
+      disp(sprintf( '.. Getting %d basis vectors using raw ICA (%s).', ...
         nbasis, char(datetime) ));
     end
 
@@ -216,8 +217,118 @@ elseif strcmp(method, 'ica_raw')
 
   end
 
+elseif strcmp(method, 'ica_pca')
+
+  % NOTE - Because this uses the covariance matrix, we need to have more
+  % than one data vector.
+  if nvectors < 2
+    return;
+  end
+
+  if ~strcmp(verbosity, 'quiet')
+    disp('.. Getting basis vectors using ICA on PCA-transformed input.');
+  end
+
+
+  % First pass: Get a PCA transformation into a lower-dimensional space.
+
+  [ pcabasis, pcaweights, ~, ~, pcaexplained, pcamean ] = ...
+    pca( datavalues, 'NumComponents', pca_max_components );
+
+  % Handle the case where we had fewer components.
+  pca_max_components = min(pca_max_components, length(pcaexplained));
+
+  chosenpcacount = pca_max_components;
+  chosenpcafom = sum( pcaexplained(1:pca_max_components) ) / 100;
+
+  % Get the minimum number of components for which we explain the desired
+  % amount of variance.
+  for testcount = (pca_max_components - 1):-1:pca_min_components
+    testfom = sum( pcaexplained(1:testcount) ) / 100;
+
+    if testfom >= pca_min_explained
+      chosenpcacount = testcount;
+      chosenpcafom = testfom;
+    end
+  end
+
+  % Get the basis vectors as _rows_, and the desired weights subset.
+  % The mean is already a row vector.
+  pcabasis = transpose(pcabasis);
+  pcabasis = pcabasis(1:chosenpcacount,:);
+  pcacoeffs = pcaweights(:,1:chosenpcacount);
+
+  if ~strcmp(verbosity, 'quiet')
+    disp(sprintf( '.. Used %d PCA components (%.1f %% of variance).', ...
+      chosenpcacount, chosenpcafom * 100 ));
+  end
+
+
+  % Second pass: Perform ICA on the transformed input.
+
+  for countidx = 1:length(basis_counts_tested)
+
+    nbasis = basis_counts_tested(countidx);
+
+    % Bail out if we're trying to get more basis vectors than data points.
+    if nbasis > nvectors
+      continue;
+    end
+
+
+    % Use the Nvectors x Npca coefficient matrix instead of Nvectors x Ntime
+    % data matrix.
+    ricamodel = rica( pcacoeffs, nbasis);
+
+    % The ICA basis is in PCA space.
+    icabasis = transpose( ricamodel.TransformWeights );
+    icacoeffs = transform( ricamodel, pcacoeffs );
+
+
+    % Invert the PCA transformation to get the time-domain basis vectors.
+
+    % data = pcacoeffs * pcabasis
+    % data = (icacoeffs * icabasis) * pcabasis
+    % data = icacoeffs * (icabasis * pcabasis)
+    % data = icacoeffs * thisbasis
+
+    thisbasis = icabasis * pcabasis;
+    thiscoeffs = icacoeffs;
+
+
+    % The FOM is the mean explained variance.
+    % The explained variance fraction is the square of the correlation
+    % coefficient, for well-behaved distributions.
+
+    % NOTE - We're reconstructing without the mean, here.
+    % If we add the mean, most of the explained variance comes from it, so
+    % our FOM is always nearly perfect.
+
+    datarecon = thiscoeffs * thisbasis;
+%    datarecon = datarecon + repmat( pcamean, nvectors, 1 );
+    rvalues = [];
+    for vidx = 1:nvectors
+      thisdatavalue = datavalues(vidx,:) - pcamean;
+      thisrmatrix = corrcoef( datarecon(vidx,:), thisdatavalue );
+      rvalues(vidx) = thisrmatrix(1,2);
+    end
+    thisfom = mean(rvalues .* rvalues);
+    datarecon = [];
+
+
+    fomlist(countidx) = thisfom;
+    basislist{countidx} = ...
+      struct( 'basisvecs', thisbasis, 'coeffs', thiscoeffs, 'mean', pcamean );
+
+    if ~strcmp(verbosity, 'quiet')
+      disp(sprintf( ...
+        '.. ICA with %d basis vectors gave a FOM of %.3f.', ...
+        nbasis, thisfom ));
+    end
+
+  end
+
 else
-% FIXME - ICA-PCA goes here.
 
   disp([ '### [euHLev_getBasisDecomposition]  Unknown method "' method '".' ]);
 
