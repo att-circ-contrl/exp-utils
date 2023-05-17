@@ -51,6 +51,8 @@ end
 
 plottedcount = sum(chanmask);
 
+want_wave_labels = (spread_fraction >= 0.1);
+
 
 %
 % Get the time range.
@@ -74,7 +76,7 @@ confmean = confmean * bandsigma;
 
 
 %
-% Get Y ranges. This tolerates NaN without trouble.
+% Get X and Y ranges. This tolerates NaN data without trouble.
 
 if isnan(bandsigma)
   true_ymax = max(max( timelockdata_ft.avg ));
@@ -164,6 +166,16 @@ for cidx = 1:chancount
     if ~isempty(thislabel)
       plot( thisax, thistimeseries, thisdata - yoffset, '-', ...
         'Color', wavecol, 'DisplayName', thislabel );
+
+      if want_wave_labels
+        labelx = max( min(thistimeseries), min(plot_timerange) );
+        tidx = find(thistimeseries >= labelx);
+        if ~isempty(tidx)
+          tidx = tidx(1);
+          labely = thisdata(tidx) - yoffset;
+          text( thisax, labelx, labely, thislabel );
+        end
+      end
     else
       plot( thisax, thistimeseries, thisdata - yoffset, '-', ...
         'Color', wavecol, 'HandleVisibility', 'off' );
@@ -192,7 +204,9 @@ ylabel(thisax, 'Amplitude (a.u.)');
 
 title(thisax, figtitle);
 
-if strcmp('off', legendpos)
+% Suppress the legend if we drew per-wave label text, since that usually
+% means we have too many legend entries to render.
+if strcmp('off', legendpos) || want_wave_labels
   legend(thisax, 'off');
 else
   legend(thisax, 'Location', legendpos);
