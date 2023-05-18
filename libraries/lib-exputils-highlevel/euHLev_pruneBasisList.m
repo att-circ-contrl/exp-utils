@@ -19,7 +19,7 @@ function [ newfomlist newbasislist ] = euHLev_pruneBasisList( ...
 % "newbasislist" is a copy of the corresponding entries from "oldbasislist".
 
 
-newfomlist = ();
+newfomlist = [];
 newbasislist = {};
 
 
