@@ -1,0 +1,22 @@
+The "euHLev_getBasisDecomposition" function decomposes a set of signals into
+the weighted sums of a set of basis vectors, plus a background. This file
+describes how data and basis vectors are stored by this function and related
+functions.
+
+
+A dataset is a Nvectors x Ntimesamples matrix of sample vectors. For ephys
+data, this is typically Nchans x Ntimesamples.
+
+
+A basis decomposition is stored as a structure with the following fields:
+
+"basisvecs" is a Nbasis x Ntimesamples matrix where each row is a basis
+  vector.
+"coeffs" is a Nvectors x Nbasis matrix with basis vector weights for each
+  input vector. (coeffs * basisvecs) is an estimate of (dataset).
+"background" is a 1 x Ntimesamples vector containing a constant background
+  to be added to all vectors during reconstruction. This is typically, but
+  not always, either zero or the mean across sample vectors.
+
+
+(This is the end of the file.)

@@ -38,14 +38,16 @@ function [ fomlist basislist ] = euHLev_getBasisDecomposition( ...
 %   (-1.0 - 1.0).
 % "basislist" is a cell array with one cell per entry in
 %   "basis_counts_tested". Each cell contains a structure with the following
-%   fields:
+%   fields, per BASISVECTORS.txt:
 %
 %   "basisvecs" is a Nbasis x Ntimesamples matrix where each row is a basis
 %     vector.
 %   "coeffs" is a Nvectors x Nbasis matrix with basis vector weights for
-%     each input vector. (coeffs * vectors) is an estimate of (datavalues).
-%   "mean" (optional) is a 1 x Ntimesamples vector containing the mean across
-%     sample vectors, for analysis methods like PCA that otherwise discard it.
+%     each input vector. (coeffs * basisvecs) is an estimate of (datavalues).
+%   "background" is a 1 x Ntimesamples vector containing a constant background
+%     to be added to all vectors during reconstruction. This is typically
+%     zero (for k-means or raw ICA) or the mean across sample vectors (for
+%     PCA-based methods that discard the mean).
 
 
 fomlist = [];
@@ -56,6 +58,8 @@ nvectors = scratch(1);
 ntimesamps = scratch(2);
 
 maxbasiscount = max(basis_counts_tested);
+
+zeromean = zeros(1,ntimesamps);
 
 
 % FIXME - Magic values.
@@ -110,8 +114,8 @@ if strcmp(method, 'kmeans')
 
 
     fomlist(countidx) = thisfom;
-    basislist{countidx} = ...
-      struct( 'basisvecs', thisbasis, 'coeffs', thiscoeffs );
+    basislist{countidx} = struct( ...
+      'basisvecs', thisbasis, 'coeffs', thiscoeffs, 'background', zeromean );
 
     if ~strcmp(verbosity, 'quiet')
       disp(sprintf( ...
@@ -152,8 +156,8 @@ elseif strcmp(method, 'pca')
     % pcamean is a row vector; it gets added as an additional field.
 
     fomlist(countidx) = thisfom;
-    basislist{countidx} = ...
-      struct( 'basisvecs', thisbasis, 'coeffs', thiscoeffs, 'mean', pcamean );
+    basislist{countidx} = struct( ...
+      'basisvecs', thisbasis, 'coeffs', thiscoeffs, 'background', pcamean );
 
     if ~strcmp(verbosity, 'quiet')
       disp(sprintf( ...
@@ -206,8 +210,8 @@ elseif strcmp(method, 'ica_raw')
 
 
     fomlist(countidx) = thisfom;
-    basislist{countidx} = ...
-      struct( 'basisvecs', thisbasis, 'coeffs', thiscoeffs );
+    basislist{countidx} = struct( ...
+      'basisvecs', thisbasis, 'coeffs', thiscoeffs, 'background', zeromean );
 
     if ~strcmp(verbosity, 'quiet')
       disp(sprintf( ...
@@ -317,8 +321,8 @@ elseif strcmp(method, 'ica_pca')
 
 
     fomlist(countidx) = thisfom;
-    basislist{countidx} = ...
-      struct( 'basisvecs', thisbasis, 'coeffs', thiscoeffs, 'mean', pcamean );
+    basislist{countidx} = struct( ...
+      'basisvecs', thisbasis, 'coeffs', thiscoeffs, 'background', pcamean );
 
     if ~strcmp(verbosity, 'quiet')
       disp(sprintf( ...
