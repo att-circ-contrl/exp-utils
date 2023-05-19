@@ -7,8 +7,9 @@ function [ coeffs residues ] = ...
 % This attempts to decompose one or more sample vectors using a previously
 % extracted set of basis vectors (per BASISVECTORS.txt).
 %
-% NOTE - This will only give well-behaved output if the basis vectors are
-% orthogonal!
+% NOTE - This will only give optimal output if the basis vectors are
+% orthogonal! For non-orthogonal basis vectors, output will be valid but
+% not necessarily minimum-energy.
 %
 % "datavectors" is a Nvectors x Ntimesamples matrix of sample vectors. For
 %   ephys data, this is typically Nchans x Ntimesamples.
@@ -35,14 +36,13 @@ coeffs = zeros(nvectors, nbasis);
 residues = zeros(nvectors, ntimesamps);
 
 
-% Estimate coefficients by minimizing the energy in the residue after the
-% corresponding basis vector is removed.
+% First pass: Estimate coefficients by minimizing the energy in the residue
+% after the corresponding basis vector is removed.
 %
 % c = sum( basis .* data ) / sum( basis .* basis )
 %
-% NOTE - This only works if the basis vectors are orthogonal! If they aren't,
-% we'd need to jointly optimize all coefficients at once instead of computing
-% them one at a time.
+% NOTE - If basis vectors are _not_ orthogonal, this will over-estimate at
+% least some of the coefficients.
 
 for bidx = 1:nbasis
   thisbasis = basisvecs(bidx,:);
@@ -54,6 +54,17 @@ for bidx = 1:nbasis
     coeffs(vidx,bidx) = thiscoeff;
   end
 end
+
+
+% Second pass: Scale the resulting coefficients by a constant to minimize the
+% energy in the residue.
+%
+% c = sum( data .* recon ) / sum( recon .* recon )
+
+recondata = coeffs * basisvecs;
+normfact = sum(sum( datavectors .* recondata )) ...
+  / sum(sum( recondata .* recondata ));
+coeffs = coeffs * normfact;
 
 
 % Get the reconstruction and the residue.

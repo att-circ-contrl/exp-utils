@@ -28,7 +28,7 @@ nbasis = scratch(2);
 
 % Express the supplied background as a linear combination of the basis
 % vectors.
-% NOTE - This helper function requires orthogonal basis vectors!
+% NOTE - This helper function works best with orthogonal basis vectors.
 
 [ bgcoeffs, bgresidue ] = ...
   euHLev_decomposeSignalsUsingBasis( oldbasis.background, oldbasis.basisvecs );
