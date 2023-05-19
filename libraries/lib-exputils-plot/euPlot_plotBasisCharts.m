@@ -17,13 +17,17 @@ function euPlot_plotBasisCharts( basislist, fomlist, fompattern, ...
 %
 % A "basis.png" plot shows the basis vector signals.
 %
+% A "background.png" plot shows the common background signal.
+%
 % "basislist" is a cell array containing structures that have basis vector
-%   information in the following fields:
+%   information in the following fields, per BASISVECTORS.txt:
 %   "basisvecs" is a Nbasis x Ntimesamples matrix where each row is a basis
 %     vector signal.
 %   "coeffs" is a Nchannls x Nbasis matrix with basis vector weights for each
 %     input vector. (coeffs * basisvecs) is an estimate of the original
 %     Nchannels x Ntimesamples data matrix.
+%   "background" is a 1 x Ntimesamples vector containing the common background
+%     across channels.
 % "fomlist" is a vector containing a figure of merit for each of the cases
 %   in "basislist".
 % "fompattern" is a sprintf pattern for formatting figures of merit.
@@ -122,6 +126,47 @@ for lidx = 1:listcount
   legend('Location', 'northwest');
 
   saveas( thisfig, sprintf('%s-vecs-%02d.png', obase, thisbasiscount) );
+end
+
+
+
+% Plot the background.
+% FIXME - Not breaking this down into zoom levels!
+% FIXME - Using hard-coded cursors!
+
+for lidx = 1:listcount
+  clf('reset');
+
+  thisbackground = basislist{lidx}.background;
+
+  hold on;
+
+  plot( timeseries, zeros(size(timeseries)), 'Color', cols.blk, ...
+    'HandleVisibility', 'off' );
+
+  thismin = min(min(thisbackground));
+  thismax = max(max(thisbackground));
+  if (thismax - thismin) < 1e-10
+    thismin = -1;
+    thismax = -1;
+  end
+
+  plot( [ 0 0 ], [ thismin thismax ], 'Color', cols.blk, ...
+    'HandleVisibility', 'off' );
+
+  plot( timeseries, thisbackground, 'Color', cols.mag, ...
+    'DisplayName', 'background' );
+
+  hold off;
+
+  xlabel('Time (s)');
+  ylabel('Amplitude (a.u.)');
+
+  title([ titleprefix ' - ' num2str(thisbasiscount) ' Basis Background' ]);
+
+  legend('Location', 'northwest');
+
+  saveas( thisfig, sprintf('%s-background-%02d.png', obase, thisbasiscount) );
 end
 
 
