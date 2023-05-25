@@ -111,50 +111,12 @@ elseif strcmp(method, 'ica_raw')
 
     nbasis = basis_counts_tested(countidx);
 
-    % FIXME - Bail out if we're asked for more clusters than data points.
-    if nbasis > nvectors
-      continue;
-    end
+    [ thisfom thisbasis ] = nlBasis_getBasisDirectICA( ...
+      datavalues, nbasis, NaN, verbosity );
 
-    % NOTE - Adding timestamps, since this takes a while.
-
-    if ~strcmp(verbosity, 'quiet')
-      disp(sprintf( '.. Getting %d basis vectors using raw ICA (%s).', ...
-        nbasis, char(datetime) ));
-    end
-
-    tic;
-
-    ricamodel = rica( datavalues, nbasis);
-
-    icatime = euUtil_makePrettyTime(toc);
-
-    thisbasis = transpose( ricamodel.TransformWeights );
-    thiscoeffs = transform( ricamodel, datavalues );
-
-
-    % The FOM is the mean explained variance.
-    % The explained variance fraction is the square of the correlation
-    % coefficient, for well-behaved distributions.
-
-    datarecon = thiscoeffs * thisbasis;
-    rvalues = [];
-    for vidx = 1:nvectors
-      thisrmatrix = corrcoef( datarecon(vidx,:), datavalues(vidx,:) );
-      rvalues(vidx) = thisrmatrix(1,2);
-    end
-    thisfom = mean(rvalues .* rvalues);
-    datarecon = [];
-
-
-    fomlist(countidx) = thisfom;
-    basislist{countidx} = struct( ...
-      'basisvecs', thisbasis, 'coeffs', thiscoeffs, 'background', zeromean );
-
-    if ~strcmp(verbosity, 'quiet')
-      disp(sprintf( ...
-        '.. ICA with %d basis vectors gave a FOM of %.3f after %s.', ...
-        nbasis, thisfom, icatime ));
+    if ~isnan(thisfom)
+      fomlist(countidx) = thisfom;
+      basislist{countidx} = thisbasis;
     end
 
   end
