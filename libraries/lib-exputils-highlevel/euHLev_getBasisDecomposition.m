@@ -53,23 +53,6 @@ function [ fomlist basislist ] = euHLev_getBasisDecomposition( ...
 fomlist = [];
 basislist = {};
 
-scratch = size(datavalues);
-nvectors = scratch(1);
-ntimesamps = scratch(2);
-
-maxbasiscount = max(basis_counts_tested);
-
-zeromean = zeros(1,ntimesamps);
-
-
-% FIXME - Magic values.
-
-% If we're doing ICA on PCA-transformed input, PCA parameters are picked
-% by black magic.
-pca_min_explained = 0.98;
-pca_min_components = 3;
-pca_max_components = 20;
-
 
 if strcmp(method, 'kmeans')
 
@@ -123,111 +106,16 @@ elseif strcmp(method, 'ica_raw')
 
 elseif strcmp(method, 'ica_pca')
 
-  % NOTE - Because this uses the covariance matrix, we need to have more
-  % than one data vector.
-  if nvectors < 2
-    return;
-  end
-
-  if ~strcmp(verbosity, 'quiet')
-    disp('.. Getting basis vectors using ICA on PCA-transformed input.');
-  end
-
-
-  % First pass: Get a PCA transformation into a lower-dimensional space.
-
-  [ pcabasis, pcaweights, ~, ~, pcaexplained, pcamean ] = ...
-    pca( datavalues, 'NumComponents', pca_max_components );
-
-  % Handle the case where we had fewer components.
-  pca_max_components = min(pca_max_components, length(pcaexplained));
-
-  chosenpcacount = pca_max_components;
-  chosenpcafom = sum( pcaexplained(1:pca_max_components) ) / 100;
-
-  % Get the minimum number of components for which we explain the desired
-  % amount of variance.
-  for testcount = (pca_max_components - 1):-1:pca_min_components
-    testfom = sum( pcaexplained(1:testcount) ) / 100;
-
-    if testfom >= pca_min_explained
-      chosenpcacount = testcount;
-      chosenpcafom = testfom;
-    end
-  end
-
-  % Get the basis vectors as _rows_, and the desired weights subset.
-  % The mean is already a row vector.
-  pcabasis = transpose(pcabasis);
-  pcabasis = pcabasis(1:chosenpcacount,:);
-  pcacoeffs = pcaweights(:,1:chosenpcacount);
-
-  if ~strcmp(verbosity, 'quiet')
-    disp(sprintf( '.. Used %d PCA components (%.1f %% of variance).', ...
-      chosenpcacount, chosenpcafom * 100 ));
-  end
-
-
-  % Second pass: Perform ICA on the transformed input.
-
   for countidx = 1:length(basis_counts_tested)
 
     nbasis = basis_counts_tested(countidx);
 
-    % Bail out if we're trying to get more basis vectors than data points.
-    if nbasis > nvectors
-      continue;
-    end
+    [ thisfom thisbasis ] = nlBasis_getBasisPCAICA( ...
+      datavalues, nbasis, NaN, verbosity );
 
-
-    % Use the Nvectors x Npca coefficient matrix instead of Nvectors x Ntime
-    % data matrix.
-    ricamodel = rica( pcacoeffs, nbasis);
-
-    % The ICA basis is in PCA space.
-    icabasis = transpose( ricamodel.TransformWeights );
-    icacoeffs = transform( ricamodel, pcacoeffs );
-
-
-    % Invert the PCA transformation to get the time-domain basis vectors.
-
-    % data = pcacoeffs * pcabasis
-    % data = (icacoeffs * icabasis) * pcabasis
-    % data = icacoeffs * (icabasis * pcabasis)
-    % data = icacoeffs * thisbasis
-
-    thisbasis = icabasis * pcabasis;
-    thiscoeffs = icacoeffs;
-
-
-    % The FOM is the mean explained variance.
-    % The explained variance fraction is the square of the correlation
-    % coefficient, for well-behaved distributions.
-
-    % NOTE - We're reconstructing without the mean, here.
-    % If we add the mean, most of the explained variance comes from it, so
-    % our FOM is always nearly perfect.
-
-    datarecon = thiscoeffs * thisbasis;
-%    datarecon = datarecon + repmat( pcamean, nvectors, 1 );
-    rvalues = [];
-    for vidx = 1:nvectors
-      thisdatavalue = datavalues(vidx,:) - pcamean;
-      thisrmatrix = corrcoef( datarecon(vidx,:), thisdatavalue );
-      rvalues(vidx) = thisrmatrix(1,2);
-    end
-    thisfom = mean(rvalues .* rvalues);
-    datarecon = [];
-
-
-    fomlist(countidx) = thisfom;
-    basislist{countidx} = struct( ...
-      'basisvecs', thisbasis, 'coeffs', thiscoeffs, 'background', pcamean );
-
-    if ~strcmp(verbosity, 'quiet')
-      disp(sprintf( ...
-        '.. ICA with %d basis vectors gave a FOM of %.3f.', ...
-        nbasis, thisfom ));
+    if ~isnan(thisfom)
+      fomlist(countidx) = thisfom;
+      basislist{countidx} = thisbasis;
     end
 
   end
