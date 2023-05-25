@@ -63,10 +63,6 @@ zeromean = zeros(1,ntimesamps);
 
 
 % FIXME - Magic values.
-% We have to repeat k-means many times to get somewhat-consistent results.
-
-% 100x is tolerable. 1000x is very slightly better. Compromise at 300x.
-repeat_count_kmeans = 300;
 
 % If we're doing ICA on PCA-transformed input, PCA parameters are picked
 % by black magic.
@@ -81,88 +77,30 @@ if strcmp(method, 'kmeans')
 
     nbasis = basis_counts_tested(countidx);
 
-    % FIXME - Bail out if we're asked for more clusters than data points.
-    if nbasis > nvectors
-      continue;
-    end
+    [ thisfom thisbasis ] = nlBasis_getBasisKmeans( ...
+      datavalues, nbasis, NaN, verbosity );
 
-    if ~strcmp(verbosity, 'quiet')
-%      disp(sprintf('.. Quantizing with k-means into %d vectors.', nbasis));
-    end
-
-    [ clustlabels, clustvecs, distsums ] = ...
-      kmeans( datavalues, nbasis, 'Replicates', repeat_count_kmeans );
-
-    thisbasis = clustvecs;
-
-    thiscoeffs = zeros(nvectors, nbasis);
-    for vidx = 1:nvectors
-      thiscoeffs(vidx, clustlabels(vidx)) = 1;
-    end
-
-
-    if false
-      % Convert the distance measure into a "1 is best" measure.
-      % Don't normalize; FOMS from different basis counts have to be
-      % meaningfully compared to each other.
-      thisfom = mean(distsums);
-      thisfom = log( 1 / (1 + thisfom) );
-    else
-      % Take the mean silhouette value.
-      thisfom = mean( silhouette(datavalues, clustlabels) );
-    end
-
-
-    fomlist(countidx) = thisfom;
-    basislist{countidx} = struct( ...
-      'basisvecs', thisbasis, 'coeffs', thiscoeffs, 'background', zeromean );
-
-    if ~strcmp(verbosity, 'quiet')
-      disp(sprintf( ...
-        '.. K-means quantization with %d vectors gave a FOM of %.3f.', ...
-        nbasis, thisfom ));
+    if ~isnan(thisfom)
+      fomlist(countidx) = thisfom;
+      basislist{countidx} = thisbasis;
     end
 
   end
 
 elseif strcmp(method, 'pca')
 
-  % NOTE - Because this uses the covariance matrix, we need to have more
-  % than one data vector.
-  if nvectors < 2
-    return;
-  end
-
-  if ~strcmp(verbosity, 'quiet')
-    disp('.. Getting basis vectors using PCA.');
-  end
-
-  [ pcabasis, pcaweights, ~, ~, pcaexplained, pcamean ] = ...
-    pca( datavalues, 'NumComponents', maxbasiscount );
+  % FIXME - This is wasteful; we only really need to call pca() once.
 
   for countidx = 1:length(basis_counts_tested)
 
     nbasis = basis_counts_tested(countidx);
 
-    thisfom = sum( pcaexplained(1:nbasis) );
-    thisfom = thisfom / 100;
+    [ thisfom thisbasis ] = nlBasis_getBasisPCA( ...
+      datavalues, nbasis, NaN, verbosity );
 
-    % In pcabasis, the columns are basis vectors. We want rows.
-    thisbasis = transpose(pcabasis);
-    thisbasis = thisbasis(1:nbasis,:);
-
-    thiscoeffs = pcaweights(:,1:nbasis);
-
-    % pcamean is a row vector; it gets added as an additional field.
-
-    fomlist(countidx) = thisfom;
-    basislist{countidx} = struct( ...
-      'basisvecs', thisbasis, 'coeffs', thiscoeffs, 'background', pcamean );
-
-    if ~strcmp(verbosity, 'quiet')
-      disp(sprintf( ...
-        '.. PCA with %d basis vectors gave a FOM of %.3f.', ...
-        nbasis, thisfom ));
+    if ~isnan(thisfom)
+      fomlist(countidx) = thisfom;
+      basislist{countidx} = thisbasis;
     end
 
   end
