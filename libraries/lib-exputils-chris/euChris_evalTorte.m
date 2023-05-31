@@ -1,16 +1,12 @@
-function [ casefoms, newaggregate ] = ...
-  euChris_evalTorte( signaldata, oldaggregate, evalconfig )
+function tortefoms = euChris_evalTorte( signaldata, evalconfig )
 
-% function [ casefoms, newaggregate ] = ...
-%   euChris_evalTorte( signaldata, oldaggregate, evalconfig )
+% function tortefoms = euChris_evalTorte( signaldata, evalconfig )
 %
 % This function compiles figure-of-merit statistics for TORTE's estimation
 % of magnitude and phase.
 %
 % "signaldata" is a structure returned by euChris_extractSignals_loop2302(),
 %   with fields as described in CHRISSIGNALS.txt.
-% "oldaggregate" is a structure with aggregate data returned by previous
-%   calls to this function, or struct([]) for a new call.
 % "evalconfig" is a structure specifying analysis parameters. Missing fields
 %   are set to reasonable default values. Fields and defaults are:
 %   "resample_ms" (default: 1.0) is the sampling interval for comparing
@@ -24,7 +20,7 @@ function [ casefoms, newaggregate ] = ...
 %   "phasecategory_count" (default: 8) is the number of phase bins to use
 %     when binning canon phase before computing phase estimation statistics.
 %
-% "casefoms" is a structure with the following fields:
+% "tortefoms" is a structure with the following fields:
 %   "canon_v_torte_mag_ideal" is a vector containing sampled acausal ground
 %     truth magnitudes, normalized to the ground truth running average.
 %   "canon_v_torte_mag_torte" is a vector containing sampled estimated
@@ -50,19 +46,13 @@ function [ casefoms, newaggregate ] = ...
 %     error of estimated phase vs delayed (causal) ground truth phase.
 %   "delayed_v_torte_phase_cat_vals" is a vector containing phase error bin
 %     midpoint values corresponding to each of these phase error samples.
-% "newaggregate" is a copy of "oldaggregate" with the same fields as
-%   "casefoms", with the values of the "casefoms" vectors appended to the
-%   corresponding vectors in "oldaggregate".
 
 
 % Initialize.
 
-casefoms = struct([]);
-newaggregate = oldaggregate;
+tortefoms = struct([]);
 
 evalconfig = euChris_fillDefaultsEvalTorte( evalconfig );
-
-vector_labels = {};
 
 
 
@@ -230,73 +220,42 @@ if have_canon && (have_torte_mag || have_torte_phase)
   %
   % Store everything we'd want to save or plot in the FOMs structure.
 
-  casefoms = struct();
+  tortefoms = struct();
 
   % Saving normalized estimated and ground truth magnitude.
   % Not saving phase estimates or ground truth.
   % Saving error for magnitude and phase.
 
   if have_torte_mag
-    casefoms.canon_v_torte_mag_ideal = canon_torte_mag_canon_rel;
-    casefoms.canon_v_torte_mag_torte = canon_torte_mag_torte_rel;
-    casefoms.canon_v_torte_mag_rel_error = canon_torte_mag_torte_err;
-    casefoms.canon_v_torte_mag_cat_vals = canon_torte_mag_catmidpoints;
+    tortefoms.canon_v_torte_mag_ideal = canon_torte_mag_canon_rel;
+    tortefoms.canon_v_torte_mag_torte = canon_torte_mag_torte_rel;
+    tortefoms.canon_v_torte_mag_rel_error = canon_torte_mag_torte_err;
+    tortefoms.canon_v_torte_mag_cat_vals = canon_torte_mag_catmidpoints;
 
-    casefoms.delayed_v_torte_mag_ideal = del_torte_mag_canon_rel;
-    casefoms.delayed_v_torte_mag_torte = del_torte_mag_torte_rel;
-    casefoms.delayed_v_torte_mag_rel_error = del_torte_mag_torte_err;
-    casefoms.delayed_v_torte_mag_cat_vals = del_torte_mag_catmidpoints;
-
-    vector_labels = [ vector_labels { ...
-      'canon_v_torte_mag_ideal', 'canon_v_torte_mag_torte', ...
-      'canon_v_torte_mag_rel_error', 'canon_v_torte_mag_cat_vals', ...
-      'delayed_v_torte_mag_ideal', 'delayed_v_torte_mag_torte', ...
-      'delayed_v_torte_mag_rel_error', 'delayed_v_torte_mag_cat_vals' } ];
+    tortefoms.delayed_v_torte_mag_ideal = del_torte_mag_canon_rel;
+    tortefoms.delayed_v_torte_mag_torte = del_torte_mag_torte_rel;
+    tortefoms.delayed_v_torte_mag_rel_error = del_torte_mag_torte_err;
+    tortefoms.delayed_v_torte_mag_cat_vals = del_torte_mag_catmidpoints;
   end
 
   if have_torte_phase
-    casefoms.canon_v_torte_phase_error_deg = canon_torte_ph_error_deg;
-    casefoms.canon_v_torte_phase_cat_vals = canon_torte_ph_catmidpoints;
+    tortefoms.canon_v_torte_phase_error_deg = canon_torte_ph_error_deg;
+    tortefoms.canon_v_torte_phase_cat_vals = canon_torte_ph_catmidpoints;
 
-    casefoms.delayed_v_torte_phase_error_deg = del_torte_ph_error_deg;
-    casefoms.delayed_v_torte_phase_cat_vals = del_torte_ph_catmidpoints;
-
-    vector_labels = [ vector_labels { ...
-      'canon_v_torte_phase_error_deg', 'canon_v_torte_phase_cat_vals', ...
-      'delayed_v_torte_phase_error_deg', 'delayed_v_torte_phase_cat_vals' } ];
+    tortefoms.delayed_v_torte_phase_error_deg = del_torte_ph_error_deg;
+    tortefoms.delayed_v_torte_phase_cat_vals = del_torte_ph_catmidpoints;
   end
 
-  % FIXME - Force sanity.
-  for fidx = 1:length(vector_labels)
-    thislabel = vector_labels{fidx};
-    if ~isrow(casefoms.(thislabel))
-      casefoms.(thislabel) = transpose( casefoms.(thislabel) );
+
+  % Force geometry to row vectors, just in case it's inconsistent.
+  fomlabels = fieldnames(tortefoms);
+  for fidx = 1:length(fomlabels)
+    thislabel = fomlabels{fidx};
+    if ~isrow(tortefoms.(thislabel))
+      tortefoms.(thislabel) = transpose( tortefoms.(thislabel) );
     end
   end
 
-end
-
-
-% Update the aggregate data.
-
-if isempty(newaggregate)
-  newaggregate = casefoms;
-else
-  for fidx = 1:length(vector_labels)
-
-    thislabel = vector_labels{fidx};
-
-    % We've already forced these to be row vectors.
-
-    if ~isfield(newaggregate, thislabel)
-      % Handle the situation where a signal was missing from previous cases.
-      newaggregate.(thislabel) = casefoms.(thislabel);
-    else
-      newaggregate.(thislabel) = ...
-        [ newaggregate.(thislabel) casefoms.(thislabel) ];
-    end
-
-  end
 end
 
 
