@@ -32,11 +32,11 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 %   to save, in milliseconds. E.g. [ -100 300 ].
 % "train_gap_ms" is a duration in milliseconds. Stimulation events with this
 %   separation or less are considered to be part of a pulse train.
-% "chans_wanted" is either a character array or a cell array. If it's a
-%   character array, it's 'trig' to read the trigger channel, 'hint' to read
-%   the hint channels (if any; trigger channel if not), and 'all' to read all
-%   ephys channels. If it's a cell array, it's treated as a list of FT
-%   channels to read.
+% "chans_wanted" is either a character array or a cell array, per
+%   CHRISBATCHDEFS.txt. If it's a character array, it's 'trig' to read the
+%   trigger channel, 'hint' to read the hint channels (if any; trigger
+%   channel if not), and 'all' to read all ephys channels. If it's a cell
+%   array, it's treated as a list of FT channels to read.
 % "want_lfp" is true if the broad-band LFP is to be extracted.
 % "want_narrowband" is true if the narrow-band LFP is to be extracted.
 % "verbosity" is 'normal' or 'quiet'.

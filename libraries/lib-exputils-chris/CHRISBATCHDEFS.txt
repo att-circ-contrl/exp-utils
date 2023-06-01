@@ -1,0 +1,13 @@
+A "batch definition" describes a list of channels to be processed.
+
+This is either a cell array or a character vector.
+
+If it's a cell array, it contains a list of names of channels to be read.
+
+If it's a character vector, it's one of the following:
+
+  'trig' indicates the trigger channel from the experiment.
+  'hint' indicates the channels listed in the "extrachans" hint field.
+  'all' indicates that all channels are to be read.
+
+(This is the end of the file.)
