@@ -117,6 +117,12 @@ trialdefs = euFT_getTrainTrialDefs( samprate, wbheader.nSamples, ...
   trigtimes, trig_window_ms, train_gap_ms );
 trainpos = trialdefs(4,:);
 
+% Figure out where the "last in train" elements are while we're at it.
+traincount = length(trainpos);
+trainlast = true(size(trainpos));
+trainlast(1:(traincount-1)) = ...
+  trainpos(2:traincount) <= trainpos(1:(traincount-1));
+
 
 % Get the desired channels.
 
@@ -189,7 +195,7 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
   % Initialize the return structure.
 
   responsedata = struct( 'tortecidx', tortecidx, 'extracidx', extracidx, ...
-    'trainpos', trainpos );
+    'trainpos', trainpos, 'trainlast', trainlast );
 
 
   % Read wideband.
