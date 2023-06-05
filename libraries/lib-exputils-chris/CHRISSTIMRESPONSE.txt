@@ -17,8 +17,9 @@ This can be used for alignment from any type of event, not just stimulation:
 "trainpos" is a vector with one entry per trial, holding the relative
   position of each trial in its associated event train (1 for the first
   event of a train, 2 for the next, and so forth).
-"trainlast" is a logical vector with one entry per trial, which is true for
-  trials that are the last event in a train.
+"trainrevpos" is a vector with one entry per trial, holding the relative
+  position of each trial with respect to the _end_ of its event train
+  (1 for the last event of a train, 2 for the second-last, and so forth).
 
 
 (This is the end of the file.)

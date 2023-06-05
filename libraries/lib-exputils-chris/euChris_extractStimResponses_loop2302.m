@@ -57,8 +57,9 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 %   "trainpos" is a vector with one entry per trial, holding the relative
 %     position of each trial in an event train (1 for the first event of
 %     a train, 2 for the next, and so forth).
-%   "trainlast" is a vector with one entry per trial, which is true for
-%     trials that are the last event in a train.
+%   "trainrevpos" is a vector with one entry per trial, holding the relative
+%    position of each trial with respect to the _end_ of its event train
+%    (1 for the last event of a train, 2 for the second-last, and so forth).
 
 
 responsedata = struct([]);
@@ -115,13 +116,23 @@ end
 samprate = wbheader.Fs;
 trialdefs = euFT_getTrainTrialDefs( samprate, wbheader.nSamples, ...
   trigtimes, trig_window_ms, train_gap_ms );
-trainpos = trialdefs(4,:);
+trainpos = trialdefs(:,4);
 
-% Figure out where the "last in train" elements are while we're at it.
-traincount = length(trainpos);
-trainlast = true(size(trainpos));
-trainlast(1:(traincount-1)) = ...
-  trainpos(2:traincount) <= trainpos(1:(traincount-1));
+% Figure out where elements are relative to the end of each train.
+
+lastpos = -inf;
+laststart = NaN;
+trainrevpos = ones(size(trainpos));
+
+for tidx = length(trainpos):-1:1
+  thispos = trainpos(tidx);
+  if thispos >= lastpos
+    laststart = thispos;
+  end
+  lastpos = thispos;
+
+  trainrevpos(tidx) = 1 + laststart - thispos;
+end
 
 
 % Get the desired channels.
@@ -195,7 +206,7 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
   % Initialize the return structure.
 
   responsedata = struct( 'tortecidx', tortecidx, 'extracidx', extracidx, ...
-    'trainpos', trainpos, 'trainlast', trainlast );
+    'trainpos', trainpos, 'trainrevpos', trainrevpos );
 
 
   % Read wideband.
