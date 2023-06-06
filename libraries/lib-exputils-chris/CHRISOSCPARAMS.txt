@@ -1,0 +1,34 @@
+Oscillation fit parameters are stored as a structure with the following
+fields:
+
+
+Fields relating to finding the global dominant oscillation frequency:
+
+"window_search" [ min max ] is a time range to look at when measuring
+  the dominant oscillation frequency.
+
+"freq_search" [ min max ] is the frequency range to search for the
+  dominant oscillation frequency.
+
+"freq_drift" [ min max ] is the minimum and maximum multiple of the
+  dominant frequency to accept when curve-fitting in time windows.
+  E.g. [ 0.5 1.5 ] accepts from 0.5 * fdominant to 1.5 * fdominant.
+
+
+Fields relating to measuring local oscillations within specific windows:
+
+"min_before_strength" is the minimum oscillation magnitude a channel
+  has to have, as a fraction of the strongest channel's magnitude, to
+  be considered to be oscillating before stimulation.
+
+"window_lambda" is the width of the curve-fitting time window, as a
+  multiple of the dominant oscillation wavelength.
+
+"time_before" is the desired time of the middle of the before-stimulation
+  curve-fitting window.
+
+"timelist_after" is a vector containing desired times of the middle of
+  after-stimulation curve fitting windows.
+
+
+(This is the end of the file.)

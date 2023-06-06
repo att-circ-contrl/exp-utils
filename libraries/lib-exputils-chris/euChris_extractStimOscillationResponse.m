@@ -15,7 +15,8 @@ function oscfeatures = doEval_doStimOscillationAnalysis( ...
 % "timeseries" is a 1xNtrials cell array containing time series for trials.
 % "trialdata" is a 1xNtrials cell array containing Nchans x Nsamples
 %   matrices of waveform data.
-% "oscfit_params" is a structure containing the following fields:
+% "oscfit_params" is a structure containing the following fields,
+%   per CHRISOSCPARAMS.txt:
 %   "window_search" [ min max ] is a time range to look at when measuring
 %     the dominant oscillation frequency.
 %   "freq_search" [ min max ] is the frequency range to search for the
@@ -36,7 +37,8 @@ function oscfeatures = doEval_doStimOscillationAnalysis( ...
 %   in "oscfeatures" is initialized with a copy of "meta_fields".
 %
 % "oscfeatures" is a 1xNtrials cell array. Each cell contains a copy of the
-%   "meta_fields" structure with the following fields added:
+%   "meta_fields" structure with the following fields added, per
+%   CHRISOSCFEATURES.txt:
 %   "trialnum" is the trial number.
 %   "oscfreq" is the dominant frequency detected in the trial.
 %   "magbefore" is a Nchans x 1 matrix containing magnitudes of the dominant

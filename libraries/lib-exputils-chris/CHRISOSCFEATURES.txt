@@ -1,0 +1,50 @@
+Oscillation response features are stored as a structure with the following
+fields. Time window information is not stored in this structure; it was
+provided by an oscillation fit parameter structure, per CHRISOSCPARAMS.txt.
+Each response describes one trial (or one timelock-average from a set of
+trials); responses for multiple trials are typically returned as a cell
+array of per-trial responses.
+
+
+Fields provided by euChris_extractStimOscillationResponse:
+
+"trialnum" is the trial number.
+
+"oscfreq" is the dominant frequency detected in the trial.
+
+"magbefore" is a Nchans x 1 matrix containing magnitudes of the dominant
+  oscillation before stimulation for each channel.
+
+"freqbefore" is a Nchans x 1 matrix containing frequencies of the dominant
+  oscillation before stimulation for each channel.
+
+"magafter" is a Nchans x Nwindows matrix containing magnitudes of the
+  dominant oscillation after stimulation for each channel and each
+  requested window location.
+
+"freqafter" is a Nchans x Nwindows matrix containing frequencies of the
+  dominant oscillation after stimulation for each channel and each
+  requested window location.
+
+"relafter" is a Nchans x Nwindows matrix containing relative magnitudes
+  of the dominant oscillation after stimulation dividied by the magnitude
+  before stimulation, for each channel and each requested window
+  location. If the oscillation before stimulation was below-threshold,
+  NaN is recorded instead of the relative magnitude.
+
+
+Fields that may be provided by test scripts:
+
+"sessionlabel" is a filename-safe label identifying the recording session.
+
+"caselabel" is a filename-safe label identifying the experiment configuration.
+  This typically encodes experiment parameters (current, stim phase, etc).
+
+"probelabel" is a filename-safe label identifying the probe this response
+  was recorded from. This typically also encodes location.
+
+"chanlabels" is a cell array containing Field Trip channel labels for each
+  of the channels in this response.
+
+
+(This is the end of the file.)
