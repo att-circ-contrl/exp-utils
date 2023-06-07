@@ -11,14 +11,20 @@ function euPlot_plotMultipleBoxCharts( ...
 % This creates a box plot showing several data series and data sets.
 %
 % Data is provided as one vector, which may be several concatenated datasets.
-% Each sample has a "bin value" (a scalar number) and a "dataset label" (a
-% character vector). Samples with the same "dataset label" are in the same
-% dataset; each dataset gets its own colour. Each distinct "bin value" gets
-% its own box in the plot; bin values are arranged on the X axis.
+% Each sample has a "bin value" (a scalar number) or "group label" (a
+% character vector), and a "dataset label" (a character vector).
+%
+% Each "bin value"/"group label" is plotted at its own X position, with a
+% cluster of boxes with different "dataset labels". Each "dataset label"
+% gets its own box colour (so, boxes within a cluster have different colours).
+%
+% If there are no "bin values"/"group labels", datasets are spread out
+% on the X axis instead of grouped.
 %
 % "datavalues" is a vector with the Y axis data values to plot.
 % "databinvalues" is a vector with per-sample X axis data values for each
-%   sample in "datavalues". Use [] to not sort by bin.
+%   sample in "datavalues". This may alternatively be a cell array with
+%   per-sample group labels. Use [] to not sort by bin/group.
 % "datasetlabels" is a cell array with per-sample dataset labels for each
 %   sample in "datavalues"; different datasets get different colours. Use {}
 %   to not sort by dataset.
@@ -52,6 +58,30 @@ have_by_bin = ~isempty(databinvalues);
 have_by_set = ~isempty(datasetlabels);
 
 
+% If we were given bin labels instead of bin values, define integer bin
+% values and store the label list separately.
+
+want_x_labels = false;
+axislabels = {};
+
+if have_by_bin && iscell(databinvalues)
+
+  want_x_labels = true;
+
+  axislabels = unique(databinvalues);
+  scratch = NaN(size(databinvalues));
+
+  for lidx = 1:length(axislabels)
+    thislabel = axislabels{lidx};
+    thismask = strcmp(thislabel, databinvalues);
+    scratch(thismask) = lidx;
+  end
+
+  databinvalues = scratch;
+end
+
+
+
 % Call "boxchart" one or more times.
 
 % If we have bins but no datasets, make one call. All of the boxes are the
@@ -67,6 +97,8 @@ have_by_set = ~isempty(datasetlabels);
 % Using "GroupByColor" gives really bad placement, so we have to do this
 % manually. It also forces a default colour palette.
 
+
+% Get offsets for each dataset.
 
 if have_by_set
   setlabels = unique(datasetlabels);
@@ -157,15 +189,35 @@ end
 hold on;
 
 
-% Figure out what our X limits are, and whether we have a categorical axis.
+% Figure out if we have a categorical X axis.
 
-axis_is_categories = have_by_set && (~have_by_bin);
+axis_is_categories = false;
+axiscats = categorical({});
+
+if have_by_bin
+  % NOTE - Even if we were given bin labels instead of values,
+  % we're treating the X axis as numeric.
+  % So, nothing to do here.
+else
+  % Have datasets but _not_ bins.
+  axis_is_categories = have_by_set;
+  if axis_is_categories
+    axiscats = categorical(datasetlabels);
+  end
+end
+
+
+% Figure out what our X limits are.
 
 % If we have no size information at all, we're centered on 1.
 xmin = 0;
 xmax = 2;
 
-if have_by_bin
+if axis_is_categories
+  % Our values are categorical, not numeric.
+  xmin = axiscats(1);
+  xmax = axiscats(length(axiscats));
+elseif have_by_bin
   if isempty(xrange)
     % Span the data bin range, plus a bit.
 
@@ -183,11 +235,6 @@ if have_by_bin
     xmin = min(xrange);
     xmax = max(xrange);
   end
-elseif axis_is_categories
-  % Our values are categorical, not numeric.
-  setcats = categorical(datasetlabels);
-  xmin = setcats(1);
-  xmax = setcats(length(setcats));
 end
 
 
@@ -250,11 +297,16 @@ else
   ylim('auto');
 end
 
-if have_by_bin && strcmp(xtype, 'log');
+if have_by_bin && strcmp(xtype, 'log') && (~want_x_labels);
   set(gca, 'xscale', 'log');
 end
 if strcmp(ytype, 'log');
   set(gca, 'yscale', 'log');
+end
+
+% Kludge for bin labels instead of bin values.
+if want_x_labels
+  set( gca, 'XTick', 1:length(axislabels), 'XTickLabel', axislabels );
 end
 
 if have_by_set && (~strcmp(legendpos, 'off'))
