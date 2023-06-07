@@ -73,16 +73,15 @@ for tidx = 1:length(timeseries)
   nchans = scratch(1);
 
 
-  % FIXME - Blithely assume that the mean across channels will still show
-  % the oscillation.
+  % NOTE - We can either use the mean across channels or the channel with
+  % the largest single component. Neither is perfect.
 
-  trialmean = mean(thistrialdata, 1);
   timemask = ( thistimeseries >= min(oscfit_params.window_search) ) ...
     & ( thistimeseries <= max(oscfit_params.window_search) );
-  trialmean = trialmean(timemask);
+  trialsubset = thistrialdata(:,timemask);
 
-  [ oscfreq ~ ] = nlProc_guessDominantFrequency( ...
-    trialmean, samprate, oscfit_params.freq_search );
+  [ oscfreq ~ ] = nlProc_guessDominantFrequencyAcrossChans( ...
+    trialsubset, samprate, oscfit_params.freq_search, 'largest' );
 
   freqrange = oscfreq * oscfit_params.freq_drift;
 
