@@ -33,7 +33,8 @@ Fields provided by euChris_extractStimOscillationResponse:
   NaN is recorded instead of the relative magnitude.
 
 
-Fields that may be provided by test scripts:
+
+Metadata fields that may be provided by test scripts:
 
 "sessionlabel" is a filename-safe label identifying the recording session.
 
@@ -45,6 +46,14 @@ Fields that may be provided by test scripts:
 
 "chanlabels" is a cell array containing Field Trip channel labels for each
   of the channels in this response.
+
+
+
+Data fields that may be provided by test scripts:
+
+"normafter" is a Nchans x Nwindows matrix containing magnitudes of the
+  dominant oscillation normalized against the value from a baseline test
+  case, for each channel and reach requested window location.
 
 
 (This is the end of the file.)
