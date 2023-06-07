@@ -53,7 +53,11 @@ Data fields that may be provided by test scripts:
 
 "normafter" is a Nchans x Nwindows matrix containing magnitudes of the
   dominant oscillation normalized against the value from a baseline test
-  case, for each channel and reach requested window location.
+  case, for each channel and each requested window location.
+
+"baseafter" is a Nchans x Nwindows matrix containing magnitudes of the
+  dominant oscillation from the baseline case's record, rather than from
+  this record, for each channel and each requested window location.
 
 
 (This is the end of the file.)

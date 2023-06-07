@@ -1,19 +1,24 @@
 function newfeatures = euChris_calcNormalizedOscillationResponse( ...
-  oldfeatures, oldfield, newfield, case_compare_lut, casefield, matchfields )
+  oldfeatures, oldfield, normfield, baselinefield, ...
+  case_compare_lut, casefield, matchfields )
 
 % function newfeatures = euChris_calcNormalizedOscillationResponse( ...
-%   oldfeatures, oldfield, newfield, case_compare_lut, casefield, matchfields )
+%   oldfeatures, oldfield, normfield, baselinefield, ...
+%   case_compare_lut, casefield, matchfields )
 %
 % This function normalizes responses from the specified test cases against
-% responses from different test cases.
+% baseline responses from different test cases.
 %
-% The intention is to use this to normalize against a baseline response
-% (such as normalizing phase-specific cases against a random phase case).
+% An example use-case is normalizing phase-specific responses against
+% the random-phase response.
 %
 % "oldfeatures" is a cell array containing one or more oscillation response
 %   structures, per CHRISOSCFEATURES.txt.
 % "oldfield" is the name of the structure field containing data to normalize.
-% "newfield" is the name of the normalized structure field to create.
+% "normfield" is the name of the normalized structure field to create, or ''
+%   to not store normalized data.
+% "baselinefield" is the name of the field to store a copy of the baseline
+%   data in, or '' to not store baseline data.
 % "case_compare_lut" is a 2xNcases cell array. The first row contains labels
 %   of test cases to be normalized, and the second row contains corresponding
 %   labels of baseline cases to normalize against.
@@ -118,7 +123,13 @@ for didx = 1:length(newfeatures)
 
     thisaverage = basedatavalues{thisbaseidx};
 
-    newfeatures{didx}.(newfield) = thisdata ./ thisaverage;
+    if ~isempty(normfield)
+      newfeatures{didx}.(normfield) = thisdata ./ thisaverage;
+    end
+
+    if ~isempty(baselinefield)
+      newfeatures{didx}.(baselinefield) = thisaverage;
+    end
 
   end
 end
