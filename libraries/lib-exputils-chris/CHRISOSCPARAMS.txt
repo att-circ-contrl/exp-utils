@@ -4,8 +4,8 @@ fields:
 
 Fields relating to finding the global dominant oscillation frequency:
 
-"window_search" [ min max ] is a time range to look at when measuring
-  the dominant oscillation frequency.
+"window_search" [ min max ] is a time range (in seconds) to look at when
+  measuring the dominant oscillation frequency.
 
 "freq_search" [ min max ] is the frequency range to search for the
   dominant oscillation frequency.
@@ -24,11 +24,11 @@ Fields relating to measuring local oscillations within specific windows:
 "window_lambda" is the width of the curve-fitting time window, as a
   multiple of the dominant oscillation wavelength.
 
-"time_before" is the desired time of the middle of the before-stimulation
-  curve-fitting window.
+"time_before" is the desired timestamp (in seconds) of the middle of the
+  before-stimulation curve-fitting window.
 
-"timelist_after" is a vector containing desired times of the middle of
-  after-stimulation curve fitting windows.
+"timelist_after" is a vector containing desired timestamps (in seconds) of
+  the middle of after-stimulation curve fitting windows.
 
 
 (This is the end of the file.)
