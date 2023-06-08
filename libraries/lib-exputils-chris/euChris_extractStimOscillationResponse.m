@@ -142,7 +142,7 @@ for tidx = 1:length(timeseries)
 
     % FIXME - Diagnostics. Save the original waveform.
     if origsavebefore
-      origwavebefore(cidx,:) = thistrialdata(cidx,timemask);
+      origwavebefore(cidx,:) = thisseries;
     end
   end
 
@@ -184,7 +184,7 @@ for tidx = 1:length(timeseries)
 
       % FIXME - Diagnostics. Save the original waveform.
       if origsaveafter
-        origwaveafter{widx}(cidx,:) = thistrialdata(cidx,timemask);
+        origwaveafter{widx}(cidx,:) = thisseries;
       end
     end
   end
