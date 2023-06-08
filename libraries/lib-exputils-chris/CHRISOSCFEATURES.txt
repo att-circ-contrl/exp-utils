@@ -18,6 +18,13 @@ Fields provided by euChris_extractStimOscillationResponse:
 "freqbefore" is a Nchans x 1 matrix containing frequencies of the dominant
   oscillation before stimulation for each channel.
 
+"phasebefore" is a Nchans x 1 matrix containing the phase (in radians) of
+  the dominant oscillation before stimulation for each channel at the
+  window midpoint.
+
+"meanbefore" is a Nchans x 1 matrix containing the DC offset (mean) of the
+  wave in the "before stimulation" curve fit window.
+
 "magafter" is a Nchans x Nwindows matrix containing magnitudes of the
   dominant oscillation after stimulation for each channel and each
   requested window location.
@@ -26,11 +33,36 @@ Fields provided by euChris_extractStimOscillationResponse:
   dominant oscillation after stimulation for each channel and each
   requested window location.
 
+"phaseafter" is a Nchans x Nwindows matrix containing the phase (in
+  radians) of the dominant oscillation after stimulation for each
+  channel at each requested window midpoint.
+
+"meanafter" is a Nchans x Nwindows matrix containing the DC offset (mean)
+  of the wave in each "after stimulation" curve fit window.
+
 "relafter" is a Nchans x Nwindows matrix containing relative magnitudes
   of the dominant oscillation after stimulation dividied by the magnitude
   before stimulation, for each channel and each requested window
   location. If the oscillation before stimulation was below-threshold,
   NaN is recorded instead of the relative magnitude.
+
+
+
+Debugging fields that may be provided (if requested):
+
+"origtimebefore" is a 1 x Nsamples matrix containing timestamps from the
+  "before stimulation" curve fit window.
+
+"origwavebefore" is a Nchans x Nsamples matrix with waveform data from the
+  "before stimulation" curve fit window.
+
+"origtimeafter" is a cell array with one entry per window size, containing
+  1 x Nsamples matrices holding timestamps from the "after stimulation"
+  curve fit windows.
+
+"origwaveafter" is a cell array with one entry per window size, containing
+  Nchans x Nsamples matrices holding waveform data from the "after
+  stimulation" curve fit windows.
 
 
 
