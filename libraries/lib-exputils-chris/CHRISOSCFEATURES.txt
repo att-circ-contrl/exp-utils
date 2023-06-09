@@ -25,6 +25,9 @@ Fields provided by euChris_extractStimOscillationResponse:
 "meanbefore" is a Nchans x 1 matrix containing the DC offset (mean) of the
   wave in the "before stimulation" curve fit window.
 
+"rampbefore" (optional) is a Nchans x 1 matrix containing the line-fit slope
+  of the wave in the "before stimulation" curve fit window.
+
 "magafter" is a Nchans x Nwindows matrix containing magnitudes of the
   dominant oscillation after stimulation for each channel and each
   requested window location.
@@ -39,6 +42,9 @@ Fields provided by euChris_extractStimOscillationResponse:
 
 "meanafter" is a Nchans x Nwindows matrix containing the DC offset (mean)
   of the wave in each "after stimulation" curve fit window.
+
+"rampafter" (optional) is a Nchans x Nwindows matrix containing the line-fit
+  slope of the wave in each "after stimulation" curve fit window.
 
 "relafter" is a Nchans x Nwindows matrix containing relative magnitudes
   of the dominant oscillation after stimulation dividied by the magnitude
@@ -56,6 +62,9 @@ Debugging fields that may be provided (if requested):
 "origwavebefore" is a Nchans x Nsamples matrix with waveform data from the
   "before stimulation" curve fit window.
 
+"rawphasebefore" is a Nchans x 1 matrix storing the phase returned by
+  nlProc_fitCosine() before adjustment.
+
 "origtimeafter" is a cell array with one entry per window size, containing
   1 x Nsamples matrices holding timestamps from the "after stimulation"
   curve fit windows.
@@ -63,6 +72,10 @@ Debugging fields that may be provided (if requested):
 "origwaveafter" is a cell array with one entry per window size, containing
   Nchans x Nsamples matrices holding waveform data from the "after
   stimulation" curve fit windows.
+
+"rawphaseafter" is a cell array with one entry per window size, containing
+  Nchans x 1 matrices storing the phase returned by nlProc_fitCosine()
+  before adjustment.
 
 
 

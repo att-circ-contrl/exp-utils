@@ -33,6 +33,8 @@ function oscfeatures = euChris_extractStimOscillationResponse( ...
 %     curve-fitting window.
 %   "timelist_after" is a vector containing desired times of the middle of
 %     after-stimulation curve fitting windows.
+%   "use_line_fit" (optional) is true to subtract a line fit before doing
+%     the cosine fit, and false or absent to just subtract the mean.
 %   "debug_save_waves" is true to save raw signals used for curve fits.
 % "meta_fields" is a structure with arbitrary fields. Each output structure
 %   in "oscfeatures" is initialized with a copy of "meta_fields".
@@ -51,6 +53,8 @@ function oscfeatures = euChris_extractStimOscillationResponse( ...
 %     window midpoint.
 %   "meanbefore" is a Nchans x 1 matrix containing the DC offset (mean) of the
 %     wave in the "before stimulation" curve fit window.
+%   "rampbefore" (optional) is a Nchans x 1 matrix containing the line-fit
+%     slope of the wave in the "before stimulation" curve fit window.
 %   "magafter" is a Nchans x Nwindows matrix containing magnitudes of the
 %     dominant oscillation after stimulation for each channel and each
 %     requested window location.
@@ -62,6 +66,8 @@ function oscfeatures = euChris_extractStimOscillationResponse( ...
 %     channel at each requested window midpoint.
 %   "meanafter" is a Nchans x Nwindows matrix containing the DC offset (mean)
 %     of the wave in each "after stimulation" curve fit window.
+%   "rampafter" (optional) is a Nchans x Nwindows matrix containing the
+%     line-fit slope of the wave in each "after stimulation" curve fit window.
 %   "relafter" is a Nchans x Nwindows matrix containing relative magnitudes
 %     of the dominant oscillation after stimulation dividied by the magnitude
 %     before stimulation, for each channel and each requested window
@@ -75,6 +81,14 @@ origsaveafter = false;
 if isfield(oscfit_params, 'debug_save_waves')
   origsavebefore = oscfit_params.debug_save_waves;
   origsaveafter = oscfit_params.debug_save_waves;
+end
+
+
+polyorder = 0;
+if isfield(oscfit_params, 'use_line_fit')
+  if oscfit_params.use_line_fit
+    polyorder = 1;
+  end
 end
 
 
@@ -124,13 +138,20 @@ for tidx = 1:length(timeseries)
   % FIXME - Diagnostics. Save the original waveform.
   if origsavebefore
     origwavebefore = [];
+    rawphasebefore = [];
     origtimebefore = thistimeseries(timemask);
   end
 
   for cidx = 1:nchans
     thisseries = thistrialdata(cidx,timemask);
-    [ thismag thisfreq thisphase thismean ] = ...
-      nlProc_fitCosine( thisseries, samprate, freqrange );
+    [ thismag thisfreq thisphase thispoly ] = ...
+      nlProc_fitCosine( thisseries, samprate, freqrange, polyorder );
+
+    % FIXME - Diagnostics. Save the original waveform and fit phase.
+    if origsavebefore
+      origwavebefore(cidx,:) = thisseries;
+      rawphasebefore(cidx,1) = thisphase;
+    end
 
     % Advance the phase to get the midpoint phase.
     thisphase = thisphase + 2 * pi * thisfreq * winrad;
@@ -138,11 +159,14 @@ for tidx = 1:length(timeseries)
     magbefore(cidx,1) = thismag;
     freqbefore(cidx,1) = thisfreq;
     phasebefore(cidx,1) = thisphase;
+
+    thismean = thispoly(length(thispoly));
     meanbefore(cidx,1) = thismean;
 
-    % FIXME - Diagnostics. Save the original waveform.
-    if origsavebefore
-      origwavebefore(cidx,:) = thisseries;
+    if polyorder > 0
+      thisramp = thispoly(length(thispoly) - 1);
+      rampbefore(cidx,1) = thisramp;
+      meanbefore(cidx,1) = thismean + winrad * thisramp;
     end
   end
 
@@ -154,6 +178,7 @@ for tidx = 1:length(timeseries)
   % FIXME - Diagnostics. Save the original waveform.
   if origsaveafter
     origwaveafter = {};
+    rawphaseafter = {};
     origtimeafter = {};
   end
 
@@ -166,13 +191,20 @@ for tidx = 1:length(timeseries)
     % FIXME - Diagnostics. Save the original waveform.
     if origsaveafter
       origwaveafter{widx} = [];
+      rawphaseafter{widx} = [];
       origtimeafter{widx} = thistimeseries(timemask);
     end
 
     for cidx = 1:nchans
       thisseries = thistrialdata(cidx,timemask);
-      [ thismag thisfreq thisphase thismean ] = ...
-        nlProc_fitCosine( thisseries, samprate, freqrange );
+      [ thismag thisfreq thisphase thispoly ] = ...
+        nlProc_fitCosine( thisseries, samprate, freqrange, polyorder );
+
+      % FIXME - Diagnostics. Save the original waveform.
+      if origsaveafter
+        origwaveafter{widx}(cidx,:) = thisseries;
+        rawphaseafter{widx}(cidx,1) = thisphase;
+      end
 
       % Advance the phase to get the midpoint phase.
       thisphase = thisphase + 2 * pi * thisfreq * winrad;
@@ -180,11 +212,14 @@ for tidx = 1:length(timeseries)
       magafter(cidx,widx) = thismag;
       freqafter(cidx,widx) = thisfreq;
       phaseafter(cidx,widx) = thisphase;
+
+      thismean = thispoly(length(thispoly));
       meanafter(cidx,widx) = thismean;
 
-      % FIXME - Diagnostics. Save the original waveform.
-      if origsaveafter
-        origwaveafter{widx}(cidx,:) = thisseries;
+      if polyorder > 0
+        thisramp = thispoly(length(thispoly) - 1);
+        rampafter(cidx,widx) = thisramp;
+        meanafter(cidx,widx) = thismean + winrad * thisramp;
       end
     end
   end
@@ -226,16 +261,23 @@ for tidx = 1:length(timeseries)
   thisreport.phaseafter = phaseafter;
   thisreport.meanafter = meanafter;
 
+  if polyorder > 0
+    thisreport.rampbefore = rampbefore;
+    thisreport.rampafter = rampafter;
+  end
+
   thisreport.relafter = relafter;
 
   % FIXME - Diagnostics. Save the original waveform.
   if origsavebefore
     thisreport.origtimebefore = origtimebefore;
     thisreport.origwavebefore = origwavebefore;
+    thisreport.rawphasebefore = rawphasebefore;
   end
   if origsaveafter
     thisreport.origtimeafter = origtimeafter;
     thisreport.origwaveafter = origwaveafter;
+    thisreport.rawphaseafter = rawphaseafter;
   end
 
 

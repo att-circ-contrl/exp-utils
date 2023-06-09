@@ -142,84 +142,28 @@ for tidx = 1:length(trialmask)
     % It doesn't really matter what this is; it's for aligning events.
     globalfirst = min(thistimeseries);
 
-    thisfirst = min(thistimeseries);
-    thislast = max(thistimeseries);
-    thisoffset = thisfirst;
-    thisfirst = round( (thisfirst - globalfirst) * samprate );
-    thislast = round( (thislast - globalfirst) * samprate );
-    thisoffset = round( thisoffset * samprate );
+    [ thisfirst thislast thisoffset ] = ...
+      helper_computeTrialDefInfo( thistimeseries, globalfirst, samprate );
 
     newtrialdefs = [ thisfirst thislast thisoffset ];
 
 
     % Remaining trials are curve fit waveforms.
 
-
     % "Before stim" curve fit.
-
-    [ recontime reconchanwaves ] = euChris_reconstructOscCosine( ...
-      oscparams.time_before, oscparams.window_lambda, samprate, 'crop', ...
-      thisoscfit.magbefore, thisoscfit.freqbefore, ...
-      thisoscfit.phasebefore, thisoscfit.meanbefore );
-
-    newtimelist = [ newtimelist { recontime } ];
-    newwavelist = [ newwavelist { reconchanwaves } ];
-    newtrialnames = [ newtrialnames ...
-      { helper_makeTimeLabel(oscparams.time_before) } ];
-
-    thisfirst = min(recontime);
-    thislast = max(recontime);
-    thisoffset = thisfirst;
-    thisfirst = round( (thisfirst - globalfirst) * samprate );
-    thislast = round( (thislast - globalfirst) * samprate );
-    thisoffset = round( thisoffset * samprate );
-
-    newtrialdefs = [ newtrialdefs ; thisfirst thislast thisoffset ];
-
-    % FIXME - Render the original wave if it was saved.
-    if isfield(thisoscfit, 'origtimebefore') ...
-      && isfield(thisoscfit, 'origwavebefore')
-      newtimelist = [ newtimelist { thisoscfit.origtimebefore } ];
-      newwavelist = [ newwavelist { thisoscfit.origwavebefore } ];
-      newtrialnames = [ newtrialnames ...
-        { [ helper_makeTimeLabel(oscparams.time_before) 'orig' ] } ];
-      newtrialdefs = [ newtrialdefs ; thisfirst thislast thisoffset ];
-    end
+    [ newtimelist newwavelist newtrialnames newtrialdefs ] = ...
+      helper_addCurveFitTrial( ...
+        newtimelist, newwavelist, newtrialnames, newtrialdefs, ...
+        oscparams.time_before, oscparams.window_lambda, samprate, ...
+        thisoscfit, 'before', globalfirst );
 
     % "After stim" curve fits.
+    [ newtimelist newwavelist newtrialnames newtrialdefs ] = ...
+      helper_addCurveFitTrial( ...
+        newtimelist, newwavelist, newtrialnames, newtrialdefs, ...
+        oscparams.timelist_after, oscparams.window_lambda, samprate, ...
+        thisoscfit, 'after', globalfirst );
 
-    for widx = 1:length(oscparams.timelist_after)
-      thiswintime = oscparams.timelist_after(widx);
-
-      [ recontime reconchanwaves ] = euChris_reconstructOscCosine( ...
-        oscparams.timelist_after(widx), oscparams.window_lambda, ...
-        samprate, 'crop', thisoscfit.magafter(:,widx), ...
-        thisoscfit.freqafter(:,widx), thisoscfit.phaseafter(:,widx), ...
-        thisoscfit.meanafter(:,widx) );
-
-      newtimelist = [ newtimelist { recontime } ];
-      newwavelist = [ newwavelist { reconchanwaves } ];
-      newtrialnames = [ newtrialnames { helper_makeTimeLabel(thiswintime) } ];
-
-      thisfirst = min(recontime);
-      thislast = max(recontime);
-      thisoffset = thisfirst;
-      thisfirst = round( (thisfirst - globalfirst) * samprate );
-      thislast = round( (thislast - globalfirst) * samprate );
-      thisoffset = round( thisoffset * samprate );
-
-      newtrialdefs = [ newtrialdefs ; thisfirst thislast thisoffset ];
-
-      % FIXME - Render the original wave if it was saved.
-      if isfield(thisoscfit, 'origtimeafter') ...
-        && isfield(thisoscfit, 'origwaveafter')
-        newtimelist = [ newtimelist { thisoscfit.origtimeafter{widx} } ];
-        newwavelist = [ newwavelist { thisoscfit.origwaveafter{widx} } ];
-        newtrialnames = [ newtrialnames ...
-          { [ helper_makeTimeLabel(thiswintime) 'orig' ] } ];
-        newtrialdefs = [ newtrialdefs ; thisfirst thislast thisoffset ];
-      end
-    end
 
     % Store the time series and trials.
 
@@ -246,7 +190,11 @@ end
 %
 % Helper functions.
 
+
+% This turns a time window location into an appropriate legend/file label.
+
 function thislabel = helper_makeTimeLabel(thistime_secs)
+
   thistime_ms = thistime_secs * 1000;
 
   if thistime_ms < 0
@@ -254,7 +202,166 @@ function thislabel = helper_makeTimeLabel(thistime_secs)
   else
     thislabel = sprintf( 'p%03d', thistime_ms );
   end
+
 end
+
+
+
+% This computes trialdef columns for a time series.
+
+function [ sampfirst samplast sampoffset ] = ...
+  helper_computeTrialDefInfo( timeseries, globalfirst, samprate )
+
+  timefirst = min(timeseries);
+  timelast = max(timeseries);
+  timeoffset = timefirst;
+
+  sampfirst = round( (timefirst - globalfirst) * samprate );
+  samplast = round( (timelast - globalfirst) * samprate );
+  sampoffset = round( timeoffset * samprate );
+
+end
+
+
+
+% This adds a "before" or "after" reconstructed waveform to the trial list,
+% and adds original and raw reconstruction waves if present.
+
+function [ newtimelist newwavelist newtrialnames newtrialdefs ] = ...
+  helper_addCurveFitTrial( ...
+    oldtimelist, oldwavelist, oldtrialnames, oldtrialdefs, ...
+    window_times, window_periods, samprate, ...
+    thisoscfit, fieldsuffix, globalfirst )
+
+  % Get relevant oscillation fit fields and behavior flags.
+
+  maglist = thisoscfit.([ 'mag' fieldsuffix ]);
+  freqlist = thisoscfit.([ 'freq' fieldsuffix ]);
+  phaselist = thisoscfit.([ 'phase' fieldsuffix ]);
+  meanlist = thisoscfit.([ 'mean' fieldsuffix ]);
+  ramplist = zeros(size(meanlist));
+  if isfield(thisoscfit, [ 'ramp' fieldsuffix ])
+    ramplist = thisoscfit.([ 'ramp' fieldsuffix ]);
+  end
+
+  have_orig = false;
+  if isfield(thisoscfit, [ 'origtime' fieldsuffix ]) ...
+    && isfield(thisoscfit, [ 'origwave' fieldsuffix ])
+    have_orig = true;
+    origtimelist = thisoscfit.([ 'origtime' fieldsuffix ]);
+    origwavelist = thisoscfit.([ 'origwave' fieldsuffix ]);
+  end
+
+  have_raw_phase = false;
+  if isfield(thisoscfit, [ 'rawphase', fieldsuffix ])
+    have_raw_phase = true;
+    rawphaselist = thisoscfit.([ 'rawphase' fieldsuffix ]);
+  end
+
+
+  % The canon series are x1 (before) or xNwindows (after), and so compatible.
+  % The debug series are stored as cell arrays if per-window, so convert
+  % the "before" versions to cell arrays for compatibility.
+
+  if have_orig
+    if ~iscell(origtimelist)
+      origtimelist = { origtimelist };
+      origwavelist = { origwavelist };
+    end
+  end
+
+  if have_raw_phase
+    if ~iscell(rawphaselist)
+      rawphaselist = { rawphaselist };
+    end
+  end
+
+
+  % Walk through the time list, adding each saved wave.
+
+  newtimelist = oldtimelist;
+  newwavelist = oldwavelist;
+  newtrialnames = oldtrialnames;
+  newtrialdefs = oldtrialdefs;
+
+  for widx = 1:length(window_times)
+
+    thiswintime = window_times(widx);
+
+    %
+    % Reconstructed wave.
+
+    [ recontime reconchanwaves ] = euChris_reconstructOscCosine( ...
+      thiswintime, window_periods, samprate, 'crop', ...
+      maglist(:,widx), freqlist(:,widx), phaselist(:,widx), ...
+      meanlist(:,widx), ramplist(:,widx) );
+
+    % Compute trial_definition information.
+    [ thisfirst thislast thisoffset ] = ...
+      helper_computeTrialDefInfo( recontime, globalfirst, samprate );
+
+    % Save trial information.
+    newtimelist = [ newtimelist { recontime } ];
+    newwavelist = [ newwavelist { reconchanwaves } ];
+    newtrialnames = [ newtrialnames { helper_makeTimeLabel(thiswintime) } ];
+    newtrialdefs = [ newtrialdefs ; thisfirst thislast thisoffset ];
+
+
+    %
+    % Plot curve fit tattle info, if present.
+
+    if have_orig
+
+      % Add the saved original wave.
+
+      thisorigtime = origtimelist{widx};
+      thisorigwave = origwavelist{widx};
+
+      [ thisfirst thislast thisoffset ] = ...
+        helper_computeTrialDefInfo( thisorigtime, globalfirst, samprate );
+
+      newtimelist = [ newtimelist { thisorigtime } ];
+      newwavelist = [ newwavelist { thisorigwave } ];
+      newtrialnames = [ newtrialnames ...
+        { [ helper_makeTimeLabel(thiswintime) 'orig' ] } ];
+      newtrialdefs = [ newtrialdefs ; thisfirst thislast thisoffset ];
+
+      if have_raw_phase
+        % Reconstruct without the helper, so we can _test_ the helper.
+
+        recontime = 1:length(thisorigtime);
+        recontime = (recontime - 1) / samprate;
+
+        magbychan = maglist(:,widx);
+        freqbychan = freqlist(:,widx);
+        meanbychan = meanlist(:,widx);
+        rampbychan = ramplist(:,widx);
+        phasebychan = rawphaselist{widx};
+
+        timedelta = thiswintime - thisorigtime(1);
+        meanbychan = meanbychan - rampbychan * timedelta;
+
+        reconwave = [];
+        for cidx = 1:length(magbychan)
+          thisbg = recontime * rampbychan(cidx) + meanbychan(cidx);
+          thisrecon = thisbg + magbychan(cidx) * cos( ...
+            recontime * 2 * pi * freqbychan(cidx) + phasebychan(cidx) );
+          reconwave(cidx,:) = thisrecon;
+        end
+
+        newtimelist = [ newtimelist { thisorigtime } ];
+        newwavelist = [ newwavelist { reconwave } ];
+        newtrialnames = [ newtrialnames ...
+          { [ helper_makeTimeLabel(thiswintime) 'raw' ] } ];
+        % Still using the "origtime" time series, so the same trialdef info.
+        newtrialdefs = [ newtrialdefs ; thisfirst thislast thisoffset ];
+      end
+
+    end
+
+  end
+end
+
 
 
 %

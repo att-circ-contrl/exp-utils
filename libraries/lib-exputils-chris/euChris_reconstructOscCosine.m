@@ -1,10 +1,10 @@
 function [ recontime reconchanwaves ] = euChris_reconstructOscCosine( ...
   wintime, winperiods, samprate, extendmethod, ...
-  oscmag, oscfreq, oscphase, oscmean )
+  oscmag, oscfreq, oscphase, oscmean, oscramp )
 
 % function [ recontime reconchanwaves ] = euChris_reconstructOscCosine( ...
 %   wintime, winperiods, samprate, extendmethod, ...
-%   oscmag, oscfreq, oscphase, oscmean )
+%   oscmag, oscfreq, oscphase, oscmean, oscramp )
 %
 % This reconstructs per-channel cosine oscillations based on their detection
 % parameters.
@@ -26,6 +26,8 @@ function [ recontime reconchanwaves ] = euChris_reconstructOscCosine( ...
 % "oscphase" is a Nchans x 1 vector with per-channel cosine phases at the
 %   window midpoint.
 % "oscmean" is a Nchans x 1 vector with per-channel DC offsets.
+% "oscramp" (optional) is a Nchans x 1 vector with per-channel line-fit
+%   slopes. If this is missing or [], a slope of 0 is used (no line fit).
 %
 % "recontime" is a 1 x Nsamples timestamp series.
 % "reconchanwaves" is a Nchans x Nsamples set of reconstructed waveforms.
@@ -46,6 +48,13 @@ if ~iscolumn(recontime)
 end
 
 
+% If we don't have slope information, assume a slope of zero.
+if ~exist('oscramp', 'var')
+  oscramp = zeros(size(oscmean));
+elseif isempty(oscramp)
+  oscramp = zeros(size(oscmean));
+end
+
 
 % Render our reconstructed waves.
 
@@ -56,10 +65,12 @@ for cidx = 1:length(oscmag)
   thisfreq = oscfreq(cidx);
   thisphase = oscphase(cidx);
   thismean = oscmean(cidx);
+  thisramp = oscramp(cidx);
 
   % The window midpoint has timestamp zero, so reconstruction is easy.
+  thisbg = recontime * thisramp + thismean;
   thisrecon = ...
-    thismag * cos(recontime * 2 * pi * thisfreq + thisphase) + thismean;
+    thismag * cos(recontime * 2 * pi * thisfreq + thisphase) + thisbg;
 
   if strcmp(extendmethod, 'crop')
     % Crop to the desired time range.
