@@ -123,12 +123,14 @@ for didx = 1:length(newfeatures)
 
     thisaverage = basedatavalues{thisbaseidx};
 
-    if ~isempty(normfield)
-      newfeatures{didx}.(normfield) = thisdata ./ thisaverage;
-    end
+    if ~isempty(thisaverage)
+      if ~isempty(normfield)
+        newfeatures{didx}.(normfield) = thisdata ./ thisaverage;
+      end
 
-    if ~isempty(baselinefield)
-      newfeatures{didx}.(baselinefield) = thisaverage;
+      if ~isempty(baselinefield)
+        newfeatures{didx}.(baselinefield) = thisaverage;
+      end
     end
 
   end
