@@ -1,8 +1,10 @@
 function oscfeatures = euChris_extractStimOscillationResponse( ...
-  timeseries, trialdata, oscfit_params, meta_fields )
+  timeseriesbefore, trialdatabefore, timeseriesafter, trialdataafter, ...
+  oscfit_params, meta_fields )
 
 % function oscfeatures = euChris_extractStimOscillationResponse( ...
-%   timeseries, trialdata, oscfit_params, meta_fields )
+%   timeseriesbefore, trialdatabefore, timeseriesafter, trialdataafter, ...
+%   oscfit_params, meta_fields )
 %
 % This performs feature extraction of oscillations before and after
 % stimulation, for one or more trials.
@@ -12,9 +14,22 @@ function oscfeatures = euChris_extractStimOscillationResponse( ...
 % near that frequency within one time window before stimulation and
 % multiple time windows after stimulation.
 %
-% "timeseries" is a 1xNtrials cell array containing time series for trials.
-% "trialdata" is a 1xNtrials cell array containing Nchans x Nsamples
-%   matrices of waveform data.
+% One set of trials is used for curve-fitting before stimulation and another
+% set of trials for curve-fitting after stimulation. These may be the same
+% trials (to fit before and after each event), or may be trials corresponding
+% to the first and last event in a train (to fit before and after the train).
+%
+% The number of trials and channels must be the same for both trial sets.
+% Durations (sample counts) may vary.
+%
+% "timeseriesbefore" is a 1xNtrials cell array containing time series for
+%   trials to fit before stimulation.
+% "trialdatabefore" is a 1xNtrials cell array containing Nchans x Nsamples
+%   matrices of waveform data for trials to fit before stimulation.
+% "timeseriesafter" is a 1xNtrials cell array containing time series for
+%   trials to fit after stimulation.
+% "trialdataafter" is a 1xNtrials cell array containing Nchans x Nsamples
+%   matrices of waveform data for trials to fit after stimulation.
 % "oscfit_params" is a structure containing the following fields,
 %   per CHRISOSCPARAMS.txt:
 %   "window_search" [ min max ] is a time range to look at when measuring
@@ -94,28 +109,48 @@ end
 
 oscfeatures = {};
 
-for tidx = 1:length(timeseries)
+for tidx = 1:length(timeseriesbefore)
 
-  thistimeseries = timeseries{tidx};
-  thistrialdata = trialdata{tidx};
+  thisbeforetimes = timeseriesbefore{tidx};
+  thisbeforetrials = trialdatabefore{tidx};
 
-  nsamples = length(thistimeseries);
-  samprate = (nsamples - 1) / (thistimeseries(nsamples) - thistimeseries(1));
+  thisaftertimes = timeseriesafter{tidx};
+  thisaftertrials = trialdataafter{tidx};
+
+
+  % We _really_ should have the same sampling rate before and after, but
+  % handle the case where the user did something truly strange.
+
+  nsamples = length(thisbeforetimes);
+  sampratebefore = ...
+    (nsamples - 1) / (thisbeforetimes(nsamples) - thisbeforetimes(1));
+
+  nsamples = length(thisaftertimes);
+  samprateafter = ...
+    (nsamples - 1) / (thisaftertimes(nsamples) - thisaftertimes(1));
+
 
   % Trial data is Nchans x Nsamples.
-  scratch = size(thistrialdata);
+  % Nchans is consistent for trials before and after.
+  scratch = size(thisbeforetrials);
   nchans = scratch(1);
 
+
+  % NOTE - We're looking at the "before" channels to guess the dominant
+  % frequency. The frequency after stimulation may be different, and the
+  % artifacts from stimulation may perturb this frequency estimate.
 
   % NOTE - We can either use the mean across channels or the channel with
   % the largest single component. Neither is perfect.
 
-  timemask = ( thistimeseries >= min(oscfit_params.window_search) ) ...
-    & ( thistimeseries <= max(oscfit_params.window_search) );
-  trialsubset = thistrialdata(:,timemask);
+  dominantmethod = 'largest';
+
+  timemask = ( thisbeforetimes >= min(oscfit_params.window_search) ) ...
+    & ( thisbeforetimes <= max(oscfit_params.window_search) );
+  trialsubset = thisbeforetrials(:,timemask);
 
   [ oscfreq ~ ] = nlProc_guessDominantFrequencyAcrossChans( ...
-    trialsubset, samprate, oscfit_params.freq_search, 'largest' );
+    trialsubset, sampratebefore, oscfit_params.freq_search, dominantmethod );
 
   freqrange = oscfreq * oscfit_params.freq_drift;
 
@@ -125,103 +160,41 @@ for tidx = 1:length(timeseries)
 
   winrad = oscfit_params.window_lambda * 0.5 / oscfreq;
 
-  winfirst = oscfit_params.time_before - winrad;
-  winlast = oscfit_params.time_before + winrad;
-
-  timemask = (thistimeseries >= winfirst) & (thistimeseries <= winlast);
-
-  magbefore = [];
-  freqbefore = [];
-  phasebefore = [];
-  meanbefore = [];
-
-  % FIXME - Diagnostics. Save the original waveform.
-  if origsavebefore
-    origwavebefore = [];
-    rawphasebefore = [];
-    origtimebefore = thistimeseries(timemask);
-  end
-
-  for cidx = 1:nchans
-    thisseries = thistrialdata(cidx,timemask);
-    [ thismag thisfreq thisphase thispoly ] = ...
-      nlProc_fitCosine( thisseries, samprate, freqrange, polyorder );
-
-    % FIXME - Diagnostics. Save the original waveform and fit phase.
-    if origsavebefore
-      origwavebefore(cidx,:) = thisseries;
-      rawphasebefore(cidx,1) = thisphase;
-    end
-
-    % Advance the phase to get the midpoint phase.
-    thisphase = thisphase + 2 * pi * thisfreq * winrad;
-
-    magbefore(cidx,1) = thismag;
-    freqbefore(cidx,1) = thisfreq;
-    phasebefore(cidx,1) = thisphase;
-
-    thismean = thispoly(length(thispoly));
-    meanbefore(cidx,1) = thismean;
-
-    if polyorder > 0
-      thisramp = thispoly(length(thispoly) - 1);
-      rampbefore(cidx,1) = thisramp;
-      meanbefore(cidx,1) = thismean + winrad * thisramp;
-    end
-  end
+  [ magbefore freqbefore phasebefore meanbefore rampbefore ...
+    origwavebefore origtimebefore rawphasebefore ] = ...
+    helper_doOscillationFit( oscfit_params.time_before, winrad, ...
+      thisbeforetimes, thisbeforetrials, freqrange, polyorder );
 
   magafter = [];
   freqafter = [];
   phaseafter = [];
   meanafter = [];
+  rampafter = [];
 
   % FIXME - Diagnostics. Save the original waveform.
   if origsaveafter
     origwaveafter = {};
-    rawphaseafter = {};
     origtimeafter = {};
+    rawphaseafter = {};
   end
 
   for widx = 1:length(oscfit_params.timelist_after)
-    winfirst = oscfit_params.timelist_after(widx) - winrad;
-    winlast = oscfit_params.timelist_after(widx) + winrad;
 
-    timemask = (thistimeseries >= winfirst) & (thistimeseries <= winlast);
+    [ thismag thisfreq thisphase thismean thisramp ...
+      thisorigwave thisorigtime thisrawphase ] = ...
+      helper_doOscillationFit( oscfit_params.timelist_after(widx), winrad, ...
+        thisaftertimes, thisaftertrials, freqrange, polyorder );
 
-    % FIXME - Diagnostics. Save the original waveform.
-    if origsaveafter
-      origwaveafter{widx} = [];
-      rawphaseafter{widx} = [];
-      origtimeafter{widx} = thistimeseries(timemask);
-    end
+    magafter(:,widx) = thismag(:,1);
+    freqafter(:,widx) = thisfreq(:,1);
+    phaseafter(:,widx) = thisphase(:,1);
 
-    for cidx = 1:nchans
-      thisseries = thistrialdata(cidx,timemask);
-      [ thismag thisfreq thisphase thispoly ] = ...
-        nlProc_fitCosine( thisseries, samprate, freqrange, polyorder );
+    meanafter(:,widx) = thismean(:,1);
+    rampafter(:,widx) = thisramp(:,1);
 
-      % FIXME - Diagnostics. Save the original waveform.
-      if origsaveafter
-        origwaveafter{widx}(cidx,:) = thisseries;
-        rawphaseafter{widx}(cidx,1) = thisphase;
-      end
-
-      % Advance the phase to get the midpoint phase.
-      thisphase = thisphase + 2 * pi * thisfreq * winrad;
-
-      magafter(cidx,widx) = thismag;
-      freqafter(cidx,widx) = thisfreq;
-      phaseafter(cidx,widx) = thisphase;
-
-      thismean = thispoly(length(thispoly));
-      meanafter(cidx,widx) = thismean;
-
-      if polyorder > 0
-        thisramp = thispoly(length(thispoly) - 1);
-        rampafter(cidx,widx) = thisramp;
-        meanafter(cidx,widx) = thismean + winrad * thisramp;
-      end
-    end
+    origwaveafter{widx} = thisorigwave;
+    origtimeafter{widx} = thisorigtime;
+    rawphaseafter{widx} = thisrawphase;
   end
 
 
@@ -287,6 +260,81 @@ end
 
 
 % Done.
+end
+
+
+%
+% Helper Functions
+
+
+% This fits cosines in the specified window for all channels in one trial.
+
+function [ magfit freqfit phasefit meanfit rampfit ...
+  origwave origtime rawphase ] = ...
+  helper_doOscillationFit( timetarget, winrad, ...
+    thistimeseries, thistrialdata, freqrange, polyorder )
+
+  % Initialize.
+
+  magfit = [];
+  freqfit = [];
+  phasefit = [];
+  meanfit = [];
+  rampfit = [];
+
+  origwave = [];
+  origtime = [];
+  rawphase = [];
+
+
+  % Get metadata.
+
+  nsamples = length(thistimeseries);
+  samprate = (nsamples - 1) / (thistimeseries(nsamples) - thistimeseries(1));
+
+  % Trial data is Nchans x Nsamples.
+  scratch = size(thistrialdata);
+  nchans = scratch(1);
+
+
+  % Get the time region of interest.
+
+  winfirst = timetarget - winrad;
+  winlast = timetarget + winrad;
+  timemask = (thistimeseries >= winfirst) & (thistimeseries <= winlast);
+
+
+  % Save the original waveform's time series.
+  origtime = thistimeseries(timemask);
+
+  for cidx = 1:nchans
+    thisseries = thistrialdata(cidx,timemask);
+    [ thismag thisfreq thisphase thispoly ] = ...
+      nlProc_fitCosine( thisseries, samprate, freqrange, polyorder );
+
+    % Save the original waveform and fit phase.
+    origwave(cidx,:) = thisseries;
+    rawphase(cidx,1) = thisphase;
+
+    % Advance the phase to get the midpoint phase.
+    thisphase = thisphase + 2 * pi * thisfreq * winrad;
+
+    magfit(cidx,1) = thismag;
+    freqfit(cidx,1) = thisfreq;
+    phasefit(cidx,1) = thisphase;
+
+    thismean = thispoly(length(thispoly));
+    meanfit(cidx,1) = thismean;
+
+    if polyorder > 0
+      thisramp = thispoly(length(thispoly) - 1);
+      rampfit(cidx,1) = thisramp;
+      meanfit(cidx,1) = thismean + winrad * thisramp;
+    else
+      rampfit(cidx,1) = 0;
+    end
+  end
+
 end
 
 
