@@ -224,14 +224,13 @@ elseif have_by_bin
     xmin = min(databinvalues);
     xmax = max(databinvalues);
 
-    xpad = 1;
-    if xmax > xmin
-      xpad = 0.1 * (xmax - xmin);
-      xmin = xmin - xpad;
-      xmax = xmax + xpad;
-    end
+    xpad = 0.1 * (xmax - xmin);
+    xpad = max(xpad, 1);
+
+    xmin = xmin - xpad;
+    xmax = xmax + xpad;
   else
-    % Span the plot range.
+    % Span the specified plot range.
     xmin = min(xrange);
     xmax = max(xrange);
   end
