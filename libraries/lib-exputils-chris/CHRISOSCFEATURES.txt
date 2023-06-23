@@ -101,6 +101,9 @@ Metadata fields that may be provided by test scripts:
 "chanidx" is a Nchans x 1 matrix containing sequentially numbered channel
   indices. This is used as a data series to plot data against channel index.
 
+"winidx" is a 1 x Nwindows matrix containing sequentially numbered window
+  indices. This is used as a data series to plot data against window nuimber.
+
 
 
 Normalized data fields that may be provided by test scripts:
