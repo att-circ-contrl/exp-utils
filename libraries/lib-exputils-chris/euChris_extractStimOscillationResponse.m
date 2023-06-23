@@ -59,6 +59,8 @@ function oscfeatures = euChris_extractStimOscillationResponse( ...
 %   CHRISOSCFEATURES.txt:
 %   "trialnum" is the trial number.
 %   "oscfreq" is the dominant frequency detected in the trial.
+%   "winbefore" is a scalar containing the timestamp of the midpoint of the
+%     before-stimulation time window.
 %   "magbefore" is a Nchans x 1 matrix containing magnitudes of the dominant
 %     oscillation before stimulation for each channel.
 %   "freqbefore" is a Nchans x 1 matrix containing frequencies of the dominant
@@ -70,6 +72,8 @@ function oscfeatures = euChris_extractStimOscillationResponse( ...
 %     wave in the "before stimulation" curve fit window.
 %   "rampbefore" (optional) is a Nchans x 1 matrix containing the line-fit
 %     slope of the wave in the "before stimulation" curve fit window.
+%   "winafter" is a 1 x Nwindows matrix containing the timestamps of the
+%     midpoints of the after-stimulation time windows.
 %   "magafter" is a Nchans x Nwindows matrix containing magnitudes of the
 %     dominant oscillation after stimulation for each channel and each
 %     requested window location.
@@ -224,10 +228,17 @@ for tidx = 1:length(timeseriesbefore)
   thisreport.trialnum = tidx;
   thisreport.oscfreq = oscfreq;
 
+  thisreport.winbefore = oscfit_params.time_before;
+
   thisreport.magbefore = magbefore;
   thisreport.freqbefore = freqbefore;
   thisreport.phasebefore = phasebefore;
   thisreport.meanbefore = meanbefore;
+
+  thisreport.winafter = oscfit_params.timelist_after;
+  if ~isrow(thisreport.winafter)
+    thisreport.winafter = transpose(thisreport.winafter);
+  end
 
   thisreport.magafter = magafter;
   thisreport.freqafter = freqafter;
