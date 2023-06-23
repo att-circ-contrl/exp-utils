@@ -92,6 +92,9 @@ Metadata fields that may be provided by test scripts:
 "chanlabels" is a cell array containing Field Trip channel labels for each
   of the channels in this response.
 
+"chanidx" is a Nchans x 1 matrix containing sequentially numbered channel
+  indices. This is used as a data series to plot data against channel index.
+
 
 
 Normalized data fields that may be provided by test scripts:
