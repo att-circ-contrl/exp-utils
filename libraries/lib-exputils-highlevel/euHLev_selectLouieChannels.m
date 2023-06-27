@@ -28,15 +28,10 @@ function newchans_raw = euHLev_selectLouieChannels( ...
 newchans_raw = oldchans_raw;
 
 
-% This will throw an error if there are any typos in the file.
-try
-  thisrec = euUtil_getLouieLogData(logfile, logdate);
-catch errordetails
-  disp(sprintf( '###  Exception thrown while reading "%s".', logfile ));
-  disp(sprintf( 'Message: "%s"', errordetails.message ));
+% This will discard any records with typos and complain on console.
+% If we couldn't read the requested record, we'll get an empty struct array.
 
-  thisrec = struct([]);
-end
+thisrec = euUtil_getLouieLogData(logfile, logdate);
 
 
 if isempty(thisrec)
