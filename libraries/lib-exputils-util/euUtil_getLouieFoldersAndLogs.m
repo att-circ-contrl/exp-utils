@@ -48,7 +48,7 @@ for pidx = 1:length(logfilepatterns)
         thislogdata = euUtil_getLouieLogData( thisfile, '' );
 
         % Tolerate dissimilar fields.
-        raw_logs = nlUtil_concatStructArrays(sessionlist, thislogdata);
+        raw_logs = nlUtil_concatStructArrays(raw_logs, thislogdata);
 
       end
     end
