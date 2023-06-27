@@ -1,0 +1,65 @@
+Louie's log files are Matlab code with the following format:
+
+
+The first line may be a function declaration:
+
+function D = (function name)
+
+...Otherwise, it's just inline code setting the value of "D".
+
+
+The log file initializes a structure array "D", adding records with some or
+all of the following fields. These are all character arrays unless otherwise
+indicated (even if holding numeric data):
+
+"day" is a human-readable day name.
+"week" is the week number (of the experiment, not the year).
+"date" is a datestamp formatted as 'YYYY-MM-DD'.
+"rec_day" is the recording day number in the experiment.
+"rec_session" is the recording session number in that day.
+"start_time" has the form 'HH:MM'.
+"session_length" has the form 'H:MM'.
+"weight" has the form 'nn.n'.
+"chairing_comments" describes anything noteworthy about chairing.
+"chamber_quality" describes health of the chamber site.
+"CHANNELS_neuro" is a cell array of channel labels. These are typically
+  the names I'd used for EIB channels.
+"CHANNELS_area" is a cell array of labels indicating the brain region that
+  each channel was recording from.
+"CHANNELS_loc" is a cell array of vectors of the form [ X Y Z ], giving the
+  estimated coordinates each channel was recording from (mm, mm, microns).
+"impedance_test" is a cell array of scalars, giving the impedance of each
+  channel in kOhms.
+"CHANNELS_stim" is a cell array of labels. This is typically a subset of
+  CHANNELS_neuro, and indicates which channels stimulation was performed on.
+"stim_amp" is a cell array containing one scalar indicating stimulation
+  current in uA.
+"task_version" is the version label of the game task.
+"blockDef" is a filename (without path) of the block definition file used.
+"performance" describes anything noteworthy about behavior during the task.
+"condition" describes the task conditions under which stimulation was
+  delivered.
+"blocks" is the number of blocks completed.
+"trials" is the number of trials completed.
+"correct" is the number of trials completed correctly.
+"ml_reward" is the amount of fluid reward delivered, in mL.
+"dataset" is the name of the folder containing ephys and game data.
+"other_comments" describes anything else noteworthy about the session.
+
+
+NOTE - The fields that are expected will vary depending on the experiment
+and on the analysis scripts used.
+
+
+The library functions that read and process log file data expect the
+following:
+
+- Each record is preceded by "iD = numel(D) + 1;".
+  This is used for segmenting records during parsing.
+
+- Either "dataset" or "date" exists (preferably "dataset").
+  euUtil_getLouieFoldersAndLogs() uses this to associate folders with logs.
+
+
+
+(This is the end of the file.)
