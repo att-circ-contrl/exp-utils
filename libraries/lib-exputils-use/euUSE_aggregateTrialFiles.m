@@ -26,7 +26,10 @@ if ~isempty(flist)
 
   for fidx = 1:length(flist)
     thisname = [ flist(fidx).folder filesep flist(fidx).name ];
-    thistable = readtable(thisname, 'Delimiter', 'tab');
+
+    % NOTE - We have to use 'Format', 'auto' to revert to older, less-smart
+    % import behavior. Smart auto-detection screws up data types.
+    thistable = readtable(thisname, 'Delimiter', 'tab', 'Format', 'auto');
 
     if fidx == 1
       tabdata = thistable;
