@@ -535,8 +535,22 @@ timecorresp = table( transpose(sparsetimes), ...
 
 % This finds unique matches, and gives NaN for non-matching events.
 
+matchwindow = finewindow;
+
+if isempty(matchwindow) || (~isfinite(matchwindow))
+  if ~isempty(medwindows)
+    matchwindow = min(medwindows);
+  end
+end
+
+if isempty(matchwindow) || (~isfinite(matchwindow))
+  if ~isempty(coarsewindows)
+    matchwindow = min(coarsewindows);
+  end
+end
+
 [ firstmatches secondmatches ] = euAlign_findMatchingEvents( ...
-  firsttimesaligned, secondtimes, firstdata, seconddata, finewindow );
+  firsttimesaligned, secondtimes, firstdata, seconddata, matchwindow );
 
 firstmatchmask = ~isnan(firstmatches);
 secondmatchmask = ~isnan(secondmatches);
