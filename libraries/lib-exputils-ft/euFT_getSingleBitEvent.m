@@ -42,7 +42,13 @@ if isfield(namelut, thissigname)
 
     % If we still have events, build and save the table.
     if ~isempty(thisevlist)
-      evtable = struct2table(thisevlist);
+      if 1 == length(thisevlist)
+        % Force this to deal with [] fields properly.
+        evtable = struct2table(thisevlist, 'AsArray', true);
+      else
+        evtable = struct2table(thisevlist);
+      end
+
       have_events = true;
     end
   end

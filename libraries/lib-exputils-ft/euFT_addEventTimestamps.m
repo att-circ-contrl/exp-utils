@@ -29,7 +29,12 @@ for sidx = 1:length(signames)
   if ~isempty(thisdata)
     was_struct = isstruct(thisdata);
     if was_struct
-      thisdata = struct2table(thisdata);
+      if 1 == length(thisdata)
+        % Force this to deal with [] fields properly.
+        thisdata = struct2table(thisdata, 'AsArray', true);
+      else
+        thisdata = struct2table(thisdata);
+      end
     end
 
     % Convert the sample indices to timestamps in seconds.
