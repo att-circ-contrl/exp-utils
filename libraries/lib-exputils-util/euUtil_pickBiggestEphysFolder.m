@@ -32,7 +32,7 @@ if ~isempty(foldersizes)
   pickidx = find(foldersizes == biggest);
   pickidx = pickidx(1);
 
-  foldername = folderlist(pickidx);
+  foldername = folderlist{pickidx};
 end
 
 
