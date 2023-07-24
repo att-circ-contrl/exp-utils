@@ -265,7 +265,18 @@ end
 
 cookedchans = rawchans;
 if ~isempty(oe_chanmap_oldchans)
+
+  % FIXME - Sanity check. We can sometimes be given a channel map for more
+  % channels than we recorded.
+  if max(oe_chanmap_oldchans) > length(rawchans)
+    disp(sprintf( '###  Have %d channels but channel map refers to %d.', ...
+      length(rawchans), max(oe_chanmap_oldchans) ));
+    scratchmask = ( oe_chanmap_oldchans <= length(rawchans) );
+    oe_chanmap_oldchans = oe_chanmap_oldchans(scratchmask);
+  end
+
   cookedchans = rawchans(oe_chanmap_oldchans);
+
 elseif (~isempty(ft_chanmap_raw)) && (~isempty(ft_chanmap_cooked))
   cookedchans = ...
     nlFT_mapChannelLabels( rawchans, ft_chanmap_raw, ft_chanmap_cooked );
