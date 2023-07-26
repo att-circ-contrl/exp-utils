@@ -47,6 +47,13 @@ function euPlot_plotMultipleBoxCharts( ...
 % "fname" is the filename to save the plot to.
 
 
+% Sanity check.
+if isempty(datavalues)
+  disp('### [euPlot_plotMultipleBoxCharts]  Called with no data.');
+  return;
+end
+
+
 thisfig = figure();
 figure(thisfig);
 clf('reset');
