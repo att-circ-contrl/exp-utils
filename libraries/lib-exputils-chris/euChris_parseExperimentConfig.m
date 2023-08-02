@@ -120,29 +120,36 @@ if strcmp(exptype, 'loop2302')
   diagmsgs = [ diagmsgs { '.. Experiment type is "2023 Feb closed-loop".' } ];
 
 
-  % Get derived metadata.
+  if isempty(rawmeta_open)
+    thismsg = '###  No Open Ephys data present.';
+    diagmsgs = [ diagmsgs { thismsg } ];
+    errmsgs = [ errmsgs { thismsg } ];
+    isok = false;
+  else
+    % Get derived metadata.
 
-  % All folders associated with this config should have the same raw metadata.
-  % Process the first folder (at least one folder should be present).
-  thisrawmeta = rawmeta_open{1};
+    % All folders associated with this config should have the same raw metadata.
+    % Process the first folder (at least one folder should be present).
+    thisrawmeta = rawmeta_open{1};
 
-  cookedmeta = euChris_getCookedMetadata_loop2302(thisrawmeta, hintdata);
-  expmeta.('cookedmeta') = cookedmeta;
+    cookedmeta = euChris_getCookedMetadata_loop2302(thisrawmeta, hintdata);
+    expmeta.('cookedmeta') = cookedmeta;
 
 
-  % Get experiment configuration information.
-  % NOTE - We need to pass the full list of folder metadata structures here.
+    % Get experiment configuration information.
+    % NOTE - We need to pass the full list of folder metadata structures here.
 
-  [ expconfig expsummary expdetails thisdiaglist thiserrlist ] = ...
-    euChris_getExpConfig_loop2302( rawmeta_open, cookedmeta, hintdata );
+    [ expconfig expsummary expdetails thisdiaglist thiserrlist ] = ...
+      euChris_getExpConfig_loop2302( rawmeta_open, cookedmeta, hintdata );
 
-  expmeta.('expconfig') = expconfig;
+    expmeta.('expconfig') = expconfig;
 
-  expmeta.('summary') = expsummary;
-  expmeta.('details') = expdetails;
+    expmeta.('summary') = expsummary;
+    expmeta.('details') = expdetails;
 
-  diagmsgs = [ diagmsgs thisdiaglist ];
-  errmsgs = [ errmsgs thiserrlist ];
+    diagmsgs = [ diagmsgs thisdiaglist ];
+    errmsgs = [ errmsgs thiserrlist ];
+  end
 
 else
 
