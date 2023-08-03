@@ -10,8 +10,8 @@ function euPlot_plotOverlappingHistograms( ...
 %
 % "hist_list" is a cell array. Each cell contains a cell array describing
 %   the histograms to plot: { counts, bin_edges, colour, legend_label }
-% "xtype" is "linear" or "log".
-% "ytype" is "linear" or "log".
+% "xtype" is 'linear' or 'log'.
+% "ytype" is 'linear' or 'log'.
 % "xstr" is a character array containing the X axis label.
 % "legendpos" is the legend location ('off' to disable).
 % "titlestr" is a character array containing a human readable plot title.
