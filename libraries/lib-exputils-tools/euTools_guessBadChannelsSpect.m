@@ -92,7 +92,7 @@ if ~isfield(config, 'pca_kmeans_repeats')
 end
 
 if ~isfield(config, 'pca_reject_threshold')
-  config.pca_reject_threshold = 2.0;
+  config.pca_reject_threshold = 3.0;
 end
 
 
