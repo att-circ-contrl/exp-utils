@@ -88,7 +88,11 @@ if ~isfield(config, 'raw_kmeans_repeats')
 end
 
 if ~isfield(config, 'pca_kmeans_repeats')
-  config.pca_kmeans_repeats = 300;
+  config.pca_kmeans_repeats = 100;
+end
+
+if ~isfield(config, 'pca_reject_threshold')
+  config.pca_reject_threshold = 2.0;
 end
 
 
@@ -308,9 +312,20 @@ pcaclusters = clustlabels;
 %
 % Figure out which channels were "good" and which were "bad".
 
-% FIXME - NYI.
+% Do this by projecting on to each PCA axis and looking for outliers.
+% This gets consistently decent results for my data.
 
 changoodvec = true([ chancount 1 ]);
+
+outlierperc = [ 25 75 ];
+outlierreject = config.pca_reject_threshold;
+
+for pidx = 1:pcadims
+  thisvec = pcacoords(:,pidx);
+  thisbad = nlProc_getOutliers( thisvec, ...
+    min(outlierperc), max(outlierperc), outlierreject, outlierreject );
+  changoodvec = changoodvec & (~thisbad);
+end
 
 
 % Done.
