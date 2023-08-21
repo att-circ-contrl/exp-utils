@@ -264,11 +264,48 @@ end
 % Do PCA on the total and tone power across bins and cluster that.
 
 
+% Borg together all of the spectrum and tone information.
+% This should be (observations) x (variables). One observation per channel.
 
-% FIXME - NYI.
+rawdata = spectpower;
+rawdata(:,(bincount+1):(bincount+bincount)) = tonepower;
+
+
+% Do PCA with the requested number of basis vectors.
+% "pcabasis" contains basis vectors as columns.
+% "pcaweights" is nChans x nDims.
+
+pcadims = config.pcadims;
+[ pcabasis, pcaweights, ~ ] = pca( rawdata, 'NumComponents', pcadims );
+
+% We're returning the weight matrix as-is.
+pcacoords = pcaweights;
+
+
+% Do k-means clustering.
+
+kvalues = config.pca_clustcounts;
+krepeats = config.pca_kmeans_repeats;
+
+bestfom = -inf;
+clustlabels = NaN([ chancount 1 ]);
+
+for kidx = 1:length(kvalues)
+  thisclust = kmeans( pcacoords, kvalues(kidx), 'Replicates', krepeats );
+  thisfom = mean( silhouette(pcacoords, thisclust) );
+
+  if thisfom > bestfom
+    bestfom = thisfom;
+    clustlabels = thisclust;
+  end
+end
+
+pcaclusters = clustlabels;
 
 
 
+%
+%
 % Figure out which channels were "good" and which were "bad".
 
 % FIXME - NYI.
