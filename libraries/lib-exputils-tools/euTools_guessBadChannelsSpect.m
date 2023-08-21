@@ -26,6 +26,13 @@ function [ actualconfig chanlabels changoodvec ...
 %     clustering based on individual band or tone powers.
 %   "pca_clustcounts" is a vector containing cluster counts to test when
 %     clustering the PCA output.
+%   "raw_kmeans_repeats" is the number of times to run k-means (the
+%     "Replicates" parameter) for band and tone power clustering.
+%   "pca_kmeans_repeats" is the number of times to run k-means (the
+%     "Replicates" parameter) for PCA output clustering.
+%   "pca_reject_threshold" is the nlProc_getOutliers() threshold to use
+%     for detecting bad channels. This is a multiple of the
+%     median-to-quartile distance; the default is 3.0.
 %
 % "actualconfig" is a copy of "config" with missing values filled in.
 % "chanlabels" is a nChans x 1 cell array containing the names of the
