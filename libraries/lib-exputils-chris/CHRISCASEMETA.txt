@@ -29,11 +29,13 @@ Hint fields recognized by library functions are as follows:
   plotting data derived from the channels listed in "extrachans".
 
 "chanbatches" is a cell array defining groups of channels to process. Each
-  group is stored as four successive entries in "chanbatches": a
-  filename-safe label, a human-readable title, a sprintf pattern for
-  channel names that contains a channel number pattern, and a vector
-  containing channel numbers to iterate through.
-
+  group is stored as five successive entries in "chanbatches":
+  1) a filename-safe label
+  2) a human-readable title
+  3) a sprintf pattern for channel names that contains a channel number
+     pattern
+  4) a vector containing channel numbers to iterate through
+  5) a vector containing channel numbers to blacklist
 
 
 (This is the end of the file.)
