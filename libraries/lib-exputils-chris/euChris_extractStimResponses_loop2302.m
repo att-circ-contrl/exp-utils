@@ -22,10 +22,15 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 %   "notch_freqs" is a vector of frequencies to notch filter (may be empty).
 %   "notch_bandwidth" is the bandwidth of the notch filter.
 %   "lfp_band" [ min max ] is the broad-band LFP frequency range.
-%   "event_squash_type" is the stimulation artifact rejection method. Known
-%     methods: 'none', 'nan'
 %   "event_squash_window_ms" [ start stop ] is the window around stimulation
-%     events to filter for artifacts, in milliseconds. E.g. [ -0.5 1.5 ].
+%     events to replace with NaN, in milliseconds. E.g. [ -0.5 1.5 ].
+%     If this is [], no squashing is performed.
+%   "exp_fit_starts_ms" is a vector containing exponential curve fit start
+%     times (relative to the stimulation trigger) for stimulation artifact
+%     removal. If this is empty, no curve fits are performed.
+%   "want_step_removal" is true to apply a ramp to remove any step artifact
+%     introduced by stimulation, false otherwise. This requires a squash
+%     window.
 % "trigtimes" is a vector containing trigger timestamps in seconds. If this
 %   is [], the trials' t=0 times are used.
 % "trig_window_ms" [ start stop ] is the window around stimulation events
@@ -100,13 +105,19 @@ end
 wbheader = rawmeta.header_ft;
 wballchans = rawmeta.chans_an;
 
-squash_type = 'none';
-squash_window_ms = [ -1 2 ];
-if isfield(signalconfig, 'event_squash_type')
-  squash_type = signalconfig.event_squash_type;
-end
+
+squash_window_ms = [];
+exp_fit_starts_ms = [];
+want_remove_step = false;
+
 if isfield(signalconfig, 'event_squash_window_ms')
   squash_window_ms = signalconfig.event_squash_window_ms;
+end
+if isfield(signalconfig, 'exp_fit_starts_ms')
+  exp_fit_starts_ms = signalconfig.exp_fit_starts_ms;
+end
+if isfield(signalconfig, 'want_step_removal')
+  want_remove_step = signalconfig.want_step_removal;
 end
 
 
@@ -217,9 +228,22 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
   end
 
   artconfig = struct();
-  if strcmp(squash_type, 'nan')
+  if ~isempty(squash_window_ms)
     artconfig.event_squash_window_ms = squash_window_ms;
     artconfig.event_squash_times = trigtimes;
+
+% FIXME - Stub this out for debugging.
+if false
+    exp_fenceposts = exp_fit_starts_ms;
+    if ~isempty(exp_fenceposts)
+      exp_fenceposts(1 + length(exp_fenceposts)) = max(trig_window_ms);
+      artconfig.exp_fit_fenceposts_ms = exp_fenceposts;
+    end
+
+    if want_remove_step
+      artconfig.ramp_span_ms = trig_window_ms;
+    end
+end
   end
 
   ftdata_wb = euHLev_readAndCleanSignals( wbfolder, desiredchans, ...

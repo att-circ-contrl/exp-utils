@@ -41,7 +41,7 @@ function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
 %       by no more than this time are considered part of an event train, per
 %       euFT_getTrainTrialDefs().
 % "artifact_config" is a structure containing configuration information for
-%   one or more artifact detection methods.
+%   one or more artifact detection methods. Fields may be absent if unused.
 %   "detect_level" (-2..+2) is a tuning parameter for automated artifact
 %     detection; positive values make it less sensitive. NaN disables it.
 %   "event_squash_times" is a vector containing time values (in seconds) of
@@ -50,6 +50,13 @@ function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
 %     in each trial is used.
 %   "event_squash_window_ms" [ start stop ] is a duration span in milliseconds
 %     to NaN out around squashed events.
+%   "exp_fit_fenceposts_ms" is a vector containing fenceposts in milliseconds
+%     for exponential curve fitting, per nlArt_removeMultipleExpDecays().
+%     FIXME - This ignores squash times and assumes events at t=0!
+%   "ramp_span_ms" [ start stop ] is a duration span in milliseconds for
+%     correcting DC steps from stimulation, per nlFT_rampOverStimStep().
+%     This requires event_squash_window_ms to be set.
+%     FIXME - This ignores squash times and assumes events at t=0!
 % "notch_freqs" is a vector containing notch filter frequencies. An empty
 %   vector disables notch filtering.
 % "notch_bw" is the notch filter bandwidth in Hz. NaN disables filtering.
@@ -130,6 +137,10 @@ if ~isempty(ephys_chans)
     % Perform artifact removal first, so that artifacts don't cause ringing.
     % This will leave NaN holes.
 
+
+    % Automated artifact removal based on excursions in the absolute value of
+    % the signal or of its derivative.
+
     artifact_detect_level = NaN;
     if isfield(artifact_config, 'detect_level')
       artifact_detect_level = artifact_config.detect_level;
@@ -149,24 +160,50 @@ if ~isempty(ephys_chans)
       ftdata_ephys.trial = newtrials;
     end
 
+
+    % Curve-fitting known stimulation artifacts.
+
+    if isfield(artifact_config, 'exp_fit_fenceposts_ms')
+      % FIXME - This ignores "event_squash_times" and assumes events at t=0!
+      [ ftdata_ephys fitlist ] = nlFT_removeMultipleExpDecays( ...
+        ftdata_ephys, artifact_config.exp_fit_fenceposts_ms / 1000 );
+    end
+
+
+    % Paving over known stimulation artifacts.
+
     if isfield(artifact_config, 'event_squash_window_ms')
+      if isfield(artifact_config, 'ramp_span_ms')
 
-      % Get artifact masks; either trial trigger times or a supplied list.
-      if isfield(artifact_config, 'event_squash_times') ...
-        windowmasks = ...
-          nlFT_getWindowsAroundEvents( ftdata_ephys, ...
-            artifact_config.event_squash_window_ms, ...
-            artifact_config.event_squash_times );
+        % We want ramping.
+        % FIXME - This ignores "event_squash_times" and assumes events at t=0!
+
+        ftdata_ephys = nlFT_rampOverStimStep( ftdata_ephys, ...
+          artifact_config.ramp_span_ms / 1000, ...
+          artifact_config.event_squash_window_ms / 1000 );
+
       else
-        % Using t=0 times as event times.
-        windowmasks = ...
-          nlFT_getWindowsAroundEvents( ftdata_ephys, ...
-            artifact_config.event_squash_window_ms, [] );
+
+        % Just squash the specified areas.
+
+        % Get artifact masks; either trial trigger times or a supplied list.
+        if isfield(artifact_config, 'event_squash_times') ...
+          windowmasks = ...
+            nlFT_getWindowsAroundEvents( ftdata_ephys, ...
+              artifact_config.event_squash_window_ms, ...
+              artifact_config.event_squash_times );
+        else
+          % Using t=0 times as event times.
+          windowmasks = ...
+            nlFT_getWindowsAroundEvents( ftdata_ephys, ...
+              artifact_config.event_squash_window_ms, [] );
+        end
+
+        % Do the artifact squashing.
+        ftdata_ephys = ...
+          nlFT_applyTimeWindowSquash( ftdata_ephys, windowmasks );
+
       end
-
-      % Do the artifact squashing.
-      ftdata_ephys = nlFT_applyTimeWindowSquash( ftdata_ephys, windowmasks );
-
     end
 
 
