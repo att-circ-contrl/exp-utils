@@ -28,6 +28,10 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 %   "exp_fit_starts_ms" is a vector containing exponential curve fit start
 %     times (relative to the stimulation trigger) for stimulation artifact
 %     removal. If this is empty, no curve fits are performed.
+%   "exp_fit_method" is a character vector or cell array specifying the
+%     algorithm to use for curve fitting all segments (if a character vector)
+%     or for each segment individually (if a cell array of character vectors).
+%     If omitted or '', a default algorithm is used.
 %   "want_step_removal" is true to apply a ramp to remove any step artifact
 %     introduced by stimulation, false otherwise. This requires a squash
 %     window.
@@ -109,12 +113,16 @@ wballchans = rawmeta.chans_an;
 squash_window_ms = [];
 exp_fit_starts_ms = [];
 want_remove_step = false;
+exp_fit_method = '';
 
 if isfield(signalconfig, 'event_squash_window_ms')
   squash_window_ms = signalconfig.event_squash_window_ms;
 end
 if isfield(signalconfig, 'exp_fit_starts_ms')
   exp_fit_starts_ms = signalconfig.exp_fit_starts_ms;
+end
+if isfield(signalconfig, 'exp_fit_method')
+  exp_fit_method = signalconfig.exp_fit_method;
 end
 if isfield(signalconfig, 'want_step_removal')
   want_remove_step = signalconfig.want_step_removal;
@@ -236,6 +244,7 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
     if ~isempty(exp_fenceposts)
       exp_fenceposts(1 + length(exp_fenceposts)) = max(trig_window_ms);
       artconfig.exp_fit_fenceposts_ms = exp_fenceposts;
+      artconfig.exp_fit_method = exp_fit_method;
     end
 
     if want_remove_step

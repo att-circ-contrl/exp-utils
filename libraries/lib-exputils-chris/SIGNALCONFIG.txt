@@ -35,6 +35,11 @@ For euChris_extractStimResponses_loop2302:
   (relative to the stimulation trigger) for stimulation artifact removal. If
   this is empty, no curve fits are performed.
 
+"exp_fit_method" is a character vector or cell array specifying the
+  algorithm to use for curve fitting all segments (if a character vector)
+  or for each segment individually (if a cell array of character vectors).
+  If omitted or '', a default algorithm is used.
+
 "want_step_removal" is true to apply a ramp to remove any step artifact
   introduced by stimulation, false otherwise. This requires a squash window.
 

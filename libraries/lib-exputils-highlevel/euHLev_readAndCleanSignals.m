@@ -53,6 +53,10 @@ function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
 %   "exp_fit_fenceposts_ms" is a vector containing fenceposts in milliseconds
 %     for exponential curve fitting, per nlArt_removeMultipleExpDecays().
 %     FIXME - This ignores squash times and assumes events at t=0!
+%   "exp_fit_method" is a character vector or cell array specifying the
+%     algorithm to use for curve fitting all segments (if a character vector)
+%     or for each segment individually (if a cell array of character vectors).
+%     If omitted or '', a default algorithm is used.
 %   "ramp_span_ms" [ start stop ] is a duration span in milliseconds for
 %     correcting DC steps from stimulation, per nlFT_rampOverStimStep().
 %     This requires event_squash_window_ms to be set.
@@ -164,9 +168,15 @@ if ~isempty(ephys_chans)
     % Curve-fitting known stimulation artifacts.
 
     if isfield(artifact_config, 'exp_fit_fenceposts_ms')
+      exp_fit_method = '';
+      if isfield(artifact_config, 'exp_fit_method')
+        exp_fit_method = artifact_config.exp_fit_method;
+      end
+
       % FIXME - This ignores "event_squash_times" and assumes events at t=0!
       [ ftdata_ephys fitlist ] = nlFT_removeMultipleExpDecays( ...
-        ftdata_ephys, artifact_config.exp_fit_fenceposts_ms / 1000 );
+        ftdata_ephys, artifact_config.exp_fit_fenceposts_ms / 1000, ...
+        exp_fit_method );
     end
 
 
