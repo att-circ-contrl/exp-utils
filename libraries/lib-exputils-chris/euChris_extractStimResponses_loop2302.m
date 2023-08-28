@@ -232,8 +232,6 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
     artconfig.event_squash_window_ms = squash_window_ms;
     artconfig.event_squash_times = trigtimes;
 
-% FIXME - Stub this out for debugging.
-if false
     exp_fenceposts = exp_fit_starts_ms;
     if ~isempty(exp_fenceposts)
       exp_fenceposts(1 + length(exp_fenceposts)) = max(trig_window_ms);
@@ -243,7 +241,6 @@ if false
     if want_remove_step
       artconfig.ramp_span_ms = trig_window_ms;
     end
-end
   end
 
   ftdata_wb = euHLev_readAndCleanSignals( wbfolder, desiredchans, ...
