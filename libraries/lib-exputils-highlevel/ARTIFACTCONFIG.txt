@@ -1,0 +1,139 @@
+Artifact removal is specified using a method label and a configuration
+structure.
+
+
+
+Method labels are character vectors with the following values:
+
+'' or 'none' specifies no artifact suppression.
+
+'sigma' specifies standard deviation based artifact rejection, per
+  nlProc_removeArtifactsSigma.
+
+'expknown' specifies exponential curve fits across known time ranges,
+  per nlArt_removeMultipleExpDecays.
+
+'expguess' specifies multiple exponential curve fits guessing at locations,
+  per nlArt_removeExpDecaysByGuessing.
+
+
+
+Standard deviation based artifact rejection configuration is a structure with
+the following fields:
+
+"threshold_adjust" is a scalar added to the default threshold levels. A
+  positive value raises the absolute and derivative thresholds by the
+  specified number of standard deviations, and a negative value lowers them.
+
+
+
+Exponential fits with known locations are configured using a structure with
+the following fields:
+
+"squash_window_ms" [ start stop ] is a window around t=0 to replace with
+  NaN, in milliseconds (e.g. [ -0.5 1.5 ]). If this is [], no squashing is
+  performed.
+
+"fit_fenceposts_ms" is a vector containing times to be used as span endpoints
+  for exponential curve fitting. The span between the last two times is curve
+  fit and its contribution subtracted, then the next-last span, and so forth.
+  If this is [], no curve fits are performed.
+
+"fit_method" is a character vector or cell array specifying the algorithms
+  to use for curve fitting all segments (if a cahracter vector) or for
+  each segment individually (if a cell array of character vectors). If this
+  is '' or absent, a default algorithm is used.
+
+"want_step_removal" is true to apply a ramp to remove any DC step present
+  over the squash window, false otherwise. This requires a squash window.
+
+
+
+Exponential fits with guessed locations are configured using a structure with
+the following fields:
+
+"max_curves" is the number of components to curve fit.
+
+"fitmethod" is a character vector specifying the curve fit algorithm used.
+
+"squash_window_ms" [ start stop ] is a window around t=0 to replace with
+  NaN, in milliseconds (e.g. [ -0.5 1.5 ]). Ignored if not squashing.
+
+"ramp_window_ms" [ start stop ] is a window around t=0 over which to apply
+  a ramp to remove any DC step present over the squash window. This requires
+  a squash window. Ingored if not ramping.
+
+"squash_method" is 'keep', 'nan', 'interp', or 'ramp'.
+
+"lowpass_corner" is the corner frequency in Hz of the low-pass filter
+  to apply before performing curve fits, or NaN to not filter.
+
+"pre_level_span" [ min max ] is the fraction of the time range before
+  t=0 to use for estimating the before-trigger DC level (e.g. [ -0.6 -0.1 ]
+  or [ 0.6 0.1 ] ). Order and sign are actually ignored.
+
+"post_level_span" [ min max ] is the fraction of the time range after
+  t=0 to use for estimating the after-setting DC level (e.g. [ 0.5 0.9 ]).
+
+"from_detect_level_span" [ min max ] is the time range to use for updating
+  the DC level estimate after curve fitting, as a multiple of the
+  excursion detection time (e.g. [ 1.0 2.0 ] ).
+
+"detect_threshold" is the amount by which the signal must depart from the
+  DC level for an artifact to be considered present. This is a multiple
+  of the median-to-quartile distance (about two thirds of a standard
+  deviation). Typical values are 6-12 for clear exponential excursions.
+
+"fit_range" [ min max ] is a multiplier to apply to the excursion detection
+  time to get the time range over which to curve fit (e.g. [ 0.7 3.0 ]).
+
+"next_mult" is a multiplier to apply to the excursion detection time to get
+  the maximum acceptable detection time for the next excursion (e.g. 0.9).
+  This is to prevent the algorithm from continually re-fitting the same
+  span (which it can do if it's having trouble getting a good curve fit).
+
+"detect_max_start" is a multiplier for the end time (e.g. 0.3). Excursions
+  detected after this time are assumed to be spurious (wandering DC level).
+
+"min_detect_ms" is the minimum time (after t=0) when an artifact excursion
+  may be detected. Excursions before this time (i.e. very short excursions)
+  are assumed to be spurious. In practice these either have strange shapes
+  (hard to fit) or are excursions introduced by previous curve fits.
+
+"min_first_detect_ms" is the minimum time (after t=0) when the first
+  artifact excursion may be detected. If the first attempt at detecting
+  excursions finds an artifact before this time, the attempt is abandoned.
+  This happens when the threshold is set too high and the tail of the
+  exponential isn't detected.
+
+"tattle_verbosity" is 'quiet', 'terse', 'normal', or 'verbose'. This
+  controls how many debugging/progress messages are sent to the console.
+
+"save_verbosity" is 'quiet', 'terse', 'normal', or 'verbose'. This
+  controls how many debugging/progress messages are written to log files.
+
+"fileprefix" is a prefix used when building log and plot filenames.
+
+"titleprefix" is a plot-safe human-readable prefix to use when building
+  plot titles and log file banner text.
+
+"shortlabel" is a short plot-safe human-readable prefix to use when
+  reporting state in log files and progress messages.
+
+"want_fit_plots" is true to emit debugging plots of curve fits, and false
+  to suppress plots.
+
+"fit_plot_max_trial_count" specifies the maximum number of Field Trip
+  trials for which plots are to be emitted (inf for all trials).
+
+"fit_plot_max_chan_count" specifies the maximum number of Field Trip
+  channels for which plots are to be emitted (inf for all channels).
+
+"fit_plot_sizes_ms" is a cell array containing [ min max ] time range
+  tuples in milliseconds for which plots are to be generated.
+
+"fit_plot_labels" is a cell array containing filename- and plot-safe
+  character vectors associated with each of the plotting time ranges.
+
+
+(This is the end of the file.)

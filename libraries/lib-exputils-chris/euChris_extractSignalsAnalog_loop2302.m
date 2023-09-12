@@ -14,17 +14,13 @@ function casesignals = euChris_extractSignals_loop2302( ...
 % "expmeta" is one of the metadata structures returned by
 %   euChris_getChrisMetadata(), with the fields described in CHRISEXPMETA.txt
 %   (including the "casemeta" additional field).
-% "signalconfig" is a structure with the following fields, per
-%   SIGNALCONFIG.txt:
-%   "notch_freqs" is a vector of frequencies to notch filter (may be empty).
-%   "notch_bandwidth" is the bandwidth of the notch filter.
-%   "artifact_suppression_level" is 0 for normal suppression, positive for
-%     more suppression, or NaN to disable suppression.
-%   "head_tail_trim_fraction" is the relative amount to trim from the head
-%     and tail of the data (as a fraction of the total length).
-%   "lfp_band" [ min max ] is the broad-band LFP frequency range.
-%   "canon_detect_phase_width_degrees" is the width of the response window
-%     to use when estimating what the phase detector signal should look like.
+% "signalconfig" is a structure with the fields noted in SIGNALCONFIG.txt,
+%   including the following:
+%   - Trimming configuration.
+%   - Notch filtering configuration.
+%   - LFP band specification.
+%   - Phase detection width for estimating ground-truth phase detection.
+%   - Artifact suppression settings.
 % "verbosity" is 'normal' or 'quiet'.
 %
 % "casesignals" is a copy of "oldcasesignals" with the following signals
@@ -71,9 +67,9 @@ want_banners = ~strcmp(verbosity, 'quiet');
 expconfig = expmeta.expconfig;
 cookedmeta = expmeta.cookedmeta;
 
-% Package other relevant configuration.
-artconfig = struct();
-artconfig.detect_level = signalconfig.artifact_suppression_level;
+% Package artifact configuration.
+[ artmethod, artconfig ] = ...
+  euChris_getArtifactConfigFromSignalConfig( signalconfig );
 
 
 
@@ -110,11 +106,11 @@ have_wb = have_first & (~isempty(label_wb));
 ftdata_wb = struct([]);
 
 if have_wb
-  % FIXME - Stimulation artifact suppression NYI.
-
+  % FIXME - Some artifact suppression methods won't work for monolithic
+  % data!
   ftdata_wb = euHLev_readAndCleanSignals( ...
     filefirst, { label_wb }, ...
-    signalconfig.head_tail_trim_fraction, artconfig, ...
+    signalconfig.head_tail_trim_fraction, artmethod, artconfig, ...
     signalconfig.notch_freqs, signalconfig.notch_bandwidth );
 end
 
@@ -261,7 +257,7 @@ if have_torte
   ftdata_torte = euHLev_readAndCleanSignals( ...
     filesecond, { label_mag, label_phase }, ...
     signalconfig.head_tail_trim_fraction, ...
-    struct(), [], NaN );
+    'none', struct(), [], NaN );
 
   casesignals.torte_time = ftdata_torte.time{1}(1,:);
 

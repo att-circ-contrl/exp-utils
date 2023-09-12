@@ -37,6 +37,7 @@ function auxdata = euFT_iterateAcrossFolderBatchingDerived( ...
 % "artparams" is a structure containing configuration parameters for
 %   nlChan_applyArtifactReject(). Pass "struct([])" to disable artifact
 %   rejection.
+%   FIXME - This needs to be overhauled to support other artifact options.
 % "notch_freqs" is a vector containing frequencies to notch-filter. This can
 %   be empty to disable notch filtering.
 % "notch_bw" is the bandwidth of the notch filter to use.

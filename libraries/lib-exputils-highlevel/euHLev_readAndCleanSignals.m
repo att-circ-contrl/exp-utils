@@ -1,8 +1,8 @@
 function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
-  trial_config, artifact_config, notch_freqs, notch_bw )
+  trial_config, artifact_method, artifact_config, notch_freqs, notch_bw )
 
 % function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
-%   trial_config, artifact_config, notch_freqs, notch_bw )
+%   trial_config, artifact_method, artifact_config, notch_freqs, notch_bw )
 %
 % This reads Field Trip trial data from the specified folder, performing
 % artifact rejection and notch filtering.
@@ -40,27 +40,11 @@ function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
 %     "train_gap_ms" is a duration in milliseconds. Events that are separated
 %       by no more than this time are considered part of an event train, per
 %       euFT_getTrainTrialDefs().
+% "artifact_method" is an artifact rejection method, per ARTIFACTCONFIG.txt.
+%  This can be '' or 'none' to disable artifact rejection.
 % "artifact_config" is a structure containing configuration information for
-%   one or more artifact detection methods. Fields may be absent if unused.
-%   "detect_level" (-2..+2) is a tuning parameter for automated artifact
-%     detection; positive values make it less sensitive. NaN disables it.
-%   "event_squash_times" is a vector containing time values (in seconds) of
-%     known artifacts to squash (e.g. stimulation trigger times). If this is
-%     absent or empty but event_squash_window_ms is provided, the t=0 time
-%     in each trial is used.
-%   "event_squash_window_ms" [ start stop ] is a duration span in milliseconds
-%     to NaN out around squashed events.
-%   "exp_fit_fenceposts_ms" is a vector containing fenceposts in milliseconds
-%     for exponential curve fitting, per nlArt_removeMultipleExpDecays().
-%     FIXME - This ignores squash times and assumes events at t=0!
-%   "exp_fit_method" is a character vector or cell array specifying the
-%     algorithm to use for curve fitting all segments (if a character vector)
-%     or for each segment individually (if a cell array of character vectors).
-%     If omitted or '', a default algorithm is used.
-%   "ramp_span_ms" [ start stop ] is a duration span in milliseconds for
-%     correcting DC steps from stimulation, per nlFT_rampOverStimStep().
-%     This requires event_squash_window_ms to be set.
-%     FIXME - This ignores squash times and assumes events at t=0!
+%   the chosen artifact rejection method, per ARTIFACTCONFIG.txt. This may
+%   be struct() or struct([]) if no method is used.
 % "notch_freqs" is a vector containing notch filter frequencies. An empty
 %   vector disables notch filtering.
 % "notch_bw" is the notch filter bandwidth in Hz. NaN disables filtering.
@@ -142,78 +126,72 @@ if ~isempty(ephys_chans)
     % This will leave NaN holes.
 
 
-    % Automated artifact removal based on excursions in the absolute value of
-    % the signal or of its derivative.
+    % Artifact removal based on excursions in the absolute value of the
+    % signal or of its derivative.
 
-    artifact_detect_level = NaN;
-    if isfield(artifact_config, 'detect_level')
-      artifact_detect_level = artifact_config.detect_level;
-    end
+    if strcmp(artifact_method, 'sigma')
+      artparams = euHLev_getArtifactSigmaDefaults();
 
-    if ~isnan(artifact_detect_level)
-      artparams = nlChan_getArtifactDefaults();
-      artparams.ampthresh = artparams.ampthresh + artifact_detect_level;
-      artparams.diffthresh = artparams.diffthresh + artifact_detect_level;
+      thresh_adjust = artifact_config.threshold_adjust;
 
-      iterfunc_art = ...
-        @( wavedata, timedata, samprate, trialidx, chanidx, chanlabel ) ...
-          helper_iterate_artifacts( artparams, wavedata, samprate );
-
-      [ newtrials fracbad ] = ...
-        nlFT_iterateAcrossData( ftdata_ephys, iterfunc_art );
-      ftdata_ephys.trial = newtrials;
+      ftdata_ephys = nlFT_removeArtifactsSigma( ftdata_ephys, ...
+        artparams.ampdetect + thresh_adjust, ...
+        artparams.derivdetect + thresh_adjust, ...
+        artparams.ampturnoff, artparams.derivturnoff, ...
+        artparams.squashbefore, artparams.squashafter, ...
+        artparams.derivsmooth, artparams.dcsmooth );
     end
 
 
-    % Curve-fitting known stimulation artifacts.
+    % Curve-fitting stimulation artifacts at known locations.
 
-    if isfield(artifact_config, 'exp_fit_fenceposts_ms')
-      exp_fit_method = '';
-      if isfield(artifact_config, 'exp_fit_method')
-        exp_fit_method = artifact_config.exp_fit_method;
-      end
+    if strcmp(artifact_method, 'expknown')
 
-      % FIXME - This ignores "event_squash_times" and assumes events at t=0!
-      [ ftdata_ephys fitlist ] = nlFT_removeMultipleExpDecays( ...
-        ftdata_ephys, artifact_config.exp_fit_fenceposts_ms / 1000, ...
-        exp_fit_method );
-    end
+      % Exponential fitting.
 
+      if isfield(artifact_config, 'fit_fenceposts_ms')
+        if length(artifact_config.fit_fenceposts_ms) >= 2
+          fit_method = '';
+          if isfield(artifact_config, 'fit_method')
+            fit_method = artifact_config.fit_method;
+          end
 
-    % Paving over known stimulation artifacts.
-
-    if isfield(artifact_config, 'event_squash_window_ms')
-      if isfield(artifact_config, 'ramp_span_ms')
-
-        % We want ramping.
-        % FIXME - This ignores "event_squash_times" and assumes events at t=0!
-
-        ftdata_ephys = nlFT_rampOverStimStep( ftdata_ephys, ...
-          artifact_config.ramp_span_ms / 1000, ...
-          artifact_config.event_squash_window_ms / 1000 );
-
-      else
-
-        % Just squash the specified areas.
-
-        % Get artifact masks; either trial trigger times or a supplied list.
-        if isfield(artifact_config, 'event_squash_times') ...
-          windowmasks = ...
-            nlFT_getWindowsAroundEvents( ftdata_ephys, ...
-              artifact_config.event_squash_window_ms, ...
-              artifact_config.event_squash_times );
-        else
-          % Using t=0 times as event times.
-          windowmasks = ...
-            nlFT_getWindowsAroundEvents( ftdata_ephys, ...
-              artifact_config.event_squash_window_ms, [] );
+          % FIXME - This ignores "event_squash_times", assuming events at t=0!
+          [ ftdata_ephys fitlist ] = nlFT_removeMultipleExpDecays( ...
+            ftdata_ephys, artifact_config.fit_fenceposts_ms / 1000, ...
+            fit_method );
         end
-
-        % Do the artifact squashing.
-        ftdata_ephys = ...
-          nlFT_applyTimeWindowSquash( ftdata_ephys, windowmasks );
-
       end
+
+      % Central artifact squash and step-removal ramp.
+
+      if isfield(artifact_config, 'squash_window_ms')
+        if isfield(artifact_config, 'ramp_span_ms')
+          % Add a ramp to compensate for the stimulation discontinuity.
+          % This also does squashing.
+          ftdata_ephys = nlFT_rampOverStimStep( ftdata_ephys, ...
+            artifact_config.ramp_span_ms / 1000, ...
+            artifact_config.squash_window_ms / 1000 );
+        else
+          % Just squash.
+          % Using t=0 times as event times.
+          windowmasks = nlFT_getWindowsAroundEvents( ...
+            ftdata_ephys, artifact_config.squash_window_ms, [] );
+          ftdata_ephys = ...
+            nlFT_applyTimeWindowSquash( ftdata_ephys, windowmasks );
+        end
+      end
+
+    end
+
+
+    % Curve-fitting stimulation artifacts, using black magic to guess at
+    % curve fit locations.
+
+    if strcmp(artifact_method, 'expguess')
+      % This also handles squashing and step ramping.
+% FIXME - NYI. Need to think this through a bit more.
+disp('### [euHLev_readAndCleanSignals]  Method "expguess" NYI.');
     end
 
 
@@ -240,21 +218,6 @@ end
 
 
 % Done.
-end
-
-
-
-%
-% Helper Functions
-
-function [ newwave fracbad ] = ...
-  helper_iterate_artifacts( artparams, oldwave, samprate )
-
-  % Keep NaNs (don't interpolate), and don't re-reference.
-  keepnan = true;
-  [ newwave fracbad ] = nlChan_applyArtifactReject( ...
-    oldwave, [], samprate, artparams, keepnan );
-
 end
 
 

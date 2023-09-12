@@ -17,24 +17,11 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 % "expmeta" is one of the metadata structures returned by
 %   euChris_getChrisMetadata(), with the fields described in CHRISEXPMETA.txt
 %   (including the "casemeta" additional field).
-% "signalconfig" is a structure with the following fields, per
-%   SIGNALCONFIG.txt:
-%   "notch_freqs" is a vector of frequencies to notch filter (may be empty).
-%   "notch_bandwidth" is the bandwidth of the notch filter.
-%   "lfp_band" [ min max ] is the broad-band LFP frequency range.
-%   "event_squash_window_ms" [ start stop ] is the window around stimulation
-%     events to replace with NaN, in milliseconds. E.g. [ -0.5 1.5 ].
-%     If this is [], no squashing is performed.
-%   "exp_fit_starts_ms" is a vector containing exponential curve fit start
-%     times (relative to the stimulation trigger) for stimulation artifact
-%     removal. If this is empty, no curve fits are performed.
-%   "exp_fit_method" is a character vector or cell array specifying the
-%     algorithm to use for curve fitting all segments (if a character vector)
-%     or for each segment individually (if a cell array of character vectors).
-%     If omitted or '', a default algorithm is used.
-%   "want_step_removal" is true to apply a ramp to remove any step artifact
-%     introduced by stimulation, false otherwise. This requires a squash
-%     window.
+% "signalconfig" is a structure with fields noted in SIGNALCONFIG.txt,
+%   including the following:
+%   - Notch filtering configuration.
+%   - LFP band configuration.
+%   - Artifact suppression settings.
 % "trigtimes" is a vector containing trigger timestamps in seconds. If this
 %   is [], the trials' t=0 times are used.
 % "trig_window_ms" [ start stop ] is the window around stimulation events
@@ -110,23 +97,9 @@ wbheader = rawmeta.header_ft;
 wballchans = rawmeta.chans_an;
 
 
-squash_window_ms = [];
-exp_fit_starts_ms = [];
-want_remove_step = false;
-exp_fit_method = '';
-
-if isfield(signalconfig, 'event_squash_window_ms')
-  squash_window_ms = signalconfig.event_squash_window_ms;
-end
-if isfield(signalconfig, 'exp_fit_starts_ms')
-  exp_fit_starts_ms = signalconfig.exp_fit_starts_ms;
-end
-if isfield(signalconfig, 'exp_fit_method')
-  exp_fit_method = signalconfig.exp_fit_method;
-end
-if isfield(signalconfig, 'want_step_removal')
-  want_remove_step = signalconfig.want_step_removal;
-end
+% Get artifact configuration information.
+[ artmethod artconfig ] = ...
+  euChris_getArtifactConfigFromSignalConfig( signalconfig );
 
 
 
@@ -235,25 +208,8 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
     disp('.. Loading event trials.');
   end
 
-  artconfig = struct();
-  if ~isempty(squash_window_ms)
-    artconfig.event_squash_window_ms = squash_window_ms;
-    artconfig.event_squash_times = trigtimes;
-
-    exp_fenceposts = exp_fit_starts_ms;
-    if ~isempty(exp_fenceposts)
-      exp_fenceposts(1 + length(exp_fenceposts)) = max(trig_window_ms);
-      artconfig.exp_fit_fenceposts_ms = exp_fenceposts;
-      artconfig.exp_fit_method = exp_fit_method;
-    end
-
-    if want_remove_step
-      artconfig.ramp_span_ms = trig_window_ms;
-    end
-  end
-
   ftdata_wb = euHLev_readAndCleanSignals( wbfolder, desiredchans, ...
-    trialdefs, artconfig, ...
+    trialdefs, artmethod, artconfig, ...
     signalconfig.notch_freqs, signalconfig.notch_bandwidth );
 
 

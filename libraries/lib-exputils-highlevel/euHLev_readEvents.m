@@ -120,18 +120,4 @@ end
 
 
 %
-% Helper Functions
-
-function [ newwave fracbad ] = ...
-  helper_iterate_artifacts( artparams, oldwave, samprate )
-
-  % Don't keep NaNs (interpolate instead), and don't re-reference.
-  [ newwave fracbad ] = nlChan_applyArtifactReject( ...
-    oldwave, [], samprate, artparams, false );
-
-end
-
-
-
-%
 % This is the end of the file.
