@@ -165,18 +165,27 @@ if ~isempty(ephys_chans)
 
       % Central artifact squash and step-removal ramp.
 
+      squash_window_ms = [];
       if isfield(artifact_config, 'squash_window_ms')
-        if isfield(artifact_config, 'ramp_span_ms')
+        squash_window_ms = artifact_config.squash_window_ms;
+      end
+
+      ramp_span_ms = [];
+      if isfield(artifact_config, 'ramp_span_ms')
+        ramp_span_ms = artifact_config.ramp_span_ms;
+      end
+
+      if ~isempty(squash_window_ms)
+        if ~isempty(ramp_span_ms)
           % Add a ramp to compensate for the stimulation discontinuity.
           % This also does squashing.
           ftdata_ephys = nlFT_rampOverStimStep( ftdata_ephys, ...
-            artifact_config.ramp_span_ms / 1000, ...
-            artifact_config.squash_window_ms / 1000 );
+            ramp_span_ms / 1000, squash_window_ms / 1000 );
         else
           % Just squash.
           % Using t=0 times as event times.
           windowmasks = nlFT_getWindowsAroundEvents( ...
-            ftdata_ephys, artifact_config.squash_window_ms, [] );
+            ftdata_ephys, squash_window_ms, [] );
           ftdata_ephys = ...
             nlFT_applyTimeWindowSquash( ftdata_ephys, windowmasks );
         end
