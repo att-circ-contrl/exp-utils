@@ -17,20 +17,18 @@ function [ newlabel newtitle ] = euUtil_makeSafeString( oldstring )
 %   with spaces.
 
 
-newlabel = '';
-newtitle = '';
+% Use vector operations instead of going letter by letter.
 
-for cidx = 1:length(oldstring)
-  thischar = oldstring(cidx);
+digitmask = (oldstring >= '0') & (oldstring <= '9');
+lettermask = isletter(oldstring);
+keepmask = digitmask | lettermask;
 
-  % Use "isletter" so that we're language-agnostic.
-  if ( (thischar >= '0') && (thischar <= '9') ) || isletter(thischar)
-    newlabel = [ newlabel thischar ];
-    newtitle = [ newtitle thischar ];
-  else
-    newtitle = [ newtitle ' ' ];
-  end
-end
+% For the label, discard anything that wasn't alphanumeric.
+newlabel = oldstring(keepmask);
+
+% For the title, replace anything that wasn't alphanumeric with spaces.
+newtitle = oldstring;
+newtitle(~keepmask) = ' ';
 
 
 % Done.
