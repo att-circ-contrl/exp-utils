@@ -7,7 +7,7 @@ function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
 %   notch_freqs, notch_bw )
 %
 % This reads Field Trip trial data from the specified folder, performing
-% artifact rejection and notch filtering.
+% artifact rejection, NaN squashing/paving, and notch filtering in that order.
 %
 % This can be used to read continuous data or event-segmented data, depending
 % on what's passed as "trial_config".
@@ -17,13 +17,13 @@ function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
 %
 % NOTE - For large datasets, call euFT_iterateAcrossFolderBatchingDerived
 % instead. This is intended for quick and dirty processing of datasets that
-% fit in memory, without splitting into LFP/spike waveforms.
+% fit in memory.
 %
 % NOTE - This does _not_ detrend or demean data, so it's safe for reading
 % magnitudes, phase angles, event codes, and so forth.
 %
 % NOTE - Events and waveforms have timestamps relative to the start of the
-% recording, not the start of the trim window.
+% recording (or to the trial's t=0 point), not the start of the trim window.
 %
 % "folder" is the folder to read from.
 % "ephys_chans" is a cell array containing channel names to read. If this is
@@ -133,9 +133,10 @@ if ~isempty(ephys_chans)
     ftdata_ephys = ft_preprocessing( config_load );
 
 
+
     %
     % Perform artifact removal first, so that artifacts don't cause ringing.
-    % This will leave NaN holes.
+    % This may leave NaN holes.
 
 
     % Artifact removal based on excursions in the absolute value of the
@@ -156,53 +157,18 @@ if ~isempty(ephys_chans)
 
 
     % Curve-fitting stimulation artifacts at known locations.
+    % NOTE - Locations are specified relative to t=0.
 
     if strcmp(artifact_method, 'expknown')
 
-      % Exponential fitting.
-
-      if isfield(artifact_config, 'fit_fenceposts_ms')
-        if length(artifact_config.fit_fenceposts_ms) >= 2
-          fit_method = '';
-          if isfield(artifact_config, 'fit_method')
-            fit_method = artifact_config.fit_method;
-          end
-
-          % FIXME - This ignores "event_squash_times", assuming events at t=0!
-          [ ftdata_ephys fitlist ] = nlFT_removeMultipleExpDecays( ...
-            ftdata_ephys, artifact_config.fit_fenceposts_ms / 1000, ...
-            fit_method );
-        end
+      fit_method = '';
+      if isfield(artifact_config, 'fit_method')
+        fit_method = artifact_config.fit_method;
       end
 
-      % Central artifact squash and step-removal ramp.
-
-      squash_window_ms = [];
-      if isfield(artifact_config, 'squash_window_ms')
-        squash_window_ms = artifact_config.squash_window_ms;
-      end
-
-      ramp_span_ms = [];
-      if isfield(artifact_config, 'ramp_span_ms')
-        ramp_span_ms = artifact_config.ramp_span_ms;
-      end
-
-      if ~isempty(squash_window_ms)
-        if ~isempty(ramp_span_ms)
-          % Add a ramp to compensate for the stimulation discontinuity.
-          % This also does squashing.
-          ftdata_ephys = nlFT_rampOverStimStep( ftdata_ephys, ...
-            ramp_span_ms / 1000, squash_window_ms / 1000 );
-        else
-          % Just squash.
-          % Using t=0 times as event times.
-          windowmasks = nlFT_getWindowsAroundEvents( ...
-            ftdata_ephys, squash_window_ms, [] );
-          ftdata_ephys = ...
-            nlFT_applyTimeWindowSquash( ftdata_ephys, windowmasks );
-        end
-      end
-
+      [ ftdata_ephys fitlist ] = nlFT_removeMultipleExpDecays( ...
+        ftdata_ephys, artifact_config.fit_fenceposts_ms / 1000, ...
+        fit_method );
     end
 
 
@@ -210,18 +176,40 @@ if ~isempty(ephys_chans)
     % curve fit locations.
 
     if strcmp(artifact_method, 'expguess')
-      % This also handles squashing and step ramping.
-% FIXME - NYI. Need to think this through a bit more.
-disp('### [euHLev_readAndCleanSignals]  Method "expguess" NYI.');
+
+      % This is augmented with verbosity and "want_xx" flags.
+      plotconfig = artifact_config.plot_config;
+
+      fitparams = nlFT_guessMultipleExpDecays( ...
+        ftdata_ephys, artifact_config, ...
+        plotconfig.want_debug_plots, plotconfig.want_reports, ...
+        plotconfig, ...
+        plotconfig.tattle_verbosity, plotconfig.report_verbosity );
+
+      % Subtract curve fits from t=0 onward, ignoring the DC offsets.
+      ftdata_ephys = nlFT_subtractCurveFits( ...
+        ftdata_ephys, [ 0 inf ], fitparams, 'ignoredc' );
+
     end
 
 
     %
-    % Perform notch filtering second.
+    % Apply any desired additional NaN-squashing, step/ramp adjustment,
+    % and NaN interpolation.
+
+    if ~isempty(squash_config)
+% FIXME - Move median artifact squashing out of here?
+      ftdata_ephys = euHLev_doSquashAndFill( ftdata_ephys, squash_config );
+    end
+
+
+    %
+    % Perform notch filtering last.
 
     if (~isempty(notch_freqs)) && (~isnan(notch_bw))
 
       % Interpolate NaNs, filter, and then restore NaNs.
+% FIXME - Add better ramp rejection and endpoint pinning here.
 
       thismask = nlFT_getNaNMask(ftdata_ephys);
       ftdata_ephys = nlFT_fillNaN(ftdata_ephys);

@@ -58,31 +58,10 @@ end
 
 
 
-% Squash anything too far from the median, using a single span.
-% FIXME - Maybe make a helper for this?
+% Squash anything too far from the median that's adjacent to existing NaNs.
 
 if isfinite(auto_squash_threshold)
-  trialcount = length(newftdata.time);
-  chancount = length(newftdata.label);
-
-  for tidx = 1:trialcount
-    thistime = newftdata.time{tidx};
-    thistrial = newftdata.trial{tidx};
-
-    for cidx = 1:chancount
-      thiswave = thistrial(cidx,:);
-
-      [ squashfirst squashlast threshlow threshhigh threshmedian ] = ...
-        nlProc_getOutlierTimeRange( thistime, thiswave, [], [], 25, 75, ...
-          auto_squash_threshold, auto_squash_threshold );
-      thismask = (thistime >= squashfirst) & (thistime <= squashlast);
-      thiswave(thismask) = NaN;
-
-      thistrial(cidx,:) = thiswave;
-    end
-
-    newftdata.trial{tidx} = thistrial;
-  end
+  newftdata = nlFT_extendNaNQuartile( newftdata, auto_squash_threshold );
 end
 
 

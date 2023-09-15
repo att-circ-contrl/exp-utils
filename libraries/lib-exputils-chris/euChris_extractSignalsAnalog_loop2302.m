@@ -21,6 +21,7 @@ function casesignals = euChris_extractSignals_loop2302( ...
 %   - LFP band specification.
 %   - Phase detection width for estimating ground-truth phase detection.
 %   - Artifact suppression settings.
+%   - Squash settings.
 % "verbosity" is 'normal' or 'quiet'.
 %
 % "casesignals" is a copy of "oldcasesignals" with the following signals
@@ -71,6 +72,12 @@ cookedmeta = expmeta.cookedmeta;
 [ artmethod, artconfig ] = ...
   euChris_getArtifactConfigFromSignalConfig( signalconfig );
 
+% Get squash configuration.
+squashconfig = struct();
+if isfield(signalconfig, 'squash_config')
+  squashconfig = signalconfig.squash_config;
+end
+
 
 
 %
@@ -108,11 +115,10 @@ ftdata_wb = struct([]);
 if have_wb
   % FIXME - Some artifact suppression methods won't work for monolithic
   % data!
-% FIXME - Add squash config here.
   ftdata_wb = euHLev_readAndCleanSignals( ...
     filefirst, { label_wb }, ...
     signalconfig.head_tail_trim_fraction, ...
-    artmethod, artconfig, struct([]), ...
+    artmethod, artconfig, squashconfig, ...
     signalconfig.notch_freqs, signalconfig.notch_bandwidth );
 end
 

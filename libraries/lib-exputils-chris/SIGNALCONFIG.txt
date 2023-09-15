@@ -23,6 +23,9 @@ Common:
   rejection using exponential curve fits at guessed locations, per
   ARTIFACTCONFIG.txt.
 
+"squash_config", if present, is a configuration structure for NaN squashing
+  and interpolation and step removal, per SQUASHCONFIG.txt.
+
 
 
 For euChris_extractSignalsAnalog_loop2302:

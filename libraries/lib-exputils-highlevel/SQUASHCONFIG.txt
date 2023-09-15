@@ -7,12 +7,11 @@ a configuration structure with the following fields:
   squashing is performed.
 
 "auto_squash_threshold" is the amount by which the signal must depart
-  from the DC level to be automatically squashed as a residual artifact.
-  This is a multiple of the median-to-quartile distance (about two thirds
-  of a standard deviation). Typical values are 6-12 for clear exponential
-  excursions. If this is absent or Inf or NaN, no squashing is performed.
-  Note that this squashes a single span from the earliest excursion to the
-  latest, even if there are valid samples in between those times.
+  from the DC level to be automatically squashed as a residual artifact,
+  if adjacent to an existing NaN span. This is a multiple of
+  the median-to-quartile distance (about two thirds of a standard
+  deviation). Typical values are 6-12 for clear exponential excursions.
+  If this is absent or Inf or NaN, no squashing is performed.
 
 "ramp_span_ms" [ start stop ] is a duration around t=0 to apply a ramp to
   remove any DC step present over NaN regions (squashed regions). This

@@ -22,6 +22,7 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 %   - Notch filtering configuration.
 %   - LFP band configuration.
 %   - Artifact suppression settings.
+%   - Squash settings.
 % "trigtimes" is a vector containing trigger timestamps in seconds. If this
 %   is [], the trials' t=0 times are used.
 % "trig_window_ms" [ start stop ] is the window around stimulation events
@@ -100,6 +101,12 @@ wballchans = rawmeta.chans_an;
 % Get artifact configuration information.
 [ artmethod artconfig ] = ...
   euChris_getArtifactConfigFromSignalConfig( signalconfig );
+
+% Get squash configuration.
+squashconfig = struct();
+if isfield(signalconfig, 'squash_config')
+  squashconfig = signalconfig.squash_config;
+end
 
 
 
@@ -208,9 +215,8 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
     disp('.. Loading event trials.');
   end
 
-% FIXME - Add squash config here.
   ftdata_wb = euHLev_readAndCleanSignals( wbfolder, desiredchans, ...
-    trialdefs, artmethod, artconfig, struct([]), ...
+    trialdefs, artmethod, artconfig, squashconfig, ...
     signalconfig.notch_freqs, signalconfig.notch_bandwidth );
 
 

@@ -30,14 +30,6 @@ the following fields:
 Exponential fits with known locations are configured using a structure with
 the following fields:
 
-"squash_window_ms" [ start stop ] is a window around t=0 to replace with
-  NaN, in milliseconds (e.g. [ -0.5 1.5 ]). If this is [], no squashing is
-  performed.
-
-"ramp_span_ms" [ start stop ] is a duration around t=0 to apply a ramp to
-  remove any DC step present over the squash window. This requires a
-  squash window. If this is [], no ramping is performed.
-
 "fit_fenceposts_ms" is a vector containing times to be used as span endpoints
   for exponential curve fitting. The span between the last two times is curve
   fit and its contribution subtracted, then the next-last span, and so forth.
@@ -51,8 +43,11 @@ the following fields:
 
 
 Exponential fits with guessed locations are configured using a structure
-with the fields described in EXPGUESSCONFIG.txt (from lib-nloop-artifact),
-plus the following additional fields:
+with the following fields:
+
+(The fields described in EXPGUESSCONIG.txt from lib-nloop-artifact.)
+
+The following additional fields:
 
 "plot_config" is a debug plot/report configuration structure per
   EXPGUESSPLOT.txt, with the following additional fields:
@@ -68,24 +63,6 @@ plus the following additional fields:
 
   "report_verbosity" is 'quiet', 'terse', 'normal', or 'verbose'. This
     controls how many debugging/progress messages are written to log files.
-
-"squash_config" is a configuration structure with the following fields:
-
-  "squash_window_ms" [ start stop ] is a window around t=0 to replace with
-    NaN, in milliseconds (e.g. [ -0.5 1.5 ]). If this is [], no squashing
-    is performed.
-
-  "auto_squash_threshold" is the amount by which the signal must depart
-    from the DC level to be automatically squashed as a residual artifact.
-    This is a multiple of the median-to-quartile distance (about two thirds
-    of a standard deviation). Typical values are 6-12 for clear exponential
-    excursions. Use Inf or NaN to not squash.
-
-  "ramp_span_ms" [ start stop ] is a duration around t=0 to apply a ramp to
-    remove any DC step present over NaN regions (squashed regions). This
-    If this is [], no ramping is performed.
-
-  "want_interp" is true to interpolate within squashed regions.
 
 
 
