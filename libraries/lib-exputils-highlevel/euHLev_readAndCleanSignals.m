@@ -1,8 +1,10 @@
 function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
-  trial_config, artifact_method, artifact_config, notch_freqs, notch_bw )
+  trial_config, artifact_method, artifact_config, squash_config, ...
+  notch_freqs, notch_bw )
 
 % function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
-%   trial_config, artifact_method, artifact_config, notch_freqs, notch_bw )
+%   trial_config, artifact_method, artifact_config, squash_config, ...
+%   notch_freqs, notch_bw )
 %
 % This reads Field Trip trial data from the specified folder, performing
 % artifact rejection and notch filtering.
@@ -45,6 +47,9 @@ function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
 % "artifact_config" is a structure containing configuration information for
 %   the chosen artifact rejection method, per ARTIFACTCONFIG.txt. This may
 %   be struct() or struct([]) if no method is used.
+% "squash_config" is a structure describing artifact squashing, step
+%   correction, and interpolation to be performed, per SQUASHCONFIG.txt.
+%   This may be struct() or struct([]) if none of these are to be done.
 % "notch_freqs" is a vector containing notch filter frequencies. An empty
 %   vector disables notch filtering.
 % "notch_bw" is the notch filter bandwidth in Hz. NaN disables filtering.
@@ -56,12 +61,19 @@ function ftdata_ephys = euHLev_readAndCleanSignals( folder, ephys_chans, ...
 
 ftdata_ephys = struct([]);
 
+
+% Set input structure defaults.
+
 if isempty(trial_config)
   trial_config = 0;
 end
 
 if isempty(artifact_config)
   artifact_config = struct();
+end
+
+if isempty(squash_config)
+  squash_config = struct();
 end
 
 

@@ -208,8 +208,9 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
     disp('.. Loading event trials.');
   end
 
+% FIXME - Add squash config here.
   ftdata_wb = euHLev_readAndCleanSignals( wbfolder, desiredchans, ...
-    trialdefs, artmethod, artconfig, ...
+    trialdefs, artmethod, artconfig, struct([]), ...
     signalconfig.notch_freqs, signalconfig.notch_bandwidth );
 
 
