@@ -197,8 +197,16 @@ if ~isempty(ephys_chans)
     % Apply any desired additional NaN-squashing, step/ramp adjustment,
     % and NaN interpolation.
 
+    % NOTE - Move NaN interpolation after filtering, so we can identify
+    % discontinuities across NaN spans.
+
+    want_fillnan = false;
     if ~isempty(squash_config)
-% FIXME - Move median artifact squashing out of here?
+      if isfield(squash_config, 'want_interp')
+        want_fillnan = squash_config.want_interp;
+        squash_config.want_interp = false;
+      end
+
       ftdata_ephys = euHLev_doSquashAndFill( ftdata_ephys, squash_config );
     end
 
@@ -209,7 +217,19 @@ if ~isempty(ephys_chans)
     if (~isempty(notch_freqs)) && (~isnan(notch_bw))
 
       % Interpolate NaNs, filter, and then restore NaNs.
-% FIXME - Add better ramp rejection and endpoint pinning here.
+      % If desired, also detrend every non-NaN segment.
+
+      wantramp = false;
+      if ~isempty(squash_config)
+        wantramp = isfield(squash_config, 'ramp_endpoint_frac');
+      end
+
+      if wantramp
+        thisramp = nlFT_getEndpointRamps( ...
+          ftdata_ephys, squash_config.ramp_endpoint_frac );
+        ftdata_ephys.trial = nlFT_sumTrialArrays( ...
+          ftdata_ephys.trial, 1, thisramp, -1 );
+      end
 
       thismask = nlFT_getNaNMask(ftdata_ephys);
       ftdata_ephys = nlFT_fillNaN(ftdata_ephys);
@@ -219,6 +239,16 @@ if ~isempty(ephys_chans)
 
       ftdata_ephys = nlFT_applyNaNMask(ftdata_ephys, thismask);
 
+      if wantramp
+        ftdata_ephys.trial = nlFT_sumTrialArrays( ...
+          ftdata_ephys.trial, 1, thisramp, 1 );
+      end
+
+    end
+
+    % Now that we've done notch filtering, apply interpolation if desired.
+    if want_fillnan
+      ftdata_ephys = nlFT_fillNaN(ftdata_ephys);
     end
 
   end
