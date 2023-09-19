@@ -15,11 +15,13 @@ function [ datalfp dataspike datarect ] = euFT_getDerivedSignals( ...
 %
 % "datawide" is the wideband Field Trip data structure.
 % "lfp_corner" is the low-pass corner frequency for the LFP signal.
-% "lfp_rate" is the desired sampling rate of the LFP signal.
+% "lfp_rate" is the desired sampling rate of the LFP signal, or NaN to use
+%   the wideband sampling rate.
 % "spike_corner" is the high-pass corner frequency for the spike signal.
 % "rect_band" [low high] are the band-pass corners for the rectified signal.
 % "rect_lowpass" is the low-pass smoothing corner for the rectified signal.
-% "rect_rate" is the desired sampling rate of the rectified signal.
+% "rect_rate" is the desired sampling rate of the rectified signal, or NaN
+%   to use the wideband sampling rate.
 % "want_quiet" is an optional argument. If set to true, progress output is
 %   suppressed. If omitted, it defaults to true.
 %
@@ -48,7 +50,9 @@ filtconfig.feedback = feedtype;
 resampleconfig.feedback = feedtype;
 
 datalfp = ft_preprocessing(filtconfig, datawide);
-datalfp = ft_resampledata(resampleconfig, datalfp);
+if ~isnan(lfp_rate)
+  datalfp = ft_resampledata(resampleconfig, datalfp);
+end
 
 
 % Produce spike signals.
@@ -83,7 +87,9 @@ resampleconfig.feedback = feedtype;
 datarect = ft_preprocessing(filtconfigband, datawide);
 datarect = ft_preprocessing(rectconfig, datarect);
 datarect = ft_preprocessing(filtconfiglow, datarect);
-datarect = ft_resampledata(resampleconfig, datarect);
+if ~isnan(rect_rate)
+  datarect = ft_resampledata(resampleconfig, datarect);
+end
 
 
 % Done.

@@ -9,6 +9,11 @@ This can be used for alignment from any type of event, not just stimulation:
   LFP data, segmented into trials triggered by stimulation events.
 "ftdata_band" (optional) is a Field Trip data structure containing narrow-band
   LFP data, segmented into trials triggered by stimulation events.
+"ftdata_hp" (optional) is a Field Trip data structure containing high-pass
+  spike waveforms, segmented into trials triggered by stimulation events.
+"ftdata_mua" (optional) is a Field Trip data structure containing rectified
+  band-pass spiking activity, segmented into trias triggered by stimulation
+  events.
 
 "tortecidx" is the index of the TORTE input channel in ftdata_XXX.
 "extracidx" is a vector with indices of the hint-specified extra channels

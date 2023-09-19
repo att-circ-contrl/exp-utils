@@ -1,10 +1,12 @@
 function responsedata = euChris_extractStimResponses_loop2302( ...
   expmeta, signalconfig, trigtimes, trig_window_ms, train_gap_ms, ...
-  chans_wanted, want_lfp, want_narrowband, verbosity )
+  chans_wanted, want_lfp, want_narrowband, want_highpass, want_mua, ...
+  verbosity )
 
 % function responsedata = euChris_extractStimResponses_loop2302( ...
 %   expmeta, signalconfig, trigtimes, trig_window_ms, train_gap_ms, ...
-%   chans_wanted, want_lfp, want_narrowband, verbosity )
+%   chans_wanted, want_lfp, want_narrowband, want_highpass, want_mua, ...
+%   verbosity )
 %
 % This function reads ephys data in segments centered around stimulation
 % events.
@@ -21,6 +23,7 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 %   including the following:
 %   - Notch filtering configuration.
 %   - LFP band configuration.
+%   - Spike and MUA configuration.
 %   - Artifact suppression settings.
 %   - Squash settings.
 % "trigtimes" is a vector containing trigger timestamps in seconds. If this
@@ -36,6 +39,9 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 %   array, it's treated as a list of FT channels to read.
 % "want_lfp" is true if the broad-band LFP is to be extracted.
 % "want_narrowband" is true if the narrow-band LFP is to be extracted.
+% "want_highpass" is true if the high-pass spike waveform is to be extracted.
+% "want_mua" is true if the rectified band-pass spiking activity is to be
+%   extracted.
 % "verbosity" is 'normal' or 'quiet'.
 %
 % "responsedata" is a structure containing the following fields, per
@@ -47,6 +53,10 @@ function responsedata = euChris_extractStimResponses_loop2302( ...
 %     This is only present if "want_lfp" was true.
 %   "ftdata_band" is a Field Trip data structure with the narrow-band LFP
 %     data. This is only present if "want_narrowband" was true.
+%   "ftdata_hp" is a Field Trip data structure with the high-pass spike data.
+%     This is only present if "want_highpass" was true.
+%   "ftdata_mua" is a Field Trip data structure with the rectified spike
+%     activity data. This is only present if "want_mua" was true.
 %
 %   "tortecidx" is the index of the TORTE input channel in ftdata_XXX.
 %   "extracidx" is a vector with indices of hint channels in ftdata_XXX.
@@ -226,25 +236,25 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
   ftdata_wb = nlFT_fillNaN(ftdata_wb);
 
 
-  % Get broad-band LFP, if requested.
+  % Get any requested filtered signals.
 
-  if want_lfp
-    % Don't actually remove DC; FT's low-frequency filtering is iffy.
-    config_lfp = struct( 'lpfilter', 'yes', 'lpfilttype', 'but', ...
-      'lpfreq', max(signalconfig.lfp_band), 'feedback', 'no' );
+  % Wideband, high-pass, and MUA.
+  if want_lfp || want_highpass || want_mua
 
-    ftdata_lfp = ft_preprocessing(config_lfp, ftdata_wb);
+    want_quiet = true;
+    [ ftdata_lfp ftdata_hp ftdata_mua ] = euFT_getDerivedSignals( ...
+      ftdata_wb, max(signalconfig.lfp_band), NaN, ...
+      signalconfig.spike_cutoff, signalconfig.mua_band, ...
+      signalconfig.mua_cutoff, NaN, want_quiet);
 
-    % NOTE - Keeping the filtered interpolated version.
-    % The caller can squash NaN regions if they really want to.
-
-    responsedata.ftdata_lfp = ftdata_lfp;
+    if want_lfp ; responsedata.ftdata_lfp = ftdata_lfp; end
+    if want_highpass ; responsedata.ftdata_hp = ftdata_hp; end
+    if want_mua ; responsedata.ftdata_mua = ftdata_mua; end
   end
 
-
-  % Get narrow-band LFP, if requested.
-
+  % Narrow-band.
   if want_narrowband
+
     torteband = cookedmeta.torteband;
     config_band = struct( 'bpfilter', 'yes', 'bpfilttype', 'but', ...
       'bpinstabilityfix', 'split', 'feedback', 'no', ...
@@ -256,6 +266,7 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
     % The caller can squash NaN regions if they really want to.
 
     responsedata.ftdata_band = ftdata_band;
+
   end
 
 

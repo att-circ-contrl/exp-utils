@@ -7,7 +7,17 @@ Common:
 "notch_freqs" is a vector of frequencies to notch filter (may be empty).
 "notch_bandwidth" is the bandwidth of the notch filter.
 
-"lfp_band" [ min max ] is the broad-band LFP frequency range.
+"lfp_band" [ min max ] is the broad-band LFP frequency range. NOTE - Only
+  the upper corner is used when filtering, since FT and Matlab both have
+  trouble with very low frequency filters.
+
+"spike_cutoff" is the corner frequency of the high-pass filter used to
+  extract spike waveforms for spike shape analysis.
+
+"mua_band" [ min max ] is the band-pass frequency range used to extract
+  rectified spiking activity.
+"mua_cutoff" is the corner frequency of the low-pass filter used to smooth
+  rectified spiking activity.
 
 "artifact_method" is a character vector specifying the artifact suppression
   method (per ARTIFACTCONFIG.txt).
