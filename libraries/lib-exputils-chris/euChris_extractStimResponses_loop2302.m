@@ -225,6 +225,9 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
     disp('.. Loading event trials.');
   end
 
+  % FIXME - Override squash configuration.
+  squashconfig.want_interp = false;
+
   ftdata_wb = euHLev_readAndCleanSignals( wbfolder, desiredchans, ...
     trialdefs, artmethod, artconfig, squashconfig, ...
     signalconfig.notch_freqs, signalconfig.notch_bandwidth );
@@ -271,10 +274,16 @@ if (~isempty(desiredchans)) && (~isempty(trialdefs))
 
 
   % Now that we've finished filtering, re-squash the NaN regions in
-  % the wideband signal and store it.
+  % the wideband, high-pass, and MUA signals and store them.
 
-  ftdata_wb = nlFT_applyNaNMask(ftdata_wb, nanmask);
-  responsedata.ftdata_wb = ftdata_wb;
+  responsedata.ftdata_wb = nlFT_applyNaNMask( ftdata_wb, nanmask );
+
+  if want_highpass
+    responsedata.ftdata_hp = nlFT_applyNaNMask( ftdata_hp, nanmask );
+  end
+  if want_mua
+    responsedata.ftdata_mua = nlFT_applyNaNMask( ftdata_mua, nanmask );
+  end
 
 
 
