@@ -1,6 +1,7 @@
 Oscillation response features are stored as a structure with the following
 fields. Time window information is not stored in this structure; it was
 provided by an oscillation fit parameter structure, per CHRISOSCPARAMS.txt.
+
 Each response describes one trial (or one timelock-average from a set of
 trials); responses for multiple trials are typically returned as a cell
 array of per-trial responses.
