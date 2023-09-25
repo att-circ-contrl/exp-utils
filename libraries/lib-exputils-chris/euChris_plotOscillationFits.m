@@ -10,7 +10,7 @@ function euChris_plotOscillationFits( ...
 % near those events.
 %
 % "oscfitdata" is a cell array with one entry per trial. Each cell contains
-%   a structure with detected oscillation features, per CHRISOSCFEATURES.txt.
+%   a structure with detected oscillation features, per CHRISSTIMFEATURES.txt.
 %   If the "chanlabels" field is present, it's used.
 % "oscparams" is a structure containing oscillation fit parameters, per
 %   CHRISOSCPARAMS.txt.

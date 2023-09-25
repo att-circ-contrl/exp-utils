@@ -1,9 +1,9 @@
-function datameta = euChris_getOscDataMetadata( oscdata, labelfields )
+function datameta = euChris_getResponseDataMetadata( statdata, labelfields )
 
-% function datameta = euChris_getOscDataMetadata( oscdata, labelfields )
+% function datameta = euChris_getResponseDataMetadata( statdata, labelfields )
 %
-% This extracts many pieces of metadata from a series of oscillation response
-% structures.
+% This extracts many pieces of metadata from a series of stimulation response
+% feature statistics structures.
 %
 % NOTE - window times are expected to be consistent across all records!
 % Window metadata content may be incorrect if this is not the case.
@@ -11,8 +11,9 @@ function datameta = euChris_getOscDataMetadata( oscdata, labelfields )
 % NOTE - If requested label fields are absent, associated metadata fields
 % will be absent or empty.
 %
-% "oscdata" is a cell array containing oscillation response structures, per
-%   CHRISOSCFEATURES.txt, typically also including session/case/probe labels.
+% "statdata" is a cell array containing stimulation response feature data
+%   structures, per CHRISSTIMFEATURES.txt, typically also including
+%   session/case/probe labels.
 % "labelfields" is a cell array containing label field names to collect
 %   metadata for. Typical names include 'sessionlabel', 'caselabel', and
 %   'probelabel'.
@@ -25,6 +26,8 @@ function datameta = euChris_getOscDataMetadata( oscdata, labelfields )
 %     after-stimulation time windows.
 %   "winbeforetext" is a character vector containing a plot-safe
 %     human-readable version of the absolute value of the "winbefore" time.
+%   "winbeforelabel" is a character vector containing a filename-safe
+%     label derived from the absolute value of the "winbefore" time.
 %   "winaftertext" is a cell array containing character vectors with
 %     plot-safe human-readable versions of the "winafter" times.
 %   "winafterlabels" is a cell array containing character vectors with
@@ -38,8 +41,8 @@ function datameta = euChris_getOscDataMetadata( oscdata, labelfields )
 %   "labelshort" is a structure with one field per entry in "labelfields",
 %     holding cell arrays containing plot-safe versions of the raw labels.
 %   "labelkey" is a structure with one field per entry in "labelfields",
-%     holding cell arrays containing fieldname-safe versions of the raw
-%     labels.
+%     holding cell arrays containing versions of the raw labels that are
+%     safe to use as structure field names.
 
 
 % Initialize to safe values.
@@ -47,6 +50,7 @@ function datameta = euChris_getOscDataMetadata( oscdata, labelfields )
 winbefore = 0;
 winafter = [];
 winbeforetext = '0 ms';
+winbeforelabel = 'pre000ms';
 winaftertext = {};
 winafterlabels = {};
 
@@ -68,9 +72,9 @@ end
 
 % Traverse the data records.
 
-for didx = 1:length(oscdata)
+for didx = 1:length(statdata)
 
-  thisdata = oscdata{didx};
+  thisdata = statdata{didx};
 
 
   % Get window information. This is guaranteed to be present.
@@ -79,6 +83,7 @@ for didx = 1:length(oscdata)
   % Remember to take the absolute value for the "before" time.
   winbefore = thisdata.winbefore;
   winbeforetext = sprintf( '%d ms', round(abs(1000 * winbefore)) );
+  winbeforelabel = sprintf( 'pre%03d', round(abs(1000 * winbefore)) );
 
   for widx = 1:length(thisdata.winafter)
     thistime = thisdata.winafter(widx);
@@ -137,6 +142,7 @@ datameta = struct();
 datameta.winbefore = winbefore;
 datameta.winafter = winafter;
 datameta.winbeforetext = winbeforetext;
+datameta.winbeforelabel = winbeforelabel;
 datameta.winaftertext = winaftertext;
 datameta.winafterlabels = winafterlabels;
 

@@ -56,7 +56,7 @@ function oscfeatures = euChris_extractStimOscillationResponse( ...
 %
 % "oscfeatures" is a 1xNtrials cell array. Each cell contains a copy of the
 %   "meta_fields" structure with the following fields added, per
-%   CHRISOSCFEATURES.txt:
+%   CHRISSTIMFEATURES.txt:
 %   "trialnum" is the trial number.
 %   "oscfreq" is the dominant frequency detected in the trial.
 %   "winbefore" is a scalar containing the timestamp of the midpoint of the

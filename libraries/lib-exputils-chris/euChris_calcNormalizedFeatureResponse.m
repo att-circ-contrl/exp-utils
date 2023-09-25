@@ -13,8 +13,7 @@ function newfeatures = euChris_calcNormalizedFeatureResponse( ...
 % the random-phase response.
 %
 % "oldfeatures" is a cell array containing one or more stimulation response
-%   feature extraction structures, per CHRISOSCFEATURES.txt and
-%   CHRISMUAFEATURES.txt.
+%   feature extraction structures, per CHRISSTIMFEATURES.txt.
 % "oldfield" is the name of the structure field containing data to normalize.
 % "normfield" is the name of the normalized structure field to create, or ''
 %   to not store normalized data.
