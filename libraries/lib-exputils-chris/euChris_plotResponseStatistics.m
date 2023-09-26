@@ -1,8 +1,8 @@
 function euChris_plotResponseStatistics( ...
-  statdata, global_filter, plotdefs, fnameprefix )
+  statdata, global_filter, plotdefs, aggr_only, fnameprefix )
 
 % function euChris_plotResponseStatistics( ...
-%   statdata, global_filter, plotdefs, fnameprefix )
+%   statdata, global_filter, plotdefs, aggr_only, fnameprefix )
 %
 % This plots statistics for changes in extracted features induced by
 % stimulation.
@@ -29,6 +29,7 @@ function euChris_plotResponseStatistics( ...
 %   "caseblacklist" is a cell array with case labels to ignore.
 %   "casewhitelist" is a cell array; only cases in this list are plotted. If
 %     this is {}, all cases may be plotted (subject to the blacklist).
+% "aggr_only" is true to suppress per-session plots (only plotting aggregate).
 % "fnameprefix" is a prefix used when building output filenames.
 %
 % No return value.
@@ -260,6 +261,10 @@ for plotidx = 1:length(plotdefs)
     for widx = 1:wincount
       thiswindatalist = datalist{widx};
       sessionkeylist = fieldnames(thiswindatalist);
+
+      if aggr_only
+        sessionkeylist = { 'aggr' };
+      end
 
       for kidx = 1:length(sessionkeylist)
         thissessionkey = sessionkeylist{kidx};

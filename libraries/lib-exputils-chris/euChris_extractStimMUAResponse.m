@@ -45,6 +45,10 @@ function muafeatures = euChris_extractStimMUAResponse( ...
 %   "meta_fields" structure with the following fields added, per
 %   CHRISMUAFEATURES.txt:
 %   "trialnum" is the trial number.
+%   "winbefore" is a scalar containing the timestamp in seconds of the
+%     midpoint of the before-stimulation time window.
+%   "winafter" is a 1 x Nwindows vector containing the timestamps in seconds
+%     of the midpoints of the after-stimulation time windows.
 %   "meanbefore" is a Nchans x 1 vector holding the mean of the MUA before
 %     stimulation.
 %   "meanafter_list" is a Nchans x Nwindows matrix containing means of the
@@ -87,7 +91,7 @@ beforewindow = [ beforewindow - winrad, beforewindow + winrad ];
 afterwindows = {};
 aftercount = length(mua_params.timelist_after_ms);
 for widx = 1:aftercount
-  thisafter = mua_params.timelist_after_ms / 1000;
+  thisafter = mua_params.timelist_after_ms(widx) / 1000;
   afterwindows{widx} = [ thisafter - winrad, thisafter + winrad ];
 end
 
@@ -175,6 +179,12 @@ for tidx = 1:length(timeseriesbefore)
 
   thisreport = meta_fields;
   thisreport.trialnum = tidx;
+
+  thisreport.winbefore = mua_params.time_before_ms / 1000;
+  thisreport.winafter = mua_params.timelist_after_ms / 1000;
+  if ~isrow(thisreport.winafter)
+    thisreport.winafter = transpose(thisreport.winafter);
+  end
 
   thisreport.meanbefore = thismeanbefore;
   thisreport.meanafter_list = thismeanafterlist;
