@@ -26,6 +26,7 @@ function euChris_plotResponseStatistics( ...
 %   "decorations" is a cell array which may include the following:
 %     'diag' draws a diagonal line (typically for XY plots).
 %     'hunity' draws a horizontal line at Y=1 (typically for relative data).
+%     'hzero' draws a horizontal line at Y=0 (typically for absolute data).
 %   "caseblacklist" is a cell array with case labels to ignore.
 %   "casewhitelist" is a cell array; only cases in this list are plotted. If
 %     this is {}, all cases may be plotted (subject to the blacklist).
@@ -139,6 +140,12 @@ for plotidx = 1:length(plotdefs)
 
     minvalxy = min(minvalx, minvaly);
     maxvalxy = max(maxvalx, maxvaly);
+
+    % For the XY plot, have the option of going negative if the data does.
+    floorvalxy = min(0, minvalxy);
+
+    % Ditto with the box plots and line plots.
+    floorvaly = min(0, minvaly);
 
 
     %
@@ -255,6 +262,128 @@ for plotidx = 1:length(plotdefs)
     end
 
 
+
+    %
+    % FIXME - Kludge. Get whisker ranges for box plots to prevent outliers
+    % from making the rest of the plot tiny.
+
+    boxymin = inf;
+    boxymax = -inf;
+
+    if strcmp(thisdef.type, 'box')
+      for widx = 1:wincount
+        thiswindatalist = datalist{widx};
+        sessionkeylist = fieldnames(thiswindatalist);
+        if aggr_only
+          sessionkeylist = { 'aggr' };
+        end
+
+        for kidx = 1:length(sessionkeylist)
+          thissessionkey = sessionkeylist{kidx};
+          thissessiondata = thiswindatalist.(thissessionkey);
+          thissessiontitle = thissessiondata.sessiontitle;
+          thissessionlabel = thissessiondata.sessionlabel;
+
+          % We have dataseriesx, dataseriesy, cidx, pidx, and sidx arrays.
+          reccount = length(thissessiondata.pidx);
+
+
+          % NOTE - Check to see if we had data.
+
+          haddata = false;
+          for recidx = 1:reccount
+            if ~isempty(thissessiondata.dataseriesx{recidx})
+              haddata = true;
+            end
+          end
+
+          if haddata
+            % Box plots.
+
+            % "bins" are the cases (usually; field is read from 'xaxis').
+            % "datasetlabels" are probes.
+            % We're collapsing sessions and channels.
+
+            boxvalues = [];
+            boxcases = {};
+            boxprobes = {};
+
+            for recidx = 1:reccount
+              thisxseries = thissessiondata.dataseriesx{recidx};
+              thisyseries = thissessiondata.dataseriesy{recidx};
+              cidx = thissessiondata.cidx(recidx);
+              pidx = thissessiondata.pidx(recidx);
+              sidx = thissessiondata.sidx(recidx);
+              thiscase = allcases{cidx};
+              thisprobe = allprobes{pidx};
+              thissession = allsessions{sidx};
+
+
+              % The Y series is data. The X series is a single label.
+              thislabel = thisxseries;
+
+              % Make the Y series a row vector and add it to the box data
+              % series.
+              if ~isrow(thisyseries)
+                thisyseries = transpose(thisyseries);
+              end
+              boxvalues = [ boxvalues thisyseries ];
+
+              % Record X series labels.
+              scratch = cell(size(thisyseries));
+              scratch(:) = { thislabel };
+              boxcases = [ boxcases scratch ];
+
+              % FIXME - Hard-code probes as dataset labels.
+              scratch = cell(size(thisyseries));
+              scratch(:) = { thisprobe };
+              boxprobes = [ boxprobes scratch ];
+            end
+
+            % Use cases as "bins" and probes as "datasets".
+            % These are both cell arrays of character vectors, so we can use
+            % strcmp on them.
+
+            % For each unique case/probe combination, get the data range.
+
+            scratchcases = unique(boxcases);
+            scratchprobes = unique(boxprobes);
+
+            for cidx = 1:length(scratchcases)
+              thiscase = scratchcases{cidx};
+              casemask = strcmp(boxcases, thiscase);
+              for pidx = 1:length(scratchprobes)
+                thisprobe = scratchprobes{pidx};
+                probemask = strcmp(boxprobes, thisprobe);
+
+                thisdata = boxvalues(casemask & probemask);
+                % This is the same outlier algorithm called by boxchart.
+                outliermask = isoutlier(thisdata, 'quartile');
+                thisdata = thisdata(~outliermask);
+
+                boxymin = min(boxymin, min(thisdata));
+                boxymax = max(boxymax, max(thisdata));
+              end
+            end
+
+          end
+        end
+      end
+
+      if (~isfinite(boxymin)) || (~isfinite(boxymax))
+        boxymin = 0;
+        boxymax = 1;
+      end
+
+      % Account for the cursor at y=1.
+      boxymax = max(1,boxymax);
+      boxymin = min(1,boxymin);
+
+      boxyfloor = min(0,boxymin);
+    end
+
+
+
     %
     % Second pass: Make plots.
 
@@ -344,15 +473,19 @@ for plotidx = 1:length(plotdefs)
 
           hcursorlist = {};
           if ismember('hunity', thisdef.decorations)
-            hcursorlist = {{ 1, cols.gry, '' }};
+            hcursorlist = [ hcursorlist {{ 1, cols.gry, '' }} ];
+          end
+          if ismember('hzero', thisdef.decorations)
+            hcursorlist = [ hcursorlist {{ 0, cols.gry, '' }} ];
           end
 
-          % NOTE - We'd normally have the plot range up to 1.3 * maxvaly,
-          % but since outliers aren't rendered, that's overkill here.
+          % NOTE - We computed box-specific ranges that don't include
+          % outliers.
 
           euPlot_plotMultipleBoxCharts( ...
             boxvalues, boxcases, boxprobes, ...
-            'linear', 'linear', [], [ 0 maxvaly ], ...
+            'linear', 'linear', [], ...
+            [ boxyfloor (boxyfloor + 1.2*(boxymax-boxyfloor)) ], ...
             thisdef.xtitle, thisdef.ytitle, false, 0.5, ...
             {}, hcursorlist, 'northeast', ...
             [ thisdef.titleprefix plottitlesuffixes{widx} ...
@@ -401,12 +534,17 @@ for plotidx = 1:length(plotdefs)
           % Add decorations.
 
           if ismember('diag', thisdef.decorations)
-            plot( [0 maxvalxy], [0 maxvalxy], ...
+            plot( [floorvalxy maxvalxy], [floorvalxy maxvalxy], ...
               'Color', cols.gry, 'HandleVisibility', 'off' );
           end
 
           if ismember('hunity', thisdef.decorations)
             plot( [minvalx maxvalx], [1 1], ...
+              'Color', cols.gry, 'HandleVisibility', 'off' );
+          end
+
+          if ismember('hzero', thisdef.decorations)
+            plot( [minvalx maxvalx], [0 0], ...
               'Color', cols.gry, 'HandleVisibility', 'off' );
           end
 
@@ -452,13 +590,14 @@ for plotidx = 1:length(plotdefs)
           ylabel( thisdef.ytitle );
 
           if strcmp(thisdef.type, 'xy')
-            xlim([ 0 1.3*maxvalxy ]);
-            ylim([ 0 maxvalxy ]);
+            % For the linear plot, let the range go negative.
+            xlim([ floorvalxy (floorvalxy + 1.3*(maxvalxy-floorvalxy)) ]);
+            ylim([ floorvalxy maxvalxy ]);
 
             legend('Location', 'southeast');
           else
             xlim([ minvalx maxvalx ]);
-            ylim([ minvaly 1.3*maxvaly ]);
+            ylim([ floorvaly (floorvaly + 1.3*(maxvaly-floorvaly)) ]);
 
             legend('Location', 'northeast');
           end
