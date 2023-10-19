@@ -14,11 +14,11 @@ function euChris_plotResponseStatistics( ...
 %   nlUtil_pruneStructureList(). This is applied to "statdata" before plotting.
 % "plotdefs" is a structure array with the following fields:
 %   "label" is a filename-safe identifier for this plot definition.
-%   "type" is 'xy', 'box', or 'line'.
-%   "xaxis" is the statdata field to use for the X axis.
-%   "xtitle" is the title to use for the X axis.
-%   "yaxis" is the statdata field to use for the Y axis.
-%   "ytitle" is the title to use for the Y axis.
+%   "type" is 'xy', 'box', 'line', or 'timeheat'.
+%   "xaxis" is the statdata field to use for the independent axis.
+%   "xtitle" is the title to use for the independent axis.
+%   "yaxis" is the statdata field to use for the dependent axis.
+%   "ytitle" is the title to use for the dependent axis.
 %   "titleprefix" is a prefix to use when building plot titles.
 %   "titlesuffixes" is a cell array which may include the following:
 %     'before' emits "NN ms Before" in the title.
@@ -57,6 +57,7 @@ datameta = euChris_getResponseDataMetadata( statdata, ...
 % Copy to local variables for convenience.
 
 wincount = length(datameta.winafter);
+winafterms = datameta.winafter * 1000;
 
 notebefore = datameta.winbeforetext;
 notesafter = datameta.winaftertext;
@@ -106,7 +107,7 @@ thisfig = figure();
 for plotidx = 1:length(plotdefs)
   thisdef = plotdefs(plotidx);
 
-  if ~ismember(thisdef.type, {'xy', 'box', 'line'})
+  if ~ismember(thisdef.type, {'xy', 'box', 'line', 'timeheat'})
     disp([ '### Unrecognized plot type "' thisdef.type '" requested.' ]);
   else
 
@@ -385,7 +386,7 @@ for plotidx = 1:length(plotdefs)
 
 
     %
-    % Second pass: Make plots.
+    % Second pass: Make plots that don't include time.
 
     for widx = 1:wincount
       thiswindatalist = datalist{widx};
@@ -493,7 +494,7 @@ for plotidx = 1:length(plotdefs)
             [ fnameprefix '-' thisdef.label '-' thissessionlabel ...
               '-' labelsafter{widx} '.png' ] );
 
-        else
+        elseif strcmp(thisdef.type, 'xy') || strcmp(thisdef.type, 'line')
 
           % XY plot or line plot.
           % A lot of code is common between these.
@@ -632,6 +633,198 @@ for plotidx = 1:length(plotdefs)
         end
       end
     end
+
+
+
+    %
+    % Third pass: Make plots that have time as an extra axis.
+
+    % We have to concatenate across window times for this.
+
+    % The problem is that we still have to keep session, probe, and case
+    % separate. We also don't have any guarantee geometry is consistent
+    % (it really should be, but tolerate mismatches).
+
+
+    % First step: Bin by the remaining parameters.
+
+    databytuple = struct();
+
+    % Only do this if we have data that can be plotted against time.
+    if strcmp(thisdef.type, 'timeheat')
+
+      for  widx = 1:wincount
+        thiswindatalist = datalist{widx};
+        sessionkeylist = fieldnames(thiswindatalist);
+
+        thiswinkey = sprintf('w%d', widx);
+
+        if aggr_only
+          sessionkeylist = { 'aggr' };
+        end
+
+        for kidx = 1:length(sessionkeylist)
+          thissessionkey = sessionkeylist{kidx};
+          thissessiondata = thiswindatalist.(thissessionkey);
+
+          % We have dataseriesx, dataseriesy, cidx, pidx, and sidx arrays.
+          reccount = length(thissessiondata.pidx);
+
+          for recidx = 1:reccount
+             thisxseries = thissessiondata.dataseriesx{recidx};
+             thisyseries = thissessiondata.dataseriesy{recidx};
+             thissessiontitle = thissessiondata.sessiontitle;
+             thissessionlabel = thissessiondata.sessionlabel;
+
+             % Only record non-empty data series.
+             if ~isempty(thisxseries)
+               cidx = thissessiondata.cidx(recidx);
+               pidx = thissessiondata.pidx(recidx);
+               sidx = thissessiondata.sidx(recidx);
+
+               thistuplekey = sprintf( 's%dp%dc%d', sidx, pidx, cidx );
+
+               % Use the fetched session title/label to correctly handle
+               % the aggregate case, which isn't in the lookup table.
+               thistupletitle = [ thissessiontitle ' ' ...
+                 legendcasetext{cidx} ' ' legendprobetext{pidx} ];
+               thistuplelabel = [ thissessionlabel '-' allcases{cidx} ...
+                 '-' allprobes{pidx} ];
+
+               thistupledata = ...
+                 struct( 'cidx', cidx, 'pidx', pidx, 'sidx', sidx, ...
+                   'widx', [], 'xdata', {{}}, 'ydata', {{}}, ...
+                   'titletext', thistupletitle, 'filelabel', thistuplelabel );
+
+               if isfield( databytuple, thistuplekey )
+                 thistupledata = databytuple.(thistuplekey);
+               end
+
+               dataidx = 1 + length(thistupledata.widx);
+
+               thistupledata.widx(dataidx) = widx;
+               thistupledata.xdata{dataidx} = thisxseries;
+               thistupledata.ydata{dataidx} = thisyseries;
+
+               databytuple.(thistuplekey) = thistupledata;
+            end
+          end
+        end
+      end
+
+    end
+
+
+    % Next step: build a proper data matrix within each bin.
+
+    tuplekeylist = fieldnames(databytuple);
+
+    for kidx = 1:length(tuplekeylist)
+      thistuplekey = tuplekeylist{kidx};
+      thistupledata = databytuple.(thistuplekey);
+
+      thistupledata.yxdata = [];
+      reccount = length(thistupledata.widx);
+
+      if reccount > 0
+        % This will give a sorted list, in addition to being unique.
+        winidxlist = unique(thistupledata.widx);
+
+        thistupledata.yxwintimes = winafterms(winidxlist);
+
+        % The number of data series values _really_ should be consistent,
+        % but check just in case it isn't.
+
+        datamaxlength = NaN;
+        for recidx = 1:reccount
+          thislength = length(thistupledata.xdata{recidx});
+          if isnan(datamaxlength)
+            datamaxlength = thislength;
+          else
+            datamaxlength = max(datamaxlength, thislength);
+          end
+        end
+
+
+        % Build the data matrix. Series that are too short are NaN-padded.
+
+        thistupledata.yxdata = nan(datamaxlength, length(winidxlist));
+        thistupledata.yxindepvals = nan(datamaxlength, 1);
+
+        for recidx = 1:reccount
+          thisxseries = thistupledata.xdata{recidx};
+          thisyseries = thistupledata.ydata{recidx};
+
+          thiswidx = thistupledata.widx(recidx);
+          thiswidx = find(winidxlist == thiswidx);
+
+          thislength = length(thisxseries);
+          thistupledata.yxdata(1:thislength, thiswidx) = thisyseries;
+
+          % FIXME - Blithely assume X values are consistent!
+          thistupledata.yxindepvals(1:thislength, 1) = thisxseries;
+        end
+      end
+
+      databytuple.(thistuplekey) = thistupledata;
+    end
+
+
+    % Finally, plot the matrix data for each tuple.
+
+    tuplekeylist = fieldnames(databytuple);
+
+    for kidx = 1:length(tuplekeylist)
+      thistuplekey = tuplekeylist{kidx};
+      thistupledata = databytuple.(thistuplekey);
+
+      if ~isempty(thistupledata.yxdata)
+
+        thisyxdata = thistupledata.yxdata;
+        thisyxwintimes = thistupledata.yxwintimes;
+        thisyxindepvals = thistupledata.yxindepvals;
+
+        cidx = thistupledata.cidx;
+        pidx = thistupledata.pidx;
+        sidx = thistupledata.sidx;
+
+
+        if strcmp(thisdef.type, 'timeheat')
+
+          figure(thisfig);
+          clf('reset');
+
+          hold on;
+
+          zloglin = 'linear';
+
+          % FIXME - Auto-ranging instead of building max/min xy values
+          % across cases. (These should already exist?)
+          nlPlot_axesPlotSurface2D( gca, ...
+            thisyxdata, thisyxwintimes, thisyxindepvals, ...
+            [], [], 'linear', 'linear', zloglin, ...
+            'Time (ms)', thisdef.xtitle, ...
+            [ thisdef.titleprefix ' - ' thistupledata.titletext ] );
+
+          % Add colourbar axis label.
+          thiscol = colorbar;
+          thiscol.Label.String = thisdef.ytitle;
+
+          % Make the scale consistent.
+          clim([ minvaly maxvaly ]);
+
+          saveas( thisfig, [ fnameprefix '-' thisdef.label ...
+            '-' thistupledata.filelabel '.png' ] );
+
+        end
+
+      end
+    end
+
+
+
+    % Finished making plots.
+
   end
 end
 
