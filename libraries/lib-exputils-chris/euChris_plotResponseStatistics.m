@@ -282,8 +282,6 @@ for plotidx = 1:length(plotdefs)
         for kidx = 1:length(sessionkeylist)
           thissessionkey = sessionkeylist{kidx};
           thissessiondata = thiswindatalist.(thissessionkey);
-          thissessiontitle = thissessiondata.sessiontitle;
-          thissessionlabel = thissessiondata.sessionlabel;
 
           % We have dataseriesx, dataseriesy, cidx, pidx, and sidx arrays.
           reccount = length(thissessiondata.pidx);

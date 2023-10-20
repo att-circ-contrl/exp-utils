@@ -117,12 +117,63 @@ end
 % as the raw list.
 
 for fidx = 1:length(labelfields)
+
+  % Fetch the raw list.
+
   thisfield = labelfields{fidx};
 
   % This is guaranteed to exist but may be empty.
   thisrawlist = labelraw.(thisfield);
 
   [ safelabellist safetitlelist ] = euUtil_makeSafeStringArray( thisrawlist );
+
+
+  % Translate known label types.
+
+  if strcmp(thisfield, 'sessionlabel')
+    for lidx = 1:length(thisrawlist)
+
+      [ thisdate thissuffix ] = ...
+        euChris_parseSetLabel_loop2302( thisrawlist{lidx} );
+
+      if ~isnan(thisdate)
+        [ thisyear thismonthnum thismonthshort thismonthlong thisday ] = ...
+          euUtil_parseDateNumber(thisdate);
+        if ~isnan(thisyear)
+          thislabel = ...
+            sprintf('%02d %s %d', thisday, thismonthshort, thisyear );
+        else
+          thislabel = sprintf('%02d %s', thisday, thismonthshort );
+        end
+        if ~isempty(thissuffix)
+          thislabel = [ thislabel ' ' thissuffix ];
+        end
+        safetitlelist{lidx} = thislabel;
+      end
+
+    end
+  elseif strcmp(thisfield, 'caselabel')
+    for lidx = 1:length(thisrawlist)
+
+      [ thisband thiscurrent thisphase ] = ...
+        euChris_parseCaseLabel_loop2302( thisrawlist{lidx} );
+
+      if ~isempty(thisband)
+        thislabel = thisband;
+        if ~isnan(thiscurrent)
+          thislabel = sprintf('%s %duA', thislabel, thiscurrent);
+        end
+        if ~isempty(thisphase)
+          thislabel = [ thislabel ' ' thisphase ];
+        end
+        safetitlelist{lidx} = thislabel;
+      end
+
+    end
+  end
+
+
+  % Save derived lists.
 
   labeltext.(thisfield) = safetitlelist;
   labelshort.(thisfield) = safelabellist;
@@ -131,6 +182,7 @@ for fidx = 1:length(labelfields)
     % Fieldnames have to start with a letter.
     labelkey.(thisfield){lidx} = [ 'x' safelabellist{lidx} ];
   end
+
 end
 
 
