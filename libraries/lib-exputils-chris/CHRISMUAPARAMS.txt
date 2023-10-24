@@ -2,6 +2,8 @@ Multi-unit activity analysis parameters are stored as a structure with the
 following fields:
 
 
+Common to most functions:
+
 "time_window_ms" is the duration in milliseconds of the time windows used
   for extracting average statistics.
 
@@ -12,6 +14,11 @@ following fields:
   specifying where the middle of the "after stimulation" time windows
   should be.
 
+
+Used by (FIXME - Cross-correlation is not yet a library function):
+
+"xcorr_range_ms" [ min max ] is the range of values in milliseconds to use
+  for time lag when performing cross-correlation.
 
 
 (This is the end of the file.)
