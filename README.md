@@ -60,6 +60,9 @@ Sample code for using Field Trip with our lab's datasets (including time
 alignment and USE integration). This version was made as simple as possible,
 and is intended as a starting point for analysis projects.
 
+* `synchbox-demo` --
+Sample code for reading USE's record of SynchBox events.
+
 Test code that may be useful as auxiliary sample code is in the following
 folders:
 
