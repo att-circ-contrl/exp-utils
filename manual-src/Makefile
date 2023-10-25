@@ -11,6 +11,7 @@ REFBITS=\
 
 REFAUTO=\
 	$(REFBASE)-sample-demo.tex	\
+	$(REFBASE)-sample-synchbox.tex	\
 	$(REFBASE)-align.tex		\
 	$(REFBASE)-chris-notes.tex	\
 	$(REFBASE)-chris.tex		\
@@ -92,8 +93,12 @@ refauto-notes:
 		../libraries/lib-exputils-util/*txt
 
 refauto-examples:
+	./copy-code.pl --outfile=$(REFBASE)-sample-synchbox.tex --verbatim \
+		"--chapter=\`\`synchbox-demo'' Example Script" \
+		--label=sect-sample-synchbox \
+		../synchbox-demo/README.md ../synchbox-demo/*m
 	./copy-code.pl --outfile=$(REFBASE)-sample-demo.tex --verbatim \
-		"--chapter=\`\`do\_demo.m'' Example Script" \
+		"--chapter=\`\`ft-demo'' Example Script" \
 		--label=sect-sample-demo \
 		../ft-demo/README.md ../ft-demo/*m
 

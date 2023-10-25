@@ -15,6 +15,6 @@ checkdirs:
 
 run: checkdirs
 	nice -n +10 $(MATLAB) $(MATFLAGS) \
-		-r "dbstop if error; run('do_read_log.m'); exit;"
+		-r "dbstop if error; run('do_read_synchbox.m'); exit;"
 
 # This is the end of the file.
