@@ -1,0 +1,659 @@
+SubjectID	SubjectAge	SessionTime	TaskName	BlockCount	TrialCount_InTask	TrialCount_InBlock	CurrentTrialState	Frame	FrameStartUnity	ReferenceEventCodes	FrameEventCodes	FlashPanelLStatus	FlashPanelLStatus	MousePosition	MouseButtonStatus	SimpleRaycastTarget	ShotgunModalTarget	FeedbackOn	PlayingAudioClipName	HaloType	SliderAnimationPhase	SliderVisibility	ContextName	ChoiceMade	SelectedObject	StartedMaze
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	0	0	LoadTrialTextures	340	11.44743		101,3,201	0	1	(932.00, 510.00, 0.00)	[0,0,0]	LoadingStar	LoadingStar	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	LoadTrialStims	341	11.48079			1	1	(932.00, 510.00, 0.00)	[0,0,0]	LoadingStar	LoadingStar	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	LoadTrialStims	342	11.81412		80	0	0	(932.00, 510.00, 0.00)	[0,0,0]	LoadingStar	LoadingStar	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SetupTrial	343	11.83082		1001	1	1	(932.00, 510.00, 0.00)	[0,0,0]	null	null	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	344	11.84747			0	1	(932.00, 510.00, 0.00)	[0,0,0]	null	null	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	345	12.09746			1	1	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	346	12.11411		43	0	0	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	347	12.13081			1	0	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	348	12.14746			0	0	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	349	12.18081			1	0	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	350	12.21415			0	0	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	351	12.24747			1	1	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	352	12.28082			0	0	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	353	12.31412			1	1	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	354	12.34748			0	0	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	355	12.38079			1	0	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	356	12.41414			0	1	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	357	12.44749			1	1	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	358	12.48079			0	1	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	359	12.51415			1	0	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	360	12.54746			0	0	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	361	12.58083			1	1	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	362	12.61413			0	0	(932.00, 510.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	363	12.64746			1	1	(928.00, 508.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	364	12.68081			0	1	(920.00, 505.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	365	12.71414			1	1	(895.00, 502.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	366	12.74748			0	0	(878.00, 502.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	367	12.78079			1	1	(852.00, 517.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	368	12.81415			0	1	(843.00, 526.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	369	12.84746			1	1	(845.00, 529.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	370	12.88084			0	0	(862.00, 537.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	371	12.91412			1	0	(885.00, 546.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	372	12.94746			0	0	(901.00, 553.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	373	12.98079			1	0	(905.00, 556.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	374	13.01413			0	0	(905.00, 557.00, 0.00)	[1,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	375	13.04748		51	1	1	(905.00, 557.00, 0.00)	[1,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	376	13.08079			0	0	(905.00, 557.00, 0.00)	[1,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	377	13.13079			1	1	(905.00, 557.00, 0.00)	[1,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	378	13.14748			0	0	(905.00, 557.00, 0.00)	[1,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	InitTrial	379	13.18081			1	0	(905.00, 557.00, 0.00)	[0,0,0]	MainCircle	MainCircle	False	null	None	None	False	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	380	13.21415		55,75,79,12084	0	1	(905.00, 557.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	381	13.24747			1	1	(905.00, 557.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	382	13.28081			0	1	(905.00, 557.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	383	13.31412			1	0	(905.00, 557.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	384	13.34749		40	0	0	(906.00, 557.00, 0.00)	[0,0,0]	C4	C4	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	385	13.38079		43	1	1	(936.00, 538.00, 0.00)	[0,0,0]	C4	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	386	13.41412			0	0	(957.00, 538.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	387	13.44746			1	1	(959.00, 538.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	388	13.48079			0	1	(959.00, 538.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	389	13.51412			1	1	(959.00, 538.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	390	13.54747			0	0	(959.00, 538.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	391	13.58083			1	1	(959.00, 538.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	392	13.61415			0	1	(959.00, 538.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	393	13.64746			1	1	(959.00, 538.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	394	13.68081			0	0	(959.00, 538.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	395	13.71417			1	0	(945.00, 529.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	396	13.74746			0	0	(877.00, 537.00, 0.00)	[0,0,0]	C4	C4	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	397	13.78081			1	0	(702.00, 526.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	398	13.81412			0	0	(648.00, 500.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	399	13.84748			1	1	(621.00, 467.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	400	13.88079			0	0	(605.00, 441.00, 0.00)	[0,0,0]	A3	A3	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	401	13.91412			1	1	(598.00, 432.00, 0.00)	[0,0,0]	A3	A3	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	402	13.94747			0	0	(577.00, 423.00, 0.00)	[0,0,0]	A3	A3	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	403	13.98079			1	0	(568.00, 421.00, 0.00)	[0,0,0]	A3	A3	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	404	14.01413			0	1	(563.00, 421.00, 0.00)	[0,0,0]	A3	A3	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	405	14.0475			1	1	(559.00, 421.00, 0.00)	[0,0,0]	A3	A3	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	406	14.08081			0	1	(559.00, 421.00, 0.00)	[0,0,0]	A3	A3	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	407	14.11414			1	0	(559.00, 421.00, 0.00)	[1,0,0]	A3	A3	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	408	14.14745		52	0	0	(559.00, 421.00, 0.00)	[1,0,0]	A3	A3	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	409	14.18079			1	1	(559.00, 421.00, 0.00)	[1,0,0]	A3	A3	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	410	14.21414			0	0	(559.00, 421.00, 0.00)	[1,0,0]	A3	A3	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	411	14.24748			1	1	(559.00, 421.00, 0.00)	[1,0,0]	A3	A3	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	412	14.28081			0	1	(559.00, 421.00, 0.00)	[0,0,0]	A3	A3	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	413	14.31412		56,76	1	1	(559.00, 421.00, 0.00)	[0,0,0]	A3	A3	False	null	None	None	True	007_033_072_001_1	True	A3	False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	414	14.34748		44,12076,12086,5,17	0	0	(559.00, 421.00, 0.00)	[0,0,0]	A3	A3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	415	14.38079			1	1	(559.00, 421.00, 0.00)	[0,0,0]	A3	A3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	416	14.41415			0	1	(567.00, 428.00, 0.00)	[0,0,0]	A3	A3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	417	14.44748			1	1	(581.00, 433.00, 0.00)	[0,0,0]	A3	A3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	418	14.48081			0	0	(600.00, 435.00, 0.00)	[0,0,0]	A3	A3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	419	14.51414			1	0	(627.00, 435.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	420	14.54745			0	0	(648.00, 435.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	421	14.58081			1	0	(665.00, 434.00, 0.00)	[0,0,0]	B3	B3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	422	14.61413			0	0	(675.00, 434.00, 0.00)	[0,0,0]	B3	B3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	423	14.64747			1	1	(679.00, 434.00, 0.00)	[0,0,0]	B3	B3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	424	14.68079			0	0	(679.00, 434.00, 0.00)	[0,0,0]	B3	B3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	425	14.71412			1	1	(680.00, 434.00, 0.00)	[0,0,0]	B3	B3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	426	14.74747			0	0	(680.00, 434.00, 0.00)	[0,0,0]	B3	B3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	427	14.78079			1	0	(680.00, 434.00, 0.00)	[0,0,0]	B3	B3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	428	14.81414			0	1	(680.00, 434.00, 0.00)	[0,0,0]	B3	B3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	429	14.84749			1	1	(680.00, 434.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	430	14.88078		12087	0	1	(680.00, 434.00, 0.00)	[1,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	431	14.91415		52	1	0	(680.00, 434.00, 0.00)	[1,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	432	14.94745			0	0	(680.00, 434.00, 0.00)	[1,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	433	14.98079			1	1	(680.00, 434.00, 0.00)	[1,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	434	15.01413			0	0	(680.00, 434.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	435	15.04748		56	1	1	(680.00, 434.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	436	15.08079			0	1	(680.00, 434.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	437	15.11412			1	1	(680.00, 434.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	438	15.14745			0	0	(680.00, 434.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	439	15.18081			1	1	(680.00, 434.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	440	15.21414			0	1	(723.00, 435.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	441	15.24745			1	1	(788.00, 426.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	442	15.28078			0	0	(829.00, 418.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	443	15.31412			1	0	(835.00, 417.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	444	15.34745			0	0	(835.00, 417.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	445	15.38079			1	0	(835.00, 417.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	446	15.41414			0	0	(831.00, 417.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	447	15.44748			1	1	(814.00, 416.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	448	15.48078			0	0	(789.00, 416.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	449	15.51414			1	1	(767.00, 419.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	450	15.54748			0	0	(758.00, 421.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	451	15.58081			1	0	(757.00, 421.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	452	15.61414			0	1	(757.00, 421.00, 0.00)	[1,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	453	15.64747		52	1	1	(757.00, 421.00, 0.00)	[1,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	454	15.68082			0	1	(757.00, 421.00, 0.00)	[1,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	455	15.71414			1	0	(757.00, 421.00, 0.00)	[1,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	456	15.74747			0	0	(757.00, 421.00, 0.00)	[0,0,0]	B3	B3	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	457	15.78078		56,17,18	1	1	(757.00, 421.00, 0.00)	[0,0,0]	B3	B3	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	458	15.81412			0	0	(774.00, 424.00, 0.00)	[0,0,0]	B3	B3	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	459	15.84747			1	1	(806.00, 427.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	460	15.88078			0	1	(831.00, 427.00, 0.00)	[0,0,0]	C3	C3	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	461	15.91415			1	1	(839.00, 427.00, 0.00)	[0,0,0]	C3	C3	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	462	15.94747			0	0	(840.00, 427.00, 0.00)	[0,0,0]	C3	C3	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	463	15.98082			1	1	(840.00, 427.00, 0.00)	[0,0,0]	C3	C3	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	464	16.01414			0	1	(840.00, 427.00, 0.00)	[0,0,0]	C3	C3	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	465	16.04745			1	1	(840.00, 427.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	466	16.08078		19,44	0	0	(840.00, 427.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	467	16.11412			1	0	(840.00, 427.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	468	16.14745			0	0	(759.00, 424.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	469	16.1808			1	0	(425.00, 407.00, 0.00)	[0,0,0]	null	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	470	16.21414		47	0	0	(358.00, 400.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	471	16.24745			1	1	(400.00, 410.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	472	16.2808			0	0	(477.00, 424.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	473	16.31412		43	1	1	(533.00, 436.00, 0.00)	[0,0,0]	A3	A3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	474	16.34747			0	0	(572.00, 442.00, 0.00)	[0,0,0]	A3	A3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	475	16.38078			1	0	(608.00, 445.00, 0.00)	[0,0,0]	A3	A3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	476	16.41412			0	1	(650.00, 442.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	477	16.44747			1	1	(680.00, 434.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	478	16.4808			0	1	(685.00, 433.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	479	16.51412			1	0	(685.00, 433.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	480	16.54747			0	0	(685.00, 433.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	481	16.5808			1	1	(685.00, 433.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	482	16.61414			0	0	(685.00, 433.00, 0.00)	[1,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	483	16.64745		52	1	1	(685.00, 433.00, 0.00)	[1,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	484	16.68078			0	1	(685.00, 433.00, 0.00)	[1,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	485	16.71411			1	1	(685.00, 433.00, 0.00)	[1,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	486	16.74745			0	0	(685.00, 433.00, 0.00)	[1,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	487	16.7808			1	1	(685.00, 433.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	488	16.81414		56,76	0	1	(685.00, 433.00, 0.00)	[0,0,0]	B3	B3	False	null	None	None	True	007_033_072_001_1	True	B3	True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	489	16.84745		44,12086,5,17	1	1	(685.00, 433.00, 0.00)	[0,0,0]	B3	B3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	490	16.8808			0	0	(745.00, 412.00, 0.00)	[0,0,0]	B3	B3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	491	16.91411			1	0	(908.00, 364.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	492	16.94747			0	0	(1012.00, 337.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	493	16.9808			1	0	(1027.00, 333.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	494	17.01414			0	0	(1027.00, 333.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	495	17.04745			1	1	(1027.00, 333.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	496	17.08078			0	0	(1025.00, 333.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	497	17.11414			1	1	(1004.00, 337.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	498	17.14745			0	0	(978.00, 346.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	499	17.1808			1	0	(962.00, 354.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	500	17.21411			0	1	(953.00, 362.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	501	17.24745			1	1	(948.00, 366.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	502	17.28078			0	1	(947.00, 367.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	503	17.31414			1	0	(947.00, 368.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	504	17.34747			0	0	(947.00, 368.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	505	17.3808		12087	1	1	(947.00, 368.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	506	17.41414			0	0	(947.00, 368.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	507	17.44747			1	1	(942.00, 371.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	508	17.4808			0	1	(926.00, 380.00, 0.00)	[0,0,0]	C3	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	509	17.51414			1	1	(914.00, 387.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	510	17.54744			0	0	(908.00, 391.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	511	17.5808			1	1	(904.00, 393.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	512	17.61414			0	1	(903.00, 393.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	513	17.64747			1	1	(903.00, 393.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	514	17.6808			0	0	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	515	17.71411			1	0	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	516	17.74747			0	0	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	517	17.78081			1	0	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	518	17.81411			0	0	(903.00, 394.00, 0.00)	[1,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	519	17.84747		52	1	1	(903.00, 394.00, 0.00)	[1,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	520	17.8808			0	0	(903.00, 394.00, 0.00)	[1,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	521	17.91413			1	1	(903.00, 394.00, 0.00)	[1,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	522	17.94744			0	0	(903.00, 394.00, 0.00)	[1,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	523	17.98078			1	0	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	524	18.01411		56,76	0	1	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	null	None	None	True	007_033_072_001_1	True	C3	True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	525	18.04745		44,12086,5,17	1	1	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	526	18.08078			0	1	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	527	18.11413			1	0	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	528	18.14745			0	0	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	529	18.1808			1	1	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	530	18.21411			0	0	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	531	18.24744			1	1	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	532	18.2808			0	1	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	533	18.31414			1	1	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	534	18.34745			0	0	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	535	18.3808			1	1	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	536	18.41411			0	1	(903.00, 394.00, 0.00)	[0,0,0]	C3	C3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	537	18.44747			1	1	(942.00, 404.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	538	18.48078			0	0	(999.00, 411.00, 0.00)	[0,0,0]	D3	D3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	539	18.51414			1	0	(1022.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	540	18.54745			0	0	(1023.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	541	18.58081		12087	1	0	(1023.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	542	18.61414			0	0	(1023.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	543	18.64749			1	1	(1023.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	544	18.68082			0	0	(1023.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	545	18.71415			1	1	(1023.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	546	18.74745			0	0	(1023.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	547	18.78078			1	0	(1023.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	548	18.81414			0	1	(1023.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	549	18.84744			1	1	(1023.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	550	18.88078			0	1	(1023.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	551	18.91414			1	0	(1023.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	552	18.94745			0	0	(1023.00, 412.00, 0.00)	[1,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	553	18.98084		52	1	1	(1023.00, 412.00, 0.00)	[1,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	554	19.01413			0	0	(1023.00, 412.00, 0.00)	[1,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	555	19.04748			1	1	(1023.00, 412.00, 0.00)	[1,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	556	19.08083			0	1	(1023.00, 412.00, 0.00)	[1,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	557	19.11414			1	1	(1023.00, 412.00, 0.00)	[1,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	558	19.14744			0	0	(1023.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	559	19.1808		56,76	1	1	(1023.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	null	None	None	True	007_033_072_001_1	True	D3	True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	560	19.21417		44,12086,5,17	0	1	(1023.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	561	19.24744			1	1	(1023.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	562	19.2808			0	0	(1023.00, 412.00, 0.00)	[0,0,0]	D3	D3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	563	19.31411			1	0	(1111.00, 400.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	564	19.34746			0	0	(1214.00, 380.00, 0.00)	[0,0,0]	E3	E3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	565	19.3808			1	0	(1226.00, 379.00, 0.00)	[0,0,0]	E3	E3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	566	19.41413			0	0	(1226.00, 379.00, 0.00)	[0,0,0]	E3	E3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	567	19.44744			1	1	(1226.00, 379.00, 0.00)	[0,0,0]	E3	E3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	568	19.48078			0	0	(1226.00, 379.00, 0.00)	[0,0,0]	E3	E3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	569	19.51413			1	1	(1226.00, 379.00, 0.00)	[0,0,0]	E3	E3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	570	19.54745			0	0	(1226.00, 379.00, 0.00)	[0,0,0]	E3	E3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	571	19.5808			1	0	(1223.00, 379.00, 0.00)	[0,0,0]	E3	E3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	572	19.61413			0	1	(1221.00, 379.00, 0.00)	[0,0,0]	E3	E3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	573	19.6475			1	1	(1220.00, 380.00, 0.00)	[0,0,0]	E3	E3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	574	19.68081			0	1	(1218.00, 380.00, 0.00)	[0,0,0]	E3	E3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	575	19.71413			1	0	(1218.00, 380.00, 0.00)	[0,0,0]	E3	E3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	576	19.74746		12087	0	0	(1212.00, 385.00, 0.00)	[0,0,0]	E3	E3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	577	19.78082			1	1	(1206.00, 389.00, 0.00)	[0,0,0]	E3	E3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	578	19.81413			0	0	(1203.00, 390.00, 0.00)	[0,0,0]	E3	E3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	579	19.84745			1	1	(1201.00, 392.00, 0.00)	[0,0,0]	E3	E3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	580	19.88082			0	1	(1201.00, 392.00, 0.00)	[0,0,0]	E3	E3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	581	19.91412			1	1	(1201.00, 392.00, 0.00)	[0,0,0]	E3	E3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	582	19.94745			0	0	(1201.00, 392.00, 0.00)	[0,0,0]	E3	E3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	583	19.9808			1	1	(1201.00, 392.00, 0.00)	[1,0,0]	E3	E3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	584	20.01413		52	0	1	(1201.00, 392.00, 0.00)	[1,0,0]	E3	E3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	585	20.04746			1	1	(1201.00, 392.00, 0.00)	[1,0,0]	E3	E3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	586	20.08082			0	0	(1201.00, 392.00, 0.00)	[1,0,0]	E3	E3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	587	20.11412			1	0	(1201.00, 392.00, 0.00)	[1,0,0]	E3	E3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	588	20.14745			0	0	(1201.00, 392.00, 0.00)	[1,0,0]	E3	E3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	589	20.1808			1	0	(1201.00, 392.00, 0.00)	[0,0,0]	E3	E3	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	590	20.21414		56,76	0	0	(1201.00, 392.00, 0.00)	[0,0,0]	E3	E3	False	null	None	None	True	007_033_072_001_1	True	E3	True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	591	20.24747		44,12086,5,17	1	1	(1201.00, 392.00, 0.00)	[0,0,0]	E3	E3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	592	20.28078			0	0	(1201.00, 392.00, 0.00)	[0,0,0]	E3	E3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	593	20.31411			1	1	(1201.00, 392.00, 0.00)	[0,0,0]	E3	E3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	594	20.34746			0	0	(1201.00, 392.00, 0.00)	[0,0,0]	E3	E3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	595	20.38078			1	0	(1201.00, 392.00, 0.00)	[0,0,0]	E3	E3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	596	20.41411			0	1	(1201.00, 392.00, 0.00)	[0,0,0]	E3	E3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	597	20.44746			1	1	(1201.00, 392.00, 0.00)	[0,0,0]	E3	E3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	598	20.48078			0	1	(1201.00, 392.00, 0.00)	[0,0,0]	E3	E3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	599	20.51415			1	0	(1201.00, 392.00, 0.00)	[0,0,0]	E3	E3	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	600	20.54745			0	0	(1201.00, 392.00, 0.00)	[0,0,0]	E3	E3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	601	20.5808			1	1	(1201.00, 392.00, 0.00)	[0,0,0]	E3	E3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	602	20.61413			0	0	(1201.00, 398.00, 0.00)	[0,0,0]	E3	E3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	603	20.64745			1	1	(1197.00, 438.00, 0.00)	[0,0,0]	E3	E3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	604	20.68077			0	1	(1195.00, 479.00, 0.00)	[0,0,0]	E3	E3	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	605	20.71413			1	1	(1195.00, 502.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	606	20.74746			0	0	(1195.00, 514.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	607	20.7808		21,12087	1	1	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	608	21.01416			0	1	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	609	21.03081			1	1	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	610	21.06412			0	0	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	611	21.09744			1	0	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	612	21.11414			0	0	(1168.00, 609.00, 0.00)	[1,0,0]	E4	E4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	613	21.13079		52	1	0	(1168.00, 609.00, 0.00)	[1,0,0]	E4	E4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	614	21.14746			0	0	(1168.00, 609.00, 0.00)	[1,0,0]	E4	E4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	615	21.1808			1	1	(1168.00, 609.00, 0.00)	[1,0,0]	E4	E4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	616	21.21415			0	0	(1168.00, 609.00, 0.00)	[1,0,0]	E4	E4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	617	21.24744			1	1	(1168.00, 609.00, 0.00)	[1,0,0]	E4	E4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	618	21.2808			0	0	(1168.00, 609.00, 0.00)	[1,0,0]	E4	E4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	619	21.31414			1	0	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	620	21.34746		56,76	0	1	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	null	None	None	True	007_033_072_001_1	True	E4	True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	621	21.38077		44,12086,5,17	1	1	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	622	21.41413			0	1	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	623	21.44746			1	0	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	624	21.48079			0	0	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	625	21.51411			1	1	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	626	21.54746			0	0	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	627	21.5808			1	1	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	628	21.61411			0	1	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	629	21.64744			1	1	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	630	21.68077			0	0	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	631	21.71411			1	1	(1168.00, 609.00, 0.00)	[0,0,0]	E4	E4	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	632	21.74744			0	1	(1173.00, 653.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	633	21.78079			1	1	(1177.00, 711.00, 0.00)	[0,0,0]	E5	E5	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	634	21.81412			0	0	(1177.00, 736.00, 0.00)	[0,0,0]	E5	E5	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	635	21.84747			1	0	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	636	21.88077			0	0	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	637	21.91411		12087	1	0	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	638	21.94746			0	0	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	639	21.98079			1	1	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	640	22.0141			0	0	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	641	22.04744			1	1	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	642	22.08077			0	0	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	643	22.11413			1	0	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	644	22.14744			0	1	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	645	22.18077			1	1	(1177.00, 742.00, 0.00)	[1,0,0]	E5	E5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	646	22.21413		52	0	1	(1177.00, 742.00, 0.00)	[1,0,0]	E5	E5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	647	22.24746			1	0	(1177.00, 742.00, 0.00)	[1,0,0]	E5	E5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	648	22.28077			0	0	(1177.00, 742.00, 0.00)	[1,0,0]	E5	E5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	649	22.31413			1	1	(1177.00, 742.00, 0.00)	[1,0,0]	E5	E5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	650	22.34743			0	0	(1177.00, 742.00, 0.00)	[1,0,0]	E5	E5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	651	22.3808			1	1	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	652	22.4141		56,76	0	1	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	null	None	None	True	007_033_072_001_1	True	E5	True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	653	22.44746		44,12086,5,17	1	1	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	654	22.4808			0	0	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	655	22.51414			1	1	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	656	22.54744			0	1	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	657	22.58077			1	1	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	658	22.61412			0	0	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	659	22.64744			1	0	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	660	22.68079			0	0	(1177.00, 742.00, 0.00)	[0,0,0]	E5	E5	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	661	22.7141			1	0	(1177.00, 762.00, 0.00)	[0,0,0]	E5	E5	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	662	22.74744			0	0	(1169.00, 798.00, 0.00)	[0,0,0]	E5	E5	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	663	22.78079			1	1	(1156.00, 838.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	664	22.8141			0	0	(1152.00, 851.00, 0.00)	[0,0,0]	E6	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	665	22.84746			1	1	(1152.00, 859.00, 0.00)	[0,0,0]	E6	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	666	22.88077			0	0	(1151.00, 876.00, 0.00)	[0,0,0]	E6	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	667	22.91413			1	0	(1148.00, 893.00, 0.00)	[0,0,0]	E6	E6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	668	22.94744			0	1	(1146.00, 900.00, 0.00)	[0,0,0]	E6	E6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	669	22.98078		12087	1	1	(1146.00, 901.00, 0.00)	[0,0,0]	E6	E6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	670	23.01413			0	1	(1146.00, 902.00, 0.00)	[0,0,0]	E6	E6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	671	23.04746			1	0	(1146.00, 902.00, 0.00)	[0,0,0]	E6	E6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	672	23.08077			0	0	(1146.00, 902.00, 0.00)	[0,0,0]	E6	E6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	673	23.11414			1	1	(1146.00, 902.00, 0.00)	[0,0,0]	E6	E6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	674	23.14746			0	0	(1146.00, 902.00, 0.00)	[0,0,0]	E6	E6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	675	23.18079			1	1	(1146.00, 902.00, 0.00)	[0,0,0]	E6	E6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	676	23.21412			0	1	(1146.00, 902.00, 0.00)	[0,0,0]	E6	E6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	677	23.24744			1	1	(1146.00, 902.00, 0.00)	[0,0,0]	E6	E6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	678	23.28079			0	0	(1146.00, 902.00, 0.00)	[1,0,0]	E6	E6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	679	23.3141		52	1	1	(1146.00, 902.00, 0.00)	[1,0,0]	E6	E6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	680	23.34746			0	1	(1146.00, 902.00, 0.00)	[1,0,0]	E6	E6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	681	23.38079			1	1	(1146.00, 903.00, 0.00)	[1,0,0]	E6	E6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	682	23.4141			0	0	(1146.00, 903.00, 0.00)	[1,0,0]	E6	E6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	683	23.44745			1	0	(1146.00, 903.00, 0.00)	[0,0,0]	E6	E6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	684	23.48079		56,76	0	0	(1146.00, 903.00, 0.00)	[0,0,0]	E6	E6	False	null	None	None	True	007_033_072_001_1	True	E6	True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	685	23.51412		44,12086,5,17	1	0	(1146.00, 903.00, 0.00)	[0,0,0]	E6	E6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	686	23.54744			0	0	(1146.00, 903.00, 0.00)	[0,0,0]	E6	E6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	687	23.5808			1	1	(1146.00, 903.00, 0.00)	[0,0,0]	E6	E6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	688	23.6141			0	0	(1146.00, 903.00, 0.00)	[0,0,0]	E6	E6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	689	23.64748			1	1	(1120.00, 900.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	690	23.68079			0	0	(1073.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	691	23.7141			1	0	(1049.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	692	23.74746			0	1	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	693	23.78079			1	1	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	694	23.81413			0	1	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	695	23.84745			1	0	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	696	23.88077			0	0	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	697	23.91413			1	1	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	698	23.94746			0	0	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	699	23.9808			1	1	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	700	24.01413			0	1	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	701	24.04745		12087	1	1	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	702	24.08077			0	0	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	703	24.11413			1	1	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	704	24.14743			0	1	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	705	24.18077			1	1	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	706	24.21412			0	0	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	707	24.24746			1	0	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	708	24.28078			0	0	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	709	24.31414			1	0	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	710	24.34745			0	0	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	711	24.3808			1	1	(1048.00, 899.00, 0.00)	[1,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	712	24.41414		52	0	0	(1048.00, 899.00, 0.00)	[1,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	713	24.44744			1	1	(1048.00, 899.00, 0.00)	[1,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	714	24.48079			0	0	(1048.00, 899.00, 0.00)	[1,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	715	24.5141			1	0	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	716	24.54748		56,17,18	0	1	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	717	24.58077			1	1	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	718	24.61412			0	1	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	719	24.64746			1	0	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	720	24.6808			0	0	(1048.00, 899.00, 0.00)	[0,0,0]	D6	D6	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	721	24.71414			1	1	(1006.00, 899.00, 0.00)	[0,0,0]	D6	D6	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	722	24.74743			0	0	(936.00, 904.00, 0.00)	[0,0,0]	C6	C6	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	723	24.78077			1	1	(893.00, 913.00, 0.00)	[0,0,0]	C6	C6	True	Negative	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	724	24.81413			0	1	(891.00, 914.00, 0.00)	[0,0,0]	C6	C6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	725	24.84745		19,44	1	1	(891.00, 914.00, 0.00)	[0,0,0]	C6	C6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	726	24.88077			0	0	(891.00, 914.00, 0.00)	[0,0,0]	C6	C6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	727	24.91412			1	1	(891.00, 914.00, 0.00)	[0,0,0]	C6	C6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	728	24.94745			0	1	(928.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	729	24.98077			1	1	(983.00, 918.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	730	25.01412			0	0	(1020.00, 915.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	731	25.04747			1	0	(1023.00, 915.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	732	25.08079			0	0	(1023.00, 915.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	733	25.11415			1	0	(1023.00, 915.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	734	25.14743			0	0	(1023.00, 915.00, 0.00)	[1,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	735	25.18077		52	1	1	(1023.00, 915.00, 0.00)	[1,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	736	25.21412			0	0	(1023.00, 915.00, 0.00)	[1,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	737	25.24743			1	1	(1023.00, 915.00, 0.00)	[1,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	738	25.28077			0	0	(1023.00, 915.00, 0.00)	[1,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	739	25.31412			1	0	(1023.00, 915.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	740	25.34745		56,76	0	1	(1015.00, 912.00, 0.00)	[0,0,0]	D6	D6	False	null	None	None	True	007_033_072_001_1	True	D6	True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	741	25.38078		44,12086,5,17	1	1	(956.00, 908.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	742	25.4141			0	1	(899.00, 911.00, 0.00)	[0,0,0]	C6	C6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	743	25.44746			1	0	(864.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	744	25.48081			0	0	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	745	25.5141			1	1	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	746	25.54744			0	0	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	747	25.58079			1	1	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	748	25.61412			0	1	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	749	25.64745			1	1	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	750	25.68078			0	0	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	751	25.7141			1	1	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	752	25.74746			0	1	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	753	25.78079			1	1	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	754	25.81412			0	0	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	755	25.84743			1	0	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	756	25.88079			0	0	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	757	25.91412		12087	1	0	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	758	25.94743			0	0	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	759	25.98079			1	1	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	760	26.01412			0	0	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	761	26.04746			1	1	(860.00, 917.00, 0.00)	[1,0,0]	C6	C6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	762	26.08079		52	0	0	(860.00, 917.00, 0.00)	[1,0,0]	C6	C6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	763	26.11412			1	0	(860.00, 917.00, 0.00)	[1,0,0]	C6	C6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	764	26.14743			0	1	(860.00, 917.00, 0.00)	[1,0,0]	C6	C6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	765	26.18077			1	1	(860.00, 917.00, 0.00)	[1,0,0]	C6	C6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	766	26.21412			0	1	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	767	26.24746		56,76	1	0	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	null	None	None	True	007_033_072_001_1	True	C6	True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	768	26.28078		44,12086,5,17	0	0	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	769	26.31412			1	1	(860.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	770	26.34745			0	0	(856.00, 917.00, 0.00)	[0,0,0]	C6	C6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	771	26.38076			1	1	(818.00, 909.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	772	26.4141			0	1	(796.00, 908.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	773	26.44743			1	1	(785.00, 908.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	774	26.48081			0	0	(782.00, 908.00, 0.00)	[0,0,0]	MazeBackground	B6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	775	26.5141			1	1	(771.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	776	26.54743			0	1	(755.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	777	26.58076			1	1	(750.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	778	26.61411			0	0	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	779	26.64747			1	0	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	780	26.68076			0	0	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	781	26.71412			1	0	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	782	26.74743			0	0	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	783	26.78079			1	1	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	784	26.81412		21,12087	0	0	(749.00, 908.00, 0.00)	[1,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	785	27.04745		52	1	1	(749.00, 908.00, 0.00)	[1,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	786	27.06414			0	0	(749.00, 908.00, 0.00)	[1,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	787	27.0808			1	0	(749.00, 908.00, 0.00)	[1,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	788	27.09744			0	1	(749.00, 908.00, 0.00)	[1,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	789	27.11413			1	1	(749.00, 908.00, 0.00)	[1,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	790	27.14743			0	1	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	791	27.18078		56	1	0	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	792	27.21412			0	0	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	793	27.24745			1	1	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	794	27.2808			0	0	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	795	27.31412			1	1	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	796	27.34747			0	1	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	797	27.38078			1	1	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	798	27.41414			0	0	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	799	27.44747			1	1	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	800	27.48077			0	1	(749.00, 908.00, 0.00)	[1,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	801	27.51413		52	1	1	(749.00, 908.00, 0.00)	[1,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	802	27.54743			0	0	(749.00, 908.00, 0.00)	[1,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	803	27.58078			1	0	(749.00, 908.00, 0.00)	[1,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	804	27.61414			0	0	(749.00, 908.00, 0.00)	[1,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	805	27.64743			1	0	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	806	27.68078		56,76	0	0	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	null	None	None	True	007_033_072_001_1	True	B6	True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	807	27.71409		44,12086,5,17	1	1	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	808	27.74745			0	0	(749.00, 908.00, 0.00)	[0,0,0]	B6	B6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	809	27.78078			1	1	(725.00, 906.00, 0.00)	[0,0,0]	B6	B6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	810	27.81411			0	0	(579.00, 903.00, 0.00)	[0,0,0]	A6	A6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	811	27.84745			1	0	(471.00, 903.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	812	27.88076			0	1	(467.00, 905.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	813	27.91412			1	1	(467.00, 905.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	814	27.94745			0	1	(467.00, 905.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	815	27.98076			1	0	(467.00, 905.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	816	28.01414			0	0	(467.00, 905.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	817	28.04743			1	1	(467.00, 906.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	818	28.08077			0	0	(474.00, 909.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	819	28.1141			1	1	(489.00, 912.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	820	28.14745			0	1	(503.00, 912.00, 0.00)	[0,0,0]	A6	A6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	821	28.18078			1	1	(504.00, 912.00, 0.00)	[0,0,0]	A6	A6	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	822	28.21412			0	0	(504.00, 912.00, 0.00)	[0,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	823	28.24747		12087	1	1	(504.00, 912.00, 0.00)	[0,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	824	28.28078			0	1	(504.00, 912.00, 0.00)	[0,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	825	28.31412			1	1	(504.00, 912.00, 0.00)	[0,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	826	28.34743			0	0	(504.00, 912.00, 0.00)	[0,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	827	28.38079			1	0	(504.00, 912.00, 0.00)	[0,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	828	28.41413			0	0	(504.00, 912.00, 0.00)	[0,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	829	28.44747			1	0	(504.00, 912.00, 0.00)	[0,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	830	28.48076			0	0	(504.00, 912.00, 0.00)	[0,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	831	28.51412			1	1	(504.00, 912.00, 0.00)	[0,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	832	28.54745			0	0	(507.00, 915.00, 0.00)	[0,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	833	28.58079			1	1	(507.00, 915.00, 0.00)	[1,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	834	28.6141		52	0	0	(508.00, 916.00, 0.00)	[1,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	835	28.64743			1	0	(508.00, 916.00, 0.00)	[1,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	836	28.6808			0	1	(508.00, 916.00, 0.00)	[1,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	837	28.71409			1	1	(508.00, 916.00, 0.00)	[1,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	838	28.74743			0	1	(508.00, 916.00, 0.00)	[0,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	839	28.78076		56,76	1	0	(508.00, 916.00, 0.00)	[0,0,0]	A6	A6	False	null	None	None	True	007_033_072_001_1	True	A6	True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	840	28.81409		44,12086,5,17	0	0	(507.00, 915.00, 0.00)	[0,0,0]	A6	A6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	841	28.84745			1	1	(507.00, 915.00, 0.00)	[0,0,0]	A6	A6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	842	28.88078			0	0	(507.00, 915.00, 0.00)	[0,0,0]	A6	A6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	843	28.91412			1	1	(507.00, 915.00, 0.00)	[0,0,0]	A6	A6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	844	28.94745			0	1	(506.00, 915.00, 0.00)	[0,0,0]	A6	A6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	845	28.98079			1	1	(506.00, 915.00, 0.00)	[0,0,0]	A6	A6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	846	29.01414			0	0	(506.00, 895.00, 0.00)	[0,0,0]	A6	A6	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	847	29.04744			1	1	(517.00, 850.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	848	29.08076			0	1	(529.00, 815.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	849	29.11411			1	1	(534.00, 807.00, 0.00)	[0,0,0]	A5	MazeBackground	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	850	29.14742			0	0	(534.00, 805.00, 0.00)	[0,0,0]	A5	A5	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	851	29.18078			1	0	(534.00, 805.00, 0.00)	[0,0,0]	A5	A5	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	852	29.21409			0	0	(534.00, 805.00, 0.00)	[0,0,0]	A5	A5	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	853	29.24743			1	0	(534.00, 805.00, 0.00)	[0,0,0]	A5	A5	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	854	29.28078			0	0	(534.00, 805.00, 0.00)	[0,0,0]	A5	A5	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	855	29.31412			1	1	(534.00, 805.00, 0.00)	[1,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	856	29.34745		52,12087	0	0	(534.00, 805.00, 0.00)	[1,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	857	29.38076			1	1	(534.00, 805.00, 0.00)	[1,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	858	29.41411			0	0	(534.00, 805.00, 0.00)	[1,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	859	29.44744			1	0	(534.00, 805.00, 0.00)	[1,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	860	29.48078			0	1	(534.00, 805.00, 0.00)	[1,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	861	29.51411			1	1	(534.00, 805.00, 0.00)	[1,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	862	29.54742			0	1	(534.00, 805.00, 0.00)	[1,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	863	29.58078			1	0	(534.00, 805.00, 0.00)	[0,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	864	29.6141		56	0	0	(534.00, 805.00, 0.00)	[0,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	865	29.64745			1	1	(534.00, 805.00, 0.00)	[0,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	866	29.68078			0	0	(534.00, 805.00, 0.00)	[0,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	867	29.71415			1	1	(534.00, 805.00, 0.00)	[0,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	868	29.74743			0	1	(534.00, 805.00, 0.00)	[0,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	869	29.78078			1	1	(534.00, 805.00, 0.00)	[0,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	870	29.81411			0	0	(534.00, 805.00, 0.00)	[0,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	871	29.84747			1	1	(534.00, 805.00, 0.00)	[0,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	872	29.88078			0	1	(534.00, 799.00, 0.00)	[0,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	873	29.91414			1	1	(534.00, 789.00, 0.00)	[0,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	874	29.94743			0	0	(533.00, 785.00, 0.00)	[0,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	875	29.98078			1	0	(533.00, 785.00, 0.00)	[0,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	876	30.01411			0	0	(533.00, 785.00, 0.00)	[1,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	877	30.04743		52	1	0	(533.00, 785.00, 0.00)	[1,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	878	30.08076			0	0	(533.00, 785.00, 0.00)	[1,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	879	30.11411			1	1	(533.00, 785.00, 0.00)	[1,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	880	30.14742			0	0	(533.00, 785.00, 0.00)	[1,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	881	30.18078			1	1	(533.00, 785.00, 0.00)	[1,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	882	30.21412			0	0	(533.00, 785.00, 0.00)	[0,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	883	30.24744		56,76	1	0	(533.00, 785.00, 0.00)	[0,0,0]	A5	A5	False	null	None	None	True	007_033_072_001_1	True	A5	True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	884	30.28076		44,12086,5,17	0	1	(533.00, 785.00, 0.00)	[0,0,0]	A5	A5	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	885	30.31411			1	1	(533.00, 785.00, 0.00)	[0,0,0]	A5	A5	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	886	30.34745			0	1	(533.00, 785.00, 0.00)	[0,0,0]	A5	A5	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	887	30.38076			1	0	(533.00, 773.00, 0.00)	[0,0,0]	A5	A5	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	888	30.41409			0	0	(547.00, 736.00, 0.00)	[0,0,0]	A5	A5	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	889	30.44744			1	1	(573.00, 700.00, 0.00)	[0,0,0]	A5	A5	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	890	30.48078			0	0	(586.00, 679.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	891	30.51412			1	1	(597.00, 652.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	892	30.54744			0	1	(601.00, 631.00, 0.00)	[0,0,0]	A4	A4	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	893	30.5808			1	1	(602.00, 620.00, 0.00)	[0,0,0]	A4	A4	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	894	30.61414			0	0	(600.00, 612.00, 0.00)	[0,0,0]	A4	A4	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	895	30.64742			1	1	(594.00, 605.00, 0.00)	[0,0,0]	A4	A4	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	896	30.68078			0	1	(587.00, 600.00, 0.00)	[0,0,0]	A4	A4	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	897	30.71411			1	1	(583.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	898	30.74745			0	0	(579.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	899	30.78076			1	0	(576.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	900	30.81411		12087	0	0	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	901	30.84742			1	0	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	902	30.88075			0	0	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	903	30.91411			1	1	(575.00, 599.00, 0.00)	[1,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	904	30.94744		52	0	0	(575.00, 599.00, 0.00)	[1,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	905	30.98075			1	1	(575.00, 599.00, 0.00)	[1,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	906	31.01409			0	0	(575.00, 599.00, 0.00)	[1,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	907	31.04742			1	0	(575.00, 599.00, 0.00)	[1,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	908	31.08077			0	1	(575.00, 599.00, 0.00)	[1,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	909	31.11411			1	1	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	910	31.14745		56	0	1	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	911	31.18076			1	0	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	912	31.21409			0	0	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	913	31.24742			1	1	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	914	31.28078			0	0	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	915	31.31412			1	1	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	916	31.34742			0	1	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	917	31.38075			1	1	(575.00, 599.00, 0.00)	[1,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	918	31.41411		52	0	0	(575.00, 599.00, 0.00)	[1,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	919	31.44744			1	1	(575.00, 599.00, 0.00)	[1,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	920	31.48078			0	1	(575.00, 599.00, 0.00)	[1,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	921	31.51411			1	1	(575.00, 599.00, 0.00)	[1,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	922	31.54742			0	0	(575.00, 599.00, 0.00)	[1,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	923	31.58075			1	0	(575.00, 599.00, 0.00)	[1,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	924	31.61411			0	0	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ChooseTile	925	31.64745		56,76	1	0	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	None	True	007_033_072_001_1	True	A4	True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	926	31.68075		44,12077,12086,5,17	0	0	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	927	31.71411			1	1	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	928	31.74742			0	0	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	929	31.78078			1	1	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	930	31.81408			0	0	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	931	31.84742			1	0	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	932	31.88078			0	1	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	933	31.91408			1	1	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	Positive	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	934	31.94742			0	1	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	935	31.98075			1	0	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	936	32.01411			0	0	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	937	32.04746			1	1	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	938	32.0808			0	0	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	939	32.11411			1	1	(575.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	940	32.14745			0	1	(588.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	null	None	Update	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	941	32.18078			1	1	(599.00, 599.00, 0.00)	[0,0,0]	A4	A4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	942	32.21409		17,9	0	0	(608.00, 595.00, 0.00)	[0,0,0]	A4	A4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	943	32.24743			1	1	(625.00, 572.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	944	32.28079			0	1	(659.00, 542.00, 0.00)	[0,0,0]	MazeBackground	MazeBackground	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	945	32.31409			1	1	(691.00, 538.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	946	32.34744			0	0	(709.00, 548.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	947	32.38079			1	0	(716.00, 552.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	948	32.4141			0	0	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	949	32.44743			1	0	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	950	32.48078			0	0	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	951	32.51409			1	1	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	952	32.54744			0	0	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	953	32.58077			1	1	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	954	32.61411			0	0	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	955	32.64744			1	0	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	956	32.68079			0	1	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	957	32.71409			1	1	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	958	32.74742			0	1	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	959	32.78075			1	0	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	960	32.81408			0	0	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	961	32.84744			1	1	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	962	32.88075			0	0	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	963	32.91412			1	1	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	964	32.94742			0	1	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	965	32.98075			1	1	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	966	33.01411			0	0	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	967	33.04742			1	1	(718.00, 554.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	968	33.08077			0	1	(721.00, 550.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	969	33.11411			1	1	(721.00, 548.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	970	33.14743			0	0	(721.00, 548.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	SelectionFeedback	971	33.18075			1	0	(721.00, 548.00, 0.00)	[0,0,0]	B4	B4	False	TripleCollected	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	Delay	972	33.2141		9,23,12087	0	0	(721.00, 548.00, 0.00)	[0,0,0]	B4	B4	False	null	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	973	33.54744		41,12085,10	1	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	974	33.56409			0	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	975	33.58077			1	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	976	33.59742			0	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	977	33.63077			1	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	978	33.66413			0	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	979	33.69745			1	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	980	33.73079			0	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	981	33.76409			1	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	982	33.79741			0	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	983	33.83077			1	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	Flashing	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	984	33.86408			0	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	985	33.89746		9,11	1	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	986	33.93074			0	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	987	33.96408			1	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	988	33.99743			0	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	989	34.03074			1	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	990	34.0641			0	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	991	34.09743			1	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	992	34.13074			0	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	993	34.16408			1	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	994	34.19741			0	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	ITI	995	34.23074			1	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	FinishTrial	996	34.26409		7001	0	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	FinishTrial	996	34.26409			0	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True

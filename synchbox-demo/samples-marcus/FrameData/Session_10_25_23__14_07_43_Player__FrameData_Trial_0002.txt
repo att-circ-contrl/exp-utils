@@ -1,0 +1,22 @@
+SubjectID	SubjectAge	SessionTime	TaskName	BlockCount	TrialCount_InTask	TrialCount_InBlock	CurrentTrialState	Frame	FrameStartUnity	ReferenceEventCodes	FrameEventCodes	FlashPanelLStatus	FlashPanelLStatus	MousePosition	MouseButtonStatus	SimpleRaycastTarget	ShotgunModalTarget	FeedbackOn	PlayingAudioClipName	HaloType	SliderAnimationPhase	SliderVisibility	ContextName	ChoiceMade	SelectedObject	StartedMaze
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	1	1	LoadTrialTextures	997	34.29744			1	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	LoadTrialStims	998	34.33075			0	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	LoadTrialStims	999	34.36408			1	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		True
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	SetupTrial	1000	34.39743		1002	0	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	InitTrial	1001	34.43074			1	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	InitTrial	1002	34.68075		47	0	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	InitTrial	1003	34.73079			1	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	InitTrial	1004	34.76408			0	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	InitTrial	1005	34.78073			1	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	InitTrial	1006	34.81408			0	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	InitTrial	1007	34.84741			1	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	InitTrial	1008	34.88078			0	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	InitTrial	1009	34.89743			1	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	InitTrial	1010	34.93074			0	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	InitTrial	1011	34.96407			1	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	InitTrial	1012	34.99743			0	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	InitTrial	1013	35.01408			1	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	InitTrial	1014	35.04741			0	0	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	InitTrial	1015	35.08074			1	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	InitTrial	1016	35.09739			0	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
+Player	50	Session_10_25_23__14_07_43_Player	MazeGame	1	2	2	InitTrial	1017	35.13074			1	1	(721.00, 548.00, 0.00)	[0,0,0]	null	null	False	null	None	None	True	007_033_072_001_1	False		False
