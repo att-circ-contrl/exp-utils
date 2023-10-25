@@ -53,13 +53,13 @@ refauto-code:
 		"--chapter=\`\`euAlign'' Functions" --label=sect-align \
 		../libraries/lib-exputils-align/*m
 	./copy-code.pl --outfile=$(REFBASE)-chris.tex --matlabdoc \
-		"--chapter=\`\`euChris'' Functions" --label=sect-align \
+		"--chapter=\`\`euChris'' Functions" --label=sect-chris \
 		../libraries/lib-exputils-chris/*m
 	./copy-code.pl --outfile=$(REFBASE)-ft.tex --matlabdoc \
 		"--chapter=\`\`euFT'' Functions" --label=sect-ft \
 		../libraries/lib-exputils-ft/*m
 	./copy-code.pl --outfile=$(REFBASE)-highlevel.tex --matlabdoc \
-		"--chapter=\`\`euHLev'' Functions" --label=sect-align \
+		"--chapter=\`\`euHLev'' Functions" --label=sect-highlevel \
 		../libraries/lib-exputils-highlevel/*m
 	./copy-code.pl --outfile=$(REFBASE)-plot.tex --matlabdoc \
 		"--chapter=\`\`euPlot'' Functions" --label=sect-plot \
@@ -76,19 +76,19 @@ refauto-code:
 
 refauto-notes:
 	./copy-code.pl --outfile=$(REFBASE)-chris-notes.tex --verbatim \
-		"--chapter=\`\`euChris'' Notes" --label=sect-use-notes \
+		"--chapter=\`\`euChris'' Notes" --label=sect-chris-notes \
 		../libraries/lib-exputils-chris/*txt
 	./copy-code.pl --outfile=$(REFBASE)-ft-notes.tex --verbatim \
-		"--chapter=\`\`euFT'' Notes" --label=sect-use-notes \
+		"--chapter=\`\`euFT'' Notes" --label=sect-ft-notes \
 		../libraries/lib-exputils-ft/*txt
 	./copy-code.pl --outfile=$(REFBASE)-highlevel-notes.tex --verbatim \
-		"--chapter=\`\`euHLev'' Notes" --label=sect-use-notes \
+		"--chapter=\`\`euHLev'' Notes" --label=sect-highlevel-notes \
 		../libraries/lib-exputils-highlevel/*txt
 	./copy-code.pl --outfile=$(REFBASE)-use-notes.tex --verbatim \
 		"--chapter=\`\`euUSE'' Notes" --label=sect-use-notes \
 		../libraries/lib-exputils-use/*txt
 	./copy-code.pl --outfile=$(REFBASE)-util-notes.tex --verbatim \
-		"--chapter=\`\`euUtil'' Notes" --label=sect-use-notes \
+		"--chapter=\`\`euUtil'' Notes" --label=sect-util-notes \
 		../libraries/lib-exputils-util/*txt
 
 refauto-examples:
