@@ -9,7 +9,10 @@ function [ evsynchA evsynchB evrwdA evrwdB evcodes ] = ...
 % processing scripts. It may alternatively be read by using the
 % euUSE_readRawSerialData() function.
 %
-% This table contains communication received by Unity from the SynchBox,
+% This extracts event data. To extract analog data, use
+% euUSE_parseSerialRecvDataAnalog().
+%
+% The input table contains communication received by Unity from the SynchBox,
 % which includes Unity and SynchBox timestamps. Timing, reward, and event
 % code messages are parsed, and are returned as separate tables. Each table
 % contains Unity and SynchBox timestamps (converted to seconds); the reward

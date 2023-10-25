@@ -12,10 +12,10 @@ function [ sentdata recvdata ] = euUSE_readRawSerialData( runtimedir )
 % "recvdata" is aggregated data from trial files in the "SerialRecv" folder.
 
 
-filepattern = [ runtimedir filesep 'SerialSent' filesep '*_Trial_*txt' ];
+filepattern = [ runtimedir filesep 'SerialSent*' filesep '*_Trial_*txt' ];
 sentdata = euUSE_aggregateTrialFiles(filepattern, 'SystemTimestamp');
 
-filepattern = [ runtimedir filesep 'SerialRecv' filesep '*_Trial_*txt' ];
+filepattern = [ runtimedir filesep 'SerialRecv*' filesep '*_Trial_*txt' ];
 recvdata = euUSE_aggregateTrialFiles(filepattern, 'SystemTimestamp');
 
 
