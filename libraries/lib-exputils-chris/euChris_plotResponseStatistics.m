@@ -789,6 +789,11 @@ for plotidx = 1:length(plotdefs)
 
         if strcmp(thisdef.type, 'timeheat')
 
+          % Tolerate discontinuous variable ranges.
+          [ thisyxdata thisyxwintimes thisyxindepvals ] = ...
+            nlProc_padHeatmapGaps( ...
+              thisyxdata, thisyxwintimes, thisyxindepvals );
+
           figure(thisfig);
           clf('reset');
 
