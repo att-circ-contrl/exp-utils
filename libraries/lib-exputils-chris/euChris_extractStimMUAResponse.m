@@ -66,14 +66,23 @@ function muafeatures = euChris_extractStimMUAResponse( ...
 %   "zbaseshift_list" is a Nchans x Nwindows matrix containing
 %     (meanafter - meanbefore) / devbefore. This is the z-scored
 %     _displacement_ in background activity.
+%   "zdevmean_list" is a Nchans x Nwindows matrix containing
+%     devafter / meanbefore. This is normalized _variability_ in the
+%     background activity.
 %
-% If noise is negligible and activity dominates the background, basemult is
-% a z-scored measure of activity change.
+% If noise is negligible and activity dominates the background, "basemult"
+% is a z-scored measure of activity change.
+%
 % If noise dominates the background and real activity is intermittent,
-% devmult is a z-scored measure of activity change.
+% "devmult" is a z-scored measure of activity change.
+%
 % If noise is the same before and after stimulation and real activity is a
-% significant part of the background, then zbaseshift is a z-scored measure
+% significant part of the background, then "zbaseshift" is a z-scored measure
 % of activity change.
+%
+% If spiking activity is highly variable but the background level is
+% consistent, then "zdevmean" is a normalized measurement of variability
+% (variation in before-stimulation activity prevents true z-scoring).
 
 
 % Initialize output.
@@ -162,6 +171,7 @@ for tidx = 1:length(timeseriesbefore)
     thiswinbasemult = thiswinmeanafter ./ thismeanbefore;
     thiswindevmult = thiswindevafter ./ thisdevbefore;
     thiswinbaseshift = (thiswinmeanafter - thismeanbefore) ./ thisdevbefore;
+    thiswindevmean = thiswindevafter ./ thismeanbefore;
 
     % Store statistics.
 
@@ -171,6 +181,7 @@ for tidx = 1:length(timeseriesbefore)
     thisbasemultlist(1:nchans,widx) = thiswinbasemult;
     thisdevmultlist(1:nchans,widx) = thiswindevmult;
     thisbaseshiftlist(1:nchans,widx) = thiswinbaseshift;
+    thisdevmeanlist(1:nchans,widx) = thiswindevmean;
 
   end
 
@@ -194,6 +205,7 @@ for tidx = 1:length(timeseriesbefore)
   thisreport.basemult_list = thisbasemultlist;
   thisreport.devmult_list = thisdevmultlist;
   thisreport.zbaseshift_list = thisbaseshiftlist;
+  thisreport.zdevmean_list = thisdevmeanlist;
 
 
   % Store this trial's output structure.
