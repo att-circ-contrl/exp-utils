@@ -20,5 +20,8 @@ Used by (FIXME - Cross-correlation is not yet a library function):
 "xcorr_range_ms" [ min max ] is the range of values in milliseconds to use
   for time lag when performing cross-correlation.
 
+"xcorr_norm_method" is a character vector containing the normalization
+  method to pass to "xcorr". This is typically 'unbiased' or 'coeff'.
+
 
 (This is the end of the file.)
