@@ -96,13 +96,16 @@ for trialidx = 1:trialcount
 
     % Do the cross-correlations.
     % NOTE - We have to zero-average, or the DC component dominates.
+    % NOTE - We actually have to _detrend_, as ramps will correlate.
 
     for cidxfirst = 1:chancount_first
       wavefirst = windatafirst(cidxfirst,:);
-      wavefirst = wavefirst - mean(wavefirst);
+%      wavefirst = wavefirst - mean(wavefirst);
+      wavefirst = detrend(wavefirst);
       for cidxsecond = 1:chancount_second
         wavesecond = windatasecond(cidxsecond,:);
-        wavesecond = wavesecond - mean(wavesecond);
+%        wavesecond = wavesecond - mean(wavesecond);
+        wavesecond = detrend(wavesecond);
         rvals = xcorr( wavefirst, wavesecond, delaymax_samps, ...
           mua_params.xcorr_norm_method );
 
