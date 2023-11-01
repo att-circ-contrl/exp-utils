@@ -1,11 +1,13 @@
-function xcorrdata = ...
-  euChris_calcXCorr( ftdata_first, ftdata_second, mua_params )
+function xcorrdata = euChris_calcXCorr( ...
+  ftdata_first, ftdata_second, mua_params, detrend_method )
 
-% function xcorrdata = ...
-%   euChris_calcXCorr( ftdata_first, ftdata_second, mua_params )
+% function xcorrdata = euChris_calcXCorr( ...
+%  ftdata_first, ftdata_second, mua_params, detrend_method )
 %
 % This calculates cross-correlations between two Field Trip datasets within
 % a series of time windows, averaged across trials.
+%
+% Data is optionally detrended or mean-subtracted before cross-correlation.
 %
 % NOTE - Both datasets must have the same sampling rate and the same number
 % of trials (trials are assumed to correspond).
@@ -14,6 +16,7 @@ function xcorrdata = ...
 % "ftdata_second" is a ft_datatype_raw structure with the second set of trials.
 % "mua_params" is a structure giving time window and time lag information,
 %   per CHRISMUAPARAMS.txt.
+% "detrend_method" is 'detrend', 'demean', or 'none' (default).
 %
 % "xcorrdata" is a structure with the following fields:
 %   "firstchans" is a cell array with FT channel names for the first set of
@@ -95,20 +98,27 @@ for trialidx = 1:trialcount
 
 
     % Do the cross-correlations.
-    % NOTE - We have to zero-average, or the DC component dominates.
-    % NOTE - We actually have to _detrend_, as ramps will correlate.
 
     for cidxfirst = 1:chancount_first
       wavefirst = windatafirst(cidxfirst,:);
-%      wavefirst = wavefirst - mean(wavefirst);
-      wavefirst = detrend(wavefirst);
+
+      if strcmp('detrend', detrend_method)
+        wavefirst = detrend(wavefirst);
+      elseif strcmp('demean', detrend_method)
+        wavefirst = wavefirst - mean(wavefirst);
+      end
+
       for cidxsecond = 1:chancount_second
         wavesecond = windatasecond(cidxsecond,:);
-%        wavesecond = wavesecond - mean(wavesecond);
-        wavesecond = detrend(wavesecond);
+
+        if strcmp('detrend', detrend_method)
+          wavesecond = detrend(wavesecond);
+        elseif strcmp('demean', detrend_method)
+          wavesecond = wavesecond - mean(wavesecond);
+        end
+
         rvals = xcorr( wavefirst, wavesecond, delaymax_samps, ...
           mua_params.xcorr_norm_method );
-
         delaycount = length(rvals);
         thisxcorr(cidxfirst,cidxsecond,widx,1:delaycount) = rvals;
       end
