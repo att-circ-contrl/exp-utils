@@ -103,18 +103,18 @@ for trialidx = 1:trialcount
       wavefirst = windatafirst(cidxfirst,:);
 
       if strcmp('detrend', detrend_method)
-        wavefirst = detrend(wavefirst);
+        wavefirst = detrend(wavefirst, 'omitnan');
       elseif strcmp('demean', detrend_method)
-        wavefirst = wavefirst - mean(wavefirst);
+        wavefirst = wavefirst - mean(wavefirst, 'omitnan');
       end
 
       for cidxsecond = 1:chancount_second
         wavesecond = windatasecond(cidxsecond,:);
 
         if strcmp('detrend', detrend_method)
-          wavesecond = detrend(wavesecond);
+          wavesecond = detrend(wavesecond, 'omitnan');
         elseif strcmp('demean', detrend_method)
-          wavesecond = wavesecond - mean(wavesecond);
+          wavesecond = wavesecond - mean(wavesecond, 'omitnan');
         end
 
         rvals = xcorr( wavefirst, wavesecond, delaymax_samps, ...
