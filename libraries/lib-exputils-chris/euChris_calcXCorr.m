@@ -61,6 +61,8 @@ wintimes_sec = mua_params.timelist_after_ms * 0.001;
 % Compute cross-correlations and average across trials.
 
 xcorravg = [];
+xcorrcounts = [];
+% FIXME - Add variance here, and store average/counts/variance?
 
 trialcount = length(ftdata_first.time);
 chancount_first = length(ftdata_first.label);
@@ -75,6 +77,8 @@ for trialidx = 1:trialcount
   thisdatafirst = ftdata_first.trial{trialidx};
   thisdatasecond = ftdata_second.trial{trialidx};
 
+  % NOTE - Trials may have NaN regions, but those usually don't overlap
+  % the test windows.
 
   % Walk through windows.
   for widx = 1:length(wintimes_sec)
@@ -96,6 +100,11 @@ for trialidx = 1:trialcount
     windatasecond = thisdatasecond(:, ...
       [ (winsampsecond-winrad_samps):(winsampsecond+winrad_samps) ]);
 
+    % NOTE - We may sometimes get NaN data in here. The relevant cross
+    % correlations will also be NaN.
+    % Detrending and mean subtraction will also make the whole thing NaN,
+    % but that's fine. Using 'omitnan' would still give NaN cross-correlation.
+
 
     % Do the cross-correlations.
 
@@ -103,18 +112,18 @@ for trialidx = 1:trialcount
       wavefirst = windatafirst(cidxfirst,:);
 
       if strcmp('detrend', detrend_method)
-        wavefirst = detrend(wavefirst, 'omitnan');
+        wavefirst = detrend(wavefirst);
       elseif strcmp('demean', detrend_method)
-        wavefirst = wavefirst - mean(wavefirst, 'omitnan');
+        wavefirst = wavefirst - mean(wavefirst);
       end
 
       for cidxsecond = 1:chancount_second
         wavesecond = windatasecond(cidxsecond,:);
 
         if strcmp('detrend', detrend_method)
-          wavesecond = detrend(wavesecond, 'omitnan');
+          wavesecond = detrend(wavesecond);
         elseif strcmp('demean', detrend_method)
-          wavesecond = wavesecond - mean(wavesecond, 'omitnan');
+          wavesecond = wavesecond - mean(wavesecond);
         end
 
         rvals = xcorr( wavefirst, wavesecond, delaymax_samps, ...
@@ -127,14 +136,19 @@ for trialidx = 1:trialcount
   end
 
 
+  % Tolerate NaN entries when computing the average.
+
   if isempty(xcorravg)
-    xcorravg = thisxcorr;
-  else
-    xcorravg = xcorravg + thisxcorr;
+    xcorravg = zeros(size(thisxcorr));
+    xcorrcounts = zeros(size(thisxcorr));
   end
+
+  thismask = ~isnan(thisxcorr);
+  xcorravg(thismask) = xcorravg(thismask) + thisxcorr(thismask);
+  xcorrcounts = xcorrcounts + thismask;
 end
 
-xcorravg = xcorravg / trialcount;
+xcorravg = xcorravg ./xcorrcounts;
 
 
 %
