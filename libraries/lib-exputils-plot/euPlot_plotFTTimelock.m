@@ -18,8 +18,8 @@ function euPlot_plotFTTimelock( timelockdata_ft, bandsigma, ...
 %   ft_timelockanalysis().
 % "bandsigma" is a scalar indicating where to draw confidence intervals.
 %   This is a multiplier for the standard deviation and for SEM.
-% "plots_wanted" is a cell array containing zero or more of 'oneplot' and
-%   'perchannel', controlling which plots are produced.
+% "plots_wanted" is a cell array containing zero or more of 'oneplot',
+%   'perchannel', and 'stripchart', controlling which plots are produced.
 % "window_sizes_ms" is a cell array. Each cell contains a plot time range
 %   [ begin end ] in milliseconds, or [] for the full data extent.
 % "size_labels" is a cell array containing filename-safe labels used when
