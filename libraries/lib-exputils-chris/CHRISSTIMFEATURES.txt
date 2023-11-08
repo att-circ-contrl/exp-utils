@@ -22,7 +22,7 @@ General metadata:
 
 
 
-Metadata labels expected by euPlot_plotResponseStatistics:
+Metadata labels expected by euChris_plotResponseStatistics:
 
 "sessionlabel" is a character vector containing a filename-safe label for
   the recording session (e.g. '20230808a').
