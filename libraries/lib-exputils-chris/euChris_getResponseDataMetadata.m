@@ -124,25 +124,15 @@ for fidx = 1:length(labelfields)
   % Translate known label types.
 
   if strcmp(thisfield, 'sessionlabel')
+
+    % The "safe" labels are the same as the raw labels, so they'll parse.
     safetitlelist = euChris_makePrettySessionTitles_loop2302( safelabellist );
+
   elseif strcmp(thisfield, 'caselabel')
-    for lidx = 1:length(thisrawlist)
 
-      [ thisband thiscurrent thisphase ] = ...
-        euChris_parseCaseLabel_loop2302( thisrawlist{lidx} );
+    % The "safe" labels are the same as the raw labels, so they'll parse.
+    safetitlelist = euChris_makePrettyCaseTitles_loop2302( safelabellist );
 
-      if ~isempty(thisband)
-        thislabel = thisband;
-        if ~isnan(thiscurrent)
-          thislabel = sprintf('%s %duA', thislabel, thiscurrent);
-        end
-        if ~isempty(thisphase)
-          thislabel = [ thislabel ' ' thisphase ];
-        end
-        safetitlelist{lidx} = thislabel;
-      end
-
-    end
   end
 
 
