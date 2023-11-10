@@ -70,15 +70,11 @@ end
 
 
 
-% Traverse the data records.
+% If we have data at all, copy the window times from the first entry.
+% This is guaranteed to be present.
 
-for didx = 1:length(statdata)
-
-  thisdata = statdata{didx};
-
-
-  % Get window information. This is guaranteed to be present.
-  % Overwrite anything we had from previous records.
+if ~isempty(statdata)
+  thisdata = statdata{1};
 
   % Remember to take the absolute value for the "before" time.
   winbefore = thisdata.winbefore;
@@ -91,24 +87,21 @@ for didx = 1:length(statdata)
     winaftertext{widx} = sprintf( '%d ms', round(1000 * thistime) );
     winafterlabels{widx} = sprintf( 'post%03d', round(1000 * thistime) );
   end
+end
 
 
-  % Get raw label field information, if present.
+% Get raw label field information, if present.
 
-  for fidx = 1:length(labelfields)
-    thisfield = labelfields{fidx};
-    if isfield(thisdata, thisfield)
+for fidx = 1:length(labelfields)
+  thisfield = labelfields{fidx};
 
-      thisraw = thisdata.(thisfield);
+  % We know that this is character data, not numeric/logical.
+  thisraw = nlUtil_getCellOfStructField( statdata, thisfield, '' );
 
-      if ischar(thisraw)
-        labelraw.(thisfield) = ...
-          unique( [ labelraw.(thisfield) { thisraw } ] );
-      end
+  % Discard default-valued ('') entries.
+  thisraw = thisraw( ~strcmp(thisraw, '') );
 
-    end
-  end
-
+  labelraw.(thisfield) = unique(thisraw);
 end
 
 

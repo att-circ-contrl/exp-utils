@@ -1,0 +1,56 @@
+Data for plotting using euPlot_hlevPlotData is stored as a cell array of
+structures, each holding a data record. These records have the following
+fields:
+
+
+General metadata:
+
+
+"sessionlabel" is a character vector containing a filename-safe label for
+  the recording session (e.g. '20230808a'). These don't get aggregated.
+
+"caselabel" is a character vector containing a filename-safe label for a
+  group of trials that are to be aggregated (typically corresponding to one
+  set of test conditions; e.g. 'be150rand').
+
+"probelabel" is a character vector containing a filename-safe label for the
+  group of channels in this data record (typically corresponding to one
+  probe; e.g. 'pr1acc').
+
+
+"sessiontitle" is a character vector containing a plot-safe human-readable
+  title for the recording session (per above).
+
+"casetitle" is a character vector containing a plot-safe human-readable
+  title for the set of experiment conditions used (per above).
+
+"probetitle" is a character vector containing a plot-safe human-readable
+  title for the group of channels in this data record (per above).
+
+
+"trialnum" is the trial number.
+
+"chanlabels" is a cell array containing Field Trip channel labels for each
+  of the channels in this data record.
+
+
+"timelabels" is a cell array holding character vectors containing
+  filename-safe labels for each of the time bins used in the data record.
+
+"timetitles" is a cell array holding character vectors containing plot-safe
+  human-readable titles for each of the time bins used in the data record.
+
+
+
+Data fields:
+
+
+Data fields have arbitrary names; multiple data fields may be present.
+
+Time-binned data is stored in Nchans x Nbins matrices.
+
+Data that is not time-binned is stored in Nchans x 1 matrices.
+
+
+
+(This is the end of the file.)
