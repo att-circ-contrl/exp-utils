@@ -124,26 +124,7 @@ for fidx = 1:length(labelfields)
   % Translate known label types.
 
   if strcmp(thisfield, 'sessionlabel')
-    [ datelistnum datelisttext suffixlist ] = ...
-      euChris_parseSessionLabel_loop2302( thisrawlist );
-
-    for lidx = 1:length(datelistnum)
-      if ~isnan( datelistnum(lidx) )
-        [ thisyear thismonthnum thismonthshort thismonthlong thisday ] = ...
-          euUtil_parseDateNumber( datelistnum(lidx) );
-        if ~isnan(thisyear)
-          thislabel = ...
-            sprintf('%02d %s %d', thisday, thismonthshort, thisyear );
-        else
-          thislabel = sprintf('%02d %s', thisday, thismonthshort );
-        end
-        if ~isempty( suffixlist(lidx) )
-          thislabel = [ thislabel ' ' suffixlist(lidx) ];
-        end
-        safetitlelist{lidx} = thislabel;
-      end
-
-    end
+    safetitlelist = euChris_makePrettySessionTitles_loop2302( safelabellist );
   elseif strcmp(thisfield, 'caselabel')
     for lidx = 1:length(thisrawlist)
 
