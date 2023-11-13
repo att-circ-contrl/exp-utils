@@ -44,7 +44,7 @@ markersize = 4;
 
 % Apply the global filter.
 
-[ statdata scratch ] = nlUtil_pruneStructureList( statdata, global_filter );
+[ statdata ~ ] = nlUtil_pruneStructureList( statdata, global_filter );
 
 
 % Bail out if we have no data.
@@ -252,16 +252,17 @@ for plotidx = 1:length(plotdefs)
 
         % Tolerate columns (for single time windows) and matrices (for
         % multiple time windows).
-
-        % Y axis series.
+        % NOTE - Single labels are parsed as vectors of chars. Detect these.
 
         thisxseries = statsubset{didx}.(thisdef.xaxis);
-        if min(size(thisxseries)) > 1
+        if (~iscolumn(thisxseries)) && (~isempty(thisxseries)) ...
+          && (~ischar(thisxseries))
           thisxseries = thisxseries(:,widx);
         end
 
         thisyseries = statsubset{didx}.(thisdef.yaxis);
-        if min(size(thisyseries)) > 1
+        if (~iscolumn(thisyseries)) && (~isempty(thisyseries)) ...
+          && (~ischar(thisyseries))
           thisyseries = thisyseries(:,widx);
         end
 
