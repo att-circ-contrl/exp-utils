@@ -81,12 +81,10 @@ if ~isempty(statdata)
   winbeforetext = sprintf( '%d ms', round(abs(1000 * winbefore)) );
   winbeforelabel = sprintf( 'pre%03d', round(abs(1000 * winbefore)) );
 
-  for widx = 1:length(thisdata.winafter)
-    thistime = thisdata.winafter(widx);
-    winafter(widx) = thistime;
-    winaftertext{widx} = sprintf( '%d ms', round(1000 * thistime) );
-    winafterlabels{widx} = sprintf( 'post%03d', round(1000 * thistime) );
-  end
+  winafter = thisdata.winafter;
+  winaftertext = nlUtil_sprintfCellArray( '%d ms', round(1000 * winafter) );
+  winafterlabels = ...
+    nlUtil_sprintfCellArray( 'post%03d', round(1000 * winafter) );
 end
 
 
@@ -141,10 +139,8 @@ for fidx = 1:length(labelfields)
   labeltext.(thisfield) = safetitlelist;
   labelshort.(thisfield) = safelabellist;
 
-  for lidx = 1:length(safelabellist)
-    % Fieldnames have to start with a letter.
-    labelkey.(thisfield){lidx} = [ 'x' safelabellist{lidx} ];
-  end
+  % Fieldnames have to start with a letter.
+  labelkey.(thisfield) = nlUtil_sprintfCellArray( 'x%s', safelabellist );
 
 end
 

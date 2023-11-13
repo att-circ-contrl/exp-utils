@@ -44,39 +44,71 @@ markersize = 4;
 
 % Apply the global filter.
 
-[ statdata ~ ] = nlUtil_pruneStructureList( statdata, global_filter );
+[ statdata scratch ] = nlUtil_pruneStructureList( statdata, global_filter );
+
+
+% Bail out if we have no data.
+
+if isempty(statdata)
+  return;
+end
 
 
 
 %
 % Get metadata and annotation strings.
 
-datameta = euChris_getResponseDataMetadata( statdata, ...
-  { 'caselabel', 'probelabel', 'sessionlabel' } );
 
-% Copy to local variables for convenience.
+% Window times.
 
-wincount = length(datameta.winafter);
-winafterms = datameta.winafter * 1000;
+% We know that we have at least one record.
+% Window data should be consistent, so take it from the first record.
 
-notebefore = datameta.winbeforetext;
-notesafter = datameta.winaftertext;
-labelsafter = datameta.winafterlabels;
+winbeforems = statdata{1}.winbefore * 1000;
+winafterms = statdata{1}.winafter * 1000;
 
-allcases = datameta.labelraw.caselabel;
-allsessions = datameta.labelraw.sessionlabel;
-allprobes = datameta.labelraw.probelabel;
+wincount = length(winafterms);
+
+% Remember to take the absolute value for the "before" time.
+notebefore = sprintf( '%d ms', round(abs(winbeforems)) );
+
+% The "after" time can be negative. Tolerate that.
+notesafter = nlUtil_sprintfCellArray( '%d ms', round(winafterms) );
+labelsafter = nlUtil_sprintfCellArray( 'post%03d', round(winafterms) );
+
+
+% Session labels, probe labels, and case labels.
+
+% FIXME - We know a priori that raw case, session, and probe labels are
+% filename-safe and plot-safe.
+
+allcases = nlUtil_getCellOfStructField( statdata, 'caselabel', '' );
+allcases = allcases( ~strcmp(allcases, '') );
+allcases = unique(allcases);
+
+allsessions = nlUtil_getCellOfStructField( statdata, 'sessionlabel', '' );
+allsessions = allsessions( ~strcmp(allsessions, '') );
+allsessions = unique(allsessions);
+
+allprobes = nlUtil_getCellOfStructField( statdata, 'probelabel', '' );
+allprobes = allprobes( ~strcmp(allprobes, '') );
+allprobes = unique(allprobes);
 
 casecount = length(allcases);
 sessioncount = length(allsessions);
 probecount = length(allprobes);
 
-legendcasetext = datameta.labeltext.caselabel;
-legendprobetext = datameta.labeltext.probelabel;
+% Translate case and session names for legends/titles. Use probes as-is.
 
-sessiontitletext = datameta.labeltext.sessionlabel;
-sessionlabeltext = datameta.labelshort.sessionlabel;
-sessionkeys = datameta.labelkey.sessionlabel;
+legendcasetext = euChris_makePrettyCaseTitles_loop2302( allcases );
+legendprobetext = allprobes;
+
+sessiontitletext = euChris_makePrettySessionTitles_loop2302( allsessions );
+% FIXME - Not used?
+%sessionlabeltext = allsessions;
+
+% Keys have to be valid structure field names, starting with a letter.
+sessionkeys = nlUtil_sprintfCellArray( 'x%s', allsessions );
 
 
 
