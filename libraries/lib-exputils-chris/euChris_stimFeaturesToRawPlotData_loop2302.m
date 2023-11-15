@@ -55,6 +55,9 @@ timetitles = {};
 if ~isempty(statdata)
 
   % Time window labels and titles.
+  % NOTE - Unlike other labels, these don't get sorted. We have to keep
+  % the order they were supplied in, as that's the data column order.
+
   % FIXME - Assume consistent window times across all records.
   % FIXME - Blithely assuming no collisions in the labels after rounding.
 
@@ -64,7 +67,7 @@ if ~isempty(statdata)
 
   % NOTE - Time "after" can be negative; handle that.
   timelabels = nlUtil_sprintfCellArray( 'p%04dms', round(timevaluesms) );
-  scratch = nlUtil_sprintfCellArray( 'n%04dms', round(timevaluesms) );
+  scratch = nlUtil_sprintfCellArray( 'n%04dms', round(abs(timevaluesms)) );
   masknegative = (timevaluesms < 0);
   timelabels(masknegative) = scratch(masknegative);
 

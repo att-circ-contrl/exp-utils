@@ -1,6 +1,6 @@
-Raw data for plotting using euPlot_hlevPlotData is stored as a cell array of
-structures, each holding a data record. These records have the following
-fields:
+Raw data for plotting using euPlot_hlevPlotStatData is stored as a cell
+array of structures, each holding a data record. These records have the
+following fields:
 
 
 General metadata:
@@ -28,12 +28,6 @@ General metadata:
   title for the group of channels in this data record (per above).
 
 
-"trialnum" is the Field Trip trial number.
-
-"chanlabels" is a cell array containing Field Trip channel labels for each
-  of the channels in this data record.
-
-
 "timelabels" is a cell array holding character vectors containing
   filename-safe labels for each of the time bins used in the data record.
 
@@ -50,9 +44,14 @@ Data fields:
 
 Data fields have arbitrary names; multiple data fields may be present.
 
-Time-binned data is stored in Nchans x Nbins matrices.
+Time-binned data is stored in Npoints x Nbins matrices (if numeric) or
+cell arrays (if labels).
 
-Data that is not time-binned is stored in Nchans x 1 matrices.
+Data that is not time-binned is stored in Npoints x 1 matrices or cell
+arrays.
+
+Data may also consist of a character vector; this is interpreted as a
+Npoints x 1 cell array containing a copy of the character vector in each cell.
 
 
 

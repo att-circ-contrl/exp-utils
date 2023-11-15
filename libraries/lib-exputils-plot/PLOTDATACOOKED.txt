@@ -1,0 +1,38 @@
+Cooked data for plotting using euPlot_hlevPlotStatData_XXX is stored as a
+structure array, with each element holding a data record for one curve.
+This is typically derived from raw plot data (per PLOTDATARAW.txt).
+
+The intention with using a structure array is to allow masking based on the
+contents of the session, case, probe, and time label fields, or on FT trial
+number.
+
+
+These records have the following fields:
+
+
+"sessionlabel" is a character vector containing a filename-safe label for
+  the recording session (e.g. '20230808a').
+
+"caselabel" is a character vector containing a filename-safe label for a
+  group of trials (typically corresponding to one set of test conditions;
+  e.g. 'be150rand').
+
+"probelabel" is a character vector containing a filename-safe label for the
+  group of channels in this data record (typically corresponding to one
+  probe; e.g. 'pr1acc').
+
+"timelabel" is a character vector containing a filename-safe label for the
+  time bin (e.g. 'p0100ms'). NOTE - This will be '' for data that isn't
+  time-binned.
+
+
+"dataseriesx" is a Npoints x 1 matrix containing data values, or a
+  Npoints x 1 cell array containing label values. This is the independent
+  variable (often but not always shown on the X axis).
+
+"dataseriesy" is a Npoints x 1 matrix containing data values, or a
+  Npoints x 1 cell array containing label values. This is the dependent
+  variable (often but not always shown on the Y axis).
+
+
+(This is the end of the file.)

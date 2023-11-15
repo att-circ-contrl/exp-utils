@@ -56,14 +56,13 @@ end
 
 
 %
-% Augment the data with plot-specific metadata.
+% Augment the statistics data with plot-specific metadata.
 
 [ statdata sessionlabels caselabels probelabels timelabels ...
   sessiontitles casetitles probetitles timetitles timevaluesms ] = ...
   euChris_stimFeaturesToRawPlotData_loop2302( statdata );
 
 
-%
 % FIXME - Grab additional metadata that this doesn't collect.
 
 % We know that we have at least one record.
@@ -74,7 +73,6 @@ timebeforems = statdata{1}.winbefore * 1000;
 timebeforetitle = sprintf( '%d ms', round(abs(timebeforems)) );
 
 
-%
 % Get derived session, case, and probe metadata.
 
 casecount = length(caselabels);
@@ -118,6 +116,7 @@ legendlutprobe(:,4) = probemarks(:);
 % Get a scratch figure.
 
 thisfig = figure();
+
 
 
 %
@@ -173,6 +172,19 @@ for plotidx = 1:length(plotdefs)
     %
     % First pass: Traverse the data records, filter them, sort them by
     % session, and store a serialized list.
+
+% FIXME - Test the new version.
+cookeddata = euPlot_hlevRawPlotDataToCooked( statsubset, ...
+  thisdef.xaxis, thisdef.yaxis );
+
+% FIXME - Diagnostics.
+disp(size(cookeddata));
+if ~isempty(cookeddata)
+disp(cookeddata(1));
+else
+disp('xx Empty cooked data! Raw data size:');
+disp(size(statsubset));
+end
 
     datalist = {};
     plottitlesuffixes = {};
