@@ -56,59 +56,44 @@ end
 
 
 %
-% Get metadata and annotation strings.
+% Augment the data with plot-specific metadata.
+
+[ statdata sessionlabels caselabels probelabels timelabels ...
+  sessiontitles casetitles probetitles timetitles timevaluesms ] = ...
+  euChris_stimFeaturesToRawPlotData_loop2302( statdata );
+
+% FIXME - Old variable names.
+allsessions = sessionlabels;
+allcases = caselabels;
+allprobes = probelabels;
+labelsafter = timelabels;
+legendcasetext = casetitles;
+legendprobetext = probetitles;
+notesafter = timetitles;
+winafterms = timevaluesms;
 
 
-% Window times.
+% FIXME - Grab additional metadata that this doesn't collect.
+% FIXME - Prune this and read relevant information directly from records.
 
 % We know that we have at least one record.
 % Window data should be consistent, so take it from the first record.
 
 winbeforems = statdata{1}.winbefore * 1000;
-winafterms = statdata{1}.winafter * 1000;
-
-wincount = length(winafterms);
-
 % Remember to take the absolute value for the "before" time.
 notebefore = sprintf( '%d ms', round(abs(winbeforems)) );
 
-% The "after" time can be negative. Tolerate that.
-notesafter = nlUtil_sprintfCellArray( '%d ms', round(winafterms) );
-labelsafter = nlUtil_sprintfCellArray( 'post%03d', round(winafterms) );
 
 
-% Session labels, probe labels, and case labels.
+% Derived session, case, and probe metadata.
 
-% FIXME - We know a priori that raw case, session, and probe labels are
-% filename-safe and plot-safe.
-
-allcases = nlUtil_getCellOfStructField( statdata, 'caselabel', '' );
-allcases = allcases( ~strcmp(allcases, '') );
-allcases = unique(allcases);
-
-allsessions = nlUtil_getCellOfStructField( statdata, 'sessionlabel', '' );
-allsessions = allsessions( ~strcmp(allsessions, '') );
-allsessions = unique(allsessions);
-
-allprobes = nlUtil_getCellOfStructField( statdata, 'probelabel', '' );
-allprobes = allprobes( ~strcmp(allprobes, '') );
-allprobes = unique(allprobes);
-
-casecount = length(allcases);
-sessioncount = length(allsessions);
-probecount = length(allprobes);
-
-% Translate case and session names for legends/titles. Use probes as-is.
-
-legendcasetext = euChris_makePrettyCaseTitles_loop2302( allcases );
-legendprobetext = allprobes;
-
-sessiontitletext = euChris_makePrettySessionTitles_loop2302( allsessions );
-% FIXME - Not used?
-%sessionlabeltext = allsessions;
+casecount = length(caselabels);
+sessioncount = length(sessionlabels);
+probecount = length(probelabels);
+wincount = length(timevaluesms);
 
 % Keys have to be valid structure field names, starting with a letter.
-sessionkeys = nlUtil_sprintfCellArray( 'x%s', allsessions );
+sessionkeys = nlUtil_sprintfCellArray( 'x%s', sessionlabels );
 
 
 
@@ -214,7 +199,8 @@ for plotidx = 1:length(plotdefs)
       % Walk through the datasets.
 
       emptysession = struct( 'dataseriesx', {{}}, 'dataseriesy', {{}}, ...
-        'cidx', [], 'pidx', [], 'sidx', [], 'sessiontitle', 'undefined' );
+        'cidx', [], 'pidx', [], 'sidx', [], ...
+        'sessiontitle', 'undefined' );
 
       thiswindatalist = struct('aggr', emptysession);
       thiswindatalist.('aggr').('sessiontitle') = 'Aggregate';
@@ -242,7 +228,7 @@ for plotidx = 1:length(plotdefs)
         if ~isfield(thiswindatalist, thissessionkey)
           thiswindatalist.(thissessionkey) = emptysession;
           thiswindatalist.(thissessionkey).('sessiontitle') = ...
-            sessiontitletext{sidx};
+            statsubset{didx}.sessiontitle;
           thiswindatalist.(thissessionkey).('sessionlabel') = ...
             thissession;
         end

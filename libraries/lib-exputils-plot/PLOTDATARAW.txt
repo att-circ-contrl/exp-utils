@@ -1,4 +1,4 @@
-Data for plotting using euPlot_hlevPlotData is stored as a cell array of
+Raw data for plotting using euPlot_hlevPlotData is stored as a cell array of
 structures, each holding a data record. These records have the following
 fields:
 
@@ -28,7 +28,7 @@ General metadata:
   title for the group of channels in this data record (per above).
 
 
-"trialnum" is the trial number.
+"trialnum" is the Field Trip trial number.
 
 "chanlabels" is a cell array containing Field Trip channel labels for each
   of the channels in this data record.
@@ -39,6 +39,9 @@ General metadata:
 
 "timetitles" is a cell array holding character vectors containing plot-safe
   human-readable titles for each of the time bins used in the data record.
+
+"timevaluesms" is a vector containing time bin values used for plotting, in
+  milliseconds.
 
 
 
