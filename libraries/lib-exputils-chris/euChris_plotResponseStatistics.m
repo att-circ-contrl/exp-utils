@@ -62,30 +62,20 @@ end
   sessiontitles casetitles probetitles timetitles timevaluesms ] = ...
   euChris_stimFeaturesToRawPlotData_loop2302( statdata );
 
-% FIXME - Old variable names.
-allsessions = sessionlabels;
-allcases = caselabels;
-allprobes = probelabels;
-labelsafter = timelabels;
-legendcasetext = casetitles;
-legendprobetext = probetitles;
-notesafter = timetitles;
-winafterms = timevaluesms;
 
-
+%
 % FIXME - Grab additional metadata that this doesn't collect.
-% FIXME - Prune this and read relevant information directly from records.
 
 % We know that we have at least one record.
 % Window data should be consistent, so take it from the first record.
 
-winbeforems = statdata{1}.winbefore * 1000;
+timebeforems = statdata{1}.winbefore * 1000;
 % Remember to take the absolute value for the "before" time.
-notebefore = sprintf( '%d ms', round(abs(winbeforems)) );
+timebeforetitle = sprintf( '%d ms', round(abs(timebeforems)) );
 
 
-
-% Derived session, case, and probe metadata.
+%
+% Get derived session, case, and probe metadata.
 
 casecount = length(caselabels);
 sessioncount = length(sessionlabels);
@@ -107,6 +97,20 @@ casecols = nlPlot_getColorSpread( cols.red, casecount + 1, 360 );
 
 % Get per-probe styles.
 [ probelines probemarks ] = nlPlot_getLineMarkStyleSpread( probecount );
+
+% Convert these into cell array lookup tables.
+
+legendlutcase = cell(casecount,4);
+legendlutcase(:,1) = caselabels(:);
+legendlutcase(:,2) = casecols(1:casecount);
+legendlutcase(:,3) = { '-' };
+legendlutcase(:,4) = { 'none' };
+
+legendlutprobe = cell(probecount,4);
+legendlutprobe(:,1) = probelabels(:);
+legendlutprobe(:,2) = { cols.blk };
+legendlutprobe(:,3) = probelines(:);
+legendlutprobe(:,4) = probemarks(:);
 
 
 
@@ -183,14 +187,14 @@ for plotidx = 1:length(plotdefs)
       thissuffix = '';
 
       if ismember('before', thisdef.titlesuffixes)
-        thissuffix = [ thissuffix ' ' notebefore ' Before' ];
+        thissuffix = [ thissuffix ' ' timebeforetitle ' Before' ];
       end
 
       if ismember('after', thisdef.titlesuffixes)
         if ismember('before', thisdef.titlesuffixes)
           thissuffix = [ thissuffix ' and' ];
         end
-        thissuffix = [ thissuffix ' ' notesafter{widx} ' After' ];
+        thissuffix = [ thissuffix ' ' timetitles{widx} ' After' ];
       end
 
       plottitlesuffixes{widx} = thissuffix;
@@ -211,11 +215,11 @@ for plotidx = 1:length(plotdefs)
         % Make note of the session, case, and probe.
 
         thiscase = statsubset{didx}.caselabel;
-        cidx = find(strcmp(thiscase, allcases));
+        cidx = find(strcmp(thiscase, caselabels));
         thisprobe = statsubset{didx}.probelabel;
-        pidx = find(strcmp(thisprobe, allprobes));
+        pidx = find(strcmp(thisprobe, probelabels));
         thissession = statsubset{didx}.sessionlabel;
-        sidx = find(strcmp(thissession, allsessions));
+        sidx = find(strcmp(thissession, sessionlabels));
 
         casesplotted = unique([ casesplotted { thiscase } ]);
         probesplotted = unique([ probesplotted { thisprobe } ]);
@@ -332,9 +336,9 @@ for plotidx = 1:length(plotdefs)
               cidx = thissessiondata.cidx(recidx);
               pidx = thissessiondata.pidx(recidx);
               sidx = thissessiondata.sidx(recidx);
-              thiscase = allcases{cidx};
-              thisprobe = allprobes{pidx};
-              thissession = allsessions{sidx};
+              thiscase = caselabels{cidx};
+              thisprobe = probelabels{pidx};
+              thissession = sessionlabels{sidx};
 
 
               % The Y series is data. The X series is a single label.
@@ -462,9 +466,9 @@ for plotidx = 1:length(plotdefs)
             cidx = thissessiondata.cidx(recidx);
             pidx = thissessiondata.pidx(recidx);
             sidx = thissessiondata.sidx(recidx);
-            thiscase = allcases{cidx};
-            thisprobe = allprobes{pidx};
-            thissession = allsessions{sidx};
+            thiscase = caselabels{cidx};
+            thisprobe = probelabels{pidx};
+            thissession = sessionlabels{sidx};
 
 
             % The Y series is data. The X series is a single label.
@@ -509,7 +513,7 @@ for plotidx = 1:length(plotdefs)
             [ thisdef.titleprefix plottitlesuffixes{widx} ...
               ' - ' thissessiontitle ], ...
             [ fnameprefix '-' thisdef.label '-' thissessionlabel ...
-              '-' labelsafter{widx} '.png' ] );
+              '-' timelabels{widx} '.png' ] );
 
         elseif strcmp(thisdef.type, 'xy') || strcmp(thisdef.type, 'line')
 
@@ -529,22 +533,24 @@ for plotidx = 1:length(plotdefs)
             cidx = thissessiondata.cidx(recidx);
             pidx = thissessiondata.pidx(recidx);
             sidx = thissessiondata.sidx(recidx);
-            thiscase = allcases{cidx};
-            thisprobe = allprobes{pidx};
-            thissession = allsessions{sidx};
+            thiscase = caselabels{cidx};
+            thisprobe = probelabels{pidx};
+            thissession = sessionlabels{sidx};
 
 
             % The X series might be channel indices; that's ok.
 
-            thiscolour = casecols{cidx};
+            thiscolour = legendlutcase{cidx,2};
+            thislinetype = legendlutprobe{pidx,3};
+            thismarktype = legendlutprobe{pidx,4};
 
             if strcmp(thisdef.type, 'xy')
               plot( thisxseries, thisyseries, 'Color', thiscolour, ...
-                'LineStyle', 'none', 'Marker', probemarks{pidx}, ...
+                'LineStyle', 'none', 'Marker', thismarktype, ...
                 'MarkerSize', markersize, 'HandleVisibility', 'off' );
             elseif strcmp(thisdef.type, 'line')
               plot( thisxseries, thisyseries, 'Color', thiscolour, ...
-                'LineStyle', probelines{pidx}, 'Marker', probemarks{pidx}, ...
+                'LineStyle', thislinetype, 'Marker', thismarktype, ...
                 'MarkerSize', markersize, 'HandleVisibility', 'off' );
             end
           end
@@ -571,27 +577,29 @@ for plotidx = 1:length(plotdefs)
           % Doing this per pair gets too big to display, so show cases and
           % probes separately.
 
-          for cidx = 1:length(allcases)
-            if ismember(allcases{cidx}, casesplotted)
-              plot( NaN, NaN, 'Color', casecols{cidx}, ...
-                'DisplayName', legendcasetext{cidx} );
+          for cidx = 1:length(caselabels)
+            if ismember(caselabels{cidx}, casesplotted)
+              lutrow = legendlutcase(cidx,:);
+              plot( NaN, NaN, 'Color', lutrow{2}, ...
+                'DisplayName', casetitles{cidx} );
             end
           end
 
-          for pidx = 1:length(allprobes)
-            if ismember(allprobes{pidx}, probesplotted)
+          for pidx = 1:length(probelabels)
+            if ismember(probelabels{pidx}, probesplotted)
+              lutrow = legendlutprobe(pidx,:);
               if strcmp(thisdef.type, 'xy')
                 % Just the marker.
                 plot( NaN, NaN, 'Color', cols.blk, ...
-                  'LineStyle', 'none', 'Marker', probemarks{pidx}, ...
+                  'LineStyle', 'none', 'Marker', lutrow{4}, ...
                   'MarkerSize', markersize, ...
-                  'DisplayName', legendprobetext{pidx} );
+                  'DisplayName', probetitles{pidx} );
               else
                 % Marker and line style.
                 plot( NaN, NaN, 'Color', cols.blk, ...
-                  'LineStyle', probelines{pidx}, ...
-                  'Marker', probemarks{pidx}, 'MarkerSize', markersize, ...
-                  'DisplayName', legendprobetext{pidx} );
+                  'LineStyle', lutrow{3}, ...
+                  'Marker', lutrow{4}, 'MarkerSize', markersize, ...
+                  'DisplayName', probetitles{pidx} );
               end
             end
           end
@@ -621,7 +629,7 @@ for plotidx = 1:length(plotdefs)
           end
 
           saveas( thisfig, [ fnameprefix '-' thisdef.label ...
-            '-' thissessionlabel '-' labelsafter{widx} '.png' ] );
+            '-' thissessionlabel '-' timelabels{widx} '.png' ] );
 
 
           % Do this again for log XY plots.
@@ -644,7 +652,7 @@ for plotidx = 1:length(plotdefs)
             hold off;
 
             saveas( thisfig, [ fnameprefix '-' thisdef.label ...
-              '-' thissessionlabel '-' labelsafter{widx} '-log.png' ] );
+              '-' thissessionlabel '-' timelabels{widx} '-log.png' ] );
           end
 
         end
@@ -704,9 +712,9 @@ for plotidx = 1:length(plotdefs)
                % Use the fetched session title/label to correctly handle
                % the aggregate case, which isn't in the lookup table.
                thistupletitle = [ thissessiontitle ' ' ...
-                 legendcasetext{cidx} ' ' legendprobetext{pidx} ];
-               thistuplelabel = [ thissessionlabel '-' allcases{cidx} ...
-                 '-' allprobes{pidx} ];
+                 casetitles{cidx} ' ' probetitles{pidx} ];
+               thistuplelabel = [ thissessionlabel '-' caselabels{cidx} ...
+                 '-' probelabels{pidx} ];
 
                thistupledata = ...
                  struct( 'cidx', cidx, 'pidx', pidx, 'sidx', sidx, ...
@@ -747,7 +755,7 @@ for plotidx = 1:length(plotdefs)
         % This will give a sorted list, in addition to being unique.
         winidxlist = unique(thistupledata.widx);
 
-        thistupledata.yxwintimes = winafterms(winidxlist);
+        thistupledata.yxwintimes = timevaluesms(winidxlist);
 
         % The number of data series values _really_ should be consistent,
         % but check just in case it isn't.
