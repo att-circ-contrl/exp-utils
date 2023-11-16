@@ -146,18 +146,25 @@ for plotidx = 1:length(plotdefs)
 
 
     %
-    % Compute plot ranges.
+    % Get the cooked data list and compute plot ranges.
 
-    % Special-case the horizontal cursor at unit Y.
-    extrayvals = [];
+    cookeddata = euPlot_hlevRawPlotDataToCooked( statsubset, ...
+      thisdef.xaxis, thisdef.yaxis );
+
+
+    % Special-case horizontal cursors.
+    extravalsy = [];
     if ismember('hunity', thisdef.decorations)
-      extrayvals = [ 1 ];
+      extravalsy = [ extravalsy 1 ];
+    end
+    if ismember('hzero', thisdef.decorations)
+      extravalsy = [ extravalsy 0 ];
     end
 
     [ minvalx maxvalx ] = euPlot_getStructureSeriesRange( ...
-      statsubset, thisdef.xaxis, [ 0 1 ], [] );
+      cookeddata, 'dataseriesx', [ 0 1 ], [] );
     [ minvaly maxvaly ] = euPlot_getStructureSeriesRange( ...
-      statsubset, thisdef.yaxis, [ 0 1 ], extrayvals );
+      cookeddata, 'dataseriesy', [ 0 1 ], extravalsy );
 
     minvalxy = min(minvalx, minvaly);
     maxvalxy = max(maxvalx, maxvaly);
@@ -173,18 +180,8 @@ for plotidx = 1:length(plotdefs)
     % First pass: Traverse the data records, filter them, sort them by
     % session, and store a serialized list.
 
-% FIXME - Test the new version.
-cookeddata = euPlot_hlevRawPlotDataToCooked( statsubset, ...
-  thisdef.xaxis, thisdef.yaxis );
+% FIXME - Obsolete. Switch to cooked data and remove this.
 
-% FIXME - Diagnostics.
-disp(size(cookeddata));
-if ~isempty(cookeddata)
-disp(cookeddata(1));
-else
-disp('xx Empty cooked data! Raw data size:');
-disp(size(statsubset));
-end
 
     datalist = {};
     plottitlesuffixes = {};
