@@ -58,12 +58,14 @@ end
 %
 % Augment the statistics data with plot-specific metadata.
 
+% FIXME - Split out label extraction, and add merge-sub-session function.
+
 [ statdata sessionlabels caselabels probelabels timelabels ...
   sessiontitles casetitles probetitles timetitles timevaluesms ] = ...
   euChris_stimFeaturesToRawPlotData_loop2302( statdata );
 
 
-% FIXME - Grab additional metadata that this doesn't collect.
+% Grab additional metadata that this doesn't collect.
 
 % We know that we have at least one record.
 % Window data should be consistent, so take it from the first record.
@@ -103,12 +105,14 @@ legendlutcase(:,1) = caselabels(:);
 legendlutcase(:,2) = casecols(1:casecount);
 legendlutcase(:,3) = { '-' };
 legendlutcase(:,4) = { 'none' };
+legendlutcase(:,5) = casetitles(:);
 
 legendlutprobe = cell(probecount,4);
 legendlutprobe(:,1) = probelabels(:);
 legendlutprobe(:,2) = { cols.blk };
 legendlutprobe(:,3) = probelines(:);
 legendlutprobe(:,4) = probemarks(:);
+legendlutprobe(:,5) = probetitles(:);
 
 
 
@@ -146,11 +150,23 @@ for plotidx = 1:length(plotdefs)
 
 
     %
-    % Get the cooked data list and compute plot ranges.
+    % Get the cooked data list.
 
     cookeddata = euPlot_hlevRawPlotDataToCooked( statsubset, ...
       thisdef.xaxis, thisdef.yaxis );
 
+    % Bail out if we have no data.
+    if isempty(cookeddata)
+      disp([ '.. Skipping plots for "' thisdef.label '" (no data).' ]);
+      continue;
+    end
+
+
+    %
+    % Compute plot ranges.
+
+    % FIXME - We need to let the user choose whether to have consistent
+    % ranges or per-session/per-case/per-probe ranges!
 
     % Special-case horizontal cursors.
     extravalsy = [];
@@ -161,10 +177,13 @@ for plotidx = 1:length(plotdefs)
       extravalsy = [ extravalsy 0 ];
     end
 
+    % Set the default range to 0..n+1, to get sensible ranges for labels.
     [ minvalx maxvalx ] = euPlot_getStructureSeriesRange( ...
-      cookeddata, 'dataseriesx', [ 0 1 ], [] );
+      cookeddata, 'dataseriesx', ...
+      [ 0 (1 + length(cookeddata(1).dataseriesx)) ], [] );
     [ minvaly maxvaly ] = euPlot_getStructureSeriesRange( ...
-      cookeddata, 'dataseriesy', [ 0 1 ], extravalsy );
+      cookeddata, 'dataseriesy', ...
+      [ 0 (1 + length(cookeddata(1).dataseriesy)) ], extravalsy );
 
     minvalxy = min(minvalx, minvaly);
     maxvalxy = max(maxvalx, maxvaly);
@@ -174,6 +193,94 @@ for plotidx = 1:length(plotdefs)
 
     % Ditto with the box plots and line plots.
     floorvaly = min(0, minvaly);
+
+
+    %
+    % Switch by plot type. This affects how we iterate.
+
+    if strcmp(thisdef.type, 'xy') || strcmp(thisdef.type, 'line')
+
+      % XY plot or line plot.
+
+      % FIXME - Data might not be time-binned!
+
+      for widx = 1:wincount
+        windowmask = strcmp( timelabels{widx}, { cookeddata.timelabel } );
+
+        % Per-session plots.
+
+        if ~aggr_only
+          for sidx = 1:sessioncount
+            sessionmask = ...
+              strcmp( sessionlabels{sidx}, { cookeddata.sessionlabel } );
+
+            thiscooked = cookeddata( windowmask & sessionmask );
+
+            if ~isempty(thiscooked)
+
+              thistitle = [ thisdef.titleprefix plottitlesuffixes{widx} ...
+                ' - ' sessiontitles{sidx} ];
+              thisfname = [ fnameprefix '-' thisdef.label ...
+                '-' sessionlabels{sidx} '-' timelabels{widx} '.png' ];
+
+              euPlot_hlevPlotStatData2D( thiscooked, ...
+                thisdef.type, thisdef.decorations, ...
+                [ minvalx maxvalx ], [ minvaly maxvaly ], 'linear', ...
+                legendlutcase, legendlutprobe, ...
+                thistitle, thisdef.xtitle, thisdef.ytitle, thisfname );
+
+              if strcmp(thisdef.type, 'xy')
+                % Emit another copy with log axes.
+
+                thisfname = [ fnameprefix '-' thisdef.label ...
+                  '-' sessionlabels{sidx} '-' timelabels{widx} '-log.png' ];
+
+                euPlot_hlevPlotStatData2D( thiscooked, ...
+                  thisdef.type, thisdef.decorations, ...
+                  [ minvalx maxvalx ], [ minvaly maxvaly ], 'log', ...
+                  legendlutcase, legendlutprobe, ...
+                  thistitle, thisdef.xtitle, thisdef.ytitle, thisfname );
+              end
+
+            end
+          end
+        end
+
+        % Aggregate plot across all sessions.
+
+        thiscooked = cookeddata( windowmask );
+
+        if ~isempty(thiscooked)
+
+          thistitle = [ thisdef.titleprefix plottitlesuffixes{widx} ...
+            ' - Aggregate' ];
+          thisfname = [ fnameprefix '-' thisdef.label ...
+            '-aggr-' timelabels{widx} '.png' ];
+
+          euPlot_hlevPlotStatData2D( thiscooked, ...
+            thisdef.type, thisdef.decorations, ...
+            [ minvalx maxvalx ], [ minvaly maxvaly ], 'linear', ...
+            legendlutcase, legendlutprobe, ...
+            thistitle, thisdef.xtitle, thisdef.ytitle, thisfname );
+
+          if strcmp(thisdef.type, 'xy')
+            % Emit another copy with log axes.
+
+            thisfname = [ fnameprefix '-' thisdef.label ...
+              '-aggr-' timelabels{widx} '-log.png' ];
+
+            euPlot_hlevPlotStatData2D( thiscooked, ...
+              thisdef.type, thisdef.decorations, ...
+              [ minvalx maxvalx ], [ minvaly maxvaly ], 'log', ...
+              legendlutcase, legendlutprobe, ...
+              thistitle, thisdef.xtitle, thisdef.ytitle, thisfname );
+          end
+
+        end
+      end  % for widx
+
+    end  % if XY or line plot
+
 
 
     %
@@ -523,146 +630,6 @@ for plotidx = 1:length(plotdefs)
               ' - ' thissessiontitle ], ...
             [ fnameprefix '-' thisdef.label '-' thissessionlabel ...
               '-' timelabels{widx} '.png' ] );
-
-        elseif strcmp(thisdef.type, 'xy') || strcmp(thisdef.type, 'line')
-
-          % XY plot or line plot.
-          % A lot of code is common between these.
-
-          figure(thisfig);
-          clf('reset');
-
-          hold on;
-
-          % NOTE - Building the legend afterwards; plot without display names.
-
-          for recidx = 1:reccount
-            thisxseries = thissessiondata.dataseriesx{recidx};
-            thisyseries = thissessiondata.dataseriesy{recidx};
-            cidx = thissessiondata.cidx(recidx);
-            pidx = thissessiondata.pidx(recidx);
-            sidx = thissessiondata.sidx(recidx);
-            thiscase = caselabels{cidx};
-            thisprobe = probelabels{pidx};
-            thissession = sessionlabels{sidx};
-
-
-            % The X series might be channel indices; that's ok.
-
-            thiscolour = legendlutcase{cidx,2};
-            thislinetype = legendlutprobe{pidx,3};
-            thismarktype = legendlutprobe{pidx,4};
-
-            if strcmp(thisdef.type, 'xy')
-              plot( thisxseries, thisyseries, 'Color', thiscolour, ...
-                'LineStyle', 'none', 'Marker', thismarktype, ...
-                'MarkerSize', markersize, 'HandleVisibility', 'off' );
-            elseif strcmp(thisdef.type, 'line')
-              plot( thisxseries, thisyseries, 'Color', thiscolour, ...
-                'LineStyle', thislinetype, 'Marker', thismarktype, ...
-                'MarkerSize', markersize, 'HandleVisibility', 'off' );
-            end
-          end
-
-          % Add decorations.
-
-          if ismember('diag', thisdef.decorations)
-            plot( [floorvalxy maxvalxy], [floorvalxy maxvalxy], ...
-              'Color', cols.gry, 'HandleVisibility', 'off' );
-          end
-
-          if ismember('hunity', thisdef.decorations)
-            plot( [minvalx maxvalx], [1 1], ...
-              'Color', cols.gry, 'HandleVisibility', 'off' );
-          end
-
-          if ismember('hzero', thisdef.decorations)
-            plot( [minvalx maxvalx], [0 0], ...
-              'Color', cols.gry, 'HandleVisibility', 'off' );
-          end
-
-
-          % Build the legend.
-          % Doing this per pair gets too big to display, so show cases and
-          % probes separately.
-
-          for cidx = 1:length(caselabels)
-            if ismember(caselabels{cidx}, casesplotted)
-              lutrow = legendlutcase(cidx,:);
-              plot( NaN, NaN, 'Color', lutrow{2}, ...
-                'DisplayName', casetitles{cidx} );
-            end
-          end
-
-          for pidx = 1:length(probelabels)
-            if ismember(probelabels{pidx}, probesplotted)
-              lutrow = legendlutprobe(pidx,:);
-              if strcmp(thisdef.type, 'xy')
-                % Just the marker.
-                plot( NaN, NaN, 'Color', cols.blk, ...
-                  'LineStyle', 'none', 'Marker', lutrow{4}, ...
-                  'MarkerSize', markersize, ...
-                  'DisplayName', probetitles{pidx} );
-              else
-                % Marker and line style.
-                plot( NaN, NaN, 'Color', cols.blk, ...
-                  'LineStyle', lutrow{3}, ...
-                  'Marker', lutrow{4}, 'MarkerSize', markersize, ...
-                  'DisplayName', probetitles{pidx} );
-              end
-            end
-          end
-
-
-          % Add annotations.
-
-          hold off;
-
-          title( [ thisdef.titleprefix plottitlesuffixes{widx} ...
-            ' - ' thissessiontitle ] );
-
-          xlabel( thisdef.xtitle );
-          ylabel( thisdef.ytitle );
-
-          if strcmp(thisdef.type, 'xy')
-            % For the linear plot, let the range go negative.
-            xlim([ floorvalxy (floorvalxy + 1.3*(maxvalxy-floorvalxy)) ]);
-            ylim([ floorvalxy maxvalxy ]);
-
-            legend('Location', 'southeast');
-          else
-            xlim([ minvalx maxvalx ]);
-            ylim([ floorvaly (floorvaly + 1.3*(maxvaly-floorvaly)) ]);
-
-            legend('Location', 'northeast');
-          end
-
-          saveas( thisfig, [ fnameprefix '-' thisdef.label ...
-            '-' thissessionlabel '-' timelabels{widx} '.png' ] );
-
-
-          % Do this again for log XY plots.
-
-          if strcmp(thisdef.type, 'xy')
-            xlim([ 0.01*maxvalxy 4*maxvalxy ]);
-            ylim([ 0.01*maxvalxy maxvalxy ]);
-            set(gca, 'xscale', 'log');
-            set(gca, 'yscale', 'log');
-
-            hold on;
-            if ismember('diag', thisdef.decorations)
-              plot( [0.01*maxvalxy maxvalxy], [0.01*maxvalxy maxvalxy], ...
-                'Color', cols.gry, 'HandleVisibility', 'off' );
-            end
-            if ismember('hunity', thisdef.decorations)
-              plot( [0.01*maxvalxy 4*maxvalxy], [1 1], ...
-                'Color', cols.gry, 'HandleVisibility', 'off' );
-            end
-            hold off;
-
-            saveas( thisfig, [ fnameprefix '-' thisdef.label ...
-              '-' thissessionlabel '-' timelabels{widx} '-log.png' ] );
-          end
 
         end
       end

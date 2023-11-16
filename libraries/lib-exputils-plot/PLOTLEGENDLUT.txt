@@ -1,0 +1,25 @@
+A plot legend lookup table is an Nx5 cell array containing plot style
+information, indexed by a label.
+
+plotlegendlut{:,1} contains unique labels used to index the lookup table.
+plotlegendlut{:,2} contains [ r g b ] colour triplets specifying plot colour.
+plotlegendlut{:,3} contains character vectors specifying plot line style.
+plotlegendlut{:,4} contains character vectors specifying plot marker style.
+plotlegendlut{:,5} contains character vectors with plot-safe legend strings
+  (display names).
+
+
+A typical use case would be:
+
+legendlabels = plotlegendlut(:,1);
+lidx = min(find(strcmp( legendlabels, thislabel );
+
+plot( thisxseries, thisyseries, 'Color', plotlegendlut{lidx,2}, ...
+  'LineStyle', plotlegendlut{lidx,3}, 'Marker', plotlegendlut{lidx,4}, ...
+  'DisplayName', plotlegendlut{lidx,5} );
+
+This can be used to add legend rows if "thisxseries" and "thisyseries" are
+NaN, with 'HandleVisibility' set to 'off' for real data series.
+
+
+(This is the end of the file.)
