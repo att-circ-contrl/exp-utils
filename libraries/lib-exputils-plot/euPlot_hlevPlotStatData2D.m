@@ -8,6 +8,9 @@ function euPlot_hlevPlotStatData2D( plotdata, plottype, decorations, ...
 %
 % This renders cooked plot data to an XY plot or a line plot.
 %
+% NOTE - Axes that are labels rather than numeric data will be arranged in
+% lexical order.
+%
 % "plotdata" is cooked plot data, per PLOTDATACOOKED.txt.
 % "plottype" is 'xy' or 'line'.
 % "decorations" is a cell array which may include any of the following:
@@ -17,7 +20,7 @@ function euPlot_hlevPlotStatData2D( plotdata, plottype, decorations, ...
 % "xrange" [ min max ] specifies the X axis range, or [] to auto-range.
 % "yrange" [ min max ] specifies the Y axis range, or [] to auto-range.
 % "loglin" is 'log' or 'linear', applying to both axes. This is normally
-%   only log for XY plots.
+%   only log for XY plots. Label data will always be linear.
 % "legendlutcase" is a plotting style lookup table indexed by case label,
 %   per PLOTLEGENDLUT.txt.
 % "legendlutprobe" is a plotting style lookup table indexed by probe label,
@@ -40,11 +43,46 @@ end
 
 
 %
+% Get label lookup tables if X or Y holds label data.
+% These get sorted in lexical order (side effect of "unique").
+
+xticlabels = {};
+yticlabels = {};
+
+if iscell( plotdata(1).dataseriesx )
+  xticlabels = nlUtil_extractStructureSeries( plotdata, 'dataseriesx' );
+  xticlabels = unique(xticlabels);
+end
+
+if iscell( plotdata(1).dataseriesy )
+  yticlabels = nlUtil_extractStructureSeries( plotdata, 'dataseriesy' );
+  yticlabels = unique(yticlabels);
+end
+
+
+% Only numeric axes can be log-scale.
+
+want_x_log = false;
+want_y_log = false;
+
+if strcmp(loglin, 'log')
+  want_x_log = isempty(xticlabels);
+  want_y_log = isempty(yticlabels);
+end
+
+
+
+%
 % Get ranges.
 
 if isempty(xrange)
-  % Default to 0..n+1, to get sensible ranges for labels.
-  defaultrange = [ 0 (1 + length(plotdata(1).dataseriesx)) ];
+  if isempty(xticlabels)
+    defaultrange = [ 0 1 ];
+  else
+    % Default to 0..n+1, to get sensible ranges for labels.
+    defaultrange = [ 0 (1 + length(xticlabels)) ];
+  end
+
   [ minvalx maxvalx ] = euPlot_getStructureSeriesRange( ...
     plotdata, 'dataseriesx', defaultrange, [] );
 
@@ -58,6 +96,13 @@ else
 end
 
 if isempty(yrange)
+  if isempty(yticlabels)
+    defaultrange = [ 0 1 ];
+  else
+    % Default to 0..n+1, to get sensible ranges for labels.
+    defaultrange = [ 0 (1 + length(yticlabels)) ];
+  end
+
   extravalsy = [];
   if ismember('hunity', decorations)
     extravalsy = [ extravalsy 1 ];
@@ -66,8 +111,6 @@ if isempty(yrange)
     extravalsy = [ extravalsy 0 ];
   end
 
-  % Default to 0..n+1, to get sensible ranges for labels.
-  defaultrange = [ 0 (1 + length(plotdata(1).dataseriesy)) ];
   [ minvaly maxvaly ] = euPlot_getStructureSeriesRange( ...
     plotdata, 'dataseriesy', defaultrange, extravalsy );
 
@@ -82,18 +125,21 @@ end
 
 
 % Get the XY plot range.
-minvalxy = min(minvalx, minvaly);
-maxvalxy = max(maxvalx, maxvaly);
+minvaldiag = min(minvalx, minvaly);
+maxvaldiag = max(maxvalx, maxvaly);
 
 % Tweak plot foor location.
 minvaly = min(0, minvaly);
-minvalxy = min(0, minvalxy);
+minvaldiag = min(0, minvaldiag);
 
 % Clamp for logscale plots.
-if strcmp(loglin, 'log')
+if want_x_log
   minvalx = 0.01 * maxvalx;
+  minvaldiag = max(minvaldiag, minvalx);
+end
+if want_y_log
   minvaly = 0.01 * maxvaly;
-  minvalxy = 0.01 * maxvalxy;
+  minvaldiag = max(minvaldiag, minvaly);
 end
 
 
@@ -129,10 +175,20 @@ allprobelabels = legendlutprobe(:,1);
 for recidx = 1:length(plotdata)
 
   % Get data series.
-  % The X series might be channel indices; that's ok.
 
   thisxseries = plotdata(recidx).dataseriesx;
   thisyseries = plotdata(recidx).dataseriesy;
+
+
+  % Special-case label series.
+
+  if iscell(thisxseries)
+    thisxseries = nlUtil_getLabelIndices( thisxseries, xticlabels );
+  end
+
+  if iscell(thisyseries)
+    thisyseries = nlUtil_getLabelIndices( thisyseries, yticlabels );
+  end
 
 
   % Figure out colours, line styles, and markers.
@@ -168,7 +224,7 @@ end
 % Add decorations.
 
 if ismember('diag', decorations)
-  plot( [minvalxy maxvalxy], [minvalxy maxvalxy], ...
+  plot( [minvaldiag maxvaldiag], [minvaldiag maxvaldiag], ...
     'Color', cols.gry, 'HandleVisibility', 'off' );
 end
 
@@ -230,6 +286,16 @@ title( figtitle );
 xlabel( xtitle );
 ylabel( ytitle );
 
+if ~isempty(xticlabels)
+  [ scratch xticlabels ] = euUtil_makeSafeStringArray( xticlabels );
+  set( gca, 'XTick', 1:length(xticlabels), 'XTickLabel', xticlabels );
+end
+
+if ~isempty(yticlabels)
+  [ scratch yticlabels ] = euUtil_makeSafeStringArray( yticlabels );
+  set( gca, 'YTick', 1:length(yticlabels), 'YTickLabel', yticlabels );
+end
+
 if strcmp(plottype, 'xy')
   legend('Location', 'southeast');
 else
@@ -244,26 +310,40 @@ end
 % Minimum is already clamped; we're changing the maximum extents to leave
 % space for the legend.
 
-if strcmp(loglin, 'log')
-  set(gca, 'xscale', 'log');
-  set(gca, 'yscale', 'log');
+if strcmp(plottype, 'xy')
+  % Use the joint minimum and maximum range, to keep diagonals diagonal.
+  % FIXME - Only do this if both axes are numeric, not labels!
+  if isempty(xticlabels) && isempty(yticlabels)
+    minvalx = minvaldiag;
+    minvaly = minvaldiag;
+    maxvalx = maxvaldiag;
+    maxvaly = maxvaldiag;
+  end
 
-  if strcmp(plottype, 'xy')
-    xlim([ minvalxy 4*maxvalxy ]);
-    ylim([ minvalxy maxvalxy ]);
+  % XY plot has the X range padded.
+  if want_x_log
+    maxvalx = 4*maxvalx;
   else
-    xlim([ minvalx maxvalx ]);
-    ylim([ minvaly 4*maxvaly ]);
+    maxvalx = minvalx + 1.3*(maxvalx-minvalx);
   end
 else
-  if strcmp(plottype, 'xy')
-    xlim([ minvalxy (minvalxy + 1.3*(maxvalxy-minvalxy)) ]);
-    ylim([ minvalxy maxvalxy ]);
+  % Line plot has the Y range padded.
+  if want_y_log
+    maxvaly = 4*maxvaly;
   else
-    xlim([ minvalx maxvalx ]);
-    ylim([ minvaly (minvaly + 1.3*(maxvaly-minvaly)) ]);
+    maxvaly = minvaly + 1.3*(maxvaly-minvaly);
   end
 end
+
+if want_x_log
+  set(gca, 'xscale', 'log');
+end
+if want_y_log
+  set(gca, 'yscale', 'log');
+end
+
+xlim([ minvalx maxvalx ]);
+ylim([ minvaly maxvaly ]);
 
 
 
