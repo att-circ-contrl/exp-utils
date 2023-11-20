@@ -264,7 +264,10 @@ for plotidx = 1:length(plotdefs)
             legendlutcase, legendlutprobe, ...
             thistitle, thisdef.xtitle, thisdef.ytitle, thisfname );
 
-          if strcmp(thisdef.type, 'xy')
+% FIXME - Emit log versions of line plots too.
+% FIXME - Add a plot def "log, linear, or both" switch.
+if true
+%          if strcmp(thisdef.type, 'xy')
             % Emit another copy with log axes.
 
             thisfname = [ fnameprefix '-' thisdef.label ...
@@ -280,7 +283,9 @@ for plotidx = 1:length(plotdefs)
         end
       end  % for widx
 
-    end  % if XY or line plot
+      % end of "if XY or line plot"
+    elseif strcmp(thisdef.type, 'timeheat')
+    end % if timeheat plot
 
 
 

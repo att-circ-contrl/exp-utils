@@ -46,101 +46,34 @@ end
 % Get label lookup tables if X or Y holds label data.
 % These get sorted in lexical order (side effect of "unique").
 
-xticlabels = {};
-yticlabels = {};
+% Also get ranges and log/linear flags.
 
-if iscell( plotdata(1).dataseriesx )
-  xticlabels = nlUtil_extractStructureSeries( plotdata, 'dataseriesx' );
-  xticlabels = unique(xticlabels);
+% FIXME - Forcing zero to be included in all ranges.
+extravalsx = [ 0 ];
+extravalsy = [ 0 ];
+if ismember('hunity', decorations)
+  extravalsy = [ extravalsy 1 ];
 end
 
-if iscell( plotdata(1).dataseriesy )
-  yticlabels = nlUtil_extractStructureSeries( plotdata, 'dataseriesy' );
-  yticlabels = unique(yticlabels);
-end
+[ minvalx maxvalx xticlabels want_x_log ] = ...
+  euPlot_hlevHelperGetRangeAndTics( ...
+    nlUtil_extractStructureSeries( plotdata, 'dataseriesx' ), ...
+    extravalsx, loglin, xrange );
+
+[ minvaly maxvaly yticlabels want_y_log ] = ...
+  euPlot_hlevHelperGetRangeAndTics( ...
+    nlUtil_extractStructureSeries( plotdata, 'dataseriesy' ), ...
+    extravalsy, loglin, yrange );
 
 
-% Only numeric axes can be log-scale.
-
-want_x_log = false;
-want_y_log = false;
-
-if strcmp(loglin, 'log')
-  want_x_log = isempty(xticlabels);
-  want_y_log = isempty(yticlabels);
-end
-
-
-
-%
-% Get ranges.
-
-if isempty(xrange)
-  if isempty(xticlabels)
-    defaultrange = [ 0 1 ];
-  else
-    % Default to 0..n+1, to get sensible ranges for labels.
-    defaultrange = [ 0 (1 + length(xticlabels)) ];
-  end
-
-  [ minvalx maxvalx ] = euPlot_getStructureSeriesRange( ...
-    plotdata, 'dataseriesx', defaultrange, [] );
-
-  % Kludge to catch constant-data case.
-  if maxvalx == minvalx
-    maxvalx = minvalx + 1;
-  end
+% Get diagonal decoration extents.
+% For diagonal decorations, make sure we don't go negative on log axes.
+if want_x_log || want_y_log
+  minvaldiag = max(minvalx, minvaly);
 else
-  minvalx = min(xrange);
-  maxvalx = max(xrange);
+  minvaldiag = min(minvalx, minvaly);
 end
-
-if isempty(yrange)
-  if isempty(yticlabels)
-    defaultrange = [ 0 1 ];
-  else
-    % Default to 0..n+1, to get sensible ranges for labels.
-    defaultrange = [ 0 (1 + length(yticlabels)) ];
-  end
-
-  extravalsy = [];
-  if ismember('hunity', decorations)
-    extravalsy = [ extravalsy 1 ];
-  end
-  if ismember('hzero', decorations)
-    extravalsy = [ extravalsy 0 ];
-  end
-
-  [ minvaly maxvaly ] = euPlot_getStructureSeriesRange( ...
-    plotdata, 'dataseriesy', defaultrange, extravalsy );
-
-  % Kludge to catch constant-data case.
-  if maxvaly == minvaly
-    maxvaly = minvaly + 1;
-  end
-else
-  minvaly = min(yrange);
-  maxvaly = max(yrange);
-end
-
-
-% Get the XY plot range.
-minvaldiag = min(minvalx, minvaly);
 maxvaldiag = max(maxvalx, maxvaly);
-
-% Tweak plot foor location.
-minvaly = min(0, minvaly);
-minvaldiag = min(0, minvaldiag);
-
-% Clamp for logscale plots.
-if want_x_log
-  minvalx = 0.01 * maxvalx;
-  minvaldiag = max(minvaldiag, minvalx);
-end
-if want_y_log
-  minvaly = 0.01 * maxvaly;
-  minvaldiag = max(minvaldiag, minvaly);
-end
 
 
 
