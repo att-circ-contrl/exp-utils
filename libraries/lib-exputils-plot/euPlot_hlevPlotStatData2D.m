@@ -1,15 +1,17 @@
 function euPlot_hlevPlotStatData2D( plotdata, plottype, decorations, ...
-  xrange, yrange, loglin, legendlutcase, legendlutprobe, ...
+  xrange, yrange, loglinx, logliny, legendlutcase, legendlutprobe, ...
   figtitle, xtitle, ytitle, outfile )
 
 % function euPlot_hlevPlotStatData2D( plotdata, plottype, decorations, ...
-%   xrange, yrange, loglin, legendlutcase, legendlutprobe, ...
+%   xrange, yrange, loglinx, logliny, legendlutcase, legendlutprobe, ...
 %   figtitle, xtitle, ytitle, outfile )
 %
 % This renders cooked plot data to an XY plot or a line plot.
 %
 % NOTE - Axes that are labels rather than numeric data will be arranged in
 % lexical order.
+%
+% NOTE - Label data will always be linear, ignoring the log/linear switches.
 %
 % "plotdata" is cooked statistics plot data, per PLOTDATACOOKED.txt.
 % "plottype" is 'xy' or 'line'.
@@ -19,8 +21,8 @@ function euPlot_hlevPlotStatData2D( plotdata, plottype, decorations, ...
 %   'hzero' draws a horizontal line at Y=0.
 % "xrange" [ min max ] specifies the X axis range, or [] to auto-range.
 % "yrange" [ min max ] specifies the Y axis range, or [] to auto-range.
-% "loglin" is 'log' or 'linear', applying to both axes. This is normally
-%   only log for XY plots. Label data will always be linear.
+% "loglinx" is 'log' or 'linear', applying to the X axis.
+% "logliny" is 'log' or 'linear', applying to the Y axis.
 % "legendlutcase" is a plotting style lookup table indexed by case label,
 %   per PLOTLEGENDLUT.txt.
 % "legendlutprobe" is a plotting style lookup table indexed by probe label,
@@ -58,12 +60,12 @@ end
 [ minvalx maxvalx xticlabels want_x_log ] = ...
   euPlot_hlevHelperGetRangeAndTics( ...
     nlUtil_extractStructureSeries( plotdata, 'dataseriesx' ), ...
-    extravalsx, loglin, xrange );
+    extravalsx, loglinx, xrange );
 
 [ minvaly maxvaly yticlabels want_y_log ] = ...
   euPlot_hlevHelperGetRangeAndTics( ...
     nlUtil_extractStructureSeries( plotdata, 'dataseriesy' ), ...
-    extravalsy, loglin, yrange );
+    extravalsy, logliny, yrange );
 
 
 % Get diagonal decoration extents.
