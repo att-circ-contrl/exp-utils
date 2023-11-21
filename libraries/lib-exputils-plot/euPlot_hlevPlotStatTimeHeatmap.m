@@ -49,10 +49,9 @@ end
 
 
 %
-% Get a label lookup table if the independent variable holds label data.
-% Also get ranges and log/linear flags.
+% Get ranges, log/linaer flags, and tic labels for label data.
 
-% NOTE - Plotting expects time and heat value to be numeric!
+% NOTE - Heat values and time values should be numeric!
 
 [ minvaltime maxvaltime ticlabelstime want_time_log ] = ...
   euPlot_hlevHelperGetRangeAndTics( ...
@@ -71,8 +70,7 @@ end
 
 
 %
-% Concatenate across time windows to build a proper data matrix.
-
+% Preprocess the time and independent axes.
 
 % Get a list of time bin labels and a lookup table of time values.
 
@@ -92,14 +90,24 @@ timelutlabels = timelutlabels(sortidx);
 
 
 % Figure out what the maximum number of independent data elements is.
-% This _should_ be consistent, but tolerate inconsistent lengths.
 
-datamaxlength = 0;
-for recidx = 1:length(plotdata)
-  datamaxlength = max( datamaxlength, length(plotdata(recidx).dataseriesx) );
+if isempty(ticlabelsindep)
+  % Numeric data.
+  % This _should_ be consistent, but tolerate inconsistent lengths.
+
+  datamaxlength = 0;
+  for recidx = 1:length(plotdata)
+    datamaxlength = max( datamaxlength, ...
+      length(plotdata(recidx).dataseriesx) );
+  end
+else
+  % Label data.
+  datamaxlength = length(ticlabelsindep);
 end
 
 
+
+%
 % Build the data matrix. Anything missing defaults to NaN.
 
 yxdata = nan( datamaxlength, length(timelutvalues) );
@@ -110,16 +118,42 @@ for recidx = 1:length(plotdata)
 
   thisrec = plotdata(recidx);
 
+
   % Index time by label, not time value, for consistency.
   thistimeidx = min(find(strcmp( thisrec.timelabel, timelutlabels )));
 
+
+  % Get data series.
   thisheatseries = thisrec.dataseriesy;
-  thislength = length(thisheatseries);
+  thisindepseries = thisrec.dataseriesx;
 
-  yxdata(1:thislength, thistimeidx) = thisheatseries;
 
-  % FIXME - Blithely assume that independent variable values are consistent.
-  yxindepvals(1:thislength) = thisrec.dataseriesx;
+  % Index the independent series by label if it's labels. This tolerates
+  % records containing only some label values, and also handles sorting.
+  % For numeric independent series, index by position.
+  % FIXME - Blithely assume that numeric independent variable values are
+  % consistent between records and already sorted or in sensible order.
+
+  if isempty(ticlabelsindep)
+    % Numeric data.
+    thisindepindices = 1:length(thisindepseries);
+  else
+    % Label data.
+
+    thisindepindices = [];
+    for didx = 1:length(thisindepseries)
+      thisindepindices(didx) = ...
+        min(find(strcmp( thisindepseries(didx), ticlabelsindep )));
+    end
+
+    % For plotting, store indices rather than labels.
+    thisindepseries = thisindepindices;
+  end
+
+
+  % Store this data slice and update the list of independent values.
+  yxdata(thisindepindices, thistimeidx) = thisheatseries;
+  yxindepvals(thisindepindices) = thisindepseries;
 
 end
 
@@ -167,6 +201,13 @@ clim([ minvalheat maxvalheat ]);
 
 if want_heat_log
   set(gca, 'ColorScale', 'log');
+end
+
+% Convert the independent axis to labels if appropriate.
+if ~isempty(ticlabelsindep)
+  [ scratch ticlabelsindep ] = euUtil_makeSafeStringArray( ticlabelsindep );
+  set( gca, ...
+    'YTick', 1:length(ticlabelsindep), 'YTickLabels', ticlabelsindep );
 end
 
 saveas(thisfig, outfile);

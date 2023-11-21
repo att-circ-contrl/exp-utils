@@ -309,7 +309,6 @@ if true
             thiscooked = cookeddata( sessionmask & casemask & probemask );
 
             if ~isempty(thiscooked)
-
               thistitle = [ thisdef.titleprefix ' - ' sessiontitles{sidx} ...
                 ' - ' casetitles{cidx} ' - ' probetitles{pidx} ];
               thisfname = [ fnameprefix '-' thisdef.label ...
@@ -320,11 +319,29 @@ if true
                 [], xrange, yrange, 'linear', 'linear', 'linear', ...
                 thistitle, 'Time (ms)', thisdef.xtitle, thisdef.ytitle, ...
                 thisfname );
-
             end
           end
-        end
-      end
+
+          % Make an all-probes plot, to test partial set handling.
+% FIXME - Put the all-probes plot behind a switch for now.
+if false
+
+          thiscooked = cookeddata( sessionmask & casemask );
+
+          if ~isempty(thiscooked)
+            thistitle = [ thisdef.titleprefix ' - ' sessiontitles{sidx} ...
+              ' - ' casetitles{cidx} ];
+            thisfname = [ fnameprefix '-' thisdef.label ...
+              '-' sessionlabels{sidx} '-' caselabels{cidx} '.png' ];
+
+            euPlot_hlevPlotStatTimeHeatmap( thiscooked, ...
+              [], xrange, yrange, 'linear', 'linear', 'linear', ...
+              thistitle, 'Time (ms)', thisdef.xtitle, thisdef.ytitle, ...
+              thisfname );
+          end
+end
+        end  % for cidx
+      end  % for sidx
 
       % End of heat-map across time.
 
