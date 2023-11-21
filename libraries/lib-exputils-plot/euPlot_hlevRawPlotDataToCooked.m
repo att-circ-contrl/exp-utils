@@ -22,8 +22,10 @@ function cookeddata = ...
 
 
 % Initialize to an empty structure array with the correct fields.
-cookeddata = struct( 'sessionlabel', {}, 'caselabel', {}, ...
-  'probelabel', {}, 'timelabel', {}, 'dataseriesx', {}, 'dataseriesy', {} );
+cookeddata = struct( ...
+  'sessionlabel', {}, 'caselabel', {}, 'probelabel', {}, ...
+  'timelabel', {}, 'timevaluems', {}, ...
+  'dataseriesx', {}, 'dataseriesy', {} );
 cookedcount = 0;
 
 
@@ -37,7 +39,8 @@ for rawidx = 1:length(rawdata)
     templatecooked = struct( 'sessionlabel', thisraw.sessionlabel, ...
       'caselabel', thisraw.caselabel, 'probelabel', thisraw.probelabel );
 
-    timelist = thisraw.timelabels;
+    timelabellist = thisraw.timelabels;
+    timemslist = thisraw.timevaluesms;
     datamatrixx = thisraw.(xfield);
     datamatrixy = thisraw.(yfield);
 
@@ -45,7 +48,7 @@ for rawidx = 1:length(rawdata)
     % Figure out how many time bins and data points we have.
     % Data matrixes are Npoints x Nbins or Npoints x 1.
 
-    timecount = length(timelist);
+    timecount = length(timelabellist);
 
     datacount = 1;
 
@@ -115,7 +118,8 @@ for rawidx = 1:length(rawdata)
         end
 
         thiscooked = templatecooked;
-        thiscooked.timelabel = timelist{tidx};
+        thiscooked.timelabel = timelabellist{tidx};
+        thiscooked.timevaluems = timemslist(tidx);
         thiscooked.dataseriesx = thiscol_x;
         thiscooked.dataseriesy = thiscol_y;
 
@@ -128,6 +132,7 @@ for rawidx = 1:length(rawdata)
 
       thiscooked = templatecooked;
       thiscooked.timelabel = '';
+      thiscooked.timevaluems = NaN;
       thiscooked.dataseriesx = datamatrixx;
       thiscooked.dataseriesy = datamatrixy;
 

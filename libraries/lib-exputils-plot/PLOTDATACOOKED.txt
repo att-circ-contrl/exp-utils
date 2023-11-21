@@ -26,6 +26,9 @@ These records have the following fields:
   time-binned.
 
 
+"timevaluems" is a scalar containing the central time for this time bin, in
+  milliseconds. NOTE - This will be NaN for data that isn't time-binned.
+
 "dataseriesx" is a Npoints x 1 matrix containing data values, or a
   Npoints x 1 cell array containing label values. This is the independent
   variable (often but not always shown on the X axis).

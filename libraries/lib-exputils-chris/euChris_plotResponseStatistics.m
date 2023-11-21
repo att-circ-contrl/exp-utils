@@ -283,9 +283,52 @@ if true
         end
       end  % for widx
 
-      % end of "if XY or line plot"
+      % End of XY plot or line plot.
+
     elseif strcmp(thisdef.type, 'timeheat')
-    end % if timeheat plot
+
+      % Heat-map across time.
+
+      % FIXME - Splitting by case, probe, and session.
+      % We should accept plotdef parameters telling what to split by.
+      % FIXME - We can't actually aggregate this! Aggregation has to
+      % happen at a higher level, recalculating statistics.
+
+      for sidx = 1:sessioncount
+        sessionmask = ...
+          strcmp( sessionlabels{sidx}, { cookeddata.sessionlabel } );
+
+        for cidx = 1:casecount
+          casemask = ...
+            strcmp( caselabels{cidx}, { cookeddata.caselabel } );
+
+          for pidx = 1:probecount
+            probemask = ...
+              strcmp( probelabels{pidx}, { cookeddata.probelabel } );
+
+            thiscooked = cookeddata( sessionmask & casemask & probemask );
+
+            if ~isempty(thiscooked)
+
+              thistitle = [ thisdef.titleprefix ' - ' sessiontitles{sidx} ...
+                ' - ' casetitles{cidx} ' - ' probetitles{pidx} ];
+              thisfname = [ fnameprefix '-' thisdef.label ...
+                '-' sessionlabels{sidx} '-' caselabels{cidx} ...
+                '-' probelabels{pidx} '.png' ];
+
+              euPlot_hlevPlotStatTimeHeatmap( thiscooked, ...
+                [], xrange, yrange, 'linear', 'linear', 'linear', ...
+                thistitle, 'Time (ms)', thisdef.xtitle, thisdef.ytitle, ...
+                thisfname );
+
+            end
+          end
+        end
+      end
+
+      % End of heat-map across time.
+
+    end
 
 
 
@@ -650,198 +693,6 @@ if true
               '-' timelabels{widx} '.png' ] );
 
         end
-      end
-    end
-
-
-
-    %
-    % Third pass: Make plots that have time as an extra axis.
-
-    % We have to concatenate across window times for this.
-
-    % The problem is that we still have to keep session, probe, and case
-    % separate. We also don't have any guarantee geometry is consistent
-    % (it really should be, but tolerate mismatches).
-
-
-    % First step: Bin by the remaining parameters.
-
-    databytuple = struct();
-
-    % Only do this if we have data that can be plotted against time.
-    if strcmp(thisdef.type, 'timeheat')
-
-      for  widx = 1:wincount
-        thiswindatalist = datalist{widx};
-        sessionkeylist = fieldnames(thiswindatalist);
-
-        thiswinkey = sprintf('w%d', widx);
-
-        if aggr_only
-          sessionkeylist = { 'aggr' };
-        end
-
-        for kidx = 1:length(sessionkeylist)
-          thissessionkey = sessionkeylist{kidx};
-          thissessiondata = thiswindatalist.(thissessionkey);
-
-          % We have dataseriesx, dataseriesy, cidx, pidx, and sidx arrays.
-          reccount = length(thissessiondata.pidx);
-
-          for recidx = 1:reccount
-             thisxseries = thissessiondata.dataseriesx{recidx};
-             thisyseries = thissessiondata.dataseriesy{recidx};
-             thissessiontitle = thissessiondata.sessiontitle;
-             thissessionlabel = thissessiondata.sessionlabel;
-
-             % Only record non-empty data series.
-             if ~isempty(thisxseries)
-               cidx = thissessiondata.cidx(recidx);
-               pidx = thissessiondata.pidx(recidx);
-               sidx = thissessiondata.sidx(recidx);
-
-               thistuplekey = sprintf( 's%dp%dc%d', sidx, pidx, cidx );
-
-               % Use the fetched session title/label to correctly handle
-               % the aggregate case, which isn't in the lookup table.
-               thistupletitle = [ thissessiontitle ' ' ...
-                 casetitles{cidx} ' ' probetitles{pidx} ];
-               thistuplelabel = [ thissessionlabel '-' caselabels{cidx} ...
-                 '-' probelabels{pidx} ];
-
-               thistupledata = ...
-                 struct( 'cidx', cidx, 'pidx', pidx, 'sidx', sidx, ...
-                   'widx', [], 'xdata', {{}}, 'ydata', {{}}, ...
-                   'titletext', thistupletitle, 'filelabel', thistuplelabel );
-
-               if isfield( databytuple, thistuplekey )
-                 thistupledata = databytuple.(thistuplekey);
-               end
-
-               dataidx = 1 + length(thistupledata.widx);
-
-               thistupledata.widx(dataidx) = widx;
-               thistupledata.xdata{dataidx} = thisxseries;
-               thistupledata.ydata{dataidx} = thisyseries;
-
-               databytuple.(thistuplekey) = thistupledata;
-            end
-          end
-        end
-      end
-
-    end
-
-
-    % Next step: build a proper data matrix within each bin.
-
-    tuplekeylist = fieldnames(databytuple);
-
-    for kidx = 1:length(tuplekeylist)
-      thistuplekey = tuplekeylist{kidx};
-      thistupledata = databytuple.(thistuplekey);
-
-      thistupledata.yxdata = [];
-      reccount = length(thistupledata.widx);
-
-      if reccount > 0
-        % This will give a sorted list, in addition to being unique.
-        winidxlist = unique(thistupledata.widx);
-
-        thistupledata.yxwintimes = timevaluesms(winidxlist);
-
-        % The number of data series values _really_ should be consistent,
-        % but check just in case it isn't.
-
-        datamaxlength = NaN;
-        for recidx = 1:reccount
-          thislength = length(thistupledata.xdata{recidx});
-          if isnan(datamaxlength)
-            datamaxlength = thislength;
-          else
-            datamaxlength = max(datamaxlength, thislength);
-          end
-        end
-
-
-        % Build the data matrix. Series that are too short are NaN-padded.
-
-        thistupledata.yxdata = nan(datamaxlength, length(winidxlist));
-        thistupledata.yxindepvals = nan(datamaxlength, 1);
-
-        for recidx = 1:reccount
-          thisxseries = thistupledata.xdata{recidx};
-          thisyseries = thistupledata.ydata{recidx};
-
-          thiswidx = thistupledata.widx(recidx);
-          thiswidx = find(winidxlist == thiswidx);
-
-          thislength = length(thisxseries);
-          thistupledata.yxdata(1:thislength, thiswidx) = thisyseries;
-
-          % FIXME - Blithely assume X values are consistent!
-          thistupledata.yxindepvals(1:thislength, 1) = thisxseries;
-        end
-      end
-
-      databytuple.(thistuplekey) = thistupledata;
-    end
-
-
-    % Finally, plot the matrix data for each tuple.
-
-    tuplekeylist = fieldnames(databytuple);
-
-    for kidx = 1:length(tuplekeylist)
-      thistuplekey = tuplekeylist{kidx};
-      thistupledata = databytuple.(thistuplekey);
-
-      if ~isempty(thistupledata.yxdata)
-
-        thisyxdata = thistupledata.yxdata;
-        thisyxwintimes = thistupledata.yxwintimes;
-        thisyxindepvals = thistupledata.yxindepvals;
-
-        cidx = thistupledata.cidx;
-        pidx = thistupledata.pidx;
-        sidx = thistupledata.sidx;
-
-
-        if strcmp(thisdef.type, 'timeheat')
-
-          % Tolerate discontinuous variable ranges.
-          [ thisyxdata thisyxwintimes thisyxindepvals ] = ...
-            nlProc_padHeatmapGaps( ...
-              thisyxdata, thisyxwintimes, thisyxindepvals );
-
-          figure(thisfig);
-          clf('reset');
-
-          hold on;
-
-          zloglin = 'linear';
-
-          % FIXME - Auto-ranging instead of building max/min xy values
-          % across cases. (These should already exist?)
-          nlPlot_axesPlotSurface2D( gca, ...
-            thisyxdata, thisyxwintimes, thisyxindepvals, ...
-            [], [], 'linear', 'linear', zloglin, ...
-            'Time (ms)', thisdef.xtitle, ...
-            [ thisdef.titleprefix ' - ' thistupledata.titletext ] );
-
-          % Add colourbar axis label.
-          thiscol = colorbar;
-          thiscol.Label.String = thisdef.ytitle;
-
-          % Make the scale consistent.
-          clim([ minvaly maxvaly ]);
-
-          saveas( thisfig, [ fnameprefix '-' thisdef.label ...
-            '-' thistupledata.filelabel '.png' ] );
-
-        end
-
       end
     end
 

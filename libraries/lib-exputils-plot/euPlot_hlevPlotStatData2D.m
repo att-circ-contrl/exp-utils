@@ -11,7 +11,7 @@ function euPlot_hlevPlotStatData2D( plotdata, plottype, decorations, ...
 % NOTE - Axes that are labels rather than numeric data will be arranged in
 % lexical order.
 %
-% "plotdata" is cooked plot data, per PLOTDATACOOKED.txt.
+% "plotdata" is cooked statistics plot data, per PLOTDATACOOKED.txt.
 % "plottype" is 'xy' or 'line'.
 % "decorations" is a cell array which may include any of the following:
 %   'diag' draws a diagonal line (usually for xy plots).
