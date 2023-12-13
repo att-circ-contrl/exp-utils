@@ -22,6 +22,7 @@ addpath([ thisdir filesep 'lib-exputils-chris' ]);
 addpath([ thisdir filesep 'lib-exputils-ft' ]);
 addpath([ thisdir filesep 'lib-exputils-highlevel' ]);
 addpath([ thisdir filesep 'lib-exputils-plot' ]);
+addpath([ thisdir filesep 'lib-exputils-shims' ]);
 addpath([ thisdir filesep 'lib-exputils-tools' ]);
 addpath([ thisdir filesep 'lib-exputils-use' ]);
 addpath([ thisdir filesep 'lib-exputils-util' ]);
