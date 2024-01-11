@@ -32,6 +32,10 @@ function xcorrdata = euChris_calcXCorr( ...
 %     containing the cross-correlation values.
 
 
+% FIXME - Break out the common bits into a helper and make this and htstats
+% call it.
+
+
 % Initialize.
 xcorrdata = struct([]);
 
@@ -148,7 +152,7 @@ for trialidx = 1:trialcount
   xcorrcounts = xcorrcounts + thismask;
 end
 
-xcorravg = xcorravg ./xcorrcounts;
+xcorravg = xcorravg ./ xcorrcounts;
 
 
 %
