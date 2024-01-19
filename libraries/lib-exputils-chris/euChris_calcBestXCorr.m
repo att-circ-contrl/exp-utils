@@ -90,6 +90,7 @@ end
 
 laglist_ms = xcorrdata.delaylist_ms;
 lagmask = true(size(laglist_ms));
+startidx = NaN;
 
 if strcmp('largest', method) && (~isempty(lagtarget_ms))
   minlag = min(lagtarget_ms);
@@ -97,10 +98,10 @@ if strcmp('largest', method) && (~isempty(lagtarget_ms))
   lagmask = (laglist_ms >= minlag) & (laglist_ms <= maxlag);
 elseif strcmp('nearest', method')
   % Tolerate poorly formed input.
-  if isnan(lagtarget_ms) || isempty(lagtarget)
+  if isnan(lagtarget_ms) || isempty(lagtarget_ms)
     lagtarget_ms = 0;
   end
-  lagtarget_ms = median(lagtarget);
+  lagtarget_ms = median(lagtarget_ms);
 end
 
 for firstidx = 1:firstcount
@@ -140,16 +141,12 @@ end
 
 function [ peaklag peakamp ] = helper_findPeakLargest( ampvals, lagvals )
 
-  % Tolerate the "empty data" case.
   peaklag = NaN;
   peakamp = NaN;
 
-  if ~isempty(ampvals)
-    magvals = abs(ampvals);
-    [ magvals, sortidx ] = sort(magvals);
-    sortidx = flip(sortidx);
-    bestidx = sortidx(1);
+  bestidx = nlProc_findPeakLargest( ampvals );
 
+  if ~isnan(bestidx)
     peaklag = lagvals(bestidx);
     peakamp = ampvals(bestidx);
   end
@@ -160,39 +157,12 @@ end
 function [ peaklag peakamp ] = ...
   helper_findPeakNearest( ampvals, lagvals, startlag )
 
-  % First pass: Identify peaks.
-
-  sampcount = length(ampvals);
-
-  % This shortens the series by one sample.
-  diffvals = diff(ampvals);
-
-  % Look for zero-crossings in the derivative to find extrema.
-  % This shortens the series by a second sample.
-  diffpositive = diffvals >= 0;
-  diffcount = length(diffpositive);
-  peakmask = ( diffpositive(1:diffcount-1) ~= diffpositive(2:diffcount) );
-
-  % Truncate the input series to match the new length.
-  ampvals = ampvals(2:diffcount+1);
-  lagvals = lagvals(2:diffcount+1);
-
-  % Mask this so that all we have are peaks.
-  ampvals = ampvals(peakmask);
-  lagvals = lagvals(peakmask);
-
-
-  % Second pass: Find the peak closest to the starting time.
-
-  % Handle the "we found no peaks" case. A ramp will do that.
   peaklag = NaN;
   peakamp = NaN;
 
-  if ~isempty(ampvals)
-    distancevals = abs(lagvals - startlag);
-    [ distancevals, sortidx ] = sort(distancevals);
-    bestidx = sortidx(1);
+  bestidx = nlProc_findPeakNearest( ampvals, lagvals, startlag );
 
+  if ~isnan(bestidx)
     peaklag = lagvals(bestidx);
     peakamp = ampvals(bestidx);
   end
