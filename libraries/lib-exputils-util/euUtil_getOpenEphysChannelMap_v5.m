@@ -7,6 +7,9 @@ function chanmap = euUtil_getOpenEphysChannelMap_v5( inputfolder )
 % the filename). Channel maps are extracted, and the first map found is
 % returned. If no maps are found, an empty structure array is returned.
 %
+% NOTE - This gives priority to channel map files with the word 'correct'
+% in their filename or path, per Louie and Charlie's convention.
+%
 % This is a wrapper for "euUtil_getOpenEphysConfigFiles",
 % "nlOpenE_parseChannelMapJSON_v5", and "nlOpenE_parseChannelMapXML_v5".
 %
@@ -33,8 +36,10 @@ chanmap = struct([]);
 % Our first choice is to use a JSON file.
 
 for fidx = 1:length(mapfiles)
-  if isempty(chanmap)
-    json_raw = fileread(mapfiles{fidx});
+  thisfile = mapfiles{fidx};
+  % Give priority to files with "correct" in the name.
+  if isempty(chanmap) || contains(thisfile, 'correct')
+    json_raw = fileread(thisfile);
     json_struct = jsondecode(json_raw);
     json_map = nlOpenE_parseChannelMapJSON_v5(json_struct);
 
@@ -53,8 +58,10 @@ if isempty(chanmap) && (~have_readstruct)
 end
 
 for fidx = 1:length(configfiles)
-  if isempty(chanmap) && have_readstruct
-    xml_struct = readstruct(configfiles{fidx}, 'FileType', 'xml');
+  thisfile = configfiles{fidx};
+  % Give priority to files with "correct" in the name.
+  if have_readstruct && ( isempty(chanmap) || contains(thisfile, 'correct') )
+    xml_struct = readstruct(thisfile, 'FileType', 'xml');
 
     if ~isempty(xml_struct)
       xml_map = nlOpenE_parseChannelMapXML_v5(xml_struct);
