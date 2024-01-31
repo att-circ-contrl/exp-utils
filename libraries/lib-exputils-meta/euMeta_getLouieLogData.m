@@ -1,6 +1,6 @@
-function recdata = euUtil_getLouieLogData( infile, datewanted )
+function recdata = euMeta_getLouieLogData( infile, datewanted )
 
-% function recdata = euUtil_getLouieLogData( infile, datewanted )
+% function recdata = euMeta_getLouieLogData( infile, datewanted )
 %
 % This function reads one of Louie's log files and extracts the record for
 % the specified date.

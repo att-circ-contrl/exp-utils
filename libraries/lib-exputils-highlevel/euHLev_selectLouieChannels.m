@@ -31,7 +31,7 @@ newchans_raw = oldchans_raw;
 % This will discard any records with typos and complain on console.
 % If we couldn't read the requested record, we'll get an empty struct array.
 
-thisrec = euUtil_getLouieLogData(logfile, logdate);
+thisrec = euMeta_getLouieLogData(logfile, logdate);
 
 
 if isempty(thisrec)

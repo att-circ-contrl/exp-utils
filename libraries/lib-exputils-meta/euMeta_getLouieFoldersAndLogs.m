@@ -1,8 +1,8 @@
 function sessionlist = ...
-  euUtil_getLouieFoldersAndLogs( sessionfolders, logfilepatterns );
+  euMeta_getLouieFoldersAndLogs( sessionfolders, logfilepatterns );
 
 % function sessionlist = ...
-%   euUtil_getLouieFoldersAndLogs( sessionfolders, logfilepatterns );
+%   euMeta_getLouieFoldersAndLogs( sessionfolders, logfilepatterns );
 %
 % This fetches recording/USE folder locations and session metadata for all
 % recording sessions found in a specified list of top-level directories.
@@ -45,7 +45,7 @@ for pidx = 1:length(logfilepatterns)
       if isfile(thisfile)
 
         % This will discard any corrupted records, complaining on console.
-        thislogdata = euUtil_getLouieLogData( thisfile, '' );
+        thislogdata = euMeta_getLouieLogData( thisfile, '' );
 
         % Tolerate dissimilar fields.
         raw_logs = nlUtil_concatStructArrays(raw_logs, thislogdata);
