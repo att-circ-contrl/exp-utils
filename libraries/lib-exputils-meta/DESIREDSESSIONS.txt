@@ -1,0 +1,27 @@
+The euMeta_getDesiredSessions_xx functions return struct arrays containing
+metadata about sessions and probe channels that are to be processed.
+
+
+Fields common to all types of experiment:
+
+"monkey" is the name of the monkey being recorded.
+
+"probedefs" is a struct array defining grouups of channels (usually
+  corresponding to probes), with the following fields:
+  "label" is a plot-, filename-, and fieldname-safe label for this group.
+  "title" is a plot-safe human-readable name for this group.
+  "channums" is a vector with channel numbers for this group (corresponding
+    to Louie and Charlie's spreadsheets; usually mapped).
+  "chanlabels" is a cell array with Field Trip channel labels for this
+    group.
+
+
+
+Fields for experiments that use Louie's metadata format:
+
+"dataset" is a character vector with the value of the "dataset" field in
+  Louie's metadata. This is also the top-level folder name for the session.
+
+
+
+(This is the end of the file.)

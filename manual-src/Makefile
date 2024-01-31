@@ -19,6 +19,8 @@ REFAUTO=\
 	$(REFBASE)-ft.tex		\
 	$(REFBASE)-highlevel-notes.tex	\
 	$(REFBASE)-highlevel.tex	\
+	$(REFBASE)-meta-notes.tex	\
+	$(REFBASE)-meta.tex		\
 	$(REFBASE)-plot.tex		\
 	$(REFBASE)-tools.tex		\
 	$(REFBASE)-use-notes.tex	\
@@ -62,6 +64,9 @@ refauto-code:
 	./copy-code.pl --outfile=$(REFBASE)-highlevel.tex --matlabdoc \
 		"--chapter=\`\`euHLev'' Functions" --label=sect-highlevel \
 		../libraries/lib-exputils-highlevel/*m
+	./copy-code.pl --outfile=$(REFBASE)-meta.tex --matlabdoc \
+		"--chapter=\`\`euMeta'' Functions" --label=sect-meta \
+		../libraries/lib-exputils-meta/*m
 	./copy-code.pl --outfile=$(REFBASE)-plot.tex --matlabdoc \
 		"--chapter=\`\`euPlot'' Functions" --label=sect-plot \
 		../libraries/lib-exputils-plot/*m
@@ -85,6 +90,9 @@ refauto-notes:
 	./copy-code.pl --outfile=$(REFBASE)-highlevel-notes.tex --verbatim \
 		"--chapter=\`\`euHLev'' Notes" --label=sect-highlevel-notes \
 		../libraries/lib-exputils-highlevel/*txt
+	./copy-code.pl --outfile=$(REFBASE)-meta-notes.tex --verbatim \
+		"--chapter=\`\`euMeta'' Notes" --label=sect-meta-notes \
+		../libraries/lib-exputils-meta/*txt
 	./copy-code.pl --outfile=$(REFBASE)-use-notes.tex --verbatim \
 		"--chapter=\`\`euUSE'' Notes" --label=sect-use-notes \
 		../libraries/lib-exputils-use/*txt
