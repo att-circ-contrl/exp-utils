@@ -1,8 +1,8 @@
 function [ dirs_opene dirs_intanrec dirs_intanstim dirs_use ] = ...
-  euUtil_getExperimentFolders( topdir )
+  euMeta_getExperimentFolders( topdir )
 
 % function [ dirs_opene dirs_intanrec dirs_intanstim dirs_use ] = ...
-%   euUtil_getExperimentFolders( topdir )
+%   euMeta_getExperimentFolders( topdir )
 %
 % This function searches a directory tree, looking for subfolders containing
 % Open Ephys data (structure.oebin), Intan data (info.rhs/info.rhd), and

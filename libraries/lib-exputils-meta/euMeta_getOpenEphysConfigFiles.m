@@ -1,6 +1,6 @@
-function [ configfiles mapfiles ] = euUtil_getOpenEphysConfigFiles( topdir )
+function [ configfiles mapfiles ] = euMeta_getOpenEphysConfigFiles( topdir )
 
-% function [ configfiles mapfiles ] = euUtil_getOpenEphysConfigFiles( topdir )
+% function [ configfiles mapfiles ] = euMeta_getOpenEphysConfigFiles( topdir )
 %
 % This function looks for files with "Config" or "Mapping" in the name (not
 % case-sensitive) and reports their full names (including path).

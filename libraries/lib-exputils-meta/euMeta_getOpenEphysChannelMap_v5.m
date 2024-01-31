@@ -1,6 +1,6 @@
-function chanmap = euUtil_getOpenEphysChannelMap_v5( inputfolder )
+function chanmap = euMeta_getOpenEphysChannelMap_v5( inputfolder )
 
-% function chanmap = euUtil_getOpenEphysChannelMap_v5( inputfolder )
+% function chanmap = euMeta_getOpenEphysChannelMap_v5( inputfolder )
 %
 % This searches the specified tree looking for Open Ephys configuration
 % files and channel mapping files (anything with "config" or "mapping" in
@@ -10,7 +10,7 @@ function chanmap = euUtil_getOpenEphysChannelMap_v5( inputfolder )
 % NOTE - This gives priority to channel map files with the word 'correct'
 % in their filename or path, per Louie and Charlie's convention.
 %
-% This is a wrapper for "euUtil_getOpenEphysConfigFiles",
+% This is a wrapper for "euMeta_getOpenEphysConfigFiles",
 % "nlOpenE_parseChannelMapJSON_v5", and "nlOpenE_parseChannelMapXML_v5".
 %
 % "inputfolder" is the top-level folder to search.
@@ -30,7 +30,7 @@ chanmap = struct([]);
 
 
 % Get filenames.
-[ configfiles mapfiles ] = euUtil_getOpenEphysConfigFiles(inputfolder);
+[ configfiles mapfiles ] = euMeta_getOpenEphysConfigFiles(inputfolder);
 
 
 % Our first choice is to use a JSON file.

@@ -13,7 +13,7 @@ function keepmask = ...
 %
 % "chanlist" is a cell array containing the list of channel names to filter.
 % "classfile" is the name of a CSV file containing hand-annotated channel
-%   types, per euUtil_readChannelClasses().
+%   types, per euMeta_readChannelClasses().
 % "userconfig" is an optional argument containing a structure with key/value
 %   pairs to override. Relevant fields (keys) are:
 %   "chancolumn" is the name of the column containing channel names.
@@ -48,7 +48,7 @@ keepmask = true(size(chanlist));
 
 if (~isempty(classfile)) && isfile(classfile)
 
-  [ filechans, fileclasses ] = euUtil_readChannelClasses( ...
+  [ filechans, fileclasses ] = euMeta_readChannelClasses( ...
     classfile, config.chancolumn, config.typecolumn );
 
   % Convert channel numbers into channel labels.

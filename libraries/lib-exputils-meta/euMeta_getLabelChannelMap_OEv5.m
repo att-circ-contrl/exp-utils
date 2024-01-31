@@ -1,14 +1,14 @@
 function [ maplabelsraw maplabelscooked ] = ...
-  euUtil_getLabelChannelMap_OEv5( mapdir, datadir )
+  euMeta_getLabelChannelMap_OEv5( mapdir, datadir )
 
 % function [ maplabelsraw maplabelscooked ] = ...
-%   euUtil_getLabelChannelMap_OEv5( mapdir, datadir )
+%   euMeta_getLabelChannelMap_OEv5( mapdir, datadir )
 %
 % This function loads an Open Ephys channel map, loads a saved dataset's
 % header, and translates the numeric channel map into a label-based channel
 % map.
 %
-% This is a wrapper for "euUtil_getOpenEphysChannelMap_v5",
+% This is a wrapper for "euMeta_getOpenEphysChannelMap_v5",
 % "nlIO_readFolderMetadata", and "nlFT_getLabelChannelMapFromNumbers".
 %
 % If a channel map couldn't be built, empty cell arrays are returned.
@@ -33,7 +33,7 @@ maplabelscooked = {};
 % NOTE - This returns the first map found, if any. If there are multiple
 % channel maps or configuration files, it might use the wrong one.
 
-chanmap = euUtil_getOpenEphysChannelMap_v5(mapdir);
+chanmap = euMeta_getOpenEphysChannelMap_v5(mapdir);
 
 [ isok datameta ] = ...
   nlIO_readFolderMetadata( struct([]), 'datafolder', datadir, 'openephys' );

@@ -1,8 +1,8 @@
 function [ channames, chanclasses ] = ...
-  euUtil_readChannelClasses( fname, namecolumn, classcolumn )
+  euMeta_readChannelClasses( fname, namecolumn, classcolumn )
 
 % function [ channames, chanclasses ] = ...
-%   euUtil_readChannelClasses( fname, namecolumn, classcolumn )
+%   euMeta_readChannelClasses( fname, namecolumn, classcolumn )
 %
 % This function reads a CSV file that assigns hand-annotated types to ephys
 % channels. This file must have column labels in the first row.

@@ -8,7 +8,7 @@ function [ header chans_ephys chans_digital chanmap_raw chanmap_cooked ] = ...
 % ephys folder, and also searches the config folder and ephys folder to
 % fetch the channel map that was used.
 %
-% This is a wrapper for various Field Trip and euUtil_ functions.
+% This is a wrapper for various Field Trip and euMeta_ functions.
 %
 % NOTE - "ephysfolder" can be a cell array ("configfolder" shouldn't be).
 % If "ephysfolder" is a cell array, each entry is treated as a folder to be
@@ -61,7 +61,7 @@ else
   chanmap_cooked = {};
   if ~isempty(configfolder)
     [ chanmap_raw chanmap_cooked ] = ...
-      euUtil_getLabelChannelMap_OEv5( configfolder, ephysfolder );
+      euMeta_getLabelChannelMap_OEv5( configfolder, ephysfolder );
   end
 
 end

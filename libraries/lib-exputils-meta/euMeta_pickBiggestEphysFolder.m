@@ -1,8 +1,8 @@
 function [ foldername foldersizes ] = ...
-  euUtil_pickBiggestEphysfolder( folderlist )
+  euMeta_pickBiggestEphysfolder( folderlist )
 
 % function [ foldername foldersizes ] = ...
-%   euUtil_pickBiggestEphysfolder( folderlist )
+%   euMeta_pickBiggestEphysfolder( folderlist )
 %
 % This reads Field Trip headers for each of a list of ephys folders and
 % picks the one that has the most data (nTrials * nSamples).
