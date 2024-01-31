@@ -66,7 +66,7 @@ raw_game = {};
 
 for fidx = 1:length(sessionfolders)
   [ thislist_openephys thislist_intanrec thislist_intanstim ...
-    thislist_game ] = euUtil_getExperimentFolders( sessionfolders{fidx} );
+    thislist_game ] = euMeta_getExperimentFolders( sessionfolders{fidx} );
 
   raw_openephys = [ raw_openephys thislist_openephys ];
   raw_intanrec = [ raw_intanrec thislist_intanrec ];
