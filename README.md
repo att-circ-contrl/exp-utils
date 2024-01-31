@@ -34,9 +34,19 @@ The following subdirectories contain library code:
 
 * `lib-exputils-align` --
 Time-alignment of event lists from different sources.
+* `lib-exputils-chris` --
+Functions for handling Chris's experiment data and running Chris's analyses.
 * `lib-exputils-ft` --
 Field Trip utility functions that aren't general enough to migrate to
 LoopUtil.
+* `lib-exputils-highlevel` --
+Data processing functions and metadata processing functions that are
+intended as top-level entry points.
+* `lib-exputils-meta` --
+Functions that read and process experiment metadata.
+* `lib-exputils-shims` --
+Wrappers that provide legacy support for functions that have been renamed or
+whose calling conventions have changed.
 * `lib-exputils-plot` --
 Plotting functions that are used by the test and demo scripts. These
 aren't paper-quality plots; they're for testing.
