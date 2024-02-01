@@ -14,7 +14,8 @@ function sessionlist = ...
 % "logfilepatterns" is a cell array containing filename patterns (including
 %   wildcards) that may match Louie's log files.
 %
-% "sessionlist" is structure array, with the following fields:
+% "sessionlist" is structure array, with the following fields (per
+%   SESSIONMETA.txt):
 %   "logdata" is a record structure from Louie's log file.
 %   "folders_openephys" is a cell array of Open Ephys data folder names.
 %   "folders_intanrec" is a cell array of Intan recording controller folders.
