@@ -1,0 +1,33 @@
+A session metadata list is a struct array containing individual records
+with metadata about sessions.
+
+
+Fields common to all types of experiment:
+
+"folders_openephys" is a cell array of Open Ephys data folder names.
+"folders_intanrec" is a cell array of Intan recording controller folders.
+"folders_intanstim" is a cell array of Intan stim controller folders.
+"folders_game" is a cell array of game data folder names.
+
+
+
+Fields for experiments that use Louie's metadata format:
+
+"logdata" is a record structure from Louie's log file.
+
+
+
+Fields added by euMeta_pruneXXSessionList():
+
+"monkey" is the name of the monkey being recorded.
+"sessionid" is a unique character vector identifying the session. For
+  Louie's data, this is a copy of "logdata.dataset", which contains the
+  top-level folder name.
+"sessionlabel" is a plot-, filename-, and fieldname-safe version of
+  "sessionid".
+"sessiontitle" is a plot-safe version of "sessionid".
+"probedefs" is a struct array defining channel groups, per PROBEDEFS.txt.
+
+
+
+(This is the end of the file.)

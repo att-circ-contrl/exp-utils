@@ -1,0 +1,16 @@
+A probe definition structure defines a group of channels (usually
+corresponding to a probe). It has the following fields:
+
+
+"label" is a plot-, filename-, and fieldname-safe label for this group.
+
+"title" is a plot-safe human-readable name for this group.
+
+"channums" is a vector with channel numbers for this group (corresponding
+  to Louie and Charlie's spreadsheets; usually mapped rather than raw).
+
+"chanlabels" is a cell array with Field Trip channel labels for this group.
+
+
+
+(This is the end of the file.)

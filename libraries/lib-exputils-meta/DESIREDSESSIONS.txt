@@ -6,14 +6,8 @@ Fields common to all types of experiment:
 
 "monkey" is the name of the monkey being recorded.
 
-"probedefs" is a struct array defining grouups of channels (usually
-  corresponding to probes), with the following fields:
-  "label" is a plot-, filename-, and fieldname-safe label for this group.
-  "title" is a plot-safe human-readable name for this group.
-  "channums" is a vector with channel numbers for this group (corresponding
-    to Louie and Charlie's spreadsheets; usually mapped).
-  "chanlabels" is a cell array with Field Trip channel labels for this
-    group.
+"probedefs" is a struct array defining groups of channels (usually
+  corresponding to probes), with fields per PROBEDEFS.txt.
 
 
 
