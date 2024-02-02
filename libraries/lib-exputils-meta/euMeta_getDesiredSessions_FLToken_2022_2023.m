@@ -20,8 +20,9 @@ metadata = struct([]);
 %
 % Frey group 02.
 
-metadata = helper_addSession( metadata, 'Fr_Probe_02_22-04-27_003_01', ...
-  struct('prACC1', [65:128]) );
+% FIXME - This is missing RuntimeData information.
+%metadata = helper_addSession( metadata, 'Fr_Probe_02_22-04-27_003_01', ...
+%  struct('prACC1', [65:128]) );
 
 metadata = helper_addSession( metadata, 'Fr_Probe_02_22-05-02_004_01', ...
   struct('prACC1', [1:64], 'prCD1', [65:128]) );

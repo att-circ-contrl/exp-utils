@@ -43,8 +43,12 @@ synchbox_clock_tick = 1.0e-4;
 
 % Extract relevant columns from the sent data table.
 
-senttimes = serialsentdata.SystemTimestamp;
-sentmsgs = serialsentdata.Message;
+senttimes = [];
+sentmsgs = {};
+if ~isempty(serialsentdata)
+  senttimes = serialsentdata.SystemTimestamp;
+  sentmsgs = serialsentdata.Message;
+end
 
 % Convert Unity timestamps to seconds.
 senttimes = senttimes * unity_clock_tick;
