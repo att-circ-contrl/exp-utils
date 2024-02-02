@@ -1,9 +1,9 @@
 function [ boxevents gameevents evcodedefs ...
-  deveventsraw deveventscooked report ] = euHLev_readAllTTLEvents( ...
+  deveventsraw deveventscooked devnames ] = euHLev_readAllTTLEvents( ...
   signaldefs, foldergame, folderopenephys, folderintanrec, folderintanstim )
 
 % function [ boxevents gameevents evcodedefs ...
-%   deveventsraw deveventscooked report ] = euHLev_readAllTTLEvents( ...
+%   deveventsraw deveventscooked devnames ] = euHLev_readAllTTLEvents( ...
 %   signaldefs, foldergame, folderopenephys, folderintanrec, folderintanstim )
 %
 % This reads event data and metadata from USE and from the ephys machines,
@@ -40,8 +40,8 @@ function [ boxevents gameevents evcodedefs ...
 %   "openephys" contains event tables from Open Ephys.
 %   "intanrec" contains event tables from the Intan recording controller.
 %   "intanstim" contains event tables from the Intan stimulation controller.
-% "report" is a character vector containing a human-readable summary of the
-%   number and type of events found.
+% "devnames" is a structure indexed by device label containing human-readable
+%   device names.
 
 
 % Initialize to safe values.
@@ -60,32 +60,14 @@ deveventscooked.openephys = struct([]);
 deveventscooked.intanrec = struct([]);
 deveventscooked.intanstim = struct([]);
 
-report = '';
-
-newline = sprintf('\n');
 
 
 %
 % Load game data, if we have any.
 
-if isempty(foldergame)
-  report = [ report '-- No game data.' newline ];
-else
+if ~isempty(foldergame)
   % Use the default code format, code size, and code endianness.
   [ boxevents gameevents evcodedefs ] = euUSE_readAllUSEEvents( foldergame );
-
-  report = [ report ...
-    euUSE_reportUSEEvents( boxevents, gameevents, evcodedefs ) ];
-
-if false
-  report = [ report sprintf('-- %d types of event code defined.\n', ...
-    length(fieldnames(evcodedefs)) ) ];
-
-  report = [ report euUSE_reportEventTables( 'SynchBox', boxevents ) ];
-  report = [ report euUSE_reportEventTables( 'Game', gameevents ) ];
-end
-
-
 end
 
 
@@ -120,31 +102,18 @@ for devidx = 1:length(devtypes)
   % The reading function will tolerate struct([]) and struct(), so only
   % bail out if we're asked for nothing or have no folders.
 
-  if isempty(thisfolder)
-    report = [ report '-- No ' thisname ' data.' newline ];
-  elseif isempty(devbitdefs) && isempty(devworddefs)
-    report = [ report '-- No signals defined for ' thisname '.' newline ];
-  else
-    % Use the default code size and code endianness.
-    [ rawevents cookedevents ] = euUSE_readAllEphysEvents( ...
-      thisfolder, devbitdefs, devworddefs, evcodedefs );
+  if (~isempty(thisfolder))
+    if (~isempty(devbitdefs)) || (~isempty(devworddefs))
+      % Use the default code size and code endianness.
+      [ rawevents cookedevents ] = euUSE_readAllEphysEvents( ...
+        thisfolder, devbitdefs, devworddefs, evcodedefs );
 
-    deveventsraw.(thisdev) = rawevents;
-    deveventscooked.(thisdev) = cookedevents;
-
-    report = [ report sprintf( '-- %s had %d raw Field Trip events.\n', ...
-      thisname, length(rawevents) ) ];
-
-    report = [ report euUSE_reportEventTables( ...
-      [ thisname ' cooked' ], cookedevents ) ];
+      deveventsraw.(thisdev) = rawevents;
+      deveventscooked.(thisdev) = cookedevents;
+    end
   end
 
 end
-
-
-% Ending banner.
-
-report = [ report '-- End of report.' newline ];
 
 
 % Done.
