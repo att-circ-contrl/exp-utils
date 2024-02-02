@@ -22,10 +22,12 @@ function [ ttlevents cookedevents ] = ...
 %
 % "ephysfolder" is the folder containing "structure.oebin", "info.rhd", or
 %   "info.rhs".
-% "bitsignaldefs" is a structure indexed by signal name, with each field
-%   containing the TTL channel name with that signal's events.
-%   If the structure is empty, no single-bit signals are recorded.
-% "codesignaldefs" is a structure with the following fields:
+% "bitsignaldefs" is a structure indexed by signal name, per
+%   TTLSIGNALDEFS.txt. Each field contains the TTL channel name with that
+%   signal's events. If the structure is empty, no single-bit signals are
+%   recorded.
+% "codesignaldefs" is a structure with the following fields, per
+%   TTLSIGNALDEFS.txt:
 %   "signameraw" is the output event code signal name for untranslated bytes.
 %   "signamecooked" is the output event code signal name for event codes.
 %   "channame" is the TTL channel name to convert. This may be a single

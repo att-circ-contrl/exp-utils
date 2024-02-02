@@ -1,0 +1,40 @@
+TTL signal definition structures are used by euUSE_readAllEphysEvents and
+by euHLev_readAllTTLEvents.
+
+
+A "bit signal" definition structure has one field per signal. The field
+name is the name of the bit signal, and the field contains the TTL channel
+name with that signal's events.
+
+
+
+A "code signal" definition structure has the following fields:
+
+"signameraw" is the output event code signal name for untranslated bytes.
+"signamecooked" is the output event code signal name for event codes.
+"channame" is the TTL channel name to convert. This may be a single channel
+  (for word-based TTL data) or a wildcard expression (for single-bit TTL
+  data). If there's only one matching channel, it's assumed to contain word
+  data. Otherwise it's assumed to contain bit data.
+"bitshift" is the number of bits to shfit to the right, if reassembling from
+  bits. This is also used to compensate for 1-based numbering (the channel
+  names for bit lines are assumed to start at 0; shift by 1 for 1-based
+  numbering).
+
+
+
+A "ttl definition structure" is a structure containing the following fields:
+
+  "bits_openephys" is a bit signal definition structure for Open Ephys data.
+  "bits_intanrec" is a bit signal definition for Intan recorder data.
+  "bits_intanstim" is a bit signal definition for Intan stimulator data.
+
+  "codes_openephys" is a code signal definition structure for OE data.
+  "codes_intanrec" is a code signal definition for Intan recorder data.
+  "codes_intanstim" is a code signal definition for Intan stimulator data.
+
+The structures in these fields may be struct([]) or struct() to indicate
+that no signals are to be extracted.
+
+
+(This is the end of the file.)
