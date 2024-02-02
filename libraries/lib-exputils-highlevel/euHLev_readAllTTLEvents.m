@@ -74,24 +74,18 @@ else
   % Use the default code format, code size, and code endianness.
   [ boxevents gameevents evcodedefs ] = euUSE_readAllUSEEvents( foldergame );
 
+  report = [ report ...
+    euUSE_reportUSEEvents( boxevents, gameevents, evcodedefs ) ];
+
+if false
   report = [ report sprintf('-- %d types of event code defined.\n', ...
     length(fieldnames(evcodedefs)) ) ];
 
-  report = [ report '-- SynchBox events:' newline ];
-  fieldlist = fieldnames(boxevents);
-  for fidx = 1:length(fieldlist)
-    thisfield = fieldlist{fidx};
-    report = [ report sprintf('  %6d -- %s\n', ...
-      height(boxevents.(thisfield)), thisfield ) ];
-  end
+  report = [ report euUSE_reportEventTables( 'SynchBox', boxevents ) ];
+  report = [ report euUSE_reportEventTables( 'Game', gameevents ) ];
+end
 
-  report = [ report '-- Game events:' newline ];
-  fieldlist = fieldnames(gameevents);
-  for fidx = 1:length(fieldlist)
-    thisfield = fieldlist{fidx};
-    report = [ report sprintf('  %6d -- %s\n', ...
-      height(gameevents.(thisfield)), thisfield ) ];
-  end
+
 end
 
 
@@ -141,13 +135,8 @@ for devidx = 1:length(devtypes)
     report = [ report sprintf( '-- %s had %d raw Field Trip events.\n', ...
       thisname, length(rawevents) ) ];
 
-    report = [ report '-- ' thisname ' cooked events:' newline ];
-    fieldlist = fieldnames(cookedevents);
-    for fidx = 1:length(fieldlist)
-      thisfield = fieldlist{fidx};
-      report = [ report sprintf('  %6d -- %s\n', ...
-        height(cookedevents.(thisfield)), thisfield ) ];
-    end
+    report = [ report euUSE_reportEventTables( ...
+      [ thisname ' cooked' ], cookedevents ) ];
   end
 
 end
