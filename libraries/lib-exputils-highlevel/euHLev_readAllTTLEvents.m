@@ -1,17 +1,24 @@
-function [ boxevents gameevents evcodedefs ...
+function [ boxevents gameevents evcodedefs gamereftime ...
   deveventsraw deveventscooked devnames ] = euHLev_readAllTTLEvents( ...
   signaldefs, foldergame, folderopenephys, folderintanrec, folderintanstim )
 
-% function [ boxevents gameevents evcodedefs ...
+% function [ boxevents gameevents evcodedefs gamereftime ...
 %   deveventsraw deveventscooked devnames ] = euHLev_readAllTTLEvents( ...
 %   signaldefs, foldergame, folderopenephys, folderintanrec, folderintanstim )
 %
 % This reads event data and metadata from USE and from the ephys machines,
 % parses boolean and event code TTL signals, and returns what it found.
 %
+% The enormous time offset that USE timestamps normally have is subtracted.
+% Intan recorder and Open Ephys recorder events get a 'recTime' column added.
+% Intan stimulator events get a 'stimTime' column. These timestamps are in
+% seconds.
+%
 % This is a wrapper for the following functions:
 %   euUSE_readAllUSEEvents()
 %   euUSE_readAllEphysEvents()
+%   euUSE_removeLargeTimeOffset()
+%   euFT_addEventTimestamps()
 %
 % "signaldefs" is a top-level TTL definition structure per TTLSIGNALDEFS.txt.
 % "foldergame" is the game data folder, or '' to not read game data.
@@ -28,6 +35,8 @@ function [ boxevents gameevents evcodedefs ...
 %   struct([]) if unable to read game data.
 % "evcodedefs" is a USE event code definition structure per EVCODEDEFS.txt,
 %   or struct([]) if unable to read game data.
+% "gamereftime" is the reference time subtracted from Unity timestamps. These
+%   otherwise end up being relative to 1 Jan 1970 (huge values).
 % "deveventsraw" is a structure containing each device's raw Field Trip
 %   event list, per euUSE_readAllEphysEvents(). Missing devices' fields
 %   contain struct([]):
@@ -68,6 +77,16 @@ deveventscooked.intanstim = struct([]);
 if ~isempty(foldergame)
   % Use the default code format, code size, and code endianness.
   [ boxevents gameevents evcodedefs ] = euUSE_readAllUSEEvents( foldergame );
+
+  % Make timestamps relative to the smallest timestamp seen, to avoid the
+  % enormous 1 Jan 1970 offset.
+  [ gamereftime gameevents ] = ...
+    euUSE_removeLargeTimeOffset( gameevents, 'unityTime' );
+
+  % For the second call, pass the reference time as an argument to ensure
+  % consistency.
+  [ scratch boxevents ] = ...
+    euUSE_removeLargeTimeOffset( boxevents, 'unityTime', gamereftime );
 end
 
 
@@ -82,12 +101,17 @@ devfolders = struct( 'openephys', folderopenephys, ...
 devnames = struct( 'openephys', 'Open Ephys', ...
   'intanrec', 'Intan recorder', 'intanstim', 'Intan stimulator' );
 
+devtimestampcolumns = struct( 'openephys', 'recTime', ...
+  'intanrec', 'recTime', 'intanstim', 'stimTime' );
+
 for devidx = 1:length(devtypes)
 
   thisdev = devtypes{devidx};
 
   thisfolder = devfolders.(thisdev);
   thisname = devnames.(thisdev);
+
+  devtimecolumn = devtimestampcolumns.(thisdev);
 
   devbitdefs = struct([]);
   devworddefs = struct([]);
@@ -104,12 +128,33 @@ for devidx = 1:length(devtypes)
 
   if (~isempty(thisfolder))
     if (~isempty(devbitdefs)) || (~isempty(devworddefs))
+
       % Use the default code size and code endianness.
       [ rawevents cookedevents ] = euUSE_readAllEphysEvents( ...
         thisfolder, devbitdefs, devworddefs, evcodedefs );
 
+      % Read the header (to get the sampling rate) and augment events
+      % with timestamps in seconds.
+      thisheader = ...
+        ft_read_header( thisfolder, 'headerformat', 'nlFT_readHeader' );
+      samprate = thisheader.Fs;
+
+      % This expects a top-level structure containing lists, so wrap the
+      % raw event list.
+
+      rawstruct = struct();
+      rawstruct.raw = rawevents;
+      rawstruct = euFT_addEventTimestamps( ...
+        rawstruct, samprate, 'sample', devtimecolumn );
+      rawevents = rawstruct.raw;
+
+      cookedevents = euFT_addEventTimestamps( ...
+        cookedevents, samprate, 'sample', devtimecolumn );
+
+      % Store this device's event lists.
       deveventsraw.(thisdev) = rawevents;
       deveventscooked.(thisdev) = cookedevents;
+
     end
   end
 
