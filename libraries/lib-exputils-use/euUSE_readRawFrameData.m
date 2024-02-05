@@ -1,6 +1,6 @@
-function framedata = euUSE_readRawFrameData( runtimedir )
+function framedata = euUSE_readRawFrameData( runtimedir, gamereftime )
 
-% function framedata = euUSE_readRawFrameData( runtimedir )
+% function framedata = euUSE_readRawFrameData( runtimedir, gamereftime )
 %
 % This function looks for "*_Trial_(number).txt" files in the FrameData folder
 % in the specified directory, and converts them into an aggregated Matlab
@@ -9,9 +9,21 @@ function framedata = euUSE_readRawFrameData( runtimedir )
 % New timestamp columns ("SystemTimeSeconds" and "EyetrackerTimeSeconds")
 % are generated from the respective native timestamp columns.
 %
+% The "EyetrackerTimeSeconds" column is also saved as "eyeTime".
+% A "unityTime" column is created that holds "SystemTimeSeconds" with the
+% game time offset subtracted (or as-is if no offset is specified).
+%
 % "runtimedir" is the "RuntimeData" directory location.
+% "gamereftime" is the amount of time to subtract from "SystemTimeSeconds" to
+%   produce "unityTime". If unspecified, this defaults to 0.
 %
 % "framedata" is an aggregated data table.
+
+
+% Fill in missing arguments.
+if ~exist('gamereftime', 'var')
+  gamereftime = 0;
+end
 
 
 % Make note of timestamp metadata.
@@ -37,6 +49,12 @@ framedata = euUSE_aggregateTrialFiles(filepattern, unitytimecolumn);
 
 framedata.SystemTimeSeconds = framedata.(unitytimecolumn) * unitytick;
 framedata.EyetrackerTimeSeconds = framedata.(eyetimecolumn) * eyetick;
+
+
+% Make copied/derived columns.
+
+framedata.eyeTime = framedata.EyetrackerTimeSeconds;
+framedata.unityTime = framedata.SystemTimeSeconds - gamereftime;
 
 
 % Done.

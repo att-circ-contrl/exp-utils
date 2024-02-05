@@ -9,6 +9,8 @@ function gazedata = euUSE_readRawGazeData( runtimedir )
 % A new timestamp column ("time_seconds") is generated from the native gaze
 % timestamp column.
 %
+% A copy of "time_seconds" is also stored as "eyeTime".
+%
 % "runtimedir" is the "RuntimeData" directory location.
 %
 % "gazedata" is an aggregated data table.
@@ -24,6 +26,7 @@ timetick = 1.0e-6;
 gazedata = euUSE_aggregateTrialFiles(filepattern, timecolumn);
 
 gazedata.('time_seconds') = gazedata.(timecolumn) * timetick;
+gazedata.('eyeTime') = gazedata.('time_seconds');
 
 
 % Done.
