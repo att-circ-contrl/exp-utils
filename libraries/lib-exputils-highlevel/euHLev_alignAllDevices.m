@@ -39,6 +39,11 @@ timetables.record_stim = table();
 timetables.game_eye = table();
 
 
+% Defaults are fine for most of this.
+alignconfig = struct();
+alignconfig.verbosity = 'quiet';
+
+
 % Figure out which recording device we're using.
 
 recevents = ttlevents.openephys;
@@ -62,7 +67,7 @@ if isfield(recevents, 'rawcodes') && isfield(boxevents, 'rawcodes')
 
   [ scratch timelut ] = euUSE_alignTwoDevices( ...
     { recevents.rawcodes, boxevents.rawcodes }, ...
-    'recTime', 'synchBoxTime', struct() );
+    'recTime', 'synchBoxTime', alignconfig );
 
   timetables.record_synchbox = timelut;
 
@@ -75,7 +80,7 @@ if isfield(recevents, 'cookedcodes') && isfield(gameevents, 'cookedcodes')
 
   [ scratch timelut ] = euUSE_alignTwoDevices( ...
     { recevents.cookedcodes, gameevents.cookedcodes }, ...
-    'recTime', 'unityTime', struct() );
+    'recTime', 'unityTime', alignconfig );
 
   timetables.record_game = timelut;
 
@@ -88,7 +93,7 @@ if isfield(recevents, 'cookedcodes') && isfield(stimevents, 'cookedcodes')
 
   [ scratch timelut ] = euUSE_alignTwoDevices( ...
     { recevents.cookedcodes, stimevents.cookedcodes }, ...
-    'recTime', 'stimTime', struct() );
+    'recTime', 'stimTime', alignconfig );
 
   timetables.record_stim = timelut;
 
