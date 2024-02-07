@@ -64,7 +64,7 @@ end
 
 
 % Get match candidate spans. Candidates that don't match will get NaNs.
-[ spansecondstart spansecondend ] = euAlign_getSlidingWindowIndices( ...
+[ spansecondstart spansecondend ] = nlProc_getSlidingWindowIndices( ...
   candidatetimes, secondtimes, windowrad );
 
 
@@ -72,7 +72,7 @@ end
 spanfirststart = [];
 spanfirstend = [];
 if wantlocal
-  [ spanfirststart spanfirstend ] = euAlign_getSlidingWindowIndices( ...
+  [ spanfirststart spanfirstend ] = nlProc_getSlidingWindowIndices( ...
     candidatetimes, firsttimes, windowrad );
 end
 

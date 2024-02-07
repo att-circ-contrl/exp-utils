@@ -46,7 +46,7 @@ secondmatches = NaN * ones(size(secondtimes));
 % since matching is symmetrical.
 % NOTE - Indices will be NaN if corresponding spans weren't found!
 
-[ spanstart spanend ] = euAlign_getSlidingWindowIndices( ...
+[ spanstart spanend ] = nlProc_getSlidingWindowIndices( ...
   firsttimes, secondtimes, windowrad );
 
 

@@ -474,8 +474,11 @@ fitresidue = firstdeltas - fitvals;
 % Diagnostics.
 beforecount = sum(isnan(fitresidue));
 
-fitresidue = euAlign_squashOutliers( firsttimes, fitresidue, ...
-  constantwindow, outliersigma);
+% NOTE - This was changed to use percentiles.
+% The quartiles are at about +/- 0.67 sigma.
+% So for 1 sigma, we'd want 1.5x the quartile distance.
+fitresidue = nlProc_squashOutliersSlidingWindow( firsttimes, fitresidue, ...
+  constantwindow, 25, 1.5 * outliersigma);
 
 % Figure out what to squash.
 squashmask = isnan(fitresidue);

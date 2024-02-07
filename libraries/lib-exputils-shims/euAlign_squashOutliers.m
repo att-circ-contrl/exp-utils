@@ -1,0 +1,17 @@
+function newdata = euAlign_squashOutliers( ...
+  timeseries, olddata, windowrad, outliersigma )
+
+% This was moved to nlProc_xx.
+% It was also changed to explicitly use percentiles, rather than pretending
+% to use standard deviation.
+
+disp('.. Deprecated function; call nlProc_squashOutliersSlidingWindow().');
+
+newdata = nlProc_squashOutliersSlidingWindow( ...
+  timeseries, olddata, windowrad, 16, outliersigma );
+
+end
+
+
+%
+% This is the end of the file.

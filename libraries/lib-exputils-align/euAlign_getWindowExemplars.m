@@ -91,7 +91,7 @@ matchcount = 0;
 
 % Segment the second list before looping, to keep it O(n).
 % NOTE - Indices will be NaN if corresponding spans weren't found!
-[ spansecondstart spansecondend ] = euAlign_getSlidingWindowIndices( ...
+[ spansecondstart spansecondend ] = nlProc_getSlidingWindowIndices( ...
   firsttimes, secondtimes, windowrad );
 
 for sidx = 1:length(spanfirststart)

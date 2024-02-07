@@ -31,7 +31,7 @@ totalcost = 0;
 
 % Get a list of second event ranges to check for each event in the first list.
 % NOTE - Indices will be NaN if corresponding spans weren't found!
-[ spanfirst spanlast ] = euAlign_getSlidingWindowIndices( ...
+[ spanfirst spanlast ] = nlProc_getSlidingWindowIndices( ...
   firsttimes, secondtimes, windowrad );
 
 
