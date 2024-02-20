@@ -33,11 +33,11 @@ function muafeatures = euChris_extractStimMUAResponse( ...
 %   per CHRISMUAPARAMS.txt:
 %   "time_window_ms" is the duration in milliseconds of the time windows
 %     used for extracting average statistics.
-%   "time_before_ms" is a timestamp in milliseconds specifying where the
-%     middle of the "before stimulation" time window should be.
-%   "timelist_after_ms" is a vector containing timestamps in milliseconds
+%   "timelist_ms" is a vector containing timestamps in milliseconds
 %     specifying where the middle of the "after stimulation" time windows
 %     should be.
+%   "time_before_ms" is a timestamp in milliseconds specifying where the
+%     middle of the "before stimulation" time window should be.
 % "meta_fields" is a structure with arbitrary fields. Each output structure
 %   in "muafeatures" is initialized with a copy of "meta_fields".
 %
@@ -98,9 +98,9 @@ beforewindow = mua_params.time_before_ms / 1000;
 beforewindow = [ beforewindow - winrad, beforewindow + winrad ];
 
 afterwindows = {};
-aftercount = length(mua_params.timelist_after_ms);
+aftercount = length(mua_params.timelist_ms);
 for widx = 1:aftercount
-  thisafter = mua_params.timelist_after_ms(widx) / 1000;
+  thisafter = mua_params.timelist_ms(widx) / 1000;
   afterwindows{widx} = [ thisafter - winrad, thisafter + winrad ];
 end
 
@@ -192,7 +192,7 @@ for tidx = 1:length(timeseriesbefore)
   thisreport.trialnum = tidx;
 
   thisreport.winbefore = mua_params.time_before_ms / 1000;
-  thisreport.winafter = mua_params.timelist_after_ms / 1000;
+  thisreport.winafter = mua_params.timelist_ms / 1000;
   if ~isrow(thisreport.winafter)
     thisreport.winafter = transpose(thisreport.winafter);
   end

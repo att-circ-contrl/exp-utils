@@ -7,12 +7,16 @@ Common to most functions:
 "time_window_ms" is the duration in milliseconds of the time windows used
   for extracting average statistics.
 
+"timelist_ms" is a vector containing timestamps in milliseconds
+  specifying where the analysis time windows should be.
+
+
+
+Used by euChris_extractStimMUAResponse:
+
 "time_before_ms" is a timestamp in milliseconds specifying where the middle
   of the "before stimulation" time window should be.
 
-"timelist_after_ms" is a vector containing timestamps in milliseconds
-  specifying where the middle of the "after stimulation" time windows
-  should be.
 
 
 Used by euChris_calcXCorr:

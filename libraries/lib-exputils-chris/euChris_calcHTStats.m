@@ -28,7 +28,7 @@ function htdata = euChris_calcHTStats( ...
 %     channels being compared.
 %   "windowlist_ms" is a vector containing timestamps in milliseconds
 %     specifying where the middle of each analysis window is. This is a copy
-%     of mua_params.timelist_after_ms.
+%     of mua_params.timelist_ms.
 %   "coherencevals" is a matrix indexed by (firstchan, secondchan, winidx)
 %     containing coherence values (complex, magnitude between 0 and 1).
 %   "powercorrelvals" is a matrix indexed by (firstchan, secondchan, winidx)
@@ -60,7 +60,7 @@ end
 samprate = 1 / mean(diff( ftdata_first.time{1} ));
 
 winrad_samps = round( samprate * mua_params.time_window_ms * 0.001 * 0.5 );
-wintimes_sec = mua_params.timelist_after_ms * 0.001;
+wintimes_sec = mua_params.timelist_ms * 0.001;
 
 trialcount = length(ftdata_first.time);
 
@@ -205,7 +205,7 @@ htdata = struct();
 htdata.firstchans = ftdata_first.label;
 htdata.secondchans = ftdata_second.label;
 
-htdata.windowlist_ms = mua_params.timelist_after_ms;
+htdata.windowlist_ms = mua_params.timelist_ms;
 
 htdata.coherencevals = coherenceavg;
 htdata.powercorrelvals = correlavg;
