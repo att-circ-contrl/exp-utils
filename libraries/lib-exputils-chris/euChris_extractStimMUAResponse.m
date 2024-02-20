@@ -11,7 +11,7 @@ function muafeatures = euChris_extractStimMUAResponse( ...
 %
 % For each trial, this finds the magnitude and standard deviation of the
 % MUA in user-specified time windows before and after stimulation. Several
-% derived statistics are computed, per CHRISMUAFEATURES.txt.
+% derived statistics are computed, per CHRISSTIMFEATURES.txt.
 %
 % One set of trials is used for curve-fitting before stimulation and another
 % set of trials for curve-fitting after stimulation. These may be the same
@@ -43,7 +43,7 @@ function muafeatures = euChris_extractStimMUAResponse( ...
 %
 % "muafeatures" is a 1xNtrials cell array. Each cell contains a copy of the
 %   "meta_fields" structure with the following fields added, per
-%   CHRISMUAFEATURES.txt:
+%   CHRISSTIMFEATURES.txt:
 %   "trialnum" is the trial number.
 %   "winbefore" is a scalar containing the timestamp in seconds of the
 %     midpoint of the before-stimulation time window.
