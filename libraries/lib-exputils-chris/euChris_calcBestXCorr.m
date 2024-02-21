@@ -10,7 +10,8 @@ function peakdata = euChris_calcBestXCorr( ...
 %
 % NOTE - This is sensitive to the structure of the cross-correlation data.
 %
-% "xcorrdata" is a structure produced by euChris_calcXCorr().
+% "xcorrdata" is a structure with raw cross-correlation data, per
+%   CHRISXCORRDATA.txt.
 % "timesmooth_ms" is the window size for smoothing data along the time axis,
 %   in milliseconds. Specify 0 or NaN to not smooth.
 % "lagtarget_ms" is a [ min max ] range for accepted time lags if using the
@@ -54,7 +55,7 @@ peakdata.peakamps = nan(firstcount, secondcount, wincount);
 %
 % First pass: Perform smoothing if requested.
 
-xcvals = xcorrdata.xcorrvals;
+xcvals = xcorrdata.xcorravg;
 
 if (~isnan(timesmooth_ms)) && (timesmooth_ms > 0)
   timelist_ms = xcorrdata.windowlist_ms;

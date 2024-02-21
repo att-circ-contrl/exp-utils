@@ -1,0 +1,24 @@
+A raw cross-correlation data structure is a structure with the following
+fields:
+
+
+"firstchans" is a cell array with FT channel names for the first set of
+  channels being compared.
+"secondchans" is a cell array with FT channel names for the second set of
+  channels being compared.
+
+"delaylist_ms" is a vector containing the time lags tested in milliseconds.
+
+"windowlist_ms" is a vector containing timestamps in milliseconds
+  specifying where the middle of each cross-correlation window is.
+
+"xcorravg" is a matrix indexed by (firstchan, secondchan, winidx, lagidx)
+  containing the cross-correlation values, averaged across trials.
+"xcorrcount" is a matrix indexed by (firstchan, secondchan, winidx, lagidx)
+  containing the number of trials used to produce the averages in xcorravg.
+"xcorrvar" is a matrix indexed by (firstchan, secondchan, winidx, lagidx)
+  containing the variance of the cross-correlation values used to produce
+  the averages in xcorravg.
+
+
+(This is the end of the file.)

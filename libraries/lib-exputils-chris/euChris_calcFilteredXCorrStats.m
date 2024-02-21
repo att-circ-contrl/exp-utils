@@ -19,7 +19,8 @@ function [ ampmean ampdev lagmean lagdev ] = ...
 %
 % This works if and only if there _is_ a fairly clean cross-correlation peak.
 %
-% "xcorrdata" is a structure produced by euChris_calcXCorr().
+% "xcorrdata" is a structure with raw cross-correlation data, per
+%   CHRISXCORRDATA.txt.
 % "timerange_ms" [ min max ] specifies a window time range in milliseconds
 %   to examine. A range of [] indicates all window times.
 % "timesmooth_ms" is the smoothing window size in milliseconds for smoothing
@@ -149,7 +150,7 @@ for firstidx = 1:firstcount
     thispairdata.secondchans = xcorrdata.secondchans(secondidx);
     thispairdata.delaylist_ms = xcorrdata.delaylist_ms;
     thispairdata.windowlist_ms = xcorrdata.windowlist_ms;
-    thispairdata.xcorrvals = xcorrdata.xcorrvals(firstidx,secondidx,:,:);
+    thispairdata.xcorravg = xcorrdata.xcorravg(firstidx,secondidx,:,:);
 
     peakdata = euChris_calcBestXCorr( ...
       thispairdata, timesmooth_ms, lagrange, 'largest' );
