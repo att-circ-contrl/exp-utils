@@ -122,9 +122,6 @@ for trialidx = 1:trialcount
 
   % Get raw data.
 
-  thistimefirst = ftdata_first.time{trialidx};
-  thistimesecond = ftdata_second.time{trialidx};
-
   thisdatafirst = ftdata_first.trial{trialidx};
   thisdatasecond = ftdata_second.trial{trialidx};
 
@@ -162,7 +159,7 @@ for trialidx = 1:trialcount
         thisphasefirst = ...
           thisanglefirst( cidxfirst, winrangesfirst{trialidx,widx} );
         thisphasesecond = ...
-          thisanglefirst( cidxsecond, winrangesfirst{trialidx,widx} );
+          thisanglesecond( cidxsecond, winrangessecond{trialidx,widx} );
 
         thisphasediff = thisphasesecond - thisphasefirst;
 
@@ -193,18 +190,16 @@ xcorrvar = zeros(size(xcorravg));;
 for widx = 1:wincount
 
   % First pass: Store the raw cross-correlations for this window.
+  % Anything that doesn't pass the phase test gets left as NaN.
 
   xcorrbytrial = ...
-    zeros([ chancount_first chancount_second trialcount delaycount ]);
+    nan([ chancount_first chancount_second trialcount delaycount ]);
 
   for trialidx = 1:trialcount
 
     % Get raw data.
     % NOTE - Trials may have NaN regions, but those usually don't overlap
     % the test windows.
-
-    thistimefirst = ftdata_first.time{trialidx};
-    thistimesecond = ftdata_second.time{trialidx};
 
     thisdatafirst = ftdata_first.trial{trialidx};
     thisdatasecond = ftdata_second.trial{trialidx};
@@ -219,6 +214,15 @@ for widx = 1:wincount
 
     windatafirst = thisdatafirst(:,winrangesfirst{trialidx,widx});
     windatasecond = thisdatasecond(:,winrangessecond{trialidx,widx});
+
+
+    % Get a phase mask for this trial and window.
+
+    thisphase = phasediffs(:,:,trialidx,widx);
+
+    thisphase = thisphase - phasetargetrad;
+    thisphase = mod( thisphase + pi, 2*pi ) - pi;
+    phasemask = ( abs(thisphase) <= phaseradiusrad );
 
 
     % Do the cross-correlations.
@@ -242,10 +246,12 @@ for widx = 1:wincount
           wavesecond = wavesecond - mean(wavesecond);
         end
 
-        % Calculate cross-correlations.
-        rvals = xcorr( wavefirst, wavesecond, delaymax_samps, ...
-          xcorr_params.xcorr_norm_method );
-        xcorrbytrial(cidxfirst,cidxsecond,trialidx,1:delaycount) = rvals;
+        % Calculate cross-correlations if we pass the phase test.
+        if phasemask(cidxfirst,cidxsecond)
+          rvals = xcorr( wavefirst, wavesecond, delaymax_samps, ...
+            xcorr_params.xcorr_norm_method );
+          xcorrbytrial(cidxfirst,cidxsecond,trialidx,1:delaycount) = rvals;
+        end
 
       end
     end
@@ -262,19 +268,13 @@ for widx = 1:wincount
     false([ chancount_first chancount_second trialcount delaycount ]);
 
   for trialidx = 1:trialcount
-    thisphase = phasediffs(:,:,trialidx,widx);
-
-    thisphase = thisphase - phasetargetrad;
-    thisphase = mod( thisphase + pi, 2*pi ) - pi;
-    phasemask = ( abs(thisphase) <= phaseradiusrad );
-
     for delayidx = 1:delaycount
       thisxcorr = xcorrbytrial(:,:,trialidx,delayidx);
 
       magmask = ( abs(thisxcorr) >= xcminmag );
       nanmask = ~isnan(thisxcorr);
 
-      thismask = phasemask & magmask & nanmask;
+      thismask = magmask & nanmask;
 
       validmask(:,:,trialidx,delayidx) = thismask;
 

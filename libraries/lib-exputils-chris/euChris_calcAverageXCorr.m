@@ -9,6 +9,8 @@ function [ vstimelist vslaglist ] = euChris_calcAverageXCorr( ...
 % window time (producing vs correlation lag). Mean and standard deviation
 % for collapsed samples are reported.
 %
+% This tolerates NaN data.
+%
 % "xcorrdata" is a structure with raw cross-correlation data, per
 %   CHRISXCORRDATA.txt.
 % "timeranges_ms" is a cell array. Each cell specifies a window time range
@@ -105,6 +107,8 @@ for rangeidx = 1:length(lagranges_ms)
     for sidx = 1:secondcount
       for widx = 1:wincount
         thisslice = xcorrdata.xcorravg(fidx,sidx,widx,lagmask);
+        thisslice = thisslice(~isnan(thisslice));
+
         thisavg(fidx,sidx,widx) = mean(thisslice);
         thisdev(fidx,sidx,widx) = std(thisslice);
       end
@@ -149,6 +153,8 @@ for rangeidx = 1:length(timeranges_ms)
     for sidx = 1:secondcount
       for lidx = 1:lagcount
         thisslice = xcorrdata.xcorravg(fidx,sidx,winmask,lidx);
+        thisslice = thisslice(~isnan(thisslice));
+
         thisavg(fidx,sidx,lidx) = mean(thisslice);
         thisdev(fidx,sidx,lidx) = std(thisslice);
       end
