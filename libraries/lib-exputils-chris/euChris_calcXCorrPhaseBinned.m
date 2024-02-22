@@ -226,28 +226,30 @@ for widx = 1:wincount
 
 
     % Do the cross-correlations.
+    % Apply the phase test before doing any calculations (even detrending).
 
     for cidxfirst = 1:chancount_first
-      wavefirst = windatafirst(cidxfirst,:);
-
-      if strcmp('detrend', detrend_method)
-        wavefirst = detrend(wavefirst);
-      elseif strcmp('demean', detrend_method)
-        wavefirst = wavefirst - mean(wavefirst);
-      end
-
       for cidxsecond = 1:chancount_second
 
-        wavesecond = windatasecond(cidxsecond,:);
-
-        if strcmp('detrend', detrend_method)
-          wavesecond = detrend(wavesecond);
-        elseif strcmp('demean', detrend_method)
-          wavesecond = wavesecond - mean(wavesecond);
-        end
-
-        % Calculate cross-correlations if we pass the phase test.
+        % Check the phase mask before doing anything.
         if phasemask(cidxfirst,cidxsecond)
+          wavefirst = windatafirst(cidxfirst,:);
+
+          if strcmp('detrend', detrend_method)
+            wavefirst = detrend(wavefirst);
+          elseif strcmp('demean', detrend_method)
+            wavefirst = wavefirst - mean(wavefirst);
+          end
+
+          wavesecond = windatasecond(cidxsecond,:);
+
+          if strcmp('detrend', detrend_method)
+            wavesecond = detrend(wavesecond);
+          elseif strcmp('demean', detrend_method)
+            wavesecond = wavesecond - mean(wavesecond);
+          end
+
+          % Calculate cross-correlations.
           rvals = xcorr( wavefirst, wavesecond, delaymax_samps, ...
             xcorr_params.xcorr_norm_method );
           xcorrbytrial(cidxfirst,cidxsecond,trialidx,1:delaycount) = rvals;
