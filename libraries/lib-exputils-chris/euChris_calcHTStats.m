@@ -1,8 +1,8 @@
 function htdata = euChris_calcHTStats( ...
-  ftdata_first, ftdata_second, mua_params )
+  ftdata_first, ftdata_second, win_params )
 
 % function htdata = euChris_calcHTStats( ...
-%   ftdata_first, ftdata_second, mua_params )
+%   ftdata_first, ftdata_second, win_params )
 %
 % This calculates the coherence, power correlation, and non-Gaussian power
 % correlation between pairs of signals within two datasets using the methods
@@ -18,7 +18,7 @@ function htdata = euChris_calcHTStats( ...
 %
 % "ftdata_first" is a ft_datatype_raw structure with the first set of trials.
 % "ftdata_second" is a ft_datatype_raw structure with the second set of trials.
-% "mua_params" is a structure giving time window information, per
+% "win_params" is a structure giving time window information, per
 %   CHRISMUAPARAMS.txt.
 %
 % "htdata" is a structure with the following fields:
@@ -28,7 +28,7 @@ function htdata = euChris_calcHTStats( ...
 %     channels being compared.
 %   "windowlist_ms" is a vector containing timestamps in milliseconds
 %     specifying where the middle of each analysis window is. This is a copy
-%     of mua_params.timelist_ms.
+%     of win_params.timelist_ms.
 %   "coherencevals" is a matrix indexed by (firstchan, secondchan, winidx)
 %     containing coherence values (complex, magnitude between 0 and 1).
 %   "powercorrelvals" is a matrix indexed by (firstchan, secondchan, winidx)
@@ -59,8 +59,8 @@ end
 
 samprate = 1 / mean(diff( ftdata_first.time{1} ));
 
-winrad_samps = round( samprate * mua_params.time_window_ms * 0.001 * 0.5 );
-wintimes_sec = mua_params.timelist_ms * 0.001;
+winrad_samps = round( samprate * win_params.time_window_ms * 0.001 * 0.5 );
+wintimes_sec = win_params.timelist_ms * 0.001;
 
 trialcount = length(ftdata_first.time);
 
@@ -205,7 +205,7 @@ htdata = struct();
 htdata.firstchans = ftdata_first.label;
 htdata.secondchans = ftdata_second.label;
 
-htdata.windowlist_ms = mua_params.timelist_ms;
+htdata.windowlist_ms = win_params.timelist_ms;
 
 htdata.coherencevals = coherenceavg;
 htdata.powercorrelvals = correlavg;

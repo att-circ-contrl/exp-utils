@@ -1,10 +1,10 @@
 function xcorrdata = euChris_calcXCorrPhaseBinned( ...
   ftdata_first, ftdata_second, xcorr_params, detrend_method, ...
-  phasebintarget, phasebinwidth, xcminmag )
+  phasebintarget, phasebinwidth, xcminmag, minplv )
 
 % function xcorrdata = euChris_calcXCorrPhaseBinned( ...
 %   ftdata_first, ftdata_second, xcorr_params, detrend_method, ...
-%   phasebintarget, phasebinwidth, xcminmag )
+%   phasebintarget, phasebinwidth, xcminmag, minplv )
 %
 % This calculates cross-correlations between two Field Trip datasets within
 % a series of time windows, averaged across trials.
@@ -28,6 +28,8 @@ function xcorrdata = euChris_calcXCorrPhaseBinned( ...
 % "phasebinwidth" is the width of the desired phase bin, in degrees.
 % "xcminmag" is the minimum absolute value of the cross-correlation required
 %   for that cross-correlation measurement to contribute to an average.
+% "minplv" is the minimum phase lock value required for phase binning.
+%   Phase lock value is (1 - circular variance).
 %
 % "xcorrdata" is a structure containing cross-correlation data, per
 %   CHRISXCORRDATA.txt.
@@ -113,68 +115,11 @@ end
 %
 % Precompute phase differences.
 
-% We want to use the entire trial time span to do this, to avoid windowing
-% artifacts with the Hilbert transform.
+phasedata = euChris_calcTrialPhaseStats( ...
+  ftdata_first, ftdata_second, xcorr_params, detrend_method );
 
-phasediffs = [];
-
-for trialidx = 1:trialcount
-
-  % Get raw data.
-
-  thisdatafirst = ftdata_first.trial{trialidx};
-  thisdatasecond = ftdata_second.trial{trialidx};
-
-  thisanglefirst = NaN(size(thisdatafirst));
-  thisanglesecond = NaN(size(thisdatasecond));
-
-  for cidx = 1:chancount_first
-    thiswave = thisdatafirst(cidx,:);
-
-    % Interpolate NaNs, so that we can use the Hilbert transform.
-    thiswave = nlProc_fillNaN( thiswave );
-    % Make this zero-mean and give it sane endpoints.
-    thiswave = detrend(thiswave);
-
-    thisanglefirst(cidx,:) = angle(hilbert( thiswave ));
-  end
-
-  for cidx = 1:chancount_second
-    thiswave = thisanglesecond(cidx,:);
-
-    % Interpolate NaNs, so that we can use the Hilbert transform.
-    thiswave = nlProc_fillNaN( thiswave );
-    % Make this zero-mean and give it sane endpoints.
-    thiswave = detrend(thiswave);
-
-    thisanglesecond(cidx,:) = angle(hilbert( thiswave ));
-  end
-
-  % Walk through windows, computing relative phase.
-  % NOTE - Remember that we're in circular coordinates.
-
-  for widx = 1:wincount
-    for cidxfirst = 1:chancount_first
-      for cidxsecond = 1:chancount_second
-        thisphasefirst = ...
-          thisanglefirst( cidxfirst, winrangesfirst{trialidx,widx} );
-        thisphasesecond = ...
-          thisanglesecond( cidxsecond, winrangessecond{trialidx,widx} );
-
-        thisphasediff = thisphasesecond - thisphasefirst;
-
-        % Use the circular mean.
-        % The linear mean will be contaminated by outliers if there isn't a
-        % strong phase relationship, even with wrapping to +/- pi.
-
-        [ cmean cvar lindev ] = nlProc_calcCircularStats( thisphasediff );
-
-        phasediffs(cidxfirst,cidxsecond,trialidx,widx) = cmean;
-      end
-    end
-  end
-
-end
+phasediffs = phasedata.phasediffs;
+phaseplvs = phasedata.plvs;
 
 
 %
@@ -219,10 +164,14 @@ for widx = 1:wincount
     % Get a phase mask for this trial and window.
 
     thisphase = phasediffs(:,:,trialidx,widx);
+    thisplv = phaseplvs(:,:,trialidx,widx);
 
     thisphase = thisphase - phasetargetrad;
     thisphase = mod( thisphase + pi, 2*pi ) - pi;
     phasemask = ( abs(thisphase) <= phaseradiusrad );
+
+    plvmask = (thisplv >= minplv);
+    phasemask = phasemask & plvmask;
 
 
     % Do the cross-correlations.

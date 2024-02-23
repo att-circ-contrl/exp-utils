@@ -24,10 +24,11 @@ function xcorrdata = euChris_calcXCorr( ...
 
 % Wrap the phase-binned version.
 % Phase bin width of 400 degrees and magnitude >= -1 should always pass.
+% Ditto PLV >= -1.
 
 xcorrdata = euChris_calcXCorrPhaseBinned( ...
   ftdata_first, ftdata_second, xcorr_params, detrend_method, ...
-  0, 400, -1 );
+  0, 400, -1, -1 );
 
 
 % Done.
