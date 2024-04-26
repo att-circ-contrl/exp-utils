@@ -1,15 +1,22 @@
 function [ frametimes recordtimes ] = euUSE_getCameraTimestampsWM( ...
-  analogdata, framecolumn, recordcolumn )
+  analogdata, timecolumn, framecolumn, recordcolumn )
 
 % function [ frametimes recordtimes ] = euUSE_getCameraTimestampsWM( ...
-%   analogdata, framecolumn, recordcolumn )
+%   analogdata, timecolumn, framecolumn, recordcolumn )
 %
-% This extracts SynchBox timestamps for "camera grabbed a frame" and
-% "system started recording" events for a White Matter e3Vision camera
-% system. These systems output TTL pulses which are cabled to the
-% SynchBox's analog inputs (typically 'joyX' and 'joyZ', respectively).
+% This extracts timestamps for "camera grabbed a frame" and "system started
+% recording" events for a White Matter e3Vision camera system. These systems
+% output TTL pulses which are cabled to the SynchBox's analog inputs
+% (typically 'joyX' and 'joyZ', respectively).
+%
+% If SynchBox timestamps are selected, timestamps should be accurate to
+% 0.1 ms. If M-USE timestamps are selected, there's a lot more jitter. For
+% precise M-USE timestamps, fetch SynchBox timestamps here and use the
+% time alignment functions to translate them into M-USE timestamps.
 %
 % "analogdata" is a table returned by euUSE_parseSerialRecvDataAnalog().
+% "timecolumn" is the name of the table column with timestamps. This is
+%   typically "synchBoxTime" or "unityTime".
 % "framecolumn" is the name of the table column with "frame captured" pulses.
 % "recordcolumn" is the name of the table column with "recording start" pulses.
 %   If this is '', recording starts aren't processed.
