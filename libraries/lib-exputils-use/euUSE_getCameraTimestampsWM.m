@@ -10,9 +10,12 @@ function [ frametimes recordtimes ] = euUSE_getCameraTimestampsWM( ...
 % (typically 'joyX' and 'joyZ', respectively).
 %
 % If SynchBox timestamps are selected, timestamps should be accurate to
-% 0.1 ms. If M-USE timestamps are selected, there's a lot more jitter. For
-% precise M-USE timestamps, fetch SynchBox timestamps here and use the
-% time alignment functions to translate them into M-USE timestamps.
+% 0.1 ms. If M-USE timestamps are selected, there's a lot more jitter.
+%
+% For precise M-USE timestamps, either do full time alignment in your
+% processing script and then translate SynchBox timestamps into M-USE
+% timestamps, or else use this function to fetch both SynchBox and M-USE
+% timestamps and call nlProc_polyMapSeries() to do ramp-fit translation.
 %
 % "analogdata" is a table returned by euUSE_parseSerialRecvDataAnalog().
 % "timecolumn" is the name of the table column with timestamps. This is
@@ -29,7 +32,7 @@ function [ frametimes recordtimes ] = euUSE_getCameraTimestampsWM( ...
 % Get the frame-grab waveform and process it.
 % Use this to get the threshold for the recording-start waveform.
 
-wavetimes = analogdata.synchBoxTime;
+wavetimes = analogdata.(timecolumn);
 
 waveframe = analogdata.(framecolumn);
 thresh = median(waveframe);
