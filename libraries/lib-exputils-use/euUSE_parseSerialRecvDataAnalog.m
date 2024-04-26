@@ -12,7 +12,7 @@ function analogdata = euUSE_parseSerialRecvDataAnalog( serialrecvdata )
 %
 % "serialrecvdata" is the data table containing raw inbound serial data.
 %
-% "analogdata" is a tale containing five analog channels and two flags.
+% "analogdata" is a table containing five analog channels and two flags.
 %   Table columns are 'unityTime', 'synchBoxTime', 'joyX', 'joyY', 'joyZ',
 %   'lightL', 'lightR', 'flagL', and 'flagR'.
 
