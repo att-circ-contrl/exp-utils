@@ -1,0 +1,21 @@
+A time window and time lag range specification describes the domain over
+which analyses such as cross-correlation and transfer entropy are performed.
+It is a structure with the following fields:
+
+
+"time_window_ms" is the duration in milliseconds of the time windows used
+  for extracting statistics.
+
+"timelist_ms" is a vector containing timestamps in milliseconds
+  specifying where the analysis time windows should be.
+
+
+"delay_range_ms" [ min max ] is the range of values in milliseconds to use
+  for time lag when performing cross-correlation or similar calculations.
+
+"delay_step_ms" is the distance between adjacent delay values tested. This
+  is rounded to the nearest whole number of samples; specifying zero is a
+  convenient way to get a delay step of one sample.
+
+
+(This is the end of the file.)

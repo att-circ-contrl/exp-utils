@@ -1,0 +1,42 @@
+A time window and time lag analysis generates a results data structure with
+the following fields:
+
+
+Metadata fields:
+
+"firstchans" is a cell array with FT channel names for the first set of
+  channels being compared.
+"secondchans" is a cell array with FT channel names for the second set of
+  channels being compared.
+
+"delaylist_ms" is a vector containing the time lags tested in milliseconds.
+
+"windowlist_ms" is a vector containing timestamps in milliseconds
+  specifying where the middle of each analysis time window is.
+"windowsize_ms" is a scalar holding the duration of the analysis time windows.
+
+
+Analysis results:
+
+If averaging across trials was requested, then for each analysis result
+variable "FOO", the following fields will exist:
+
+"FOOavg" is a matrix indexed by (firstchan, secondchan, winidx, lagidx)
+  containing the values of FOO, averaged across trials.
+"FOOcount" is a matrix indexed by (firstchan, secondchan, winidx, lagidx)
+  containing the number of trials used to produce the averages in FOOavg.
+"FOOvar" is a matrix indexed by (firstchan, secondchan, winidx, lagidx)
+  containing the variance of the values used to produce the averages in
+  FOOavg.
+
+If per-trial data was requested, then for each analysis result variable
+"FOO", the following field will exist:
+
+"FOOtrials" is a matrix indexed by (firstcha, secondchan, trialidx, winidx,
+  lagidx) containing the computed values of FOO.
+
+If an acceptance filter was used, cells of FOOtrials that were not accepted
+contain NaN.
+
+
+(This is the end of the file.)

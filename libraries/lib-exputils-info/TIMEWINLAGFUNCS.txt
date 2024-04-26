@@ -1,0 +1,40 @@
+A time window and time lag analysis performed via euInfo_doTimeAndLagAnalysis
+requires two function handles: One that performes the analysis, and another
+that discriminates between accepted and rejected trials and time windows.
+
+
+
+An analysis function handle has the form:
+
+result = analysisfunc( wavefirst, wavesecond, samprate, delaysamps, params )
+
+
+"wavefirst" is a vector with windowed waveform data from the first dataset.
+"wavesecond" is a vector with windowed waveform data from the second dataset.
+"samprate" is the sampling rate.
+"delaysamps" is a vector containing time lags to be tested, in samples.
+"params" is a structure containing user-supplied configuration parameters.
+
+"result" is a structure with one or more fields. Each field contains a
+  vector of the same length as "delaysamps" with analysis result values.
+  These are used to produce result matrices per TIMEWINLAGDATA.txt.
+
+
+
+An acceptance filter function handle has the following form:
+
+FIXME - Think of a better way to handle analytic signals.
+
+acceptflag = filterfunc( wavefirst, wavesecond, samprate, params )
+
+"wavefirst" is a vector with windowed waveform data from the first dataset.
+  NOTE - This is promoted to a complex-valued analytic signal.
+"wavesecond" is a vector with windowed waveform data from the second dataset.
+  NOTE - This is promoted to a complex-valued analytic signal.
+"samprate" is the sampling rate.
+"params" is a structure containing user-supplied configuration parameters.
+
+"acceptflag" is true if the pair of waveforms is accepted and false otherwise.
+
+
+(This is the end of the file.)
