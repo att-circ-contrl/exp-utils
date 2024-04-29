@@ -1,9 +1,9 @@
-function winlagdata = euChris_doTimeAndLagAnalysis( ...
-  ftdata_first, ftdata_second, winlagparams, trialcalcs, ...
+function winlagdata = euInfo_doTimeAndLagAnalysis( ...
+  ftdata_first, ftdata_second, winlagparams, flags, ...
   analysis_func, analysis_params, filter_func, filter_params )
 
-% function winlagdata = euChris_doTimeAndLagAnalysis( ...
-%   ftdata_first, ftdata_second, winlagparams, trialcalcs, ...
+% function winlagdata = euInfo_doTimeAndLagAnalysis( ...
+%   ftdata_first, ftdata_second, winlagparams, flags, ...
 %   analysis_func, analysis_params, filter_func, filter_params )
 %
 % This compares two Field Trip datasets within a series of time windows,
@@ -24,10 +24,14 @@ function winlagdata = euChris_doTimeAndLagAnalysis( ...
 % "ftdata_second" is a ft_datatype_raw structure with the second set of trials.
 % "winlagparams" is a structure giving time window and time lag information,
 %   per TIMEWINLAGSPEC.txt.
-% "trialcalcs" is a cell array containing zero or more of the following
-%   character vectors:
+% "flags" is a cell array containing zero or more of the following character
+%   vectors:
 %   'avgtrials' generates data averaged across trials, per TIMEWINLAGDATA.txt.
 %   'pertrial' generates per-trial data, per TIMEWINLAGDATA.txt.
+%   'complexanalysis' passes complex-valued analytic signals to the analysis
+%     function instead of real-valued signals.
+%   'complexfilter' passes complex-valued analytic signals to the filter
+%     function instead of real-valued signals.
 % "analysis_func" is an analysis function handle, per TIMEWINLAGFUNCS.
 % "analysis_params" is a tuning parameter structure to be passed to the
 %   analysis function handle.
@@ -40,7 +44,7 @@ function winlagdata = euChris_doTimeAndLagAnalysis( ...
 
 
 % Initialize.
-winlagdata = struct([]);
+winlagdata = struct();
 
 
 % Check for bail-out conditions.
@@ -56,8 +60,13 @@ end
 
 % Behavior.
 
-want_avg = ismember('avgtrials', trialcalcs);
-want_pertrial = ismember('pertrial', trialcalcs);
+want_avg = ismember('avgtrials', flags);
+want_pertrial = ismember('pertrial', flags);
+
+want_hilbert_analysis = ismember('complexanalysis', flags);
+want_hilbert_filter = ismember('complexfilter', flags);
+
+want_any_hilbert = want_hilbert_analysis | want_hilbert_filter;
 
 
 % Geometry.
@@ -82,6 +91,7 @@ wincount = length(wintimes_sec);
 
 
 % Delay values.
+% NOTE - Tolerate getting a single delay value.
 
 delaymin_samps = min( winlagparams.delay_range_ms );
 delaymin_samps = round( samprate * delaymin_samps * 0.001 );
@@ -90,7 +100,7 @@ delaymax_samps = max( winlagparams.delay_range_ms );
 delaymax_samps = round( samprate * delaymax_samps * 0.001 );
 
 delaystep_samps = round( samprate * winlagparams.delay_step_ms * 0.001 );
-delaystep_samps = max( 1, delaystepsamps );
+delaystep_samps = max( 1, delaystep_samps );
 
 delaypivot = round( 0.5 * (delaymin_samps + delaymax_samps) );
 % If a delay of zero is in range, make sure we use it as one of the delays.
@@ -98,15 +108,22 @@ if (delaymin_samps <= 0) & (delaymax_samps >= 0)
   delaypivot = 0;
 end
 
-delaymin_samps = delaymin_samps - delaypivot;
-delaymin_samps = round(delaymin_samps / delaystep_samps);
-delaymin_samps = (delaymin_samps * delaystep_samps) + delaypivot;
+if length( winlagparams.delay_range_ms ) > 1
+  % We have at least two points. Proceed as normal.
 
-delaymax_samps = delaymax_samps - delaypivot;
-delaymax_samps = round(delaymax_samps / delaystep_samps);
-delaymax_samps = (delaymax_samps * delaystep_samps) + delaypivot;
+  delaymin_samps = delaymin_samps - delaypivot;
+  delaymin_samps = round(delaymin_samps / delaystep_samps);
+  delaymin_samps = (delaymin_samps * delaystep_samps) + delaypivot;
 
-delaylist_samps = [ delaymin_samps : delaystep_samps : delaymax_samps ];
+  delaymax_samps = delaymax_samps - delaypivot;
+  delaymax_samps = round(delaymax_samps / delaystep_samps);
+  delaymax_samps = (delaymax_samps * delaystep_samps) + delaypivot;
+
+  delaylist_samps = [ delaymin_samps : delaystep_samps : delaymax_samps ];
+else
+  % We only have a single delay value.
+  delaylist_samps = delaypivot;
+end
 
 delaycount = length(delaylist_samps);
 
@@ -144,49 +161,83 @@ end
 
 
 %
-% Precompute analytic signals.
+% Store metadata.
 
-% FIXME - We should have flags for whether this is needed for _either_
-% function.
+winlagdata.firstchans = ftdata_first.label;
+winlagdata.secondchans = ftdata_second.label;
 
-ftdata_first_hilbert = ftdata_first;
-ftdata_second_hilbert = ftdata_second;
+winlagdata.delaylist_ms = delaylist_samps * 1000 / samprate;
 
-for tidx = 1:trialcount
-  thistrial = ftdata_first_hilbert.trial{tidx};
-  for cidx = 1:chancount_first
-    thistrial(cidx,: = hilbert(thistrial(cidx,:));
+winlagdata.windowlist_ms = winlagparams.timelist_ms;
+winlagdata.windowsize_ms = winlagparams.time_window_ms;
+
+
+
+%
+% Precompute analytic signals, if desired.
+
+if want_any_hilbert
+  ftdata_first_hilbert = ftdata_first;
+  ftdata_second_hilbert = ftdata_second;
+
+  for tidx = 1:trialcount
+    thistrial = ftdata_first_hilbert.trial{tidx};
+    for cidx = 1:chancount_first
+      thistrial(cidx,:) = hilbert(thistrial(cidx,:));
+    end
+    ftdata_first_hilbert.trial{tidx} = thistrial;
+
+    thistrial = ftdata_second_hilbert.trial{tidx};
+    for cidx = 1:chancount_second
+      thistrial(cidx,:) = hilbert(thistrial(cidx,:));
+    end
+    ftdata_second_hilbert.trial{tidx} = thistrial;
   end
-  ftdata_first_hilbert.trial{tidx} = thistrial;
-
-  thistrial = ftdata_second_hilbert.trial{tidx};
-  for cidx = 1:chancount_second
-    thistrial(cidx,: = hilbert(thistrial(cidx,:));
-  end
-  ftdata_second_hilbert.trial{tidx} = thistrial;
 end
 
 
 
 %
-% Compute cross-correlations and average across trials.
+% Compute per-trial analysis output and average across trials.
 
-% FIXME - Stopped here.
+% Make templates for easier initialization.
 
-% The outer loop is window index, so that we can hold all cross-correlations
-% for a given window in memory (to compute the variance).
+if want_avg
+  % Statistics in the absence of data are NaN, not zero.
+  templateavg = ...
+    nan([ chancount_first chancount_second wincount delaycount ]);
 
-xcorravg = zeros([ chancount_first chancount_second wincount delaycount ]);
-xcorrcount = zeros(size(xcorravg));
-xcorrvar = zeros(size(xcorravg));;
+  % Scratch variables for computing statistics do start at zero.
+  templateonewindowavg = ...
+    zeros([ chancount_first chancount_second delaycount ]);
+end
+
+if want_pertrial
+  % Data that doesn't pass the filter is NaN, not zero.
+  templatepertrial = ...
+    nan([ chancount_first chancount_second trialcount wincount delaycount ]);
+end
+
+% Data that doesn't pass the filter is NaN, not zero.
+templateonewindow = ...
+  nan([ chancount_first chancount_second trialcount delaycount ]);
+
+
+% Iterate.
+
+% The outer loop is window index, so that we can hold all results for a
+% given window in memory (to compute the variance).
+
+need_global_init = true;
+resultfields = {};
 
 for widx = 1:wincount
 
-  % First pass: Store the raw cross-correlations for this window.
-  % Anything that doesn't pass the phase test gets left as NaN.
+  % First pass: Store the raw results for this window.
+  % Anything that doesn't pass the filter function gets left as NaN.
 
-  xcorrbytrial = ...
-    nan([ chancount_first chancount_second trialcount delaycount ]);
+  need_local_init = true;
+  thiswinresults = struct();
 
   for trialidx = 1:trialcount
 
@@ -197,59 +248,110 @@ for widx = 1:wincount
     thisdatafirst = ftdata_first.trial{trialidx};
     thisdatasecond = ftdata_second.trial{trialidx};
 
+    if want_any_hilbert
+      thisdatafirst_hilbert = ftdata_first_hilbert.trial{trialidx};
+      thisdatasecond_hilbert = ftdata_second_hilbert.trial{trialidx};
+    end
+
 
     % Extract data window contents.
 
-    % NOTE - We may sometimes get NaN data in here. The relevant cross
-    % correlations will also be NaN.
-    % Detrending and mean subtraction will also make the whole thing NaN,
-    % but that's fine. Using 'omitnan' would still give NaN cross-correlation.
+    % NOTE - We may sometimes get NaN data in here. The relevant results
+    % will also be NaN.
 
     windatafirst = thisdatafirst(:,winrangesfirst{trialidx,widx});
     windatasecond = thisdatasecond(:,winrangessecond{trialidx,widx});
 
-
-    % Get a phase mask for this trial and window.
-
-    thisphase = phasediffs(:,:,trialidx,widx);
-    thisplv = phaseplvs(:,:,trialidx,widx);
-
-    thisphase = thisphase - phasetargetrad;
-    thisphase = mod( thisphase + pi, 2*pi ) - pi;
-    phasemask = ( abs(thisphase) <= phaseradiusrad );
-
-    plvmask = (thisplv >= minplv);
-    phasemask = phasemask & plvmask;
+    if want_any_hilbert
+      windatafirst_hilbert = ...
+        thisdatafirst_hilbert(:,winrangesfirst{trialidx,widx});
+      windatasecond_hilbert = ...
+        thisdatasecond_hilbert(:,winrangessecond{trialidx,widx});
+    end
 
 
-    % Do the cross-correlations.
-    % Apply the phase test before doing any calculations (even detrending).
+    % Iterate channels, storing results for this trial.
+    % Check the filter function before performing analysis on any pair.
 
     for cidxfirst = 1:chancount_first
       for cidxsecond = 1:chancount_second
 
-        % Check the phase mask before doing anything.
-        if phasemask(cidxfirst,cidxsecond)
-          wavefirst = windatafirst(cidxfirst,:);
+        wavefirst = windatafirst(cidxfirst,:);
+        wavesecond = windatasecond(cidxsecond,:);
 
-          if strcmp('detrend', detrend_method)
-            wavefirst = detrend(wavefirst);
-          elseif strcmp('demean', detrend_method)
-            wavefirst = wavefirst - mean(wavefirst);
+        if want_any_hilbert
+          wavefirst_hilbert = windatafirst_hilbert(cidxfirst,:);
+          wavesecond_hilbert = windatasecond_hilbert(cidxsecond,:);
+        end
+
+        if want_hilbert_filter
+          filteraccept = ...
+            filter_func( wavefirst_hilbert, wavesecond_hilbert, ...
+              samprate, filter_params );
+        else
+          filteraccept = ...
+            filter_func( wavefirst, wavesecond, samprate, filter_params );
+        end
+
+        if filteraccept
+
+          if want_hilbert_analysis
+            thisresult = analysis_func( ...
+              wavefirst_hilbert, wavesecond_hilbert, samprate, ...
+              delaylist_samps, analysis_params );
+          else
+            thisresult = analysis_func( ...
+              wavefirst, wavesecond, samprate, ...
+              delaylist_samps, analysis_params );
           end
 
-          wavesecond = windatasecond(cidxsecond,:);
+          % Handle deferred initialization, if it hasn't been done yet.
 
-          if strcmp('detrend', detrend_method)
-            wavesecond = detrend(wavesecond);
-          elseif strcmp('demean', detrend_method)
-            wavesecond = wavesecond - mean(wavesecond);
+          if need_global_init
+            need_global_init = false;
+
+            resultfields = fieldnames(thisresult);
+
+            for fidx = 1:length(resultfields)
+              thisfield = resultfields{fidx};
+              if want_avg
+                winlagdata.([ thisfield 'avg' ]) = templateavg;
+                winlagdata.([ thisfield 'count' ]) = templateavg;
+                winlagdata.([ thisfield 'var' ]) = templateavg;
+              end
+              if want_pertrial
+                winlagdata.([ thisfield 'trials' ]) = templatepertrial;
+              end
+            end
           end
 
-          % Calculate cross-correlations.
-          rvals = xcorr( wavefirst, wavesecond, delaymax_samps, ...
-            xcorr_params.xcorr_norm_method );
-          xcorrbytrial(cidxfirst,cidxsecond,trialidx,1:delaycount) = rvals;
+          if need_local_init
+            need_local_init = false;
+
+            for fidx = 1:length(resultfields)
+              thisfield = resultfields{fidx};
+              thiswinresults.( thisfield ) = templateonewindow;
+            end
+          end
+
+          % Store this set of results.
+
+          for fidx = 1:length(resultfields)
+            thisfield = resultfields{fidx};
+
+            scratch = thiswinresults.( thisfield );
+            scratch(cidxfirst,cidxsecond,trialidx,1:delaycount) = ...
+              thisresult.( thisfield );
+            thiswinresults.( thisfield ) = scratch;
+
+            if want_pertrial
+              scratch = winlagdata.([ thisfield 'trials' ]);
+              scratch(cidxfirst,cidxsecond,trialidx,widx,1:delaycount) = ...
+                thisresult.( thisfield );
+              winlagdata.([ thisfield 'trials' ]) = scratch;
+            end
+          end
+
         end
 
       end
@@ -258,84 +360,83 @@ for widx = 1:wincount
   end
 
 
-  % Second pass: Get the count and the average.
+  % Second pass: Compute average statistics, if desired.
 
-  winxcorravg = zeros([ chancount_first chancount_second delaycount ]);
-  winxcorrcount = zeros(size(winxcorravg));
+  if want_avg
+    for fidx = 1:length(resultfields)
 
-  validmask = ...
-    false([ chancount_first chancount_second trialcount delaycount ]);
+      thisfield = resultfields{fidx};
 
-  for trialidx = 1:trialcount
-    for delayidx = 1:delaycount
-      thisxcorr = xcorrbytrial(:,:,trialidx,delayidx);
+      winavg = templateonewindowavg;
+      wincount = templateonewindowavg;
+      winvar = templateonewindowavg;
 
-      magmask = ( abs(thisxcorr) >= xcminmag );
-      nanmask = ~isnan(thisxcorr);
+      thisresult = thiswinresults.( thisfield );
+      validmask = ~isnan(thisresult);
 
-      thismask = magmask & nanmask;
 
-      validmask(:,:,trialidx,delayidx) = thismask;
+      % Get the count and the average.
+      % Ignore NaN entries.
 
-      avgslice = winxcorravg(:,:,delayidx);
-      avgslice(thismask) = avgslice(thismask) + thisxcorr(thismask);
-      winxcorravg(:,:,delayidx) = avgslice;
+      for trialidx = 1:trialcount
+        for delayidx = 1:delaycount
+          thisresultslice = thisresult(:,:,trialidx,delayidx);
+          thisvalid = validmask(:,:,trialidx,delayidx);
 
-      countslice = winxcorrcount(:,:,delayidx);
-      countslice = countslice + thismask;
-      winxcorrcount(:,:,delayidx) = countslice;
+          avgslice = winavg(:,:,delayidx);
+          avgslice(thisvalid) = ...
+            avgslice(thisvalid) + thisresultslice(thisvalid);
+          winavg(:,:,delayidx) = avgslice;
+
+          countslice = wincount(:,:,delayidx);
+          countslice = countslice + thisvalid;
+          wincount(:,:,delayidx) = countslice;
+        end
+      end
+
+      winavg = winavg ./ wincount;
+
+
+      % Get the variance.
+
+      for trialidx = 1:trialcount
+        for delayidx = 1:delaycount
+          thisresultslice = thisresult(:,:,trialidx,delayidx);
+          thisvalid = validmask(:,:,trialidx,delayidx);
+
+          % Get (X-avg)^2.
+          thisresultslice = thisresultslice - winavg(:,:,delayidx);
+          thisresultslice = thisresultslice .* thisresultslice;
+
+          varslice = winvar(:,:,delayidx);
+          varslice(thisvalid) = ...
+            varslice(thisvalid) + thisresultslice(thisvalid);
+          winvar(:,:,delayidx) = varslice;
+        end
+      end
+
+      winvar = winvar ./ wincount;
+
+
+      % Update global statistics.
+
+      scratchavg = winlagdata.([ thisfield 'avg' ]);
+      scratchvar = winlagdata.([ thisfield 'var' ]);
+      scratchcount = winlagdata.([ thisfield 'count' ]);
+
+      for delayidx = 1:delaycount
+        scratchavg(:,:,widx,delayidx) = winavg(:,:,delayidx);
+        scratchvar(:,:,widx,delayidx) = winvar(:,:,delayidx);
+        scratchcount(:,:,widx,delayidx) = wincount(:,:,delayidx);
+      end
+
+      winlagdata.([ thisfield 'avg' ]) = scratchavg;
+      winlagdata.([ thisfield 'var' ]) = scratchvar;
+      winlagdata.([ thisfield 'count' ]) = scratchcount;
+
     end
-  end
-
-  winxcorravg = winxcorravg ./ winxcorrcount;
-
-
-  % Third pass: Get the variance.
-
-  winxcorrvar = zeros(size(winxcorravg));
-
-  for trialidx = 1:trialcount
-    for delayidx = 1:delaycount
-      % Get (X-avg)^2.
-      thisxcorr = xcorrbytrial(:,:,trialidx,delayidx);
-      thisxcorr = thisxcorr - winxcorravg(:,:,delayidx);
-      thisxcorr = thisxcorr .* thisxcorr;
-
-      thismask = validmask(:,:,trialidx,delayidx);
-
-      varslice = winxcorrvar(:,:,delayidx);
-      varslice(thismask) = varslice(thismask) + thisxcorr(thismask);
-      winxcorrvar(:,:,delayidx) = varslice;
-    end
-  end
-
-  winxcorrvar = winxcorrvar ./ winxcorrcount;
-
-
-  % Update global statistics.
-
-  for delayidx = 1:delaycount
-    xcorravg(:,:,widx,delayidx) = winxcorravg(:,:,delayidx);
-    xcorrvar(:,:,widx,delayidx) = winxcorrvar(:,:,delayidx);
-    xcorrcount(:,:,widx,delayidx) = winxcorrcount(:,:,delayidx);
   end
 end
-
-
-
-%
-% Build the return structure.
-
-winlagdata = struct();
-
-winlagdata.firstchans = ftdata_first.label;
-winlagdata.secondchans = ftdata_second.label;
-
-winlagdata.delaylist_ms = delaylist_samps * 1000 / samprate;
-
-xcorrdata.windowlist_ms = wintimes_sec * 1000;
-
-% FIXME - Data copying goes here.
 
 
 
