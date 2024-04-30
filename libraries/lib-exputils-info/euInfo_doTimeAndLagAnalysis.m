@@ -185,9 +185,9 @@ trialdata_second_analysis = ...
   helper_doPreProc( ftdata_second.trial, analysis_preproc );
 
 trialdata_first_filter = ...
-  helper_doPreProc( ftdata_first.trial, analysis_preproc );
+  helper_doPreProc( ftdata_first.trial, filter_preproc );
 trialdata_second_filter = ...
-  helper_doPreProc( ftdata_second.trial, analysis_preproc );
+  helper_doPreProc( ftdata_second.trial, filter_preproc );
 
 
 
@@ -446,6 +446,10 @@ function newtrials = helper_doPreProc( oldtrials, preprocflags )
     for cidx = 1:chancount
       thiswave = thistrial(cidx,:);
 
+      % Interpolate NaNs, so that detrending and Hilbert work.
+      nanmask = isnan(thiswave);
+      thiswave = nlProc_fillNaN(thiswave);
+
       if want_detrend
         thiswave = detrend(thiswave);
       elseif want_zeromean
@@ -453,17 +457,15 @@ function newtrials = helper_doPreProc( oldtrials, preprocflags )
       end
 
       if want_hilbert || want_angle
-        nanmask = isnan(thiswave);
-        thiswave = nlProc_fillNaN(thiswave);
-
         thiswave = hilbert(thiswave);
-
-        thiswave(nanmask) = NaN;
       end
 
       if want_angle
         thiswave = angle(thiswave);
       end
+
+      % Restore NaNs that we interpolated.
+      thiswave(nanmask) = NaN;
 
       thistrial(cidx,:) = thiswave;
     end
