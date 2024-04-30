@@ -95,7 +95,7 @@ for trialidx = 1:trialcount
   end
 
   for cidx = 1:chancount_second
-    thiswave = thisanglesecond(cidx,:);
+    thiswave = thisdatasecond(cidx,:);
 
     % Interpolate NaNs, so that we can use the Hilbert transform.
     thiswave = nlProc_fillNaN( thiswave );

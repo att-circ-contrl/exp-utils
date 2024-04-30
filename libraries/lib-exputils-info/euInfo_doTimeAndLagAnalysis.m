@@ -279,6 +279,7 @@ for widx = 1:wincount
             wavefirst, wavesecond, samprate, ...
             delaylist_samps, analysis_params );
 
+
           % Handle deferred initialization, if it hasn't been done yet.
 
           if need_global_init
@@ -307,6 +308,7 @@ for widx = 1:wincount
               thiswinresults.( thisfield ) = templateonewindow;
             end
           end
+
 
           % Store this set of results.
 
