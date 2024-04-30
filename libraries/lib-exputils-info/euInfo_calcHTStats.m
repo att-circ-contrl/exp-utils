@@ -27,16 +27,13 @@ function htdata = euInfo_calcHTStats( ...
 %
 % "htdata" is a structure with the analysis data, per TIMEWINLAGDATA.txt.
 %   Relevant fields are:
-%   "coherenceXXX" is a matrix indexed by (firstchan, secondchan, winidx)
-%     containing coherence values (complex, magnitude between 0 and 1).
-%   "powercorrelXXX" is a matrix indexed by (firstchan, secondchan, winidx)
-%     containing power correlation values (real, between -1 and +1).
-%   "nongaussXXX" is a matrix indexed by (firstchan, secondchan, winidx)
-%     containing non-Gaussian power correlation values (real, -1 to +1).
+%   "coherenceXXX" is a matrix containing coherence values. These are
+%     complex, with magnitudes between 0 and 1.
+%   "powercorrelXXX" is a matrix containing power correlation values. These
+%     are real, ranging from -1 to +1.
+%   "nongaussXXX" is a matrix containing non-Gaussian power correlation
+%     values. These are real, ranging from -1 to +1.
 
-
-% Force analytic signals.
-flags = [ flags { 'complexanalysis' } ];
 
 % Overwrite the delay configuration.
 win_params.delay_range_ms = 0;
@@ -48,8 +45,13 @@ analysis_func = @( wavefirst, wavesecond, samprate, delaylist, params ) ...
 
 filter_func = @( wavefirst, wavesecond, samprate, params ) true;
 
-htdata = euInfo_doTimeAndLagAnalysis( ftdata_first, ftdata_second, ...
-  win_params, flags, analysis_func, struct(), filter_func, struct() );
+
+% We want to analyze analytic signals.
+% NOTE - We're not detrending! We might want to.
+
+htdata = euInfo_doTimeAndLagAnalysis( ...
+  ftdata_first, ftdata_second, win_params, flags, ...
+  { 'hilbert' }, analysis_func, struct(), {}, filter_func, struct() );
 
 
 % Done.

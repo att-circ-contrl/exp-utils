@@ -1,10 +1,12 @@
 function winlagdata = euInfo_doTimeAndLagAnalysis( ...
   ftdata_first, ftdata_second, winlagparams, flags, ...
-  analysis_func, analysis_params, filter_func, filter_params )
+  analysis_preproc, analysis_func, analysis_params, ...
+  filter_preproc, filter_func, filter_params )
 
 % function winlagdata = euInfo_doTimeAndLagAnalysis( ...
 %   ftdata_first, ftdata_second, winlagparams, flags, ...
-%   analysis_func, analysis_params, filter_func, filter_params )
+%   analysis_preproc, analysis_func, analysis_params, ...
+%   filter_preproc, filter_func, filter_params )
 %
 % This compares two Field Trip datasets within a series of time windows,
 % calculating some measure such as cross-correlation or transfer entropy
@@ -28,13 +30,19 @@ function winlagdata = euInfo_doTimeAndLagAnalysis( ...
 %   vectors:
 %   'avgtrials' generates data averaged across trials, per TIMEWINLAGDATA.txt.
 %   'pertrial' generates per-trial data, per TIMEWINLAGDATA.txt.
-%   'complexanalysis' passes complex-valued analytic signals to the analysis
-%     function instead of real-valued signals.
-%   'complexfilter' passes complex-valued analytic signals to the filter
-%     function instead of real-valued signals.
+% "analysis_preproc" is a cell array containing zero or more character vectors
+%   indicating what preprocessing to perform on signals sent to the analysis
+%   function. Preprocessing happens before time-windowing:
+%   'zeromean' subtracts the mean of each signal.
+%   'detrend' detrends each signal.
+%   'hilbert' generates a complex-valued analytic signal for each signal.
+%   'angle' takes the instantaneous phase (in radians) of the analytic signal.
 % "analysis_func" is an analysis function handle, per TIMEWINLAGFUNCS.
 % "analysis_params" is a tuning parameter structure to be passed to the
 %   analysis function handle.
+% "filter_preproc" is a cell array containing zero or more character vectors
+%   indicating what preprocessing to perform on signals sent the filter
+%   function. Switches are the same as with "analysis_preproc".
 % "filter_func" is an acceptance filter function handle, per TIMEWINLAGFUNCS.
 % "filter_params" is a tuning parameter structure to be passed to the
 %   acceptance filter function handle.
@@ -62,11 +70,6 @@ end
 
 want_avg = ismember('avgtrials', flags);
 want_pertrial = ismember('pertrial', flags);
-
-want_hilbert_analysis = ismember('complexanalysis', flags);
-want_hilbert_filter = ismember('complexfilter', flags);
-
-want_any_hilbert = want_hilbert_analysis | want_hilbert_filter;
 
 
 % Geometry.
@@ -174,26 +177,17 @@ winlagdata.windowsize_ms = winlagparams.time_window_ms;
 
 
 %
-% Precompute analytic signals, if desired.
+% Perform any ahead-of-time signal processing requested.
 
-if want_any_hilbert
-  ftdata_first_hilbert = ftdata_first;
-  ftdata_second_hilbert = ftdata_second;
+trialdata_first_analysis = ...
+  helper_doPreProc( ftdata_first.trial, analysis_preproc );
+trialdata_second_analysis = ...
+  helper_doPreProc( ftdata_second.trial, analysis_preproc );
 
-  for tidx = 1:trialcount
-    thistrial = ftdata_first_hilbert.trial{tidx};
-    for cidx = 1:chancount_first
-      thistrial(cidx,:) = hilbert(thistrial(cidx,:));
-    end
-    ftdata_first_hilbert.trial{tidx} = thistrial;
-
-    thistrial = ftdata_second_hilbert.trial{tidx};
-    for cidx = 1:chancount_second
-      thistrial(cidx,:) = hilbert(thistrial(cidx,:));
-    end
-    ftdata_second_hilbert.trial{tidx} = thistrial;
-  end
-end
+trialdata_first_filter = ...
+  helper_doPreProc( ftdata_first.trial, analysis_preproc );
+trialdata_second_filter = ...
+  helper_doPreProc( ftdata_second.trial, analysis_preproc );
 
 
 
@@ -245,13 +239,11 @@ for widx = 1:wincount
     % NOTE - Trials may have NaN regions, but those usually don't overlap
     % the test windows.
 
-    thisdatafirst = ftdata_first.trial{trialidx};
-    thisdatasecond = ftdata_second.trial{trialidx};
+    thisdatafirst_an = trialdata_first_analysis{trialidx};
+    thisdatasecond_an = trialdata_second_analysis{trialidx};
 
-    if want_any_hilbert
-      thisdatafirst_hilbert = ftdata_first_hilbert.trial{trialidx};
-      thisdatasecond_hilbert = ftdata_second_hilbert.trial{trialidx};
-    end
+    thisdatafirst_filt = trialdata_first_filter{trialidx};
+    thisdatasecond_filt = trialdata_second_filter{trialidx};
 
 
     % Extract data window contents.
@@ -259,15 +251,11 @@ for widx = 1:wincount
     % NOTE - We may sometimes get NaN data in here. The relevant results
     % will also be NaN.
 
-    windatafirst = thisdatafirst(:,winrangesfirst{trialidx,widx});
-    windatasecond = thisdatasecond(:,winrangessecond{trialidx,widx});
+    windatafirst_an = thisdatafirst_an(:,winrangesfirst{trialidx,widx});
+    windatasecond_an = thisdatasecond_an(:,winrangessecond{trialidx,widx});
 
-    if want_any_hilbert
-      windatafirst_hilbert = ...
-        thisdatafirst_hilbert(:,winrangesfirst{trialidx,widx});
-      windatasecond_hilbert = ...
-        thisdatasecond_hilbert(:,winrangessecond{trialidx,widx});
-    end
+    windatafirst_filt = thisdatafirst_filt(:,winrangesfirst{trialidx,widx});
+    windatasecond_filt = thisdatasecond_filt(:,winrangessecond{trialidx,widx});
 
 
     % Iterate channels, storing results for this trial.
@@ -276,34 +264,20 @@ for widx = 1:wincount
     for cidxfirst = 1:chancount_first
       for cidxsecond = 1:chancount_second
 
-        wavefirst = windatafirst(cidxfirst,:);
-        wavesecond = windatasecond(cidxsecond,:);
+        wavefirst = windatafirst_filt(cidxfirst,:);
+        wavesecond = windatasecond_filt(cidxsecond,:);
 
-        if want_any_hilbert
-          wavefirst_hilbert = windatafirst_hilbert(cidxfirst,:);
-          wavesecond_hilbert = windatasecond_hilbert(cidxsecond,:);
-        end
-
-        if want_hilbert_filter
-          filteraccept = ...
-            filter_func( wavefirst_hilbert, wavesecond_hilbert, ...
-              samprate, filter_params );
-        else
-          filteraccept = ...
-            filter_func( wavefirst, wavesecond, samprate, filter_params );
-        end
+        filteraccept = ...
+          filter_func( wavefirst, wavesecond, samprate, filter_params );
 
         if filteraccept
 
-          if want_hilbert_analysis
-            thisresult = analysis_func( ...
-              wavefirst_hilbert, wavesecond_hilbert, samprate, ...
-              delaylist_samps, analysis_params );
-          else
-            thisresult = analysis_func( ...
-              wavefirst, wavesecond, samprate, ...
-              delaylist_samps, analysis_params );
-          end
+          wavefirst = windatafirst_an(cidxfirst,:);
+          wavesecond = windatasecond_an(cidxsecond,:);
+
+          thisresult = analysis_func( ...
+            wavefirst, wavesecond, samprate, ...
+            delaylist_samps, analysis_params );
 
           % Handle deferred initialization, if it hasn't been done yet.
 
@@ -441,6 +415,62 @@ end
 
 
 % Done.
+end
+
+
+
+%
+% Helper Functions
+
+
+function newtrials = helper_doPreProc( oldtrials, preprocflags )
+
+  want_detrend = ismember('detrend', preprocflags);
+  want_zeromean = ismember('zeromean', preprocflags);
+  want_hilbert = ismember('hilbert', preprocflags);
+  want_angle = ismember('angle', preprocflags);
+
+
+  trialcount = length(oldtrials);
+  chancount = 0;
+  if ~isempty(oldtrials)
+    chancount = size(oldtrials{1},1);
+  end
+
+
+  newtrials = oldtrials;
+
+  for tidx = 1:trialcount
+    thistrial = newtrials{tidx};
+
+    for cidx = 1:chancount
+      thiswave = thistrial(cidx,:);
+
+      if want_detrend
+        thiswave = detrend(thiswave);
+      elseif want_zeromean
+        thiswave = thiswave - mean(thiswave);
+      end
+
+      if want_hilbert || want_angle
+        nanmask = isnan(thiswave);
+        thiswave = nlProc_fillNaN(thiswave);
+
+        thiswave = hilbert(thiswave);
+
+        thiswave(nanmask) = NaN;
+      end
+
+      if want_angle
+        thiswave = angle(thiswave);
+      end
+
+      thistrial(cidx,:) = thiswave;
+    end
+
+    newtrials{tidx} = thistrial;
+  end
+
 end
 
 
