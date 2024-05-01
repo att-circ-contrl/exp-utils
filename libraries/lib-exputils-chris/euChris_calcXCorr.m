@@ -26,9 +26,22 @@ function xcorrdata = euChris_calcXCorr( ...
 % Phase bin width of 400 degrees and magnitude >= -1 should always pass.
 % Ditto PLV >= -1.
 
-xcorrdata = euChris_calcXCorrPhaseBinned( ...
-  ftdata_first, ftdata_second, xcorr_params, detrend_method, ...
-  0, 400, -1, -1 );
+
+% FIXME - Translate the old parameter structure.
+
+win_params = xcorr_params;
+win_params.delay_range_ms = xcorr_params.xcorr_range_ms;
+
+xc_norm_method = xcorr_params.xcorr_norm_method;
+
+phaseparams = struct();
+phaseparams.phasetargetdeg = 0;
+phaseparams.acceptwidthdeg = 400;
+phaseparams.minplv = -1;
+
+xcorrdata = euInfo_calcXCorrPhaseBinned( ...
+  ftdata_first, ftdata_second, win_params, { 'avgtrials' }, ...
+  detrend_method, xc_norm_method, phaseparams );
 
 
 % Done.

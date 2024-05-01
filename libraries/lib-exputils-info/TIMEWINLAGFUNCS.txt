@@ -23,14 +23,10 @@ result = analysisfunc( wavefirst, wavesecond, samprate, delaylist, params )
 
 An acceptance filter function handle has the following form:
 
-FIXME - Think of a better way to handle analytic signals.
-
 acceptflag = filterfunc( wavefirst, wavesecond, samprate, params )
 
 "wavefirst" is a vector with windowed waveform data from the first dataset.
-  NOTE - This is promoted to a complex-valued analytic signal.
 "wavesecond" is a vector with windowed waveform data from the second dataset.
-  NOTE - This is promoted to a complex-valued analytic signal.
 "samprate" is the sampling rate.
 "params" is a structure containing user-supplied configuration parameters.
 
