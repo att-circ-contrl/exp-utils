@@ -1,18 +1,19 @@
-function xcorrdata = euInfo_calcXCorrPhaseBinned( ...
+function xcorrdata = euInfo_calcXCorr( ...
   ftdata_first, ftdata_second, win_params, flags, ...
   detrend_method, xcorr_norm_method, phase_params )
 
-% function xcorrdata = euInfo_calcXCorrPhaseBinned( ...
+% function xcorrdata = euInfo_calcXCorr( ...
 %   ftdata_first, ftdata_second, win_params, flags, ...
 %   detrend_method, xcorr_norm_method, phase_params )
 %
 % This calculates cross-correlations between two Field Trip datasets within
-% a series of time windows.
+% a series of time windows, optionally filtering by phase.
 %
-% For each signal pair in each trial, the average of
-% (phase_second - phase_first) is computed, and pairs are rejected if the
-% average phase difference is outside of the specified range. Pairs are also
-% rejected if phase-lock value is below a minimum threshold.
+% If phase filtering is requested, then for each signal pair in each trial,
+% the average of (phase_second - phase_first) is computed. Pairs are
+% rejected if the average phase difference is outside of the specified
+% range. Pairs are also rejected if phase-lock value is below a minimum
+% threshold.
 %
 % NOTE - Both datasets must have the same sampling rate and the same number
 % of trials (trials are assumed to correspond).
@@ -30,7 +31,8 @@ function xcorrdata = euInfo_calcXCorrPhaseBinned( ...
 %   is typically 'unbiased' (to normalize by sample count) or 'coeff' (to
 %   normalize so that self-correlation is 1).
 % "phase_params" is a structure with phase acceptance information, per
-%   PHASEFILTPARAMS.txt.
+%   PHASEFILTPARAMS.txt. If this is omitted or is empty, no phase filtering
+%   is performed.
 %
 % "xcorrdata" is a structure containing cross-correlation data, per
 %   TIMEWINLAGDATA.txt. Relevant fields are:
@@ -50,18 +52,43 @@ elseif strcmp('zeromean', detrend_method) || strcmp('demean', detrend_method)
 end
 
 
+% Figure out if we're phase-filtering.
+
+want_phase = false;
+
+if exist('phase_params', 'var')
+  if ~isempty(phase_params)
+    want_phase = ~isempty(fieldnames( phase_params ));
+  end
+end
+
+
 analysis_func = @( wavefirst, wavesecond, samprate, delaylist, params ) ...
   helper_analysisfunc( wavefirst, wavesecond, samprate, delaylist, params );
 
-filter_func = @( wavefirst, wavesecond, samprate, params ) ...
+analysis_params = struct( 'norm_method', xcorr_norm_method );
+
+filter_func_none = @( wavefirst, wavesecond, samprate, params ) true;
+
+filter_func_phase = @( wavefirst, wavesecond, samprate, params ) ...
   helper_filterfunc( wavefirst, wavesecond, samprate, params );
 
 
-xcorrdata = euInfo_doTimeAndLagAnalysis( ...
-  ftdata_first, ftdata_second, win_params, flags, ...
-  preproc_config, analysis_func, ...
-  struct( 'norm_method', xcorr_norm_method ), ...
-  [ preproc_config, {'angle'} ], filter_func, phase_params );
+if want_phase
+
+  xcorrdata = euInfo_doTimeAndLagAnalysis( ...
+    ftdata_first, ftdata_second, win_params, flags, ...
+    preproc_config, analysis_func, analysis_params, ...
+    [ preproc_config, {'angle'} ], filter_func_phase, phase_params );
+
+else
+
+  xcorrdata = euInfo_doTimeAndLagAnalysis( ...
+    ftdata_first, ftdata_second, win_params, flags, ...
+    preproc_config, analysis_func, analysis_params, ...
+    {}, filter_func_none, struct() );
+
+end
 
 
 % done.
