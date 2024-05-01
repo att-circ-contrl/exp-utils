@@ -115,11 +115,11 @@ end
 %
 % Precompute phase differences.
 
-phasedata = euChris_calcTrialPhaseStats( ...
-  ftdata_first, ftdata_second, xcorr_params, detrend_method );
+phasedata = euInfo_calcTrialPhaseStats( ...
+  ftdata_first, ftdata_second, xcorr_params, { 'pertrial' } );
 
-phasediffs = phasedata.phasediffs;
-phaseplvs = phasedata.plvs;
+phasediffs = phasedata.phasedifftrials;
+phaseplvs = phasedata.plvtrials;
 
 
 %
