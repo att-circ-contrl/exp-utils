@@ -12,7 +12,7 @@ function xcorrdata = euInfo_calcXCorr( ...
 % If phase filtering is requested, then for each signal pair in each trial,
 % the average of (phase_second - phase_first) is computed. Pairs are
 % rejected if the average phase difference is outside of the specified
-% range. Pairs are also rejected if phase-lock value is below a minimum
+% range. Pairs are also rejected if the phase-lock value is below a minimum
 % threshold.
 %
 % NOTE - Both datasets must have the same sampling rate and the same number
