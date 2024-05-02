@@ -63,30 +63,24 @@ if exist('phase_params', 'var')
 end
 
 
-analysis_func = @( wavefirst, wavesecond, samprate, delaylist, params ) ...
-  helper_analysisfunc( wavefirst, wavesecond, samprate, delaylist, params );
+% Package analysis configuration.
 
 analysis_params = struct( 'norm_method', xcorr_norm_method );
-
-filter_func_none = @( wavefirst, wavesecond, samprate, params ) true;
-
-filter_func_phase = @( wavefirst, wavesecond, samprate, params ) ...
-  helper_filterfunc( wavefirst, wavesecond, samprate, params );
 
 
 if want_phase
 
   xcorrdata = euInfo_doTimeAndLagAnalysis( ...
     ftdata_first, ftdata_second, win_params, flags, ...
-    preproc_config, analysis_func, analysis_params, ...
-    [ preproc_config, {'angle'} ], filter_func_phase, phase_params );
+    preproc_config, @helper_analysisfunc, analysis_params, ...
+    [ preproc_config, {'angle'} ], @euInfo_helper_filterPhase, phase_params );
 
 else
 
   xcorrdata = euInfo_doTimeAndLagAnalysis( ...
     ftdata_first, ftdata_second, win_params, flags, ...
-    preproc_config, analysis_func, analysis_params, ...
-    {}, filter_func_none, struct() );
+    preproc_config, @helper_analysisfunc, analysis_params, ...
+    {}, @euInfo_helper_filterNone, struct() );
 
 end
 
@@ -116,24 +110,6 @@ function result = helper_analysisfunc( ...
 
   result = struct();
   result.xcorr = rvals;
-
-end
-
-
-function acceptflag = helper_filterfunc( ...
-  wavefirst, wavesecond, samprate, params )
-
-  phasetargetrad = params.phasetargetdeg * pi / 180;
-  accepthalfwidthrad = 0.5 * params.acceptwidthdeg * pi / 180;
-  minplv = params.minplv;
-
-  [ cmean cvar lindev ] = nlProc_calcCircularStats( wavesecond - wavefirst );
-  plv = 1 - cvar;
-
-  phasediff = cmean - phasetargetrad;
-  phasediff = mod( phasediff + pi, 2*pi ) - pi;
-
-  acceptflag = ( abs(phasediff) <= accepthalfwidthrad ) & ( plv >= minplv );
 
 end
 

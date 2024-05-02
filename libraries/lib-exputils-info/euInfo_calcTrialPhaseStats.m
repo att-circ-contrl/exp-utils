@@ -36,19 +36,13 @@ win_params.delay_range_ms = 0;
 win_params.delay_step_ms = 1;
 
 
-analysis_func = @( wavefirst, wavesecond, samprate, delaylist, params ) ...
-  helper_analysisfunc( wavefirst, wavesecond, samprate, delaylist, params );
-
-filter_func = @( wavefirst, wavesecond, samprate, params ) true;
-
-
 % We want to analyze phase angles.
 % Detrend to ensure that these are sane.
 
 phasedata = euInfo_doTimeAndLagAnalysis( ...
   ftdata_first, ftdata_second, win_params, flags, ...
-  { 'detrend', 'angle' }, analysis_func, struct(), ...
-  {}, filter_func, struct() );
+  { 'detrend', 'angle' }, @helper_analysisfunc, struct(), ...
+  {}, @euInfo_helper_filterNone, struct() );
 
 
 % Done.
