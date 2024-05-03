@@ -18,15 +18,4 @@ Used by euChris_extractStimMUAResponse:
   of the "before stimulation" time window should be.
 
 
-
-Used by euChris_calcXCorr:
-
-"xcorr_range_ms" [ min max ] is the range of values in milliseconds to use
-  for time lag when performing cross-correlation.
-
-"xcorr_norm_method" is a character vector containing the normalization
-  method to pass to "xcorr". This is typically 'unbiased' (to normalize by
-  sample count) or 'coeff' (to normalize so that self-correlation is 1).
-
-
 (This is the end of the file.)

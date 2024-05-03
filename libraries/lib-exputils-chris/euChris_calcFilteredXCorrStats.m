@@ -10,11 +10,11 @@ function [ ampmean ampdev lagmean lagdev ] = ...
 % mean and deviation of the cross-correlation amplitude and cross-correlation
 % lag by black magic, within the time window specified.
 %
-% This calls euChris_calcAverageXCorr() to get the mean and deviation of the
-% amplitude, finds the peak closest to 0 lag, finds the extent of that peak
-% (via thresholding), and then calls euChris_calcBestXCorr() to get peak
-% amplitude and lag as a function of time. This is masked to reject peaks
-% too far from the average peak's amplitude and lag extent, and then
+% This calls euInfo_collapseTimeLagAverages() to get the mean and deviation
+% of the amplitude, finds the peak closest to 0 lag, finds the extent of
+% that peak (via thresholding), and then calls euChris_calcBestXCorr() to
+% get peak amplitude and lag as a function of time. This is masked to reject
+% peaks too far from the average peak's amplitude and lag extent, and then
 % statistics are extracted.
 %
 % This works if and only if there _is_ a fairly clean cross-correlation peak.
@@ -71,8 +71,8 @@ lagdev = NaN(firstcount, secondcount);
 %
 % First pass: Do peak detection on the average XC (not time-varying).
 
-[ xcvstime xcvslag ] = ...
-  euChris_calcAverageXCorr( xcorrdata, { timerange_ms }, [] );
+[ xcvstime xcvslag ] = euInfo_collapseTimeLagAverages( ...
+  xcorrdata, 'xcorr', { timerange_ms }, [] );
 
 guessamp = NaN(firstcount, secondcount);
 guesslagmin = NaN(firstcount, secondcount);
@@ -81,7 +81,7 @@ guesslagmax = NaN(firstcount, secondcount);
 for firstidx = 1:firstcount
   for secondidx = 1:secondcount
 
-    thisdata = xcvslag.xcorravg(firstidx,secondidx,:);
+    thisdata = xcvslag.avg(firstidx,secondidx,:);
     thisdata = reshape(thisdata, size(laglist));
 
     % Find the peak in average magnitude vs lag.
