@@ -12,7 +12,7 @@ function [ ampmean ampdev lagmean lagdev ] = ...
 %
 % This calls euInfo_collapseTimeLagAverages() to get the mean and deviation
 % of the amplitude, finds the peak closest to 0 lag, finds the extent of
-% that peak (via thresholding), and then calls euChris_calcBestXCorr() to
+% that peak (via thresholding), and then calls euInfo_findTimeLagPeaks() to
 % get peak amplitude and lag as a function of time. This is masked to reject
 % peaks too far from the average peak's amplitude and lag extent, and then
 % statistics are extracted.
@@ -152,8 +152,8 @@ for firstidx = 1:firstcount
     thispairdata.windowlist_ms = xcorrdata.windowlist_ms;
     thispairdata.xcorravg = xcorrdata.xcorravg(firstidx,secondidx,:,:);
 
-    peakdata = euChris_calcBestXCorr( ...
-      thispairdata, timesmooth_ms, lagrange, 'largest' );
+    peakdata = euInfo_findTimeLagPeaks( ...
+      thispairdata, 'xcorr', timesmooth_ms, lagrange, 'largest' );
 
 
     % Mask the search data and compute statistics.

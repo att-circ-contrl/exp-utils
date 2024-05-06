@@ -1,19 +1,29 @@
-function peakdata = euChris_calcBestXCorr( ...
-  xcorrdata, timesmooth_ms, lagtarget_ms, method )
+function peakdata = euInfo_findTimeLagPeaks( ...
+  timelagdata, fieldname, timesmooth_ms, lagtarget_ms, method )
 
-% function peakdata = euChris_calcBestXCorr( ...
-%   xcorrdata, timesmooth_ms, lagtarget_ms, method )
+% function peakdata = euInfo_findTimeLagPeaks( ...
+%   timelagdata, fieldname, timesmooth_ms, lagtarget_ms, method )
 %
-% This attempts to find the location and amplitude of the largest
-% cross-correlation peak for each pair of signals as the signals evolve with
-% time.
+% This examines time-and-lag analysis data and attempts to find the time lag
+% with the peak data value for each window time. The intention is to be
+% able to track the peak's location and amplitude for each signal pair as
+% the signals evolve with time.
 %
-% NOTE - This is sensitive to the structure of the cross-correlation data.
+% Peaks are local maxima of magnitude (ignoring sign and complex phase angle).
 %
-% "xcorrdata" is a structure with raw cross-correlation data, per
-%   CHRISXCORRDATA.txt.
-% "timesmooth_ms" is the window size for smoothing data along the time axis,
-%   in milliseconds. Specify 0 or NaN to not smooth.
+% NOTE - Peak detection is sensitive to the structure of the data. Smoothing
+% ahead of time will produce more reliable results, and the target range
+% will probably need to be hand-tuned.
+%
+% NOTE - For now, this only works on data that has been averaged across
+% trials.
+%
+% "timelagdata" is a data structure per TIMEWINLAGDATA.txt. This should
+%   contain "avg", "var", and "count" fields for the desired data field.
+% "fieldname" is a character vector with the name prefix used to define the
+%   "avg" field being operated on.
+% "timesmooth_ms" is the window size for smoothing data along the window
+%   time axis, in milliseconds. Specify 0 or NaN to not smooth.
 % "lagtarget_ms" is a [ min max ] range for accepted time lags if using the
 %   'largest' search method, or a scalar specifying the search starting point
 %   if using the 'nearest' method.
@@ -27,39 +37,51 @@ function peakdata = euChris_calcBestXCorr( ...
 %   "secondchans" is a cell array with FT channel names for the second set
 %     of channels being compared.
 %   "windowlist_ms" is a vector containing timestamps in millseconds
-%     specifying where the middle of each cross-correlation window is.
+%     specifying where the middle of each analysis window is.
 %   "peaklags" is a matrix indexed by (firstchan, secondchan, winidx)
 %     containing the lag time (in milliseconds) of the peak.
 %   "peakamps" is a matrix indexed by (firstchan, secondchan, winidx)
-%     containing the amplitude of the peak (a cross-correlation value).
+%     containing the (signed) data value at the peak location.
 
 
-% Get geometry.
+% Get metadata.
 
-firstcount = length(xcorrdata.firstchans);
-secondcount = length(xcorrdata.secondchans);
-lagcount = length(xcorrdata.delaylist_ms);
-wincount = length(xcorrdata.windowlist_ms);
+firstcount = length(timelagdata.firstchans);
+secondcount = length(timelagdata.secondchans);
+
+timelist_ms = timelagdata.windowlist_ms;
+laglist_ms = timelagdata.delaylist_ms;
+
+lagcount = length(timelagdata.delaylist_ms);
+wincount = length(timelagdata.windowlist_ms);
 
 
 % Initialize output and copy metadata.
 
 peakdata = struct();
-peakdata.firstchans = xcorrdata.firstchans;
-peakdata.secondchans = xcorrdata.secondchans;
-peakdata.windowlist_ms = xcorrdata.windowlist_ms;
+peakdata.firstchans = timelagdata.firstchans;
+peakdata.secondchans = timelagdata.secondchans;
+peakdata.windowlist_ms = timelagdata.windowlist_ms;
 peakdata.peaklags = nan(firstcount, secondcount, wincount);
 peakdata.peakamps = nan(firstcount, secondcount, wincount);
 
 
 %
+% Sanity-check the requested field, and extract the data.
+
+if ~isfield( timelagdata, [ fieldname 'avg' ] )
+  disp([ '### [euInfo_findTimeLagPeaks]  Can''t find field "' ...
+    fieldname '".' ]);
+  return;
+end
+
+avgvals = timelagdata.([ fieldname 'avg' ]);
+
+
+%
 % First pass: Perform smoothing if requested.
 
-xcvals = xcorrdata.xcorravg;
-
 if (~isnan(timesmooth_ms)) && (timesmooth_ms > 0)
-  timelist_ms = xcorrdata.windowlist_ms;
-
   % Assume mostly-uniform spacing.
   timestep_ms = median(diff( timelist_ms ));
   smoothsize = round(timesmooth_ms / timestep_ms);
@@ -69,14 +91,14 @@ if (~isnan(timesmooth_ms)) && (timesmooth_ms > 0)
     for firstidx = 1:firstcount
       for secondidx = 1:secondcount
         for lagidx = 1:lagcount
-          thisdata = xcvals(firstidx, secondidx, :, lagidx);
+          thisdata = avgvals(firstidx, secondidx, :, lagidx);
           thisdata = reshape(thisdata, size(timelist_ms));
 
           % Triangular smoothing window with about 1.5x the requested size.
           thisdata = movmean(thisdata, smoothsize);
           thisdata = movmean(thisdata, smoothsize);
 
-          xcvals(firstidx, secondidx, :, lagidx) = thisdata;
+          avgvals(firstidx, secondidx, :, lagidx) = thisdata;
         end
       end
     end
@@ -89,7 +111,6 @@ end
 %
 % Second pass: Perform peak detection.
 
-laglist_ms = xcorrdata.delaylist_ms;
 lagmask = true(size(laglist_ms));
 startidx = NaN;
 
@@ -109,7 +130,7 @@ for firstidx = 1:firstcount
   for secondidx = 1:secondcount
     for winidx = 1:wincount
 
-      thisdata = xcvals(firstidx, secondidx, winidx, :);
+      thisdata = avgvals(firstidx, secondidx, winidx, :);
       thisdata = reshape(thisdata, size(laglist_ms));
 
       thispeaklag = NaN;

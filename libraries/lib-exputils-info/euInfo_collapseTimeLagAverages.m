@@ -5,8 +5,8 @@ function [ vstimelist vslaglist ] = euInfo_collapseTimeLagAverages( ...
 %   timelagdata, fieldname, timeranges_ms, lagranges_ms )
 %
 % This collapses time-and-lag analysis data by averaging across time lags
-% (producing vs window time) and by averaging across window time (producing
-% vs time lag). Mean and standard deviation for collapsed samples are
+% (producing "vs window time") and by averaging across window time (producing
+% "vs time lag"). Mean and standard deviation for collapsed samples are
 % reported.
 %
 % This tolerates NaN data.
@@ -89,6 +89,7 @@ wincount = length(winlist);
 if ~isfield( timelagdata, [ fieldname 'avg' ] )
   disp([ '### [euInfo_collapseTimeLagAverages]  Can''t find field "' ...
     fieldname '".' ]);
+  return;
 end
 
 fieldavg = timelagdata.([ fieldname 'avg' ]);
