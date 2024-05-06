@@ -140,11 +140,16 @@ function result = helper_analysisfunc( ...
   % Calculate time-lagged mututal information.
 
   if params.want_extrap
-    result = cEn_calcLaggedMutualInfo( scratchdata, delaylist, binlist, ...
+    mvals = cEn_calcLaggedMutualInfo( scratchdata, delaylist, binlist, ...
       params.extrap_config );
   else
-    result = cEn_calcLaggedMutualInfo( scratchdata, delaylist, binlist );
+    mvals = cEn_calcLaggedMutualInfo( scratchdata, delaylist, binlist );
   end
+
+
+  % Store this in an appropriately-named field.
+  result = struct();
+  result.mutual = mvals;
 
 end
 
