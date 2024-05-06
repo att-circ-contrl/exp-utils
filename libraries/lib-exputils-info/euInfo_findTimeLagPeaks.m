@@ -36,7 +36,7 @@ function peakdata = euInfo_findTimeLagPeaks( ...
 %     channels being compared.
 %   "secondchans" is a cell array with FT channel names for the second set
 %     of channels being compared.
-%   "windowlist_ms" is a vector containing timestamps in millseconds
+%   "windowlist_ms" is a vector containing timestamps in milliseconds
 %     specifying where the middle of each analysis window is.
 %   "peaklags" is a matrix indexed by (firstchan, secondchan, winidx)
 %     containing the lag time (in milliseconds) of the peak.

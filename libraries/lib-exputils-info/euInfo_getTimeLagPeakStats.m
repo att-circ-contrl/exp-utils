@@ -1,14 +1,14 @@
 function [ ampmean ampdev lagmean lagdev ] = ...
-  euChris_calcFilteredXCorrStats( xcorrdata, ...
+  euInfo_getTimeLagPeakStats( timelagdata, fieldname, ...
     timerange_ms, timesmooth_ms, magthresh, magacceptrange )
 
 % function [ ampmean ampdev lagmean lagdev ] = ...
-%   euChris_calcFilteredXCorrStats( xcorrdata, ...
+%   euInfo_getTimeLagPeakStats( timelagdata, fieldname, ...
 %     timerange_ms, timesmooth_ms, magthresh, magacceptrange )
 %
-% This analyzes a dataset produced by euChris_calcXCorr(), extracting the
-% mean and deviation of the cross-correlation amplitude and cross-correlation
-% lag by black magic, within the time window specified.
+% This analyzes a time-and-lag analysis dataset, extracting the mean and
+% deviation of the data peak's amplitude and time lag by black magic,
+% within the analysis window time range specified.
 %
 % This calls euInfo_collapseTimeLagAverages() to get the mean and deviation
 % of the amplitude, finds the peak closest to 0 lag, finds the extent of
@@ -17,27 +17,34 @@ function [ ampmean ampdev lagmean lagdev ] = ...
 % peaks too far from the average peak's amplitude and lag extent, and then
 % statistics are extracted.
 %
-% This works if and only if there _is_ a fairly clean cross-correlation peak.
+% This works if and only if there _is_ a fairly clean data peak.
+% Smoothing ahead of time might be necessary, and the target ranges will
+% probably need to be hand-tuned.
 %
-% "xcorrdata" is a structure with raw cross-correlation data, per
-%   CHRISXCORRDATA.txt.
+% NOTE - For now, this only works on data that has been averaged across
+% trials.
+%
+% "timelagdata" is a data structure per TIMEWINLAGDATA.txt. This should
+%   contain "avg", "var", and "count" fields for the desired data field.
+% "fieldname" is a character vector with the name prefix used to define the
+%   "avg", "var", and "count" fields being operated on.
 % "timerange_ms" [ min max ] specifies a window time range in milliseconds
 %   to examine. A range of [] indicates all window times.
 % "timesmooth_ms" is the smoothing window size in milliseconds for smoothing
 %   data along the time axis before performing time-varying peak detection.
 %   Specify 0 or NaN to not smooth.
-% "magthresh" is a scalar between 0 and 1 specifying the cross-correlation
+% "magthresh" is a scalar between 0 and 1 specifying the data magnitude
 %   cutoff used for finding peak extents. The extent threshold is this value
-%   times the peak cross-correlation. A value of 0 is typical.
+%   times the peak magnitude. A value of 0 is typical.
 % "magacceptrange" [ min max ] is two positive scalar values that are
-%   multiplied by the peak cross-correlation to get a cross-correlation
-%   acceptance range for time-varying peak detection. A typical range
-%   would be [ 0.5 inf ].
+%   multiplied by the peak data magnitude to get a data magnitude acceptance
+%   range for time-varying peak detection. A typical range would be
+%   [ 0.5 inf ].
 %
 % "ampmean" is a matrix indexed by (firstidx,secondidx) containing the mean
-%   cross-correlation within the specified window for each pair.
+%   (signed) peak data value within the specified window for each pair.
 % "ampdev" is a matrix indexed by (firstidx,secondidx) containing the
-%   standard deviation of the cross-correlation for each pair.
+%   standard deviation of the peak data value for each pair.
 % "lagmean" is a matrix indexed by (firstidx,secondidx) containing the mean
 %   time lag within the specified window for each pair.
 % "lagdev" is a matrix indexed by (firstidx,secondidx) containing the
@@ -46,16 +53,16 @@ function [ ampmean ampdev lagmean lagdev ] = ...
 
 % Get metadata.
 
-firstchans = xcorrdata.firstchans;
+firstchans = timelagdata.firstchans;
 firstcount = length(firstchans);
 
-secondchans = xcorrdata.secondchans;
+secondchans = timelagdata.secondchans;
 secondcount = length(secondchans);
 
-laglist = xcorrdata.delaylist_ms;
+laglist = timelagdata.delaylist_ms;
 lagcount = length(laglist);
 
-winlist = xcorrdata.windowlist_ms;
+winlist = timelagdata.windowlist_ms;
 wincount = length(winlist);
 
 
@@ -67,12 +74,22 @@ lagmean = NaN(firstcount, secondcount);
 lagdev = NaN(firstcount, secondcount);
 
 
+% Sanity-check the requested field, and extract it.
+
+if ~isfield( timelagdata, [ fieldname 'avg' ] )
+  disp([ '### [euInfo_getTimeLagPeakStats]  Can''t find field "' ...
+    fieldname '".' ]);
+  return;
+end
+
+avgdata = timelagdata.([ fieldname 'avg' ]);
+
 
 %
-% First pass: Do peak detection on the average XC (not time-varying).
+% First pass: Do peak detection on the average (not time-varying).
 
-[ xcvstime xcvslag ] = euInfo_collapseTimeLagAverages( ...
-  xcorrdata, 'xcorr', { timerange_ms }, [] );
+[ avgvstime avgvslag ] = euInfo_collapseTimeLagAverages( ...
+  timelagdata, fieldname, { timerange_ms }, [] );
 
 guessamp = NaN(firstcount, secondcount);
 guesslagmin = NaN(firstcount, secondcount);
@@ -81,7 +98,7 @@ guesslagmax = NaN(firstcount, secondcount);
 for firstidx = 1:firstcount
   for secondidx = 1:secondcount
 
-    thisdata = xcvslag.avg(firstidx,secondidx,:);
+    thisdata = avgvslag.avg(firstidx,secondidx,:);
     thisdata = reshape(thisdata, size(laglist));
 
     % Find the peak in average magnitude vs lag.
@@ -146,14 +163,16 @@ for firstidx = 1:firstcount
     % varies by pair.
 
     thispairdata = struct();
-    thispairdata.firstchans = xcorrdata.firstchans(firstidx);
-    thispairdata.secondchans = xcorrdata.secondchans(secondidx);
-    thispairdata.delaylist_ms = xcorrdata.delaylist_ms;
-    thispairdata.windowlist_ms = xcorrdata.windowlist_ms;
-    thispairdata.xcorravg = xcorrdata.xcorravg(firstidx,secondidx,:,:);
+    thispairdata.firstchans = firstchans(firstidx);
+    thispairdata.secondchans = secondchans(secondidx);
+    thispairdata.delaylist_ms = laglist;
+    thispairdata.windowlist_ms = winlist;
+
+    % NOTE - Only copying "FOOavg", not "FOOvar" or "FOOcount"!
+    thispairdata.([ fieldname 'avg' ]) = avgdata(firstidx,secondidx,:,:);
 
     peakdata = euInfo_findTimeLagPeaks( ...
-      thispairdata, 'xcorr', timesmooth_ms, lagrange, 'largest' );
+      thispairdata, fieldname, timesmooth_ms, lagrange, 'largest' );
 
 
     % Mask the search data and compute statistics.
