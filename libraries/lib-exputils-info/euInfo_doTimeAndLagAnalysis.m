@@ -85,14 +85,6 @@ chancount_second = length(ftdata_second.label);
 samprate = 1 / mean(diff( ftdata_first.time{1} ));
 
 
-% Window geometry and locations.
-
-winrad_samps = round( samprate * winlagparams.time_window_ms * 0.001 * 0.5 );
-
-wintimes_sec = winlagparams.timelist_ms * 0.001;
-wincount = length(wintimes_sec);
-
-
 % Delay values.
 
 delaylist_samps = euInfo_helper_getDelaySamps( ...
@@ -101,35 +93,14 @@ delaylist_samps = euInfo_helper_getDelaySamps( ...
 delaycount = length(delaylist_samps);
 
 
-
-%
 % Precompute window sample ranges.
 
-winrangesfirst = {};
-winrangessecond = {};
+wincount = length(winlagparams.timelist_ms);
 
-for trialidx = 1:trialcount
-  thistimefirst = ftdata_first.time{trialidx};
-  thistimesecond = ftdata_second.time{trialidx};
-
-  for widx = 1:wincount
-
-    % Figure out window position. The timestamp won't match perfectly.
-    thiswintime = wintimes_sec(widx);
-
-    winsampfirst = thistimefirst - thiswintime;
-    winsampfirst = min(find( winsampfirst >= 0 ));
-
-    winsampsecond = thistimesecond - thiswintime;
-    winsampsecond = min(find( winsampsecond >= 0 ));
-
-    winrangesfirst{trialidx,widx} = ...
-      [ (winsampfirst-winrad_samps):(winsampfirst+winrad_samps) ];
-    winrangessecond{trialidx,widx} = ...
-      [ (winsampsecond-winrad_samps):(winsampsecond+winrad_samps) ];
-
-  end
-end
+winrangesfirst = euInfo_helper_getWindowSamps( samprate, ...
+  winlagparams.time_window_ms, winlagparams.timelist_ms, ftdata_first.time );
+winrangessecond = euInfo_helper_getWindowSamps( samprate, ...
+  winlagparams.time_window_ms, winlagparams.timelist_ms, ftdata_second.time );
 
 
 
