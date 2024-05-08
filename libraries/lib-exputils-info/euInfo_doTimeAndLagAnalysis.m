@@ -94,39 +94,9 @@ wincount = length(wintimes_sec);
 
 
 % Delay values.
-% NOTE - Tolerate getting a single delay value.
 
-delaymin_samps = min( winlagparams.delay_range_ms );
-delaymin_samps = round( samprate * delaymin_samps * 0.001 );
-
-delaymax_samps = max( winlagparams.delay_range_ms );
-delaymax_samps = round( samprate * delaymax_samps * 0.001 );
-
-delaystep_samps = round( samprate * winlagparams.delay_step_ms * 0.001 );
-delaystep_samps = max( 1, delaystep_samps );
-
-delaypivot = round( 0.5 * (delaymin_samps + delaymax_samps) );
-% If a delay of zero is in range, make sure we use it as one of the delays.
-if (delaymin_samps <= 0) & (delaymax_samps >= 0)
-  delaypivot = 0;
-end
-
-if length( winlagparams.delay_range_ms ) > 1
-  % We have at least two points. Proceed as normal.
-
-  delaymin_samps = delaymin_samps - delaypivot;
-  delaymin_samps = round(delaymin_samps / delaystep_samps);
-  delaymin_samps = (delaymin_samps * delaystep_samps) + delaypivot;
-
-  delaymax_samps = delaymax_samps - delaypivot;
-  delaymax_samps = round(delaymax_samps / delaystep_samps);
-  delaymax_samps = (delaymax_samps * delaystep_samps) + delaypivot;
-
-  delaylist_samps = [ delaymin_samps : delaystep_samps : delaymax_samps ];
-else
-  % We only have a single delay value.
-  delaylist_samps = delaypivot;
-end
+delaylist_samps = euInfo_helperGetDelaySamps( ...
+  samprate, winlagparams.delay_range_ms, winlagparams.delay_step_ms );
 
 delaycount = length(delaylist_samps);
 

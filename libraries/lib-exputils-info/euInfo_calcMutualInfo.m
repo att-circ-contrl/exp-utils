@@ -76,6 +76,15 @@ if exist('phase_params', 'var')
   end
 end
 
+% FIXME - Diagnostics
+if false
+disp(analysis_params);
+disp(want_phase);
+disp(win_params);
+disp(sprintf( 'xx %d windows, %d trials, %d x %d chans.', ...
+length(win_params.timelist_ms), length(ftdata_first.time), ...
+length(ftdata_first.label), length(ftdata_second.label) ));
+end
 
 % Proceed with the analysis.
 
@@ -88,10 +97,104 @@ if want_phase
 
 else
 
+% FIXME - Compare with entropy library FT function.
+if false
   midata = euInfo_doTimeAndLagAnalysis( ...
     ftdata_first, ftdata_second, win_params, flags, ...
     {}, @helper_analysisfunc, analysis_params, ...
     {}, @euInfo_helper_filterNone, struct() );
+else
+  % Entropy library kludge.
+  % FIXME - No trialwise output and no variance!
+
+  % FIXME - Kludge this for now. Break out the doTimeAndLag version later.
+  delay_min = min(win_params.delay_range_ms);
+  delay_max = max(win_params.delay_range_ms);
+  delay_step = win_params.delay_step_ms;
+  delaylist_ms = delay_min:delay_step:delay_max;
+
+  samptime_secs = median(diff( ftdata_first.time{1} ));
+  delaylist_samps = round( delaylist_ms / (1000 * samptime_secs) );
+
+  chancount_first = length(ftdata_first.label);
+  chancount_second = length(ftdata_second.label);
+
+  wincount = length(win_params.timelist_ms);
+  winmid_secs = win_params.timelist_ms / 1000;
+  winrad_secs = 0.5 * win_params.time_window_ms / 1000;
+
+  delaycount = length(delaylist_samps);
+
+  % FIXME - Blithely assume that trials are consistent!
+  timeseries_first = ftdata_first.time{1};
+  timeseries_second = ftdata_second.time{1};
+
+  binlist = [ analysis_params.bins_first, analysis_params.bins_second ];
+
+  mimatrix = nan(chancount_first, chancount_second, wincount, delaycount);
+
+  % FIXME - This really is just duplicating a lot of doTimeAndLag.
+  for cidxfirst = 1:chancount_first
+    datafirst = cEn_ftHelperChannelToMatrix( ftdata_first, cidxfirst );
+    for cidxsecond = 1:chancount_second
+
+      datasecond = cEn_ftHelperChannelToMatrix( ftdata_second, cidxsecond );
+
+      for widx = 1:wincount
+
+        thiswinmin = winmid_secs(widx) - winrad_secs;
+        thiswinmax = winmid_secs(widx) + winrad_secs;
+
+        % FIXME - These might not be the same size!
+        maskfirst = (timeseries_first >= thiswinmin) ...
+          & (timeseries_first <= thiswinmax);
+        masksecond = (timeseries_second >= thiswinmin) ...
+          & (timeseries_second <= thiswinmax);
+
+        % Kludge. Assume off by 1.
+        if sum(maskfirst) > sum(masksecond)
+          maskfirst( max(find(maskfirst)) ) = false;
+        elseif sum(masksecond) > sum(maskfirst)
+          masksecond( max(find(masksecond)) ) = false;
+        end
+
+        datalist = ...
+          [ { datafirst(:,maskfirst) }, { datasecond(:,masksecond) } ];
+
+% FIXME - Diagnostics.
+%tic;
+        if analysis_params.want_extrap
+          milist = cEn_calcLaggedMutualInfo( ...
+            datalist, delaylist_samps, binlist, exparams );
+        else
+          milist = cEn_calcLaggedMutualInfo( ...
+            datalist, delaylist_samps, binlist );
+        end
+% FIXME - Diagnostics.
+%durstring = nlUtil_makePrettyTime(toc);
+%disp([ 'xx Probe completed in ' durstring '.' ]);
+
+        mimatrix(cidxfirst, cidxsecond, widx, :) = milist;
+
+      end
+
+    end
+  end
+
+  midata = struct();
+  midata.firstchans = ftdata_first.label;
+  midata.secondchans = ftdata_second.label;
+  midata.delaylist_ms = delaylist_ms;
+  midata.windowlist_ms = win_params.timelist_ms;
+  midata.windowsize_ms = win_params.time_window_ms;
+
+  midata.mutualavg = mimatrix;
+  midata.mutualcount = ones(size(mimatrix));
+  midata.mutualvar = zeros(size(mimatrix));
+  nanmask = isnan(mimatrix);
+  midata.mutualcount(nanmask) = 0;
+  midata.mutualvar(nanmask) = nan;
+end
 
 end
 
@@ -139,12 +242,17 @@ function result = helper_analysisfunc( ...
 
   % Calculate time-lagged mututal information.
 
+% FIXME - Diagnostics.
+%tic;
   if params.want_extrap
     mvals = cEn_calcLaggedMutualInfo( scratchdata, delaylist, binlist, ...
       params.extrap_config );
   else
     mvals = cEn_calcLaggedMutualInfo( scratchdata, delaylist, binlist );
   end
+% FIXME - Diagnostics.
+%durstring = nlUtil_makePrettyTime(toc);
+%disp([ 'xx Probe completed in ' durstring '.' ]);
 
 
   % Store this in an appropriately-named field.
