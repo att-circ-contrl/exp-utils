@@ -107,27 +107,23 @@ else
   % Entropy library kludge.
   % FIXME - No trialwise output and no variance!
 
-  % FIXME - Kludge this for now. Break out the doTimeAndLag version later.
-  delay_min = min(win_params.delay_range_ms);
-  delay_max = max(win_params.delay_range_ms);
-  delay_step = win_params.delay_step_ms;
-  delaylist_ms = delay_min:delay_step:delay_max;
+  samprate = 1 / mean(diff( ftdata_first.time{1} ));
 
-  samptime_secs = median(diff( ftdata_first.time{1} ));
-  delaylist_samps = round( delaylist_ms / (1000 * samptime_secs) );
+  delaylist_samps = euInfo_helper_getDelaySamps( ...
+    samprate, win_params.delay_range_ms, win_params.delay_step_ms );
+  delaylist_ms = 1000 * delaylist_samps / samprate;
+
+  delaycount = length(delaylist_samps);
+
+  winranges_first = euInfo_helper_getWindowSamps ( samprate, ...
+    win_params.time_window_ms, win_params.timelist_ms, ftdata_first.time );
+  winranges_second = euInfo_helper_getWindowSamps ( samprate, ...
+    win_params.time_window_ms, win_params.timelist_ms, ftdata_second.time );
 
   chancount_first = length(ftdata_first.label);
   chancount_second = length(ftdata_second.label);
 
   wincount = length(win_params.timelist_ms);
-  winmid_secs = win_params.timelist_ms / 1000;
-  winrad_secs = 0.5 * win_params.time_window_ms / 1000;
-
-  delaycount = length(delaylist_samps);
-
-  % FIXME - Blithely assume that trials are consistent!
-  timeseries_first = ftdata_first.time{1};
-  timeseries_second = ftdata_second.time{1};
 
   binlist = [ analysis_params.bins_first, analysis_params.bins_second ];
 
@@ -136,30 +132,17 @@ else
   % FIXME - This really is just duplicating a lot of doTimeAndLag.
   for cidxfirst = 1:chancount_first
     datafirst = cEn_ftHelperChannelToMatrix( ftdata_first, cidxfirst );
+
     for cidxsecond = 1:chancount_second
 
       datasecond = cEn_ftHelperChannelToMatrix( ftdata_second, cidxsecond );
 
       for widx = 1:wincount
 
-        thiswinmin = winmid_secs(widx) - winrad_secs;
-        thiswinmax = winmid_secs(widx) + winrad_secs;
-
-        % FIXME - These might not be the same size!
-        maskfirst = (timeseries_first >= thiswinmin) ...
-          & (timeseries_first <= thiswinmax);
-        masksecond = (timeseries_second >= thiswinmin) ...
-          & (timeseries_second <= thiswinmax);
-
-        % Kludge. Assume off by 1.
-        if sum(maskfirst) > sum(masksecond)
-          maskfirst( max(find(maskfirst)) ) = false;
-        elseif sum(masksecond) > sum(maskfirst)
-          masksecond( max(find(masksecond)) ) = false;
-        end
-
+        % FIXME - Blithely assume that trial 1's mask works for all trials.
         datalist = ...
-          [ { datafirst(:,maskfirst) }, { datasecond(:,masksecond) } ];
+          [ { datafirst(:,winranges_first{1,widx}) }, ...
+            { datasecond(:,winranges_second{1,widx}) } ];
 
 % FIXME - Diagnostics.
 %tic;
@@ -179,6 +162,7 @@ else
       end
 
     end
+
   end
 
   midata = struct();
