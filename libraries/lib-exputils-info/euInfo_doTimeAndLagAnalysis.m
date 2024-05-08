@@ -95,7 +95,7 @@ wincount = length(wintimes_sec);
 
 % Delay values.
 
-delaylist_samps = euInfo_helperGetDelaySamps( ...
+delaylist_samps = euInfo_helper_getDelaySamps( ...
   samprate, winlagparams.delay_range_ms, winlagparams.delay_step_ms );
 
 delaycount = length(delaylist_samps);
