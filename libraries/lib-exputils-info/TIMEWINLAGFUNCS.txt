@@ -9,8 +9,10 @@ An analysis function handle has the form:
 result = analysisfunc( wavefirst, wavesecond, samprate, delaylist, params )
 
 
-"wavefirst" is a vector with windowed waveform data from the first dataset.
-"wavesecond" is a vector with windowed waveform data from the second dataset.
+"wavefirst" is a 1 x Nsamples vector or a Ntrials x Nsamples matrix with
+  windowed waveform data from the first dataset.
+"wavesecond" is a 1 x Nsamples vector or a Ntrials x Nsamples matrix with
+  windowed waveform data from the second dataset.
 "samprate" is the sampling rate.
 "delaylist" is a vector containing time lags to be tested, in samples.
 "params" is a structure containing user-supplied configuration parameters.

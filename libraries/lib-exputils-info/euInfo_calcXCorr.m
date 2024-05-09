@@ -72,14 +72,14 @@ if want_phase
 
   xcorrdata = euInfo_doTimeAndLagAnalysis( ...
     ftdata_first, ftdata_second, win_params, flags, ...
-    preproc_config, @helper_analysisfunc, analysis_params, ...
+    preproc_config, @euInfo_helper_analyzeXCorr, analysis_params, ...
     [ preproc_config, {'angle'} ], @euInfo_helper_filterPhase, phase_params );
 
 else
 
   xcorrdata = euInfo_doTimeAndLagAnalysis( ...
     ftdata_first, ftdata_second, win_params, flags, ...
-    preproc_config, @helper_analysisfunc, analysis_params, ...
+    preproc_config, @euInfo_helper_analyzeXCorr, analysis_params, ...
     {}, @euInfo_helper_filterNone, struct() );
 
 end
@@ -88,30 +88,6 @@ end
 % done.
 end
 
-
-%
-% Helper Functions
-
-
-function result = helper_analysisfunc( ...
-  wavefirst, wavesecond, samprate, delaylist, params )
-
-  % NOTE - We have a list of lags to be tested, in samples.
-  % The "xcorr" function takes a maximum shift, not a list of shifts.
-
-  % This works fine with a delay of 0.
-  delaymax = max(abs(delaylist));
-  delaystested = (-delaymax):delaymax;
-
-  rvals = xcorr( wavefirst, wavesecond, delaymax, params.norm_method );
-
-  resultmask = ismember(delaystested, delaylist);
-  rvals = rvals(resultmask);
-
-  result = struct();
-  result.xcorr = rvals;
-
-end
 
 
 %
