@@ -17,6 +17,10 @@ xcorrdata = euInfo_calcXCorr( ...
   ftdata_first, ftdata_second, win_params, { 'avgtrials' }, ...
   detrend_method, xc_norm_method );
 
+% Support the old naming convention.
+xcorrdata.firstchans = xcorrdata.destchans;
+xcorrdata.secondchans = xcorrdata.srcchans;
+
 
 % Done.
 end
