@@ -1,31 +1,34 @@
 function xcorrdata = euInfo_calcXCorr( ...
-  ftdata_first, ftdata_second, win_params, flags, ...
+  ftdata_dest, ftdata_src, win_params, flags, ...
   detrend_method, xcorr_norm_method, phase_params )
 
 % function xcorrdata = euInfo_calcXCorr( ...
-%   ftdata_first, ftdata_second, win_params, flags, ...
+%   ftdata_dest, ftdata_src, win_params, flags, ...
 %   detrend_method, xcorr_norm_method, phase_params )
 %
 % This calculates cross-correlations between two Field Trip datasets within
 % a series of time windows, optionally filtering by phase.
 %
 % If phase filtering is requested, then for each signal pair in each trial,
-% the average of (phase_second - phase_first) is computed. Pairs are
-% rejected if the average phase difference is outside of the specified
-% range. Pairs are also rejected if the phase-lock value is below a minimum
-% threshold.
+% the average of (phase_dest - phase_src) is computed. Pairs are rejected if
+% the average phase difference is outside of the specified range. Pairs are
+% also rejected if the phase-lock value is below a minimum threshold.
 %
 % NOTE - Both datasets must have the same sampling rate and the same number
 % of trials (trials are assumed to correspond).
 %
-% "ftdata_first" is a ft_datatype_raw structure with the first set of trials.
-% "ftdata_second" is a ft_datatype_raw structure with the second set of trials.
+% "ftdata_dest" is a ft_datatype_raw structure with trial data for the
+%   putative destination channels.
+% "ftdata_src" is a ft_datatype_raw structure with trial data for the
+%   putative source channels.
 % "win_params" is a structure giving time window and time lag range
 %   information, per TIMEWINLAGSPEC.txt.
 % "flags" is a cell array containing one or more of the following character
 %   vectors:
 %   'avgtrials' generates data averaged across trials, per TIMEWINLAGDATA.txt.
 %   'pertrial' generates per-trial data, per TIMEWINLAGDATA.txt.
+%   'spantrials' generates data by contatenating or otherwise aggregating
+%     across trials, per TIMEWINLAGDATA.txt.
 % "detrend_method" is 'detrend', 'zeromean', or 'none'.
 % "xcorr_norm_method" is the normalization method to pass to "xcorr". This
 %   is typically 'unbiased' (to normalize by sample count) or 'coeff' (to
@@ -71,14 +74,14 @@ analysis_params = struct( 'norm_method', xcorr_norm_method );
 if want_phase
 
   xcorrdata = euInfo_doTimeAndLagAnalysis( ...
-    ftdata_first, ftdata_second, win_params, flags, ...
+    ftdata_dest, ftdata_src, win_params, flags, ...
     preproc_config, @euInfo_helper_analyzeXCorr, analysis_params, ...
     [ preproc_config, {'angle'} ], @euInfo_helper_filterPhase, phase_params );
 
 else
 
   xcorrdata = euInfo_doTimeAndLagAnalysis( ...
-    ftdata_first, ftdata_second, win_params, flags, ...
+    ftdata_dest, ftdata_src, win_params, flags, ...
     preproc_config, @euInfo_helper_analyzeXCorr, analysis_params, ...
     {}, @euInfo_helper_filterNone, struct() );
 

@@ -1,23 +1,26 @@
 function result = euInfo_helper_analyzeXCorr( ...
-  wavefirst, wavesecond, samprate, delaylist, params )
+  wavedest, wavesrc, samprate, delaylist, params )
 
 % function result = euInfo_helper_analyzeXCorr( ...
-%   wavefirst, wavesecond, samprate, delaylist, params )
+%   wavedest, wavesrc, samprate, delaylist, params )
 %
 % This is an analysis function, per TIMEWINLAGFUNCS.txt.
 %
 % This calculates cross-correlations between the supplied signals.
 % If multiple trials are supplied, the trials are concatenated.
 %
-% "wavefirst" and "wavesecond" are expected to contain real-valued waveform
+% "wavedest" and "wavesrc" are expected to contain real-valued waveform
 %   data.
-% "params" is ignored.
+% "params" contains the following fields:
+%   "norm_method" is the normalization method to pass to "xcorr". This is
+%   typically 'unbiased' (to normalize by sample count) or 'coeff' (to
+%   normalize so that self-correlation is 1).
 
 
 % If we were passed matrices, turn them into vectors.
 
-wavefirst = reshape( wavefirst, 1, [] );
-wavesecond = reshape( wavesecond, 1, [] );
+wavedest = reshape( wavedest, 1, [] );
+wavesrc = reshape( wavesrc, 1, [] );
 
 
 % NOTE - We have a list of lags to be tested, in samples.
@@ -27,7 +30,7 @@ wavesecond = reshape( wavesecond, 1, [] );
 delaymax = max(abs(delaylist));
 delaystested = (-delaymax):delaymax;
 
-rvals = xcorr( wavefirst, wavesecond, delaymax, params.norm_method );
+rvals = xcorr( wavedest, wavesrc, delaymax, params.norm_method );
 
 resultmask = ismember(delaystested, delaylist);
 rvals = rvals(resultmask);

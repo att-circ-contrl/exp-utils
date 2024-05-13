@@ -1,6 +1,6 @@
 A phase-filtering parameter structure has the following fields:
 
-"phasetargetdeg" is the target phase difference in degrees.
+"phasetargetdeg" is the target (dest - src) phase difference in degrees.
 
 "acceptwidthdeg" is the phase difference acceptance window width in degrees.
 

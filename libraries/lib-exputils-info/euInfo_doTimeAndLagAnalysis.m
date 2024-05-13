@@ -1,10 +1,10 @@
 function winlagdata = euInfo_doTimeAndLagAnalysis( ...
-  ftdata_first, ftdata_second, winlagparams, flags, ...
+  ftdata_dest, ftdata_src, winlagparams, flags, ...
   analysis_preproc, analysis_func, analysis_params, ...
   filter_preproc, filter_func, filter_params )
 
 % function winlagdata = euInfo_doTimeAndLagAnalysis( ...
-%   ftdata_first, ftdata_second, winlagparams, flags, ...
+%   ftdata_dest, ftdata_src, winlagparams, flags, ...
 %   analysis_preproc, analysis_func, analysis_params, ...
 %   filter_preproc, filter_func, filter_params )
 %
@@ -22,14 +22,18 @@ function winlagdata = euInfo_doTimeAndLagAnalysis( ...
 % NOTE - Both datasets must have the same sampling rate and the same number
 % of trials (trials are assumed to correspond).
 %
-% "ftdata_first" is a ft_datatype_raw structure with the first set of trials.
-% "ftdata_second" is a ft_datatype_raw structure with the second set of trials.
+% "ftdata_dest" is a ft_datatype_raw structure with trial data for the
+%   putative destination channels.
+% "ftdata_src" is a ft_datatype_raw structure with trial data for the
+%   putative source channels.
 % "winlagparams" is a structure giving time window and time lag information,
 %   per TIMEWINLAGSPEC.txt.
 % "flags" is a cell array containing zero or more of the following character
 %   vectors:
 %   'avgtrials' generates data averaged across trials, per TIMEWINLAGDATA.txt.
 %   'pertrial' generates per-trial data, per TIMEWINLAGDATA.txt.
+%   'spantrials' generates data by concatenating or otherwise aggregating
+%     across trials, per TIMEWINLAGDATA.txt.
 % "analysis_preproc" is a cell array containing zero or more character vectors
 %   indicating what preprocessing to perform on signals sent to the analysis
 %   function. Preprocessing happens before time-windowing:
@@ -57,8 +61,8 @@ winlagdata = struct();
 
 % Check for bail-out conditions.
 
-if isempty(ftdata_first.label) || isempty(ftdata_first.time) ...
-  || isempty(ftdata_second.label) || isempty(ftdata_second.time)
+if isempty(ftdata_dest.label) || isempty(ftdata_dest.time) ...
+  || isempty(ftdata_src.label) || isempty(ftdata_src.time)
   return;
 end
 
@@ -70,19 +74,20 @@ end
 
 want_avg = ismember('avgtrials', flags);
 want_pertrial = ismember('pertrial', flags);
+want_spantrials = ismember('spantrials', flags);
 
 
 % Geometry.
 
-trialcount = length(ftdata_first.time);
+trialcount = length(ftdata_dest.time);
 
-chancount_first = length(ftdata_first.label);
-chancount_second = length(ftdata_second.label);
+chancount_dest = length(ftdata_dest.label);
+chancount_src = length(ftdata_src.label);
 
 
 % Sampling rate.
 
-samprate = 1 / mean(diff( ftdata_first.time{1} ));
+samprate = 1 / mean(diff( ftdata_dest.time{1} ));
 
 
 % Delay values.
@@ -97,18 +102,18 @@ delaycount = length(delaylist_samps);
 
 wincount = length(winlagparams.timelist_ms);
 
-winrangesfirst = euInfo_helper_getWindowSamps( samprate, ...
-  winlagparams.time_window_ms, winlagparams.timelist_ms, ftdata_first.time );
-winrangessecond = euInfo_helper_getWindowSamps( samprate, ...
-  winlagparams.time_window_ms, winlagparams.timelist_ms, ftdata_second.time );
+winrangesdest = euInfo_helper_getWindowSamps( samprate, ...
+  winlagparams.time_window_ms, winlagparams.timelist_ms, ftdata_dest.time );
+winrangessrc = euInfo_helper_getWindowSamps( samprate, ...
+  winlagparams.time_window_ms, winlagparams.timelist_ms, ftdata_src.time );
 
 
 
 %
 % Store metadata.
 
-winlagdata.firstchans = ftdata_first.label;
-winlagdata.secondchans = ftdata_second.label;
+winlagdata.destchans = ftdata_dest.label;
+winlagdata.srcchans = ftdata_src.label;
 
 winlagdata.delaylist_ms = delaylist_samps * 1000 / samprate;
 
@@ -120,15 +125,15 @@ winlagdata.windowsize_ms = winlagparams.time_window_ms;
 %
 % Perform any ahead-of-time signal processing requested.
 
-trialdata_first_analysis = ...
-  helper_doPreProc( ftdata_first.trial, analysis_preproc );
-trialdata_second_analysis = ...
-  helper_doPreProc( ftdata_second.trial, analysis_preproc );
+trialdata_dest_analysis = ...
+  helper_doPreProc( ftdata_dest.trial, analysis_preproc );
+trialdata_src_analysis = ...
+  helper_doPreProc( ftdata_src.trial, analysis_preproc );
 
-trialdata_first_filter = ...
-  helper_doPreProc( ftdata_first.trial, filter_preproc );
-trialdata_second_filter = ...
-  helper_doPreProc( ftdata_second.trial, filter_preproc );
+trialdata_dest_filter = ...
+  helper_doPreProc( ftdata_dest.trial, filter_preproc );
+trialdata_src_filter = ...
+  helper_doPreProc( ftdata_src.trial, filter_preproc );
 
 
 
@@ -140,22 +145,22 @@ trialdata_second_filter = ...
 if want_avg
   % Statistics in the absence of data are NaN, not zero.
   templateavg = ...
-    nan([ chancount_first chancount_second wincount delaycount ]);
+    nan([ chancount_dest chancount_src wincount delaycount ]);
 
   % Scratch variables for computing statistics do start at zero.
   templateonewindowavg = ...
-    zeros([ chancount_first chancount_second delaycount ]);
+    zeros([ chancount_dest chancount_src delaycount ]);
 end
 
 if want_pertrial
   % Data that doesn't pass the filter is NaN, not zero.
   templatepertrial = ...
-    nan([ chancount_first chancount_second trialcount wincount delaycount ]);
+    nan([ chancount_dest chancount_src trialcount wincount delaycount ]);
 end
 
 % Data that doesn't pass the filter is NaN, not zero.
 templateonewindow = ...
-  nan([ chancount_first chancount_second trialcount delaycount ]);
+  nan([ chancount_dest chancount_src trialcount delaycount ]);
 
 
 % Iterate.
@@ -180,11 +185,11 @@ for widx = 1:wincount
     % NOTE - Trials may have NaN regions, but those usually don't overlap
     % the test windows.
 
-    thisdatafirst_an = trialdata_first_analysis{trialidx};
-    thisdatasecond_an = trialdata_second_analysis{trialidx};
+    thisdatadest_an = trialdata_dest_analysis{trialidx};
+    thisdatasrc_an = trialdata_src_analysis{trialidx};
 
-    thisdatafirst_filt = trialdata_first_filter{trialidx};
-    thisdatasecond_filt = trialdata_second_filter{trialidx};
+    thisdatadest_filt = trialdata_dest_filter{trialidx};
+    thisdatasrc_filt = trialdata_src_filter{trialidx};
 
 
     % Extract data window contents.
@@ -192,32 +197,32 @@ for widx = 1:wincount
     % NOTE - We may sometimes get NaN data in here. The relevant results
     % will also be NaN.
 
-    windatafirst_an = thisdatafirst_an(:,winrangesfirst{trialidx,widx});
-    windatasecond_an = thisdatasecond_an(:,winrangessecond{trialidx,widx});
+    windatadest_an = thisdatadest_an(:,winrangesdest{trialidx,widx});
+    windatasrc_an = thisdatasrc_an(:,winrangessrc{trialidx,widx});
 
-    windatafirst_filt = thisdatafirst_filt(:,winrangesfirst{trialidx,widx});
-    windatasecond_filt = thisdatasecond_filt(:,winrangessecond{trialidx,widx});
+    windatadest_filt = thisdatadest_filt(:,winrangesdest{trialidx,widx});
+    windatasrc_filt = thisdatasrc_filt(:,winrangessrc{trialidx,widx});
 
 
     % Iterate channels, storing results for this trial.
     % Check the filter function before performing analysis on any pair.
 
-    for cidxfirst = 1:chancount_first
-      for cidxsecond = 1:chancount_second
+    for cidxdest = 1:chancount_dest
+      for cidxsrc = 1:chancount_src
 
-        wavefirst = windatafirst_filt(cidxfirst,:);
-        wavesecond = windatasecond_filt(cidxsecond,:);
+        wavedest = windatadest_filt(cidxdest,:);
+        wavesrc = windatasrc_filt(cidxsrc,:);
 
         filteraccept = ...
-          filter_func( wavefirst, wavesecond, samprate, filter_params );
+          filter_func( wavedest, wavesrc, samprate, filter_params );
 
         if filteraccept
 
-          wavefirst = windatafirst_an(cidxfirst,:);
-          wavesecond = windatasecond_an(cidxsecond,:);
+          wavedest = windatadest_an(cidxdest,:);
+          wavesrc = windatasrc_an(cidxsrc,:);
 
           thisresult = analysis_func( ...
-            wavefirst, wavesecond, samprate, ...
+            wavedest, wavesrc, samprate, ...
             delaylist_samps, analysis_params );
 
 
@@ -257,13 +262,13 @@ for widx = 1:wincount
             thisfield = resultfields{fidx};
 
             scratch = thiswinresults.( thisfield );
-            scratch(cidxfirst,cidxsecond,trialidx,1:delaycount) = ...
+            scratch(cidxdest,cidxsrc,trialidx,1:delaycount) = ...
               thisresult.( thisfield );
             thiswinresults.( thisfield ) = scratch;
 
             if want_pertrial
               scratch = winlagdata.([ thisfield 'trials' ]);
-              scratch(cidxfirst,cidxsecond,trialidx,widx,1:delaycount) = ...
+              scratch(cidxdest,cidxsrc,trialidx,widx,1:delaycount) = ...
                 thisresult.( thisfield );
               winlagdata.([ thisfield 'trials' ]) = scratch;
             end

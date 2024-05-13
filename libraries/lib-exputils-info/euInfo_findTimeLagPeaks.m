@@ -32,22 +32,22 @@ function peakdata = euInfo_findTimeLagPeaks( ...
 %   specified starting point.
 %
 % "peakdata" is a structure with the following fields:
-%   "firstchans" is a cell array with FT channel names for the first set of
-%     channels being compared.
-%   "secondchans" is a cell array with FT channel names for the second set
-%     of channels being compared.
+%   "destchans" is a cell array with FT channel names for the putative
+%     destination channels.
+%   "srcchans" is a cell array with FT channel names for the putative source
+%     channels.
 %   "windowlist_ms" is a vector containing timestamps in milliseconds
 %     specifying where the middle of each analysis window is.
-%   "peaklags" is a matrix indexed by (firstchan, secondchan, winidx)
+%   "peaklags" is a matrix indexed by (destchan, srcchan, winidx)
 %     containing the lag time (in milliseconds) of the peak.
-%   "peakamps" is a matrix indexed by (firstchan, secondchan, winidx)
+%   "peakamps" is a matrix indexed by (destchan, srcchan, winidx)
 %     containing the (signed) data value at the peak location.
 
 
 % Get metadata.
 
-firstcount = length(timelagdata.firstchans);
-secondcount = length(timelagdata.secondchans);
+destcount = length(timelagdata.destchans);
+srccount = length(timelagdata.srcchans);
 
 timelist_ms = timelagdata.windowlist_ms;
 laglist_ms = timelagdata.delaylist_ms;
@@ -59,11 +59,11 @@ wincount = length(timelagdata.windowlist_ms);
 % Initialize output and copy metadata.
 
 peakdata = struct();
-peakdata.firstchans = timelagdata.firstchans;
-peakdata.secondchans = timelagdata.secondchans;
+peakdata.destchans = timelagdata.destchans;
+peakdata.srcchans = timelagdata.srcchans;
 peakdata.windowlist_ms = timelagdata.windowlist_ms;
-peakdata.peaklags = nan(firstcount, secondcount, wincount);
-peakdata.peakamps = nan(firstcount, secondcount, wincount);
+peakdata.peaklags = nan(destcount, srccount, wincount);
+peakdata.peakamps = nan(destcount, srccount, wincount);
 
 
 %
@@ -88,17 +88,17 @@ if (~isnan(timesmooth_ms)) && (timesmooth_ms > 0)
 
   if smoothsize > 1
 
-    for firstidx = 1:firstcount
-      for secondidx = 1:secondcount
+    for destidx = 1:destcount
+      for srcidx = 1:srccount
         for lagidx = 1:lagcount
-          thisdata = avgvals(firstidx, secondidx, :, lagidx);
+          thisdata = avgvals(destidx, srcidx, :, lagidx);
           thisdata = reshape(thisdata, size(timelist_ms));
 
           % Triangular smoothing window with about 1.5x the requested size.
           thisdata = movmean(thisdata, smoothsize);
           thisdata = movmean(thisdata, smoothsize);
 
-          avgvals(firstidx, secondidx, :, lagidx) = thisdata;
+          avgvals(destidx, srcidx, :, lagidx) = thisdata;
         end
       end
     end
@@ -126,11 +126,11 @@ elseif strcmp('nearest', method')
   lagtarget_ms = median(lagtarget_ms);
 end
 
-for firstidx = 1:firstcount
-  for secondidx = 1:secondcount
+for destidx = 1:destcount
+  for srcidx = 1:srccount
     for winidx = 1:wincount
 
-      thisdata = avgvals(firstidx, secondidx, winidx, :);
+      thisdata = avgvals(destidx, srcidx, winidx, :);
       thisdata = reshape(thisdata, size(laglist_ms));
 
       thispeaklag = NaN;
@@ -144,8 +144,8 @@ for firstidx = 1:firstcount
           helper_findPeakNearest( thisdata, laglist_ms, lagtarget_ms );
       end
 
-      peakdata.peaklags(firstidx, secondidx, winidx) = thispeaklag;
-      peakdata.peakamps(firstidx, secondidx, winidx) = thispeakamp;
+      peakdata.peaklags(destidx, srcidx, winidx) = thispeaklag;
+      peakdata.peakamps(destidx, srcidx, winidx) = thispeakamp;
 
     end
   end

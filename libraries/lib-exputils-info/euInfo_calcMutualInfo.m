@@ -1,10 +1,10 @@
 function midata = euInfo_calcMutualInfo( ...
-  ftdata_first, ftdata_second, win_params, flags, ...
-  bin_count_first, bin_count_second, exparams, phaseparams )
+  ftdata_dest, ftdata_src, win_params, flags, ...
+  bin_count_dest, bin_count_src, exparams, phaseparams )
 
 % function midata = euInfo_calcMutualInfo( ...
-%   ftdata_first, ftdata_second, win_params, flags, ...
-%   bin_count_first, bin_count_second, exparams, phaseparams )
+%   ftdata_dest, ftdata_src, win_params, flags, ...
+%   bin_count_dest, bin_count_src, exparams, phaseparams )
 %
 % This calculates mututal information between pairs of channels in two
 % Field Trip datasets within a series of time windows, optionally filtering
@@ -15,7 +15,7 @@ function midata = euInfo_calcMutualInfo( ...
 % in that library).
 %
 % If phase filtering is requested, then for each signal pair in each trial,
-% the average of (phase second - phase first) is computed. Pairs are
+% the average of (phase dest - phase src) is computed. Pairs are
 % rejected if the average phase difference is outside of the specified
 % range. Pairs are also rejected if the phase-lock value is below a minimum
 % threshold.
@@ -23,19 +23,25 @@ function midata = euInfo_calcMutualInfo( ...
 % NOTE - Both datasets must have the same sampling rate and the same number
 % of trials (trials are assumed to correspond).
 %
-% "ftdata_first" is a ft_datatype_raw structure with the first set of trials.
-% "ftdata_second" is a ft_datatype_raw structure with the second set of trials.
+% "ftdata_dest" is a ft_datatype_raw structure with trial data for the
+%   putative destination channels.
+% "ftdata_src" is a ft_datatype_raw structure with trial data for the
+%   putative source channels.
 % "win_params" is a structure giving time window and time lag range
 %   information, per TIMEWINLAGSPEC.txt.
 % "flags" is a cell array containing one or more of the following character
 %   vectors:
 %   'avgtrials' generates data averaged across trials, per TIMEWINLAGDATA.txt.
 %   'pertrial' generates per-trial data, per TIMEWINLAGDATA.txt.
-% "bin_count_first" is the number of histogram bins to use when processing
-%   signals from the first Field Trip data set. This can be the character
-%   vector 'discrete' to auto-bin discrete-valued data.
-% "bin_count_second" is the number of histogram bins to use when processing
-%   signals from the second Field Trip data set. This can be the character
+%   'spantrials' generates data by concatenating or otherwise aggregating
+%     across trials, per TIMEWINLAGDATA.txt.
+%   'parallel' indicates that the multithreaded implementation should be
+%     used. This requires the Parallel Computing Toolbox.
+% "bin_count_dest" is the number of histogram bins to use when processing
+%   signals from the destination Field Trip data set. This can be the
+%   character vector 'discrete' to auto-bin discrete-valued data.
+% "bin_count_src" is the number of histogram bins to use when processing
+%   signals from the source Field Trip data set. This can be the character
 %   vector 'discrete' to auto-bin discrete-valued data.
 % "exparams" is a structure containing extrapolation tuning parameters, per
 %   EXTRAPOLATION.txt in the entropy library. If this is empty, default
@@ -53,17 +59,20 @@ function midata = euInfo_calcMutualInfo( ...
 
 
 % Unpack and re-pack binning and extrapolation configuration.
+% Parallel processing switch goes into this structure too.
 
 analysis_params = struct();
 
-analysis_params.discrete_first = ischar(bin_count_first);
-analysis_params.discrete_second = ischar(bin_count_second);
+analysis_params.discrete_dest = ischar(bin_count_dest);
+analysis_params.discrete_src = ischar(bin_count_src);
 
-analysis_params.bins_first = bin_count_first;
-analysis_params.bins_second = bin_count_second;
+analysis_params.bins_dest = bin_count_dest;
+analysis_params.bins_src = bin_count_src;
 
 analysis_params.want_extrap = isstruct(exparams);
 analysis_params.extrap_config = exparams;
+
+analysis_params.want_parallel = ismember('parallel', flags);
 
 
 % Figure out if we're phase-filtering.
@@ -82,32 +91,36 @@ disp(analysis_params);
 disp(want_phase);
 disp(win_params);
 disp(sprintf( 'xx %d windows, %d trials, %d x %d chans.', ...
-length(win_params.timelist_ms), length(ftdata_first.time), ...
-length(ftdata_first.label), length(ftdata_second.label) ));
+length(win_params.timelist_ms), length(ftdata_dest.time), ...
+length(ftdata_dest.label), length(ftdata_src.label) ));
 end
 
 % Proceed with the analysis.
 
 if want_phase
 
+% FIXME - Diagnostics.
+disp('xx Computing mutual information with phase bins.');
   midata = euInfo_doTimeAndLagAnalysis( ...
-    ftdata_first, ftdata_second, win_params, flags, ...
-    {}, @helper_analysisfunc, analysis_params, ...
+    ftdata_dest, ftdata_src, win_params, flags, ...
+    {}, @euInfo_helper_analyzeMutual, analysis_params, ...
     { 'detrend', 'angle' }, @euInfo_helper_filterPhase, phase_params );
 
 else
 
 % FIXME - Compare with entropy library FT function.
-if false
+if true
+% FIXME - Diagnostics.
+disp('xx Computing mutual information.');
   midata = euInfo_doTimeAndLagAnalysis( ...
-    ftdata_first, ftdata_second, win_params, flags, ...
-    {}, @helper_analysisfunc, analysis_params, ...
+    ftdata_dest, ftdata_src, win_params, flags, ...
+    {}, @euInfo_helper_analyzeMutual, analysis_params, ...
     {}, @euInfo_helper_filterNone, struct() );
 else
   % Entropy library kludge.
   % FIXME - No trialwise output and no variance!
 
-  samprate = 1 / mean(diff( ftdata_first.time{1} ));
+  samprate = 1 / mean(diff( ftdata_dest.time{1} ));
 
   delaylist_samps = euInfo_helper_getDelaySamps( ...
     samprate, win_params.delay_range_ms, win_params.delay_step_ms );
@@ -115,34 +128,34 @@ else
 
   delaycount = length(delaylist_samps);
 
-  winranges_first = euInfo_helper_getWindowSamps ( samprate, ...
-    win_params.time_window_ms, win_params.timelist_ms, ftdata_first.time );
-  winranges_second = euInfo_helper_getWindowSamps ( samprate, ...
-    win_params.time_window_ms, win_params.timelist_ms, ftdata_second.time );
+  winranges_dest = euInfo_helper_getWindowSamps ( samprate, ...
+    win_params.time_window_ms, win_params.timelist_ms, ftdata_dest.time );
+  winranges_src = euInfo_helper_getWindowSamps ( samprate, ...
+    win_params.time_window_ms, win_params.timelist_ms, ftdata_src.time );
 
-  chancount_first = length(ftdata_first.label);
-  chancount_second = length(ftdata_second.label);
+  chancount_dest = length(ftdata_dest.label);
+  chancount_src = length(ftdata_src.label);
 
   wincount = length(win_params.timelist_ms);
 
-  binlist = [ analysis_params.bins_first, analysis_params.bins_second ];
+  binlist = [ analysis_params.bins_dest, analysis_params.bins_src ];
 
-  mimatrix = nan(chancount_first, chancount_second, wincount, delaycount);
+  mimatrix = nan(chancount_dest, chancount_src, wincount, delaycount);
 
   % FIXME - This really is just duplicating a lot of doTimeAndLag.
-  for cidxfirst = 1:chancount_first
-    datafirst = cEn_ftHelperChannelToMatrix( ftdata_first, cidxfirst );
+  for cidxdest = 1:chancount_dest
+    datadest = cEn_ftHelperChannelToMatrix( ftdata_dest, cidxdest );
 
-    for cidxsecond = 1:chancount_second
+    for cidxsrc = 1:chancount_src
 
-      datasecond = cEn_ftHelperChannelToMatrix( ftdata_second, cidxsecond );
+      datasrc = cEn_ftHelperChannelToMatrix( ftdata_src, cidxsrc );
 
       for widx = 1:wincount
 
         % FIXME - Blithely assume that trial 1's mask works for all trials.
         datalist = ...
-          [ { datafirst(:,winranges_first{1,widx}) }, ...
-            { datasecond(:,winranges_second{1,widx}) } ];
+          [ { datadest(:,winranges_dest{1,widx}) }, ...
+            { datasrc(:,winranges_src{1,widx}) } ];
 
 % FIXME - Diagnostics.
 %tic;
@@ -157,7 +170,7 @@ else
 %durstring = nlUtil_makePrettyTime(toc);
 %disp([ 'xx Probe completed in ' durstring '.' ]);
 
-        mimatrix(cidxfirst, cidxsecond, widx, :) = milist;
+        mimatrix(cidxdest, cidxsrc, widx, :) = milist;
 
       end
 
@@ -166,8 +179,8 @@ else
   end
 
   midata = struct();
-  midata.firstchans = ftdata_first.label;
-  midata.secondchans = ftdata_second.label;
+  midata.destchans = ftdata_dest.label;
+  midata.srcchans = ftdata_src.label;
   midata.delaylist_ms = delaylist_ms;
   midata.windowlist_ms = win_params.timelist_ms;
   midata.windowsize_ms = win_params.time_window_ms;
@@ -191,18 +204,18 @@ end
 % Helper Functions
 
 function result = helper_analysisfunc( ...
-  wavefirst, wavesecond, samprate, delaylist, params )
+  wavedest, wavesrc, samprate, delaylist, params )
 
   % Package the data.
 
-  if ~isrow(wavefirst)
-    wavefirst = transpose(wavefirst);
+  if ~isrow(wavedest)
+    wavedest = transpose(wavedest);
   end
-  if ~isrow(wavesecond)
-    wavesecond = transpose(wavesecond);
+  if ~isrow(wavesrc)
+    wavesrc = transpose(wavesrc);
   end
 
-  scratchdata = [ wavefirst ; wavesecond ];
+  scratchdata = [ wavedest ; wavesrc ];
 
 
   % Get histogram bins.
@@ -211,16 +224,16 @@ function result = helper_analysisfunc( ...
 
   binlist = {};
 
-  if params.discrete_first
-    binlist{1} = cEn_getHistBinsDiscrete( wavefirst );
+  if params.discrete_dest
+    binlist{1} = cEn_getHistBinsDiscrete( wavedest );
   else
-    binlist{1} = cEn_getHistBinsEqPop( wavefirst, params.bins_first );
+    binlist{1} = cEn_getHistBinsEqPop( wavedest, params.bins_dest );
   end
 
-  if params.discrete_second
-    binlist{2} = cEn_getHistBinsDiscrete( wavesecond );
+  if params.discrete_src
+    binlist{2} = cEn_getHistBinsDiscrete( wavesrc );
   else
-    binlist{2} = cEn_getHistBinsEqPop( wavesecond, params.bins_second );
+    binlist{2} = cEn_getHistBinsEqPop( wavesrc, params.bins_src );
   end
 
 

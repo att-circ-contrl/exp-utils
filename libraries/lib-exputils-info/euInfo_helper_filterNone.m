@@ -1,8 +1,8 @@
 function acceptflag = euInfo_helper_filterNone( ...
-  wavefirst, wavesecond, samprate, params )
+  wavedest, wavesrc, samprate, params )
 
 % function acceptflag = euInfo_helper_filterNone( ...
-%   wavefirst, wavesecond, samprate, params )
+%   wavedest, wavesrc, samprate, params )
 %
 % This is an acceptance filter function, per TIMEWINLAGFUNCS.txt.
 % This passes all input.

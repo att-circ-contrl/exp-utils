@@ -41,23 +41,23 @@ function [ ampmean ampdev lagmean lagdev ] = ...
 %   range for time-varying peak detection. A typical range would be
 %   [ 0.5 inf ].
 %
-% "ampmean" is a matrix indexed by (firstidx,secondidx) containing the mean
+% "ampmean" is a matrix indexed by (destidx,srcidx) containing the mean
 %   (signed) peak data value within the specified window for each pair.
-% "ampdev" is a matrix indexed by (firstidx,secondidx) containing the
+% "ampdev" is a matrix indexed by (destidx,srcidx) containing the
 %   standard deviation of the peak data value for each pair.
-% "lagmean" is a matrix indexed by (firstidx,secondidx) containing the mean
+% "lagmean" is a matrix indexed by (destidx,srcidx) containing the mean
 %   time lag within the specified window for each pair.
-% "lagdev" is a matrix indexed by (firstidx,secondidx) containing the
+% "lagdev" is a matrix indexed by (destidx,srcidx) containing the
 %   standard deviation of the time lag for each pair.
 
 
 % Get metadata.
 
-firstchans = timelagdata.firstchans;
-firstcount = length(firstchans);
+destchans = timelagdata.destchans;
+destcount = length(destchans);
 
-secondchans = timelagdata.secondchans;
-secondcount = length(secondchans);
+srcchans = timelagdata.srcchans;
+srccount = length(srcchans);
 
 laglist = timelagdata.delaylist_ms;
 lagcount = length(laglist);
@@ -68,10 +68,10 @@ wincount = length(winlist);
 
 % Initialize output.
 
-ampmean = NaN(firstcount, secondcount);
-ampdev = NaN(firstcount, secondcount);
-lagmean = NaN(firstcount, secondcount);
-lagdev = NaN(firstcount, secondcount);
+ampmean = NaN(destcount, srccount);
+ampdev = NaN(destcount, srccount);
+lagmean = NaN(destcount, srccount);
+lagdev = NaN(destcount, srccount);
 
 
 % Sanity-check the requested field, and extract it.
@@ -91,14 +91,14 @@ avgdata = timelagdata.([ fieldname 'avg' ]);
 [ avgvstime avgvslag ] = euInfo_collapseTimeLagAverages( ...
   timelagdata, fieldname, { timerange_ms }, [] );
 
-guessamp = NaN(firstcount, secondcount);
-guesslagmin = NaN(firstcount, secondcount);
-guesslagmax = NaN(firstcount, secondcount);
+guessamp = NaN(destcount, srccount);
+guesslagmin = NaN(destcount, srccount);
+guesslagmax = NaN(destcount, srccount);
 
-for firstidx = 1:firstcount
-  for secondidx = 1:secondcount
+for destidx = 1:destcount
+  for srcidx = 1:srccount
 
-    thisdata = avgvslag.avg(firstidx,secondidx,:);
+    thisdata = avgvslag.avg(destidx,srcidx,:);
     thisdata = reshape(thisdata, size(laglist));
 
     % Find the peak in average magnitude vs lag.
@@ -135,9 +135,9 @@ for firstidx = 1:firstcount
       end
 
       % Save these.
-      guessamp(firstidx,secondidx) = thisamp;
-      guesslagmin(firstidx,secondidx) = thislagmin;
-      guesslagmax(firstidx,secondidx) = thislagmax;
+      guessamp(destidx,srcidx) = thisamp;
+      guesslagmin(destidx,srcidx) = thislagmin;
+      guesslagmax(destidx,srcidx) = thislagmax;
     end
 
   end
@@ -150,12 +150,12 @@ end
 
 timemask = (winlist >= min(timerange_ms)) & (winlist <= max(timerange_ms));
 
-for firstidx = 1:firstcount
-  for secondidx = 1:secondcount
+for destidx = 1:destcount
+  for srcidx = 1:srccount
 
     lagrange = ...
-      [ guesslagmin(firstidx,secondidx), guesslagmax(firstidx,secondidx) ];
-    amprange = magacceptrange * guessamp(firstidx,secondidx);
+      [ guesslagmin(destidx,srcidx), guesslagmax(destidx,srcidx) ];
+    amprange = magacceptrange * guessamp(destidx,srcidx);
 
 
     % Extract just this pair and call the search function.
@@ -163,13 +163,13 @@ for firstidx = 1:firstcount
     % varies by pair.
 
     thispairdata = struct();
-    thispairdata.firstchans = firstchans(firstidx);
-    thispairdata.secondchans = secondchans(secondidx);
+    thispairdata.destchans = destchans(destidx);
+    thispairdata.srcchans = srcchans(srcidx);
     thispairdata.delaylist_ms = laglist;
     thispairdata.windowlist_ms = winlist;
 
     % NOTE - Only copying "FOOavg", not "FOOvar" or "FOOcount"!
-    thispairdata.([ fieldname 'avg' ]) = avgdata(firstidx,secondidx,:,:);
+    thispairdata.([ fieldname 'avg' ]) = avgdata(destidx,srcidx,:,:);
 
     peakdata = euInfo_findTimeLagPeaks( ...
       thispairdata, fieldname, timesmooth_ms, lagrange, 'largest' );
@@ -187,10 +187,10 @@ for firstidx = 1:firstcount
     thisampdata = thisampdata(ampmask & timemask);
 
     if ~isempty(thislagdata)
-      ampmean(firstidx,secondidx) = mean(thisampdata);
-      ampdev(firstidx,secondidx) = std(thisampdata);
-      lagmean(firstidx,secondidx) = mean(thislagdata);
-      lagdev(firstidx,secondidx) = std(thislagdata);
+      ampmean(destidx,srcidx) = mean(thisampdata);
+      ampdev(destidx,srcidx) = std(thisampdata);
+      lagmean(destidx,srcidx) = mean(thislagdata);
+      lagdev(destidx,srcidx) = std(thislagdata);
     end
 
   end

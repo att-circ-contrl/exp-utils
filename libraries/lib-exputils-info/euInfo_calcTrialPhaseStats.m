@@ -1,8 +1,8 @@
 function phasedata = euInfo_calcTrialPhaseStats( ...
-  ftdata_first, ftdata_second, win_params, flags )
+  ftdata_dest, ftdata_src, win_params, flags )
 
 % function phasedata = euInfo_calcTrialPhaseStats( ...
-%   ftdata_first, ftdata_second, win_params, flags )
+%   ftdata_dest, ftdata_src, win_params, flags )
 %
 % This calculates phase difference and phase lock values between pairs of
 % signals within two datasets, as a function of time.
@@ -14,8 +14,10 @@ function phasedata = euInfo_calcTrialPhaseStats( ...
 % This will give poor estimates of phase for wideband signals that aren't
 % dominated by a clear oscillation.
 %
-% "ftdata_first" is a ft_datatype_raw structure with the first set of trials.
-% "ftdata_second" is a ft_datatype_raw structure with the second set of trials.
+% "ftdata_dest" is a ft_datatype_raw structure with trial data for the
+%   putative destination channels.
+% "ftdata_src" is a ft_datatype_raw structure with trial data for the
+%   putative source channels.
 % "win_params" is a structure giving time window information, per
 %   TIMEWINLAGSPEC.txt. Delay information is ignored.
 % "flags" is a cell array containing one or more of the following character
@@ -40,7 +42,7 @@ win_params.delay_step_ms = 1;
 % Detrend to ensure that these are sane.
 
 phasedata = euInfo_doTimeAndLagAnalysis( ...
-  ftdata_first, ftdata_second, win_params, flags, ...
+  ftdata_dest, ftdata_src, win_params, flags, ...
   { 'detrend', 'angle' }, @helper_analysisfunc, struct(), ...
   {}, @euInfo_helper_filterNone, struct() );
 
@@ -54,12 +56,12 @@ end
 
 
 function result = helper_analysisfunc( ...
-  wavefirst, wavesecond, samprate, delaylist, params )
+  wavedest, wavesrc, samprate, delaylist, params )
 
   % NOTE - We're supposed to return a vector with the same length as the
   % delay list.
 
-  [ cmean cvar lindev ] = nlProc_calcCircularStats( wavesecond - wavefirst );
+  [ cmean cvar lindev ] = nlProc_calcCircularStats( wavedest - wavesrc );
   plv = 1 - cvar;
 
   result = struct();

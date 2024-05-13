@@ -1,15 +1,15 @@
 function acceptflag = euInfo_helper_filterPhase( ...
-  wavefirst, wavesecond, samprate, params )
+  wavedest, wavesrc, samprate, params )
 
 % function acceptflag = euInfo_helper_filterNone( ...
-%   wavefirst, wavesecond, samprate, params )
+%   wavedest, wavesrc, samprate, params )
 %
 % This is an acceptance filter function, per TIMEWINLAGFUNCS.txt.
 %
 % This passes signal pairs that have sufficient phase locking and that
-% have a phase difference within a specified range.
+% have a (dest - src) phase difference within a specified range.
 %
-% "wavefirst" and "wavesecond" are expected to contain phase angle data in
+% "wavedest" and "wavesrc" are expected to contain phase angle data in
 %   radians (preprocessing mode 'angle').
 % "params" contains phase acceptance parameters per PHASEFILTPARAMS.txt.
 
@@ -23,7 +23,7 @@ minplv = params.minplv;
 
 % Get phase locking and phase difference.
 
-[ cmean cvar lindev ] = nlProc_calcCircularStats( wavesecond - wavefirst );
+[ cmean cvar lindev ] = nlProc_calcCircularStats( wavedest - wavesrc );
 plv = 1 - cvar;
 
 phasediff = cmean - phasetargetrad;

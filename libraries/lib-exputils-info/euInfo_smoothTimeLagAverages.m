@@ -29,8 +29,8 @@ function newdata = euInfo_smoothTimeLagAverages( ...
 % Initialize.
 
 newdata = struct();
-newdata.firstchans = olddata.firstchans;
-newdata.secondchans = olddata.secondchans;
+newdata.destchans = olddata.destchans;
+newdata.srcchans = olddata.srcchans;
 
 
 %
@@ -38,8 +38,8 @@ newdata.secondchans = olddata.secondchans;
 
 want_decimate = strcmp(method, 'coarse');
 
-firstcount = length(olddata.firstchans);
-secondcount = length(olddata.secondchans);
+destcount = length(olddata.destchans);
+srccount = length(olddata.srcchans);
 
 delaylist_ms = olddata.delaylist_ms;
 windowlist_ms = olddata.windowlist_ms;
@@ -100,7 +100,7 @@ for fidx = 1:length(fieldnames)
   fieldcount = olddata.([ thisfield 'count' ]);
   fieldvar = olddata.([ thisfield 'var' ]);
 
-  newavg = zeros([ firstcount secondcount newwindowcount newdelaycount ]);
+  newavg = zeros([ destcount srccount newwindowcount newdelaycount ]);
   newvar = zeros(size(newavg));
   newcount = zeros(size(newavg));
 
@@ -110,7 +110,7 @@ for fidx = 1:length(fieldnames)
       thisdelaysrclist = delaysources{didxnew};
       thiswindowsrclist = windowsources{widxnew};
 
-      thisavg = zeros([ firstcount secondcount ]);
+      thisavg = zeros([ destcount srccount ]);
       thisvar = zeros(size(thisavg));
       thiscount = zeros(size(thisavg));
 
@@ -120,7 +120,7 @@ for fidx = 1:length(fieldnames)
           didxold = thisdelaysrclist(didxsrc);
           widxold = thiswindowsrclist(widxsrc);
 
-          % These are (firstidx,secondidx) matrices, not scalars.
+          % These are (destidx,srcidx) matrices, not scalars.
 
           oldavg = fieldavg(:,:,widxold,didxold);
           oldcount = fieldcount(:,:,widxold,didxold);
