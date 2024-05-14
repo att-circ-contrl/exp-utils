@@ -1,10 +1,10 @@
 function midata = euInfo_calcMutualInfo( ...
   ftdata_dest, ftdata_src, win_params, flags, ...
-  bin_count_dest, bin_count_src, exparams, phaseparams )
+  bin_count_dest, bin_count_src, exparams, phase_params )
 
 % function midata = euInfo_calcMutualInfo( ...
 %   ftdata_dest, ftdata_src, win_params, flags, ...
-%   bin_count_dest, bin_count_src, exparams, phaseparams )
+%   bin_count_dest, bin_count_src, exparams, phase_params )
 %
 % This calculates mututal information between pairs of channels in two
 % Field Trip datasets within a series of time windows, optionally filtering
@@ -85,22 +85,11 @@ if exist('phase_params', 'var')
   end
 end
 
-% FIXME - Diagnostics
-if false
-disp(analysis_params);
-disp(want_phase);
-disp(win_params);
-disp(sprintf( 'xx %d windows, %d trials, %d x %d chans.', ...
-length(win_params.timelist_ms), length(ftdata_dest.time), ...
-length(ftdata_dest.label), length(ftdata_src.label) ));
-end
 
 % Proceed with the analysis.
 
 if want_phase
 
-% FIXME - Diagnostics.
-disp('xx Computing mutual information with phase bins.');
   midata = euInfo_doTimeAndLagAnalysis( ...
     ftdata_dest, ftdata_src, win_params, flags, ...
     {}, @euInfo_helper_analyzeMutual, analysis_params, ...
@@ -110,8 +99,6 @@ else
 
 % FIXME - Compare with entropy library FT function.
 if true
-% FIXME - Diagnostics.
-disp('xx Computing mutual information.');
   midata = euInfo_doTimeAndLagAnalysis( ...
     ftdata_dest, ftdata_src, win_params, flags, ...
     {}, @euInfo_helper_analyzeMutual, analysis_params, ...
@@ -119,6 +106,8 @@ disp('xx Computing mutual information.');
 else
   % Entropy library kludge.
   % FIXME - No trialwise output and no variance!
+% FIXME - Diagnostics.
+disp('xx Computing mutual information spanning trials by hand.');
 
   samprate = 1 / mean(diff( ftdata_dest.time{1} ));
 
@@ -157,8 +146,6 @@ else
           [ { datadest(:,winranges_dest{1,widx}) }, ...
             { datasrc(:,winranges_src{1,widx}) } ];
 
-% FIXME - Diagnostics.
-%tic;
         if analysis_params.want_extrap
           milist = cEn_calcLaggedMutualInfo( ...
             datalist, delaylist_samps, binlist, exparams );
@@ -166,9 +153,6 @@ else
           milist = cEn_calcLaggedMutualInfo( ...
             datalist, delaylist_samps, binlist );
         end
-% FIXME - Diagnostics.
-%durstring = nlUtil_makePrettyTime(toc);
-%disp([ 'xx Probe completed in ' durstring '.' ]);
 
         mimatrix(cidxdest, cidxsrc, widx, :) = milist;
 
@@ -197,65 +181,6 @@ end
 
 
 % Done.
-end
-
-
-%
-% Helper Functions
-
-function result = helper_analysisfunc( ...
-  wavedest, wavesrc, samprate, delaylist, params )
-
-  % Package the data.
-
-  if ~isrow(wavedest)
-    wavedest = transpose(wavedest);
-  end
-  if ~isrow(wavesrc)
-    wavesrc = transpose(wavesrc);
-  end
-
-  scratchdata = [ wavedest ; wavesrc ];
-
-
-  % Get histogram bins.
-  % To handle the discrete case, always generate bins here and pass them
-  % via cell array.
-
-  binlist = {};
-
-  if params.discrete_dest
-    binlist{1} = cEn_getHistBinsDiscrete( wavedest );
-  else
-    binlist{1} = cEn_getHistBinsEqPop( wavedest, params.bins_dest );
-  end
-
-  if params.discrete_src
-    binlist{2} = cEn_getHistBinsDiscrete( wavesrc );
-  else
-    binlist{2} = cEn_getHistBinsEqPop( wavesrc, params.bins_src );
-  end
-
-
-  % Calculate time-lagged mututal information.
-
-% FIXME - Diagnostics.
-%tic;
-  if params.want_extrap
-    mvals = cEn_calcLaggedMutualInfo( scratchdata, delaylist, binlist, ...
-      params.extrap_config );
-  else
-    mvals = cEn_calcLaggedMutualInfo( scratchdata, delaylist, binlist );
-  end
-% FIXME - Diagnostics.
-%durstring = nlUtil_makePrettyTime(toc);
-%disp([ 'xx Probe completed in ' durstring '.' ]);
-
-
-  % Store this in an appropriately-named field.
-  result = struct();
-  result.mutual = mvals;
-
 end
 
 

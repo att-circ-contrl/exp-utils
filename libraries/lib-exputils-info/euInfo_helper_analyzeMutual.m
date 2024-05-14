@@ -55,17 +55,21 @@ function result = euInfo_helper_analyzeMutual( ...
 
   % Calculate time-lagged mututal information.
 
-% FIXME - Diagnostics.
-%tic;
-  if params.want_extrap
-    mvals = cEn_calcLaggedMutualInfo( scratchdata, delaylist, binlist, ...
-      params.extrap_config );
+  if params.want_parallel
+    if params.want_extrap
+      mvals = cEn_calcLaggedMutualInfo_MT( scratchdata, delaylist, binlist, ...
+        params.extrap_config );
+    else
+      mvals = cEn_calcLaggedMutualInfo_MT( scratchdata, delaylist, binlist );
+    end
   else
-    mvals = cEn_calcLaggedMutualInfo( scratchdata, delaylist, binlist );
+    if params.want_extrap
+      mvals = cEn_calcLaggedMutualInfo( scratchdata, delaylist, binlist, ...
+        params.extrap_config );
+    else
+      mvals = cEn_calcLaggedMutualInfo( scratchdata, delaylist, binlist );
+    end
   end
-% FIXME - Diagnostics.
-%durstring = nlUtil_makePrettyTime(toc);
-%disp([ 'xx Probe completed in ' durstring '.' ]);
 
 
   % Store this in an appropriately-named field.
