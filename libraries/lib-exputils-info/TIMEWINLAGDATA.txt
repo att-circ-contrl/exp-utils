@@ -18,6 +18,7 @@ Metadata fields:
 
 Analysis results:
 
+
 If averaging across trials was requested, then for each analysis result
 variable "FOO", the following fields will exist:
 
@@ -29,20 +30,22 @@ variable "FOO", the following fields will exist:
   containing the variance of the values used to produce the averages in
   FOOavg.
 
+
 If per-trial data was requested, then for each analysis result variable
 "FOO", the following field will exist:
 
 "FOOtrials" is a matrix indexed by (destchan, srcchan, trialidx, winidx,
   lagidx) containing the computed values of FOO.
 
+If an acceptance filter was used, cells of FOOtrials that were not accepted
+contain NaN.
+
+
 If concatenating or aggregating trials was requested, then for each analysis
 result variable "FOO", the following field will exist:
 
 "FOOsingle" is a matrix indexed by (destchan, srcchan, winidx, lagidx)
   containing the values of FOO for aggregated or concatenated trials.
-
-If an acceptance filter was used, cells of FOOtrials that were not accepted
-contain NaN.
 
 
 (This is the end of the file.)

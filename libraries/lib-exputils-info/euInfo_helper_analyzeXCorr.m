@@ -17,6 +17,14 @@ function result = euInfo_helper_analyzeXCorr( ...
 %   normalize so that self-correlation is 1).
 
 
+% Check for the empty case (querying result fields).
+
+if isempty(wavedest) || isempty(wavesrc) || isempty(delaylist)
+  result = struct( 'xcorr', [] );
+  return;
+end
+
+
 % If we were passed matrices, turn them into vectors.
 
 wavedest = reshape( wavedest, 1, [] );

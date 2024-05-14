@@ -9,8 +9,8 @@ function result = euInfo_helper_analyzeMutual( ...
 % This calculates time-lagged mutual information between the supplied
 % signals. If multiple trials are supplied, the trials are concatenated.
 %
-% "wavedest" and "wavesrc" are expected to contain waveform data that's
-%   either continuous real-valued or discrete-valued.
+% "wavedest" and "wavesrc" are expected to contain waveform or trial data
+%   that's either continuous real-valued or discrete-valued.
 % "params" contains the following fields:
 %   "discrete_dest" and "discrete_src" indicate whether the destination
 %     and source channels are discrete (auto-binned if so).
@@ -20,6 +20,17 @@ function result = euInfo_helper_analyzeMutual( ...
 %   "extrap_config" is an extrapolation configuration structure.
 %   "want_parallel" is true to use the multithreaded implementation and
 %     false otherwise.
+
+
+% Check for the empty case (querying result fields).
+
+if isempty(wavedest) || isempty(wavesrc) || isempty(delaylist)
+  result = struct( 'mutual', [] );
+  return;
+end
+
+
+% FIXME - Matrix support NYI.
 
 
   % Package the data.

@@ -21,6 +21,10 @@ result = analysisfunc( wavedest, wavesrc, samprate, delaylist, params )
   vector of the same length as "delaysamps" with analysis result values.
   These are used to produce result matrices per TIMEWINLAGDATA.txt.
 
+As a special case, passing empty (0x0) matrices as "wavedest" or "wavesrc"
+or "delaylist" returns a result structure containing empty vectors in all
+data fields. This may be used to get a list of the fields that are provided.
+
 
 
 An acceptance filter function handle has the following form:

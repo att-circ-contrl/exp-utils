@@ -108,6 +108,12 @@ winrangessrc = euInfo_helper_getWindowSamps( samprate, ...
   winlagparams.time_window_ms, winlagparams.timelist_ms, ftdata_src.time );
 
 
+% Get field names, now that we have a syntax for querying it.
+
+scratch = analysis_func( [], [], samprate, [], analysis_params );
+resultfields = fieldnames(scratch);
+
+
 
 %
 % Store metadata.
@@ -138,125 +144,158 @@ trialdata_src_filter = ...
 
 
 %
-% Compute per-trial analysis output and average across trials.
-
 % Make templates for easier initialization.
 
-if want_avg
-  % Statistics in the absence of data are NaN, not zero.
-  templateavg = ...
-    nan([ chancount_dest chancount_src wincount delaycount ]);
+% Most things get initialized to NaN (if we don't have data to overwrite
+% them with later).
 
-  % Scratch variables for computing statistics do start at zero.
-  templateonewindowavg = ...
-    zeros([ chancount_dest chancount_src delaycount ]);
-end
+% Average and deviation.
+templateavg = nan([ chancount_dest chancount_src wincount delaycount ]);
 
-if want_pertrial
-  % Data that doesn't pass the filter is NaN, not zero.
-  templatepertrial = ...
-    nan([ chancount_dest chancount_src trialcount wincount delaycount ]);
-end
-
-% Data that doesn't pass the filter is NaN, not zero.
+% Temporary output when iterating windows.
 templateonewindow = ...
   nan([ chancount_dest chancount_src trialcount delaycount ]);
 
+% Scratch variables for computing statistics.
+templateonewindowavg = zeros([ chancount_dest chancount_src delaycount ]);
 
-% Iterate.
+% Per-trial output.
+templatepertrial = ...
+  nan([ chancount_dest chancount_src trialcount wincount delaycount ]);
+
+% Trial-spanning output.
+templateconcat =  nan([ chancount_dest chancount_src wincount delaycount ]);
+
+
+
+%
+% Initialize output.
+
+for fidx = 1:length(resultfields)
+
+  thisfield = resultfields{fidx};
+
+  if want_avg
+    winlagdata.([ thisfield 'avg' ]) = templateavg;
+    winlagdata.([ thisfield 'count' ]) = templateavg;
+    winlagdata.([ thisfield 'var' ]) = templateavg;
+  end
+
+  if want_pertrial
+    winlagdata.([ thisfield 'trials' ]) = templatepertrial;
+  end
+
+  if want_spantrials
+    winlagdata.([ thisfield 'single' ]) = templateconcat;
+  end
+end
+
+
+
+%
+% Iterate across windows, channel pairs, and trials.
 
 % The outer loop is window index, so that we can hold all results for a
 % given window in memory (to compute the variance).
 
-need_global_init = true;
-resultfields = {};
+% Channels get iterated outside, and trials iterated inside.
+% This lets us collapse trials for trial-spanning calculations.
+
 
 for widx = 1:wincount
 
-  % First pass: Store the raw results for this window.
+  % First pass: Get the raw results for this window.
+  % We'll compute average and deviation in a second pass.
   % Anything that doesn't pass the filter function gets left as NaN.
 
-  need_local_init = true;
+
+  % Initialize window results.
+
   thiswinresults = struct();
 
-  for trialidx = 1:trialcount
-
-    % Get raw data.
-    % NOTE - Trials may have NaN regions, but those usually don't overlap
-    % the test windows.
-
-    thisdatadest_an = trialdata_dest_analysis{trialidx};
-    thisdatasrc_an = trialdata_src_analysis{trialidx};
-
-    thisdatadest_filt = trialdata_dest_filter{trialidx};
-    thisdatasrc_filt = trialdata_src_filter{trialidx};
+  for fidx = 1:length(resultfields)
+    thisfield = resultfields{fidx};
+    thiswinresults.( thisfield ) = templateonewindow;
+  end
 
 
-    % Extract data window contents.
+  % Channel pair iteration.
 
-    % NOTE - We may sometimes get NaN data in here. The relevant results
-    % will also be NaN.
+  for cidxdest = 1:chancount_dest
+    for cidxsrc = 1:chancount_src
 
-    windatadest_an = thisdatadest_an(:,winrangesdest{trialidx,widx});
-    windatasrc_an = thisdatasrc_an(:,winrangessrc{trialidx,widx});
+      % Initialize trial matrix data for this channel pair.
 
-    windatadest_filt = thisdatadest_filt(:,winrangesdest{trialidx,widx});
-    windatasrc_filt = thisdatasrc_filt(:,winrangessrc{trialidx,widx});
+      wavematrixdest = [];
+      wavematrixsrc = [];
 
 
-    % Iterate channels, storing results for this trial.
-    % Check the filter function before performing analysis on any pair.
+      % Trial iteration.
 
-    for cidxdest = 1:chancount_dest
-      for cidxsrc = 1:chancount_src
+      for trialidx = 1:trialcount
 
-        wavedest = windatadest_filt(cidxdest,:);
-        wavesrc = windatasrc_filt(cidxsrc,:);
+        % Get raw data for this trial and channel pair.
+        % This is going to have inefficient access patterns if we're
+        % iterating trials as the inner loop, but live with it.
+
+
+        % Extract this trial's data.
+
+        thisdatadest_an = trialdata_dest_analysis{trialidx};
+        thisdatasrc_an = trialdata_src_analysis{trialidx};
+
+        thisdatadest_filt = trialdata_dest_filter{trialidx};
+        thisdatasrc_filt = trialdata_src_filter{trialidx};
+
+
+        % Extract time window contents.
+
+        % NOTE - We may sometimes get NaN data in here. The relevant results
+        % will also be NaN.
+
+        windatadest_an = thisdatadest_an(:,winrangesdest{trialidx,widx});
+        windatasrc_an = thisdatasrc_an(:,winrangessrc{trialidx,widx});
+
+        windatadest_filt = thisdatadest_filt(:,winrangesdest{trialidx,widx});
+        windatasrc_filt = thisdatasrc_filt(:,winrangessrc{trialidx,widx});
+
+
+        % Extract this channel pair.
+
+        wavedest_filt = windatadest_filt(cidxdest,:);
+        wavesrc_filt = windatasrc_filt(cidxsrc,:);
+
+        wavedest_an = windatadest_an(cidxdest,:);
+        wavesrc_an = windatasrc_an(cidxsrc,:);
+
+
+        % Proceed only if the filter accepts this data.
 
         filteraccept = ...
-          filter_func( wavedest, wavesrc, samprate, filter_params );
+          filter_func( wavedest_filt, wavesrc_filt, samprate, filter_params );
 
-        if filteraccept
 
-          wavedest = windatadest_an(cidxdest,:);
-          wavesrc = windatasrc_an(cidxsrc,:);
+        % Add this to the trial-spanning matrix data if it passed the filter.
+
+        if filteraccept & want_spantrials
+          % This works even for first-time row addition.
+          wavematrixdest = [ wavematrixdest ; wavedest_an ];
+          wavematrixsrc = [ wavematrixsrc ; wavesrc_an ];
+        end
+
+
+        % Continue with the average and per-trial analyses if requested.
+
+        if filteraccept & (want_avg | want_pertrial)
+
+          % Analyze this trial.
 
           thisresult = analysis_func( ...
-            wavedest, wavesrc, samprate, ...
+            wavedest_an, wavesrc_an, samprate, ...
             delaylist_samps, analysis_params );
 
 
-          % Handle deferred initialization, if it hasn't been done yet.
-
-          if need_global_init
-            need_global_init = false;
-
-            resultfields = fieldnames(thisresult);
-
-            for fidx = 1:length(resultfields)
-              thisfield = resultfields{fidx};
-              if want_avg
-                winlagdata.([ thisfield 'avg' ]) = templateavg;
-                winlagdata.([ thisfield 'count' ]) = templateavg;
-                winlagdata.([ thisfield 'var' ]) = templateavg;
-              end
-              if want_pertrial
-                winlagdata.([ thisfield 'trials' ]) = templatepertrial;
-              end
-            end
-          end
-
-          if need_local_init
-            need_local_init = false;
-
-            for fidx = 1:length(resultfields)
-              thisfield = resultfields{fidx};
-              thiswinresults.( thisfield ) = templateonewindow;
-            end
-          end
-
-
-          % Store this set of results.
+          % Store trial-averaged and per-trial results.
 
           for fidx = 1:length(resultfields)
             thisfield = resultfields{fidx};
@@ -276,9 +315,34 @@ for widx = 1:wincount
 
         end
 
-      end
-    end
 
+        % Finished with this trial.
+
+      end
+
+
+      % If we're spanning across trials, do that analysis here.
+
+      if want_spantrials && (~isempty(wavematrix_dest))
+
+        thisresult = analysis_func( ...
+          wavematrixdest, wavematrixsrc, samprate, ...
+          delaylist_samps, analysis_params );
+
+        for fidx = 1:length(resultfields)
+          thisfield = resultfields{fidx};
+
+          scratch = winlagdata.([ thisfield 'single' ]);
+          scratch(cidxdest,cidxsrc,widx,1:delaycount) = ...
+            thisresult.( thisfield );
+          winlagdata.([ thisfield 'single' ]) = scratch;
+        end
+
+      end
+
+      % Finished with this channel pair.
+
+    end
   end
 
 
@@ -358,6 +422,10 @@ for widx = 1:wincount
 
     end
   end
+
+
+  % Finished with this window.
+
 end
 
 
