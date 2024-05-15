@@ -323,7 +323,7 @@ for widx = 1:wincount
 
       % If we're spanning across trials, do that analysis here.
 
-      if want_spantrials && (~isempty(wavematrix_dest))
+      if want_spantrials && (~isempty(wavematrixdest))
 
         thisresult = analysis_func( ...
           wavematrixdest, wavematrixsrc, samprate, ...

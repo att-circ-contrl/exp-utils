@@ -11,9 +11,9 @@ function [ vstimelist vslaglist ] = euInfo_collapseTimeLagAverages( ...
 %
 % This tolerates NaN data.
 %
-% "timelagdata" is a data structure per TIMEWINLAGDATA.txt. This should
-%   contain "avg", "var", and "count" fields for the desired data field.
+% "timelagdata" is a data structure per TIMEWINLAGDATA.txt.
 % "datafield" is a character vector with the name of the field to average.
+%   If the specified field isn't found, "FOOavg" is also tested.
 % "timeranges_ms" is a cell array. Each cell specifies an analysis window
 %   time range [ min max ] in milliseconds to average across. A range of
 %   [] indicates all window times.
@@ -86,9 +86,14 @@ wincount = length(winlist);
 % Sanity-check the requested field, and extract it.
 
 if ~isfield( timelagdata, datafield )
-  disp([ '### [euInfo_collapseTimeLagAverages]  Can''t find field "' ...
-    datafield '".' ]);
-  return;
+  % Try falling back to "FOOavg".
+  if isfield( timelagdata, [ datafield 'avg' ] )
+    datafield = [ datafield 'avg' ];
+  else
+    disp([ '### [euInfo_collapseTimeLagAverages]  Can''t find field "' ...
+      datafield '".' ]);
+    return;
+  end
 end
 
 fieldavg = timelagdata.(datafield);
