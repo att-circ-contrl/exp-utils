@@ -7,7 +7,9 @@ function result = euInfo_helper_analyzeXCorr( ...
 % This is an analysis function, per TIMEWINLAGFUNCS.txt.
 %
 % This calculates cross-correlations between the supplied signals.
-% If multiple trials are supplied, the trials are concatenated.
+% If multiple trials are supplied, the trials are concatenated. A padding
+% window is applied during concatenation to prevent adjacent trials from
+% being cross-correlated with each other.
 %
 % "wavedest" and "wavesrc" are expected to contain real-valued waveform
 %   data. These may be 1 x Nsamples vectors or Ntrials x Nsamples matrices.
@@ -25,10 +27,32 @@ if isempty(wavedest) || isempty(wavesrc) || isempty(delaylist)
 end
 
 
-% If we were passed matrices, turn them into vectors.
+% Get geometry.
 
-wavedest = reshape( wavedest, 1, [] );
-wavesrc = reshape( wavesrc, 1, [] );
+if isrow(wavedest) || iscolumn(wavedest)
+  % We were given one-dimensional vectors. Make sure they're rows.
+  wavedest = reshape( wavedest, 1, [] );
+  wavesrc = reshape( wavesrc, 1, [] );
+end
+
+trialcount = size(wavedest,1);
+sampcount = size(wavedest,2);
+
+
+% Concatenate, with zero-padding to prevent shifted trials from overlapping.
+
+scratchdest = wavedest;
+scratchsrc = wavesrc;
+
+wavedest = [];
+wavesrc = [];
+
+padbuffer = zeros( 1, max(abs(delaylist)) );
+
+for tidx = 1:trialcount
+  wavedest = [ wavedest padbuffer scratchdest(tidx,:) padbuffer ];
+  wavesrc = [ wavesrc padbuffer scratchsrc(tidx,:) padbuffer ];
+end
 
 
 % NOTE - We have a list of lags to be tested, in samples.
@@ -37,11 +61,11 @@ wavesrc = reshape( wavesrc, 1, [] );
 % This works fine with a delay of 0.
 delaymax = max(abs(delaylist));
 delaystested = (-delaymax):delaymax;
+resultmask = ismember(delaystested, delaylist);
 
 rvals = xcorr( wavedest, wavesrc, delaymax, params.norm_method );
-
-resultmask = ismember(delaystested, delaylist);
 rvals = rvals(resultmask);
+
 
 result = struct();
 result.xcorr = rvals;

@@ -1,8 +1,8 @@
 function peakdata = euInfo_findTimeLagPeaks( ...
-  timelagdata, fieldname, timesmooth_ms, lagtarget_ms, method )
+  timelagdata, datafield, timesmooth_ms, lagtarget_ms, method )
 
 % function peakdata = euInfo_findTimeLagPeaks( ...
-%   timelagdata, fieldname, timesmooth_ms, lagtarget_ms, method )
+%   timelagdata, datafield, timesmooth_ms, lagtarget_ms, method )
 %
 % This examines time-and-lag analysis data and attempts to find the time lag
 % with the peak data value for each window time. The intention is to be
@@ -18,10 +18,9 @@ function peakdata = euInfo_findTimeLagPeaks( ...
 % NOTE - For now, this only works on data that has been averaged across
 % trials.
 %
-% "timelagdata" is a data structure per TIMEWINLAGDATA.txt. This should
-%   contain "avg", "var", and "count" fields for the desired data field.
-% "fieldname" is a character vector with the name prefix used to define the
-%   "avg" field being operated on.
+% "timelagdata" is a data structure per TIMEWINLAGDATA.txt.
+% "datafield" is a character vector with the name of the field being operated
+%   on.
 % "timesmooth_ms" is the window size for smoothing data along the window
 %   time axis, in milliseconds. Specify 0 or NaN to not smooth.
 % "lagtarget_ms" is a [ min max ] range for accepted time lags if using the
@@ -69,13 +68,13 @@ peakdata.peakamps = nan(destcount, srccount, wincount);
 %
 % Sanity-check the requested field, and extract the data.
 
-if ~isfield( timelagdata, [ fieldname 'avg' ] )
+if ~isfield( timelagdata, datafield )
   disp([ '### [euInfo_findTimeLagPeaks]  Can''t find field "' ...
-    fieldname '".' ]);
+    datafield '".' ]);
   return;
 end
 
-avgvals = timelagdata.([ fieldname 'avg' ]);
+avgvals = timelagdata.(datafield);
 
 
 %

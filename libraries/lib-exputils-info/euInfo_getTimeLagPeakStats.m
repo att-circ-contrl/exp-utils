@@ -1,9 +1,9 @@
 function [ ampmean ampdev lagmean lagdev ] = ...
-  euInfo_getTimeLagPeakStats( timelagdata, fieldname, ...
+  euInfo_getTimeLagPeakStats( timelagdata, datafield, ...
     timerange_ms, timesmooth_ms, magthresh, magacceptrange )
 
 % function [ ampmean ampdev lagmean lagdev ] = ...
-%   euInfo_getTimeLagPeakStats( timelagdata, fieldname, ...
+%   euInfo_getTimeLagPeakStats( timelagdata, datafield, ...
 %     timerange_ms, timesmooth_ms, magthresh, magacceptrange )
 %
 % This analyzes a time-and-lag analysis dataset, extracting the mean and
@@ -26,8 +26,8 @@ function [ ampmean ampdev lagmean lagdev ] = ...
 %
 % "timelagdata" is a data structure per TIMEWINLAGDATA.txt. This should
 %   contain "avg", "var", and "count" fields for the desired data field.
-% "fieldname" is a character vector with the name prefix used to define the
-%   "avg", "var", and "count" fields being operated on.
+% "datafield" is a character vector with the name of the field being
+%   operated on.
 % "timerange_ms" [ min max ] specifies a window time range in milliseconds
 %   to examine. A range of [] indicates all window times.
 % "timesmooth_ms" is the smoothing window size in milliseconds for smoothing
@@ -76,20 +76,20 @@ lagdev = NaN(destcount, srccount);
 
 % Sanity-check the requested field, and extract it.
 
-if ~isfield( timelagdata, [ fieldname 'avg' ] )
+if ~isfield( timelagdata, datafield )
   disp([ '### [euInfo_getTimeLagPeakStats]  Can''t find field "' ...
-    fieldname '".' ]);
+    datafield '".' ]);
   return;
 end
 
-avgdata = timelagdata.([ fieldname 'avg' ]);
+avgdata = timelagdata.(datafield);
 
 
 %
 % First pass: Do peak detection on the average (not time-varying).
 
 [ avgvstime avgvslag ] = euInfo_collapseTimeLagAverages( ...
-  timelagdata, [ fieldname 'avg' ], { timerange_ms }, [] );
+  timelagdata, datafield, { timerange_ms }, [] );
 
 guessamp = NaN(destcount, srccount);
 guesslagmin = NaN(destcount, srccount);
@@ -168,11 +168,10 @@ for destidx = 1:destcount
     thispairdata.delaylist_ms = laglist;
     thispairdata.windowlist_ms = winlist;
 
-    % NOTE - Only copying "FOOavg", not "FOOvar" or "FOOcount"!
-    thispairdata.([ fieldname 'avg' ]) = avgdata(destidx,srcidx,:,:);
+    thispairdata.(datafield) = avgdata(destidx,srcidx,:,:);
 
     peakdata = euInfo_findTimeLagPeaks( ...
-      thispairdata, fieldname, timesmooth_ms, lagrange, 'largest' );
+      thispairdata, datafield, timesmooth_ms, lagrange, 'largest' );
 
 
     % Mask the search data and compute statistics.
