@@ -89,94 +89,15 @@ end
 % Proceed with the analysis.
 
 if want_phase
-
   midata = euInfo_doTimeAndLagAnalysis( ...
     ftdata_dest, ftdata_src, win_params, flags, ...
     {}, @euInfo_helper_analyzeMutual, analysis_params, ...
     { 'detrend', 'angle' }, @euInfo_helper_filterPhase, phase_params );
-
 else
-
-% FIXME - Compare with entropy library FT function.
-if true
   midata = euInfo_doTimeAndLagAnalysis( ...
     ftdata_dest, ftdata_src, win_params, flags, ...
     {}, @euInfo_helper_analyzeMutual, analysis_params, ...
     {}, @euInfo_helper_filterNone, struct() );
-else
-  % Entropy library kludge.
-  % FIXME - No trialwise output and no variance!
-% FIXME - Diagnostics.
-disp('xx Computing mutual information spanning trials by hand.');
-
-  samprate = 1 / mean(diff( ftdata_dest.time{1} ));
-
-  delaylist_samps = euInfo_helper_getDelaySamps( ...
-    samprate, win_params.delay_range_ms, win_params.delay_step_ms );
-  delaylist_ms = 1000 * delaylist_samps / samprate;
-
-  delaycount = length(delaylist_samps);
-
-  winranges_dest = euInfo_helper_getWindowSamps ( samprate, ...
-    win_params.time_window_ms, win_params.timelist_ms, ftdata_dest.time );
-  winranges_src = euInfo_helper_getWindowSamps ( samprate, ...
-    win_params.time_window_ms, win_params.timelist_ms, ftdata_src.time );
-
-  chancount_dest = length(ftdata_dest.label);
-  chancount_src = length(ftdata_src.label);
-
-  wincount = length(win_params.timelist_ms);
-
-  binlist = [ analysis_params.bins_dest, analysis_params.bins_src ];
-
-  mimatrix = nan(chancount_dest, chancount_src, wincount, delaycount);
-
-  % FIXME - This really is just duplicating a lot of doTimeAndLag.
-  for cidxdest = 1:chancount_dest
-    datadest = cEn_ftHelperChannelToMatrix( ftdata_dest, cidxdest );
-
-    for cidxsrc = 1:chancount_src
-
-      datasrc = cEn_ftHelperChannelToMatrix( ftdata_src, cidxsrc );
-
-      for widx = 1:wincount
-
-        % FIXME - Blithely assume that trial 1's mask works for all trials.
-        datalist = ...
-          [ { datadest(:,winranges_dest{1,widx}) }, ...
-            { datasrc(:,winranges_src{1,widx}) } ];
-
-        if analysis_params.want_extrap
-          milist = cEn_calcLaggedMutualInfo( ...
-            datalist, delaylist_samps, binlist, exparams );
-        else
-          milist = cEn_calcLaggedMutualInfo( ...
-            datalist, delaylist_samps, binlist );
-        end
-
-        mimatrix(cidxdest, cidxsrc, widx, :) = milist;
-
-      end
-
-    end
-
-  end
-
-  midata = struct();
-  midata.destchans = ftdata_dest.label;
-  midata.srcchans = ftdata_src.label;
-  midata.delaylist_ms = delaylist_ms;
-  midata.windowlist_ms = win_params.timelist_ms;
-  midata.windowsize_ms = win_params.time_window_ms;
-
-  midata.mutualavg = mimatrix;
-  midata.mutualcount = ones(size(mimatrix));
-  midata.mutualvar = zeros(size(mimatrix));
-  nanmask = isnan(mimatrix);
-  midata.mutualcount(nanmask) = 0;
-  midata.mutualvar(nanmask) = nan;
-end
-
 end
 
 

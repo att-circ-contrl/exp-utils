@@ -32,63 +32,69 @@ if isempty(wavedest) || isempty(wavesrc) || isempty(delaylist)
 end
 
 
-% FIXME - Matrix support NYI.
+% Get geometry.
+
+if isrow(wavedest) || iscolumn(wavedest)
+  % We were given one-dimensional vectors. Make sure they're rows.
+  wavedest = reshape( wavedest, 1, [] );
+  wavesrc = reshape( wavesrc, 1, [] );
+end
+
+trialcount = size(wavedest,1);
+sampcount = size(wavedest,2);
 
 
-  % Package the data.
+% Get histogram bins.
+% To handle the discrete case, always generate bins here and pass them
+% via cell array.
+% This handles matrix data without trouble.
 
-  if ~isrow(wavedest)
-    wavedest = transpose(wavedest);
-  end
-  if ~isrow(wavesrc)
-    wavesrc = transpose(wavesrc);
-  end
+binlist = {};
 
-  scratchdata = [ wavedest ; wavesrc ];
+if params.discrete_dest
+  binlist{1} = cEn_getHistBinsDiscrete( wavedest );
+else
+  binlist{1} = cEn_getHistBinsEqPop( wavedest, params.bins_dest );
+end
+
+if params.discrete_src
+  binlist{2} = cEn_getHistBinsDiscrete( wavesrc );
+else
+  binlist{2} = cEn_getHistBinsEqPop( wavesrc, params.bins_src );
+end
 
 
-  % Get histogram bins.
-  % To handle the discrete case, always generate bins here and pass them
-  % via cell array.
+% Package the data.
 
-  binlist = {};
+scratchdata = { wavedest, wavesrc };
 
-  if params.discrete_dest
-    binlist{1} = cEn_getHistBinsDiscrete( wavedest );
+
+% Calculate time-lagged mututal information.
+
+if params.want_parallel
+  if params.want_extrap
+    mvals = cEn_calcLaggedMutualInfo_MT( scratchdata, delaylist, binlist, ...
+      params.extrap_config );
   else
-    binlist{1} = cEn_getHistBinsEqPop( wavedest, params.bins_dest );
+    mvals = cEn_calcLaggedMutualInfo_MT( scratchdata, delaylist, binlist );
   end
-
-  if params.discrete_src
-    binlist{2} = cEn_getHistBinsDiscrete( wavesrc );
+else
+  if params.want_extrap
+    mvals = cEn_calcLaggedMutualInfo( scratchdata, delaylist, binlist, ...
+      params.extrap_config );
   else
-    binlist{2} = cEn_getHistBinsEqPop( wavesrc, params.bins_src );
+    mvals = cEn_calcLaggedMutualInfo( scratchdata, delaylist, binlist );
   end
+end
 
 
-  % Calculate time-lagged mututal information.
+% Store this in an appropriately-named field.
 
-  if params.want_parallel
-    if params.want_extrap
-      mvals = cEn_calcLaggedMutualInfo_MT( scratchdata, delaylist, binlist, ...
-        params.extrap_config );
-    else
-      mvals = cEn_calcLaggedMutualInfo_MT( scratchdata, delaylist, binlist );
-    end
-  else
-    if params.want_extrap
-      mvals = cEn_calcLaggedMutualInfo( scratchdata, delaylist, binlist, ...
-        params.extrap_config );
-    else
-      mvals = cEn_calcLaggedMutualInfo( scratchdata, delaylist, binlist );
-    end
-  end
+result = struct();
+result.mutual = mvals;
 
 
-  % Store this in an appropriately-named field.
-  result = struct();
-  result.mutual = mvals;
-
+% Done.
 end
 
 
