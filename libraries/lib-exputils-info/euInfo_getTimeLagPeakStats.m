@@ -89,7 +89,7 @@ avgdata = timelagdata.([ fieldname 'avg' ]);
 % First pass: Do peak detection on the average (not time-varying).
 
 [ avgvstime avgvslag ] = euInfo_collapseTimeLagAverages( ...
-  timelagdata, fieldname, { timerange_ms }, [] );
+  timelagdata, [ fieldname 'avg' ], { timerange_ms }, [] );
 
 guessamp = NaN(destcount, srccount);
 guesslagmin = NaN(destcount, srccount);

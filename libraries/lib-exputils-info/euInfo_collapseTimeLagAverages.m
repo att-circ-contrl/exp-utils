@@ -1,8 +1,8 @@
 function [ vstimelist vslaglist ] = euInfo_collapseTimeLagAverages( ...
-  timelagdata, fieldname, timeranges_ms, lagranges_ms )
+  timelagdata, datafield, timeranges_ms, lagranges_ms )
 
 % function [ vstimelist vslaglist ] = euInfo_collapseTimeLagAverages( ...
-%   timelagdata, fieldname, timeranges_ms, lagranges_ms )
+%   timelagdata, datafield, timeranges_ms, lagranges_ms )
 %
 % This collapses time-and-lag analysis data by averaging across time lags
 % (producing "vs window time") and by averaging across window time (producing
@@ -13,8 +13,7 @@ function [ vstimelist vslaglist ] = euInfo_collapseTimeLagAverages( ...
 %
 % "timelagdata" is a data structure per TIMEWINLAGDATA.txt. This should
 %   contain "avg", "var", and "count" fields for the desired data field.
-% "fieldname" is a character vector with the name prefix used to define the
-%   "avg", "var", and "count" fields being operated on.
+% "datafield" is a character vector with the name of the field to average.
 % "timeranges_ms" is a cell array. Each cell specifies an analysis window
 %   time range [ min max ] in milliseconds to average across. A range of
 %   [] indicates all window times.
@@ -86,14 +85,13 @@ wincount = length(winlist);
 %
 % Sanity-check the requested field, and extract it.
 
-if ~isfield( timelagdata, [ fieldname 'avg' ] )
+if ~isfield( timelagdata, datafield )
   disp([ '### [euInfo_collapseTimeLagAverages]  Can''t find field "' ...
-    fieldname '".' ]);
+    datafield '".' ]);
   return;
 end
 
-fieldavg = timelagdata.([ fieldname 'avg' ]);
-% FIXME - Ignoring "FOOvar" and "FOOcount"!
+fieldavg = timelagdata.(datafield);
 
 
 

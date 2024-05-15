@@ -1,17 +1,17 @@
 function newdata = euInfo_smoothTimeLagAverages( ...
-  olddata, fieldnames, timesmooth_ms, lagsmooth_ms, method );
+  olddata, datafields, timesmooth_ms, lagsmooth_ms, method );
 
 % function newdata = euInfo_smoothTimeLagAverages( ...
-%   olddata, fieldnames, timesmooth_ms, lagsmooth_ms, method );
+%   olddata, datafields, timesmooth_ms, lagsmooth_ms, method );
 %
 % This function smooths time-and-lag analysis data and optionally re-bins it
 % using coarser bins. This operates on data that has already been averaged
-% across trials.
+% across trials or spanned across trials.
 %
-% "olddata" is a data structure per TIMEWINLAGDATA.txt. This should contain
-%   "avg", "var", and "count" fields for the desired data fields.
-% "fieldnames" is a cell array containing field name prefixes used to define
-%   the "avg", "var", and "count" fields being operated on.
+% "olddata" is a data structure per TIMEWINLAGDATA.txt.
+% "datafields" is a cell array containing the field names in "olddata" to
+%   operate on. For each field name "FOO", if "FOOavg", "FOOvar", and
+%   "FOOcount" exist, they're used. Otherwise, "FOO" itself is used.
 % "timesmooth_ms" is the smoothing/binning window size for window times, in
 %   milliseconds. Specify NaN to not smooth window times.
 % "lagsmooth_ms" is the smoothing/binning window size for correlation time
@@ -70,35 +70,41 @@ newwindowcount = length(windowlist_new);
 
 
 %
+% Figure out which fields are avg/var/count tuples and which aren't.
+
+
+
 % Sanity-check the field list.
 
-newfields = {};
-for fidx = 1:length(fieldnames)
-  thisfield = fieldnames{fidx};
+scratchfields = datafields;
+datafields = {};
+have_avg = false([]);
+
+for fidx = 1:length(scratchfields)
+  thisfield = scratchfields{fidx};
 
   if isfield( olddata, [ thisfield 'avg' ] ) ...
     && isfield( olddata, [ thisfield 'var' ] ) ...
     && isfield( olddata, [ thisfield 'count' ] )
-    newfields = [ newfields { thisfield } ];
+    have_avg = [ have_avg true ];
+    datafields = [ datafields { thisfield } ];
+  elseif isfield( olddata, thisfield )
+    have_avg = [ have_avg false ];
+    datafields = [ datafields { thisfield } ];
   else
     disp([ '### [euInfo_smoothTimeLagAverages]  Can''t find field "' ...
       thisfield '".' ]);
   end
 end
-fieldnames = newfields;
 
 
 
 %
 % Build the new data arrays.
 
-for fidx = 1:length(fieldnames)
+for fidx = 1:length(datafields)
 
-  thisfield = fieldnames{fidx};
-
-  fieldavg = olddata.([ thisfield 'avg' ]);
-  fieldcount = olddata.([ thisfield 'count' ]);
-  fieldvar = olddata.([ thisfield 'var' ]);
+  thisfield = datafields{fidx};
 
   newavg = zeros([ destcount srccount newwindowcount newdelaycount ]);
   newvar = zeros(size(newavg));
@@ -110,36 +116,13 @@ for fidx = 1:length(fieldnames)
       thisdelaysrclist = delaysources{didxnew};
       thiswindowsrclist = windowsources{widxnew};
 
-      thisavg = zeros([ destcount srccount ]);
-      thisvar = zeros(size(thisavg));
-      thiscount = zeros(size(thisavg));
-
-      for didxsrc = 1:length(thisdelaysrclist)
-        for widxsrc = 1:length(thiswindowsrclist)
-
-          didxold = thisdelaysrclist(didxsrc);
-          widxold = thiswindowsrclist(widxsrc);
-
-          % These are (destidx,srcidx) matrices, not scalars.
-
-          oldavg = fieldavg(:,:,widxold,didxold);
-          oldcount = fieldcount(:,:,widxold,didxold);
-          oldvar = fieldvar(:,:,widxold,didxold);
-
-          validmask = (~isnan(oldavg)) & (oldcount > 0);
-
-          thisavg(validmask) = thisavg(validmask) ...
-            + ( oldavg(validmask) .* oldcount(validmask) );
-          thisvar(validmask) = thisvar(validmask) ...
-            + ( oldvar(validmask) .* oldcount(validmask) );
-          thiscount(validmask) = thiscount(validmask) + oldcount(validmask);
-
-        end
+      if have_avg(fidx)
+        [ thisavg thisvar thiscount ] = helper_averageWithStats( ...
+          olddata, thisfield, thisdelaysrclist, thiswindowsrclist );
+      else
+        [ thisavg thisvar thiscount ] = helper_averageBlind( ...
+          olddata, thisfield, thisdelaysrclist, thiswindowsrclist );
       end
-
-      % Anything with a count of 0 gets turned into NaN, which is fine.
-      thisavg = thisavg ./ thiscount;
-      thisvar = thisvar ./ thiscount;
 
       newavg(:,:,widxnew,didxnew) = thisavg;
       newvar(:,:,widxnew,didxnew) = thisvar;
@@ -210,6 +193,122 @@ function [ mapsources newlist ] = ...
 
     end
   end
+
+end
+
+
+
+% This fetches "FOOavg", "FOOvar", and "FOOcount" within a region and
+% produces average/variance/count values derived from these.
+
+function [ thisavg thisvar thiscount ] = helper_averageWithStats( ...
+  olddata, thisfield, thisdelaysrclist, thiswindowsrclist )
+
+  destcount = length(olddata.destchans);
+  srccount = length(olddata.srcchans);
+
+  thisavg = zeros([ destcount srccount ]);
+  thisvar = zeros(size(thisavg));
+  thiscount = zeros(size(thisavg));
+
+  fieldavg = olddata.([ thisfield 'avg' ]);
+  fieldcount = olddata.([ thisfield 'count' ]);
+  fieldvar = olddata.([ thisfield 'var' ]);
+
+  for didxsrc = 1:length(thisdelaysrclist)
+    for widxsrc = 1:length(thiswindowsrclist)
+
+      didxold = thisdelaysrclist(didxsrc);
+      widxold = thiswindowsrclist(widxsrc);
+
+      % These are (destidx,srcidx) matrices, not scalars.
+
+      oldavg = fieldavg(:,:,widxold,didxold);
+      oldcount = fieldcount(:,:,widxold,didxold);
+      oldvar = fieldvar(:,:,widxold,didxold);
+
+      validmask = (~isnan(oldavg)) & (oldcount > 0);
+
+      thisavg(validmask) = thisavg(validmask) ...
+        + ( oldavg(validmask) .* oldcount(validmask) );
+      thisvar(validmask) = thisvar(validmask) ...
+        + ( oldvar(validmask) .* oldcount(validmask) );
+      thiscount(validmask) = thiscount(validmask) + oldcount(validmask);
+
+    end
+  end
+
+  % Anything with a count of 0 gets turned into NaN, which is fine.
+  thisavg = thisavg ./ thiscount;
+  thisvar = thisvar ./ thiscount;
+
+end
+
+
+
+% This fetches raw data values within a region and produces
+% average/variance/count values derived from them.
+
+function [ thisavg thisvar thiscount ] = helper_averageBlind( ...
+  olddata, thisfield, thisdelaysrclist, thiswindowsrclist )
+
+  destcount = length(olddata.destchans);
+  srccount = length(olddata.srcchans);
+
+  thisavg = zeros([ destcount srccount ]);
+  thisvar = zeros(size(thisavg));
+  thiscount = zeros(size(thisavg));
+
+  fielddata = olddata.(thisfield);
+
+
+  % First pass: Get average and count.
+
+  for didxsrc = 1:length(thisdelaysrclist)
+    for widxsrc = 1:length(thiswindowsrclist)
+
+      didxold = thisdelaysrclist(didxsrc);
+      widxold = thiswindowsrclist(widxsrc);
+
+      % These are (destidx,srcidx) matrices, not scalars.
+
+      olddata = fielddata(:,:,widxold,didxold);
+
+      validmask = (~isnan(olddata));
+
+      thisavg(validmask) = thisavg(validmask) + olddata(validmask);
+      thiscount = thiscount + validmask;
+
+    end
+  end
+
+  % Anything with a count of 0 gets turned into NaN, which is fine.
+  thisavg = thisavg ./ thiscount;
+
+
+  % Second pass: Get the variance.
+
+  for didxsrc = 1:length(thisdelaysrclist)
+    for widxsrc = 1:length(thiswindowsrclist)
+
+      didxold = thisdelaysrclist(didxsrc);
+      widxold = thiswindowsrclist(widxsrc);
+
+      % These are (destidx,srcidx) matrices, not scalars.
+
+      olddata = fielddata(:,:,widxold,didxold);
+
+      validmask = (~isnan(olddata));
+
+      olddata = olddata - thisavg;
+      olddata = olddata .* olddata;
+      thisvar(validmask) = thisvar(validmask) + olddata(validmask);
+
+    end
+  end
+
+  % Anything with a count of 0 gets turned into NaN, which is fine.
+  thisvar = thisvar ./ thiscount;
 
 end
 

@@ -10,7 +10,7 @@ function result = euInfo_helper_analyzeXCorr( ...
 % If multiple trials are supplied, the trials are concatenated.
 %
 % "wavedest" and "wavesrc" are expected to contain real-valued waveform
-%   data.
+%   data. These may be 1 x Nsamples vectors or Ntrials x Nsamples matrices.
 % "params" contains the following fields:
 %   "norm_method" is the normalization method to pass to "xcorr". This is
 %   typically 'unbiased' (to normalize by sample count) or 'coeff' (to

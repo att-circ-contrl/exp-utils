@@ -9,8 +9,10 @@ function result = euInfo_helper_analyzeMutual( ...
 % This calculates time-lagged mutual information between the supplied
 % signals. If multiple trials are supplied, the trials are concatenated.
 %
-% "wavedest" and "wavesrc" are expected to contain waveform or trial data
-%   that's either continuous real-valued or discrete-valued.
+% "wavedest" and "wavesrc" are expected to contain data that's either
+%   continuous real-valued (such as ephys data) or discrete-valued (such as
+%   task state data). These may be 1 x Nsamples vectors or Ntrials x Nsamples
+%   matrices.
 % "params" contains the following fields:
 %   "discrete_dest" and "discrete_src" indicate whether the destination
 %     and source channels are discrete (auto-binned if so).
