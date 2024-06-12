@@ -106,6 +106,8 @@ for destidx = 1:destcount
 
     if ~isnan(bestidx)
       % Threshold around the peak to get the accepted lag range.
+      % Note that "thisdata" and "thisamp" are both signed; the division
+      % makes "normamp" positive no matter what the peak's sign was.
 
       thisamp = thisdata(bestidx);
       normamp = thisdata / thisamp;
