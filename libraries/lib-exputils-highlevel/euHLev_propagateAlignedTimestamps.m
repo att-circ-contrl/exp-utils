@@ -17,7 +17,7 @@ function [ newboxevents newgameevents newttlevents newgameframedata ...
 % aligned (or were absent).
 %
 % "timetables" is a structure containing several tables whose rows contain
-%   corresponding timestamps from different devices:
+%   corresponding timestamps from different devices (per TIMETABLES.txt):
 %   "record_synchbox" associates 'synchBoxTime' and 'recTime'.
 %   "record_game" associates 'unityTime' and 'recTime'.
 %   "record_stim" associates 'recTime' and 'stimTime'.

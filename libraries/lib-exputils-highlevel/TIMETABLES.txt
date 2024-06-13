@@ -1,0 +1,17 @@
+A time alignment structure ("time tables structure") is a structure
+containing several time alignment tables, used by high-level time alignment
+functions.
+
+Each table contains timestamp tuples showing corresponding times between
+two or more devices.
+
+The following tables are present (as empty tables if time alignment couldn't
+be performed for the associated devices):
+
+  "record_synchbox" associates 'synchBoxTime' and 'recTime'.
+  "record_game" associates 'unityTime' and 'recTime'.
+  "record_stim" associates 'recTime' and 'stimTime'.
+  "game_eye" associates 'unityTime' and 'eyeTime'.
+
+
+(This is the end of the file.)

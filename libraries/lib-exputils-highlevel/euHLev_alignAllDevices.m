@@ -25,7 +25,8 @@ function timetables = euHLev_alignAllDevices( ...
 % "gameframedata" is a FrameData data table.
 %
 % "timetables" is a structure containing several tables with corresponding
-%   time tuples (empty tables if alignment couldn't be performed):
+%   time tuples (empty tables if alignment couldn't be performed), per
+%   TIMETABLES.txt:
 %   "record_synchbox" associates 'synchBoxTime' and 'recTime'.
 %   "record_game" associates 'unityTime' and 'recTime'.
 %   "record_stim" associates 'recTime' and 'stimTime'.
