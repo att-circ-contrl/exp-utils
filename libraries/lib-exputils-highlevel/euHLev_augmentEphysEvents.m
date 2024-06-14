@@ -1,12 +1,12 @@
 function newdevstruct = euHLev_augmentEphysEvents( olddevstruct, ...
-  boxevents, folder_openephys, folder_intanrec, folder_intanstim )
+  boxevents, addttl, folder_openephys, folder_intanrec, folder_intanstim )
 
 % function newdevstruct = euHLev_augmentEphysEvents( olddevstruct, ...
-%   boxevents, folder_openephys, folder_intanrec, folder_intanstim )
+%   boxevents, addttl, folder_openephys, folder_intanrec, folder_intanstim )
 %
 % This does two things: Adds missing events that were sent but not detected
-% to the ephys device event lists, and adds pseudo event codes to the list
-% of recorded codes for TTL reward and synch pulses.
+% to the ephys device event lists, and optionally adds pseudo event codes to
+% the list of recorded codes for TTL reward and synch pulses.
 %
 % This is a wrapper for euAlign_copyMissingEventTables() and
 % euFT_addTTLEventsAsCodes().
@@ -21,6 +21,7 @@ function newdevstruct = euHLev_augmentEphysEvents( olddevstruct, ...
 %   "intanrec" contains event tables from the Intan recording controller.
 %   "intanstim" contains event tables from the Intan stimulation controller.
 % "boxevents" is a structure containing SynchBox event data tables.
+% "addttl" is true to add TTL events to the event code list, false otherwise.
 % "folder_openephys" is the location of the Open Ephys data.
 % "folder_intanrec" is the location of the Intan recording controller data.
 % "folder_instanstim" is the location of the Intan stim controller data.
@@ -100,21 +101,23 @@ for devidx = 1:length(devmeta)
 
   % Iterate through TTL event channels, adding them as event codes.
 
-  if ~isfield( evtables, 'cookedcodes' )
-    disp([ '###  No "cookedcodes" event table in device "' ...
-      thisdev.label '"!' ]);
-  else
+  if addttl
+    if ~isfield( evtables, 'cookedcodes' )
+      disp([ '###  No "cookedcodes" event table in device "' ...
+        thisdev.label '"!' ]);
+    else
 
-    for ttlidx = 1:length(ttlmeta)
-      thissig = ttlmeta(ttlidx);
+      for ttlidx = 1:length(ttlmeta)
+        thissig = ttlmeta(ttlidx);
 
-      if isfield( evtables, thissig.label )
-        evtables.cookedcodes = euFT_addTTLEventsAsCodes( ...
-          evtables.cookedcodes, evtables.(thissig.label), ...
-          thisdev.timecolumn, 'codeLabel', thissig.code );
+        if isfield( evtables, thissig.label )
+          evtables.cookedcodes = euFT_addTTLEventsAsCodes( ...
+            evtables.cookedcodes, evtables.(thissig.label), ...
+            thisdev.timecolumn, 'codeLabel', thissig.code );
+        end
       end
-    end
 
+    end
   end
 
 

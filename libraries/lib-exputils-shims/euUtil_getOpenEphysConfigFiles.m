@@ -4,7 +4,7 @@ function [ configfiles mapfiles ] = euUtil_getOpenEphysConfigFiles( topdir )
 
 disp('.. Deprecated function; call euMeta_getOpenEphysConfigFiles().');
 
-[ configfiles mapfiles ] = euMeta_getOpenEphysconfigFiles(topdir);
+[ configfiles mapfiles ] = euMeta_getOpenEphysConfigFiles(topdir);
 
 end
 
