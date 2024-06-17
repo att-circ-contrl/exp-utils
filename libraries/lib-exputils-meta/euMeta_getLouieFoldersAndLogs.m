@@ -17,14 +17,16 @@ function sessionlist = ...
 % "sessionlist" is structure array, with the following fields (per
 %   SESSIONMETA.txt):
 %   "logdata" is a record structure from Louie's log file.
-%   "folders_openephys" is a cell array of Open Ephys data folder names.
+%   "folder_session" is a character vector with the session's top-level path.
+%   "folders_openephys" is a cell array of Open Ephys data folder paths.
 %   "folders_intanrec" is a cell array of Intan recording controller folders.
 %   "folders_intanstim" is a cell array of Intan stim controller folders.
-%   "folders_game" is a cell array of game data folder name.
+%   "folders_game" is a cell array of game data folder paths.
 
 
 % Make an empty structure array with the correct fields.
-sessionlist = struct( 'logdata', {}, 'folders_openephys', {}, ...
+sessionlist = struct( ...
+  'logdata', {}, 'folder_session', {}, 'folders_openephys', {}, ...
   'folders_intanrec', {}, 'folders_intanstim', {}, 'folders_game', {} );
 
 
@@ -113,6 +115,8 @@ for oidx = 1:length(ownerlist)
   thisrec = struct();
   thisrec.logdata = raw_logs(thisowner);
 
+  thisrec.folder_session = '';
+
   thismask = (owners_openephys == thisowner);
   thisrec.folders_openephys = raw_openephys(thismask);
 
@@ -126,6 +130,46 @@ for oidx = 1:length(ownerlist)
   thisrec.folders_game = raw_game(thismask);
 
   sessionlist(oidx) = thisrec;
+end
+
+
+
+% Back-annotate session folders.
+
+for sidx = 1:length(sessionlist)
+  thisrec = sessionlist(sidx);
+
+  allfolders = [ reshape( thisrec.folders_openephys, 1, [] ) ...
+    reshape( thisrec.folders_intanrec, 1, [] ), ...
+    reshape( thisrec.folders_intanstim, 1, [] ) ];
+
+  thisdataset = thisrec.logdata.dataset;
+  thisidx = find( contains( allfolders, thisdataset ) );
+
+  if isempty(thisidx)
+    % FIXME - This shouldn't happen.
+    % The only entries in the session list were ones where at least one
+    % folder associated with a dataset was found.
+    disp([ '#  Can''t find top-level session folder for "' thisdataset '".' ]);
+  else
+    % Pick the first matching folder.
+    thispath = allfolders{ thisidx(1) };
+
+    % Look for the prefix up to and including the top-level folder.
+    thisidx = strfind(thispath, thisdataset);
+    if isempty(thisidx)
+      % FIXME - This _really_ shouldn't happen (logic error).
+      disp('#  Logic error searching for session folder within path.');
+    else
+      % Handle multiple matches within the path.
+      thisidx = thisidx(1);
+
+      % This may be empty, and includes the file separator if present.
+      thisprefix = thispath(1:(thisidx-1));
+
+      sessionlist(sidx).folder_session = [ thisprefix thisdataset ];
+    end
+  end
 end
 
 
