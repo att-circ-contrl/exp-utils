@@ -32,6 +32,9 @@ chanmap = struct([]);
 % Get filenames.
 [ configfiles mapfiles ] = euMeta_getOpenEphysConfigFiles(inputfolder);
 
+% Keep a record of the file that we used, for debugging purposes.
+chosenfile = '';
+
 
 % Our first choice is to use a JSON file.
 
@@ -45,6 +48,7 @@ for fidx = 1:length(mapfiles)
 
     if ~isempty(json_map)
       chanmap = json_map(1);
+      chosenfile = thisfile;
     end
   end
 end
@@ -67,11 +71,14 @@ for fidx = 1:length(configfiles)
       xml_map = nlOpenE_parseChannelMapXML_v5(xml_struct);
       if ~isempty(xml_map)
         chanmap = xml_map(1);
+        chosenfile = thisfile;
       end
     end
   end
 end
 
+% FIXME - Diagnostics.
+%disp([ 'xxx  Used OE channel map from:  ' chosenfile ]);
 
 % Done.
 
