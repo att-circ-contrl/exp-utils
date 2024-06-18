@@ -20,9 +20,9 @@ function [ pertrialtabs alltrialtab ] = ...
 % "valuefield" is the name of the table column that has code data values.
 %   This is ignored if bad trials aren't being filtered.
 % "discardbad" is true if bad trials are to be discarded and false otherwise.
-%   It can alternatively be a character vector: 'keepall' to not discard,
-%   'strict' to discard trials that it isn't sure about (the trial at the
-%   end of a block), and 'forgiving' to keep those trials.
+%   It can alternatively be a character vector: 'keep' or 'keepall' to not
+%   discard, 'strict' to discard trials that it isn't sure about (the trial
+%   at the end of a block), and 'forgiving' to keep those trials.
 %
 % "pertrialtabs" is a cell array containing event code sequence tables for
 %   each trial.
