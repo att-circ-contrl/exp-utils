@@ -59,6 +59,26 @@ desiredmeta = struct( 'trialnum', 'TrialNumber', 'trialindex', 'TrialIndex' );
 
 
 
+% Discard trials that are outside the range of times that were recorded.
+% FIXME - Blithely assuming a continuous recording!
+
+sampcount = fthdr.nSamples;
+trialcount = height(trltab);
+keepmask = false([ trialcount, 1 ]);
+
+for tidx = 1:trialcount
+  thisstart = trl(tidx,1);
+  thisend = trl(tidx,2);
+  % FIXME - Not sure if one- or zero-based, so assume the worst for each.
+  % (0..nsamp-1) vs (1..nsamp).
+  keepmask(tidx) = (thisstart > 0) & (thisend < sampcount);
+end
+
+trl = trl(keepmask,:);
+trltab = trltab(keepmask,:);
+
+
+
 % FIXME - Modify the list of codes by trial to match the list of trials.
 % These can be different if there were trials where the alignment code
 % wasn't found (those trials would have been discarded).
