@@ -20,6 +20,9 @@ function [ pertrialtabs alltrialtab ] = ...
 % "valuefield" is the name of the table column that has code data values.
 %   This is ignored if bad trials aren't being filtered.
 % "discardbad" is true if bad trials are to be discarded and false otherwise.
+%   It can alternatively be a character vector: 'keepall' to not discard,
+%   'strict' to discard trials that it isn't sure about (the trial at the
+%   end of a block), and 'forgiving' to keep those trials.
 %
 % "pertrialtabs" is a cell array containing event code sequence tables for
 %   each trial.
@@ -31,6 +34,19 @@ function [ pertrialtabs alltrialtab ] = ...
 
 pertrialtabs = {};
 alltrialtab = table();
+
+
+% Translate the discard policy.
+
+wantforgiving = false;
+
+if ~islogical(discardbad)
+  % Identify the "forgiving" case.
+  wantforgiving = strcmp('forgiving', discardbad);
+
+  % Turn this into a boolean flag.
+  discardbad = ~( strcmp('keep', discardbad) | strcmp('keepall', discardbad) );
+end
 
 
 %
@@ -79,7 +95,8 @@ if discardbad
   % NOTE - We're always discarding the last trial, since we can't tell if
   % the trial number was incremented after it or not.
 
-  for tidx = 2:length(pertrialtabs)
+  trialcount = length(pertrialtabs);
+  for tidx = 2:trialcount
     prevtable = pertrialtabs{tidx-1};
     thistable = pertrialtabs{tidx};
 
@@ -94,6 +111,12 @@ if discardbad
         keeplist(keepcount) = tidx-1;
       end
     end
+  end
+
+  % Add the last trial if "forgiving" mode is requested.
+  if wantforgiving
+    keepcount = keepcount + 1;
+    keeplist(keepcount) = trialcount;
   end
 
   pertrialtabs = pertrialtabs(keeplist);
