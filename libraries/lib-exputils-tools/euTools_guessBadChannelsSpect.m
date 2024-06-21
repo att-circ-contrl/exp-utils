@@ -1,17 +1,19 @@
 function [ actualconfig chanlabels changoodvec ...
   spectpower tonepower pcacoords ...
   spectclusters toneclusters pcaclusters ] = ...
-  euTools_guessBadChannelsSpect( checkfolder, checkchans, config )
+  euTools_guessBadChannelsSpect( checkdata, checkchans, config )
 
 % function [ actualconfig chanlabels changoodvec ...
 %   spectpower tonepower pcacoords ...
 %   spectclusters toneclusters pcaclusters ] = ...
-%   euTools_guessBadChannelsSpect( checkfolder, checkchans, config )
+%   euTools_guessBadChannelsSpect( checkdata, checkchans, config )
 %
 % This attempts to identify bad channels within ephys data by looking for
 % channels with abnormal spectra compared to the group as a whole.
 %
-% "checkfolder" is the folder to read ephys data from (via Field Trip hooks).
+% "checkdata" is either a ft_datatype_raw structure with Field Trip ephys
+%   data, or a character vector specifying the folder to read ephys data
+%   from (via Field Trip hooks).
 % "checkchans" is a cell array containing the names of channels to read.
 %   This can contain ft_channelselection patterns. If this is empty, all
 %   channels are read.
@@ -123,46 +125,129 @@ pcaclusters = [];
 % Read the input data.
 
 
-% NOTE - If FT runs into a problem, it'll throw an exception.
-% The caller had better be prepared to catch that.
+if ischar(checkdata)
 
-thisheader = ft_read_header( checkfolder, 'headerformat', 'nlFT_readHeader' );
+  % We were given a folder to read data from; do so.
 
-chancount = thisheader.nChans;
-sampcount = thisheader.nSamples;
-samprate = thisheader.Fs;
+  % NOTE - If FT runs into a problem, it'll throw an exception.
+  % The caller had better be prepared to catch that.
 
-firstsamp = round(config.timestart * samprate);
-lastsamp = firstsamp + round(config.duration * samprate);
+  thisheader = ft_read_header( checkdata, 'headerformat', 'nlFT_readHeader' );
 
-% Clamp to the actual range.
-lastsamp = min(lastsamp, sampcount);
-firstsamp = min(firstsamp, lastsamp);
+  chancount = thisheader.nChans;
+  sampcount = thisheader.nSamples;
+  samprate = thisheader.Fs;
 
-if isempty(checkchans)
-  chanlist = thisheader.label;
+  firstsamp = round(config.timestart * samprate);
+  lastsamp = firstsamp + round(config.duration * samprate);
+
+  % Clamp to the actual range.
+  lastsamp = min(lastsamp, sampcount);
+  firstsamp = min(firstsamp, lastsamp);
+
+  if isempty(checkchans)
+    chanlist = thisheader.label;
+  else
+    chanlist = ft_channelselection( checkchans, thisheader.label, {} );
+  end
+
+  % We need at least one channel to proceed.
+  if isempty(chanlist)
+    disp(sprintf( [ '### [euTools_guessBadChannelsSpect]  ' ...
+      'Selected 0 channels (of %d in data)!' ], length(thisheader.label) ));
+    % Bail out.
+    return;
+  end
+
+  preproc_config = struct( ...
+    'headerfile', checkdata, 'headerformat', 'nlFT_readHeader', ...
+    'datafile', checkdata, 'dataformat', 'nlFT_readDataNative', ...
+    'channel', { chanlist }, 'trl', [ firstsamp lastsamp 0 ], ...
+    'detrend', 'yes', 'feedback', 'no' );
+
+  ephysdata = ft_preprocessing(preproc_config);
+
+  % Figure out what channels were actually read.
+  chanlabels = ephysdata.label;
+  chancount = length(chanlabels);
+
 else
-  chanlist = ft_channelselection( checkchans, thisheader.label, {} );
+
+  % We were passed a Field Trip data structure that was already read.
+
+  ephysdata = checkdata;
+
+  % If we have no trials, bail out.
+  if length(ephysdata.trial) < 1
+    disp('### [euTools_guessBadChannelsSpect]  No trials in dataset!');
+    return;
+  end
+
+
+  % Select only the desired channels.
+
+  if isempty(checkchans)
+    chanlist = ephysdata.label;
+  else
+    chanlist = ft_channelselection( checkchans, ephysdata.label, {} );
+  end
+
+  % We need at least one channel to proceed.
+  if isempty(chanlist)
+    disp(sprintf( [ '### [euTools_guessBadChannelsSpect]  ' ...
+      'Selected 0 channels (of %d in data)!' ], length(ephysdata.label) ));
+    % Bail out.
+    return;
+  end
+
+  % Do the selection. Detrend while we're here.
+  preproc_config = struct( ...
+    'channel', { chanlist }, 'detrend', 'yes', 'feedback', 'no' );
+  ephysdata = ft_preprocessing(preproc_config, ephysdata);
+
+
+  % If we have multiple trials, concatenate them.
+  if length(ephysdata.trial) > 1
+
+    oldtimes = ephysdata.time;
+    oldtrials = ephysdata.trial;
+    newtime = [];
+    newtrial = [];
+
+    sampcount = length(ephysdata.time);
+    chancount = length(ephysdata.label);
+
+    for tidx = 1:length(oldtrials)
+      thistime = oldtimes{tidx};
+      thistrial = oldtrials{tidx};
+
+      newtime = [ newtime thistime ];
+
+      % NOTE - Apply a roll-off window to reduce edge effects.
+      % We've already detrended.
+      % Taper on 10% of the total window (5% per side).
+      thiswin = tukeywin(sampcount, 0.1);
+      for cidx = 1:chancount
+        thistrial(cidx,:) = thistrial(cidx,:) .* thiswin;
+      end
+
+      newtrial = [ newtrial thistrial ];
+    end
+
+    ephysdata.time = { newtime };
+    ephysdata.trial = { newtrial };
+
+  end
+
 end
 
-% We need at least one channel to proceed.
-if isempty(chanlist)
-  disp(sprintf( [ '### [euTools_guessBadChannelsSpect]  ' ...
-    'Selected 0 channels (of %d in data)!' ], length(thisheader.label) ));
 
-  % Bail out.
-  return;
-end
+% Get metadata from the Field Trip data structure.
+% We should have a single trial.
 
-preproc_config = struct( ...
-  'headerfile', checkfolder, 'headerformat', 'nlFT_readHeader', ...
-  'datafile', checkfolder, 'dataformat', 'nlFT_readDataNative', ...
-  'channel', { chanlist }, 'trl', [ firstsamp lastsamp 0 ], ...
-  'detrend', 'yes', 'feedback', 'no' );
+samprate = round( 1 / median(diff( ephysdata.time{1} )) );
+sampcount = length(ephysdata.time{1});
 
-ephysdata = ft_preprocessing(preproc_config);
-
-% Figure out what channels were actually read.
 chanlabels = ephysdata.label;
 chancount = length(chanlabels);
 
