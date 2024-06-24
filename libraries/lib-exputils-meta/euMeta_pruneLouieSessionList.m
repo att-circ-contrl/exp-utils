@@ -3,7 +3,7 @@ function newlist = euMeta_pruneLouieSessionList( oldlist, desiredsessions )
 % function newlist = euMeta_pruneLouieSessionList( oldlist, desiredsessions )
 %
 % This filters a raw list of detected sessions to include only those listed
-% in the "desiresessions" metadata list. The filtered session list is
+% in the "desiredsessions" metadata list. The filtered session list is
 % augmented with information from the desired session metadata.
 %
 % NOTE - This version of the function only works for experiments that use
