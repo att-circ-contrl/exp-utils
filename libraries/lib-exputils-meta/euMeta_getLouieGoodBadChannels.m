@@ -27,15 +27,15 @@ goodchannels = {};
 % He also sometimes used "badd" instead of "bad".
 
 rawbad = {};
-if isfield(logrecord, 'badchannels')
-  rawbad = logrecord.badchannels;
-elseif isfield(logrecord, 'baddchannels')
-  rawbad = logrecord.baddchannels;
+if isfield(logrecord, 'PROBE_badchannels')
+  rawbad = logrecord.PROBE_badchannels;
+elseif isfield(logrecord, 'PROBE_baddchannels')
+  rawbad = logrecord.PROBE_baddchannels;
 end
 
 rawgood = {};
-if isfield(logrecord, 'goodchannels')
-  rawbad = logrecord.goodchannels;
+if isfield(logrecord, 'PROBE_goodchannels')
+  rawgood = logrecord.PROBE_goodchannels;
 end
 
 
