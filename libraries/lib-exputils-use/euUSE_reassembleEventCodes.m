@@ -11,6 +11,9 @@ function [ cookedcodes cookedindices ] = euUSE_reassembleEventCodes( ...
 % bytes or just not being in the definition file) is tagged with an empty
 % character array as the "codeLabel".
 %
+% FIXME - We're special-casing "context -1" (1899), since it's a persistent
+% edge case.
+%
 % "rawcodes" is a table containing a raw code value column and optionally
 %   other columns.
 % "codedefs" is a structure containing "cooked" event code definitions per
@@ -105,6 +108,15 @@ if ~isempty(rawcodes)
 
     end
   end
+
+
+  % FIXME - Special-case known edge cases.
+
+  % Context codes are 1900-1999, but we see "1899" as context -1.
+  thismask = strcmp(cookedlabels, '') & (cookeddata == 1899);
+  cookedlabels(thismask) = { 'ContextCode' };
+  cookeddata(thismask) = -1;
+
 
   % If we generated any cooked codes, build a table with them.
   if cookedcount > 0
