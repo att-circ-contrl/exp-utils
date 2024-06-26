@@ -1,7 +1,7 @@
-function trialmeta = euMeta_getTrialMetaFromCodes( ...
+function trialmeta = euMeta_getTrialMetadataFromCodes( ...
    codetable, conditionlut, timecolumn )
 
-% function trialmeta = euMeta_getTrialMetaFromCodes( ...
+% function trialmeta = euMeta_getTrialMetadataFromCodes( ...
 %   codetable, conditionlut, timecolumn )
 %
 % This parses a table of event codes (from euUSE_segmentTrialsByCodes()) and
@@ -29,6 +29,8 @@ function trialmeta = euMeta_getTrialMetaFromCodes( ...
 %   "blockCode" is the 'blockCode' value given by "conditionlut".
 %   (Additional fields corresponding to columns in "conditionlut" are also
 %    added.)
+%   "trial_index" is the TrialIndex code value.
+%   "trial_number" is the TrialNumber code value.
 %   "lastfixationstart" is the timestamp of the start of the last fixation,
 %     or NaN if there were no fixations.
 %   "lastfixationend" is the timestamp of the end of the last fixation, or
@@ -50,6 +52,7 @@ emptyfixlist = struct( 'starttime', {}, 'endtime', {}, 'type', {} );
 
 defaultmeta = struct( ...
   'wasrewarded', false, 'wascorrect', false, ...
+  'trial_index', nan, 'trial_number', nan, ...
   'lastfixationstart', nan, 'lastfixationend', nan, ...
   'lastfixationtype', '', 'fixationlist', emptyfixlist );
 
@@ -98,7 +101,7 @@ if iscell(codetable)
   % Multiple trials. Iterate and recurse.
 
   for tidx = 1:length(codetable)
-    trialmeta(tidx) = euMeta_getTrialMetaFromCodes( ...
+    trialmeta(tidx) = euMeta_getTrialMetadataFromCodes( ...
       codetable{tidx}, conditionlut, timecolumn );
   end
 
@@ -117,6 +120,16 @@ else
 
   trialmeta.wasrewarded = any(strcmp( codelabels, 'Rewarded' ));
   trialmeta.wascorrect = any(strcmp( codelabels, 'CorrectResponse' ));
+
+  scratchidx = min(find(strcmp( codelabels, 'TrialIndex' )));
+  if ~isempty(scratchidx)
+    trialmeta.trial_index = codevalues(scratchidx);
+  end
+
+  scratchidx = min(find(strcmp( codelabels, 'TrialNumber' )));
+  if ~isempty(scratchidx)
+    trialmeta.trial_number = codevalues(scratchidx);
+  end
 
 
   % Condition information.
