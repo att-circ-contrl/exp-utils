@@ -24,8 +24,12 @@ function trialmeta = euMeta_getTrialMetadataFromCodes( ...
 %   are processed, this is a structure array:
 %   "wasrewarded" is a boolean value indicating whether the 'Rewarded' or
 %     'Unrewarded' code was seen.
+%   "rewardtime" is the timestamp of the 'Rewarded'/'Unrewarded' code.
 %   "wascorrect" is a boolean value indicating whether the 'CorrectResponse'
 %     or 'IncorrectResponse' code was seen.
+%   "correcttime" is the timestamp of the correct/incorrect response code.
+%   "tokensadded" is the 'TokensAdded' code value, or NaN if not seen.
+%   "tokentime" is the time the 'TokensAdded' code was seen (NaN if not).
 %   "blockCode" is the 'blockCode' value given by "conditionlut".
 %   (Additional fields corresponding to columns in "conditionlut" are also
 %    added.)
@@ -51,7 +55,9 @@ function trialmeta = euMeta_getTrialMetadataFromCodes( ...
 emptyfixlist = struct( 'starttime', {}, 'endtime', {}, 'type', {} );
 
 defaultmeta = struct( ...
-  'wasrewarded', false, 'wascorrect', false, ...
+  'wasrewarded', false, 'rewardtime', nan, ...
+  'wascorrect', false, 'correcttime', nan, ...
+  'tokensadded', nan, 'tokentime', nan, ...
   'trial_index', nan, 'trial_number', nan, ...
   'lastfixationstart', nan, 'lastfixationend', nan, ...
   'lastfixationtype', '', 'fixationlist', emptyfixlist );
@@ -116,10 +122,28 @@ else
   codetimes = codetable.(timecolumn);
 
 
-  % Information other than conditions and fixations.
+  % Information other than block conditions and fixations.
+
 
   trialmeta.wasrewarded = any(strcmp( codelabels, 'Rewarded' ));
+  scratchidx = min(find(contains( codelabels, 'ewarded' )));
+  if ~isempty(scratchidx)
+    trialmeta.rewardtime = codetimes(scratchidx);
+  end
+
   trialmeta.wascorrect = any(strcmp( codelabels, 'CorrectResponse' ));
+  scratchidx = min(find(contains( codelabels, 'orrectResponse' )));
+  if ~isempty(scratchidx)
+    trialmeta.correcttime = codetimes(scratchidx);
+  end
+
+
+  scratchidx = min(find(strcmp( codelabels, 'TokensAdded' )));
+  if ~isempty(scratchidx)
+    trialmeta.tokensadded = codevalues(scratchidx);
+    trialmeta.tokentime = codetimes(scratchidx);
+  end
+
 
   scratchidx = min(find(strcmp( codelabels, 'TrialIndex' )));
   if ~isempty(scratchidx)
@@ -132,7 +156,7 @@ else
   end
 
 
-  % Condition information.
+  % Block condition information.
 
   rowidx = find(strcmp( codelabels, 'BlockCondition' ));
   if ~isempty(rowidx)

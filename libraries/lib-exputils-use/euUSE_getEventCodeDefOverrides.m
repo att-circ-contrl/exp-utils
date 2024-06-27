@@ -21,6 +21,11 @@ function defoverrides = euUSE_getEventCodeDefOverrides()
 
 % NOTE - BlockCondition is 501..599. Leave it that way; it appears in other
 % data files as-is, so changing it here would cause discrepancies.
+%  'BlockCondition', struct('offset', 501), ...
+
+% NOTE - Context "-1" (code 1899) is used as a "no context" code.
+% We're special-casing that elsewhere rather than messing with the code
+% range and offset here.
 
 defoverrides = struct( ...
   'Dimensionality', struct('offset', 200), ...
