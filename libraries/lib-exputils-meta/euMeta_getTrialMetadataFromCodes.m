@@ -30,6 +30,7 @@ function trialmeta = euMeta_getTrialMetadataFromCodes( ...
 %   "correcttime" is the timestamp of the correct/incorrect response code.
 %   "tokensadded" is the 'TokensAdded' code value, or NaN if not seen.
 %   "tokentime" is the time the 'TokensAdded' code was seen (NaN if not).
+%   "difficulty" is the value of the 'Dimensionality' code, or NaN if not seen.
 %   "blockCode" is the 'blockCode' value given by "conditionlut".
 %   (Additional fields corresponding to columns in "conditionlut" are also
 %    added.)
@@ -58,14 +59,15 @@ defaultmeta = struct( ...
   'wasrewarded', false, 'rewardtime', nan, ...
   'wascorrect', false, 'correcttime', nan, ...
   'tokensadded', nan, 'tokentime', nan, ...
+  'difficulty', nan, ...
   'trial_index', nan, 'trial_number', nan, ...
   'lastfixationstart', nan, 'lastfixationend', nan, ...
   'lastfixationtype', '', 'fixationlist', emptyfixlist );
 
-% Copy blockCode, blockCondition, and everything else from the condition LUT.
+% Copy blockCode and other fields from the condition LUT.
 
 condfields = conditionlut.Properties.VariableNames;
-condmatchvals = conditionlut.blockCondition;
+condmatchvals = conditionlut.blockCode;
 
 for fidx = 1:length(condfields)
 
@@ -84,6 +86,9 @@ for fidx = 1:length(condfields)
       thisval = false;
     elseif isstruct(thisval)
       thisval = struct([]);
+    else
+      % Numeric. Use NaN.
+      thisval = nan;
     end
   end
 
@@ -142,6 +147,12 @@ else
   if ~isempty(scratchidx)
     trialmeta.tokensadded = codevalues(scratchidx);
     trialmeta.tokentime = codetimes(scratchidx);
+  end
+
+
+  scratchidx = min(find(strcmp( codelabels, 'Dimensionality' )));
+  if ~isempty(scratchidx)
+    trialmeta.difficulty = codevalues(scratchidx);
   end
 
 

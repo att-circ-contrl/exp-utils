@@ -1,0 +1,42 @@
+A trial metadata list is a struct array containing individual records with
+metadata about trials.
+
+
+Fields produced by euMeta_getTrialMetadataFromCodes():
+
+"wasrewarded" indicates whether the 'Rewarded' or 'Unrewarded' code was seen.
+"wascorrect" indicates 'CorrectResponse' vs 'IncorrectResponse'.
+"tokensadded" is the data value from the 'TokensAdded' code, or NaN if none.
+
+"rewardtime" is the timestamp of the 'Rewarded'/'Unrewarded' code.
+"correcttime" is the timestamp of 'CorrectResponse'/'IncorrectResponse'.
+"tokentime" is the timestamp of 'TokensAdded', or NaN if no code was seen.
+
+"fixationlist" is a possibly-empty struct array with one record per
+  fixation event. Each record has the following fields:
+  "starttime" is the timestamp of the 'Fix(xxx)Start' code.
+  "endtime" is the timestamp of the 'FixObjectEnd' code.
+  "type" is the 'Fix(xxx)Start' code label that initiated the fixation.
+
+"lastfixationstart" is the last "starttime" value in this list, or NaN if none.
+"lastfixationend" is the last "endtime" value in this list, or NaN if none.
+"lastfixationtype" is the last "type" value in this list, or '' if none.
+
+"blockCode" is the block code value (from BlockDef.txt); this is also the
+  block condition value from BlockData.txt.
+"difficulty" is an integer reflecting task complexity. For FLToken, this is
+  the 'Dimensionality' code value.
+
+
+Fields associated with the FLToken dataset:
+
+"gainTokens" (positive) is the number of tokens added for correct choices.
+"lossTokens" (negative) is the number of tokens removed for incorrect.
+
+
+Fields added by euMeta_addFrameDataToTrialMetadata():
+
+"block_number" is the block number.
+
+
+(This is the end of the file.)

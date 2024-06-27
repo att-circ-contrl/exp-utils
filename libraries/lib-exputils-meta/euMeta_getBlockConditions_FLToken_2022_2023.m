@@ -10,15 +10,17 @@ function conditiontab = euMeta_getBlockConditions_FLToken_2022_2023
 %
 % No arguments.
 %
-% "conditiontab" is a table with columns 'blockCondition', 'blockCode',
-%   'gainTokens', and 'lossTokens'. Tokens gained are positive, tokens lost
-%   are negative. 'blockCondition' values are from the event codes,
-%   'blockCode' values are from the blockdefs.
+% "conditiontab" is a table with columns 'blockCode', 'gainTokens', and
+%   'lossTokens'. Tokens gained are positive, tokens lost are negative.
+%   'blockCode' is the offset-corrected BlockCondition code value, used in
+%   BlockDef.txt and BlockData.txt.
 
 
 conditiontab = table();
 
-conditiontab.blockCondition = [ 529 ; 530 ; 531 ; 532 ];
+% No longer needed, since we're converting this when parsing the codes.
+%conditiontab.blockCondition = [ 529 ; 530 ; 531 ; 532 ];
+
 conditiontab.blockCode = [ 28 ; 29 ; 30 ; 31 ];
 conditiontab.gainTokens = [ +3 ; +3 ; +2 ; +2 ];
 conditiontab.lossTokens = [ -1 ; -3 ; -1 ; -3 ];
