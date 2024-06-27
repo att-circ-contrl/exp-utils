@@ -13,7 +13,8 @@ function newtrialmeta = euMeta_addFrameDataToTrialMetadata( ...
 %
 % "newtrialmeta" is a copy of "oldtrialmeta" with the following additional
 %   fields added:
-%   "block_number" is the value from the "Block" column in framedatatable.
+%   "block_number" is the value from the "Block" column in framedatatable,
+%     adjusted to be 1-based instead of 0-based.
 
 
 % NOTE - There's more that we want to add, but it's in BlockDef.txt, not
@@ -39,6 +40,10 @@ for tidx = 1:length(trialindices)
     blocknumbers(tidx) = rawblocks(rawidx);
   end
 end
+
+% NOTE - Louie confirms that the "Block" column is 0-based and the block
+% numbers he uses are 1-based.
+blocknumbers = blocknumbers + 1;
 
 
 % Apply the lookup table.
