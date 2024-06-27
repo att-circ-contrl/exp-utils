@@ -22,6 +22,9 @@ Fields produced by euMeta_getTrialMetadataFromCodes():
 "lastfixationend" is the last "endtime" value in this list, or NaN if none.
 "lastfixationtype" is the last "type" value in this list, or '' if none.
 
+"trial_index" is the 'TrialIndex' code value.
+"trial_number" is the 'TrialNumber' code value.
+
 "blockCode" is the block code value (from BlockDef.txt); this is also the
   block condition value from BlockData.txt.
 "difficulty" is an integer reflecting task complexity. For FLToken, this is
