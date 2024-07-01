@@ -20,11 +20,13 @@ function euPlot_axesPlotFTTrials( thisax, ...
 %   data and metadata.
 % "wavedata_samprate" is the sampling rate of "wavedata_ft".
 % "trialdefs" is the Field Trip trial definition matrix or table that was
-%   used to generate the trial data.
+%   used to generate the trial data. This is used to properly time-align
+%   events. If this contains NaN data, event plotting is suppressed.
 % "trialnames" is either a vector of trial numbers or a cell array of trial
 %   labels, corresponding to the trials in "trialdefs". An empty vector or
 %   cell array auto-generates labels.
 % "trialdefs_samprate" is the sampling rate used when generating "trialdefs".
+%   If this is NaN, event plotting is suppressed.
 % "chans_wanted" is a cell array with channel names to plot. Pass an empty
 %   cell array to plot all channels.
 % "trials_wanted" is a cell array with labels of trials to plot. Pass an

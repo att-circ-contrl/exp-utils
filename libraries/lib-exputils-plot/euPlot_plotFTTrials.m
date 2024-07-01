@@ -21,11 +21,13 @@ function euPlot_plotFTTrials( wavedata_ft, wavesamprate, ...
 %   and metadata.
 % "wavesamprate" is the sampling rate of "wavedata_ft".
 % "trialdefs" is the field trip trial definition matrix or table that was
-%   used to generate the trial data.
+%   used to generate the trial data. This is used to properly time-align
+%   events. If this is [], event plotting is suppressed.
 % "trialnames" is either a vector of trial numbers or a cell array of trial
 %   labels, corresponding to the trials in "trialdefs". An empty vector or
 %   cell array auto-generates labels.
 % "trialsamprate" is the sampling rate used when generating "trialdefs".
+%   If this is NaN, event plotting is suppressed.
 % "evlists" is a structure containing event lists or tables, with one event
 %   list or table per field. Fields tested for are 'cookedcodes', 'rwdA',
 %   and 'rwdB'.
@@ -71,12 +73,21 @@ end
 chanlist = wavedata_ft.label;
 chancount = length(chanlist);
 
-trialcount = size(trialdefs);
-trialcount = trialcount(1);
+trialcount = length(wavedata_ft.time);
 
 
 % Convert whatever we were given for trial names into text labels.
 trialnames = euPlot_helperMakeTrialNames(trialnames, trialcount);
+
+
+% If we were passed an empty trial definition table, make one with bogus
+% information.
+% This is used to time-align events. Filling it with NaN is fine; events
+% all fail there "is event visible" checks.
+
+if isempty(trialdefs)
+  trialdefs = nan( [ trialcount, 3 ] );
+end
 
 
 % Generate the single-plot plot.
