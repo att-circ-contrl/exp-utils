@@ -65,6 +65,10 @@ lagcount = length(laglist);
 winlist = timelagdata.windowlist_ms;
 wincount = length(winlist);
 
+if isempty(timerange_ms)
+  timerange_ms = [ -inf, inf ];
+end
+
 
 % Initialize output.
 

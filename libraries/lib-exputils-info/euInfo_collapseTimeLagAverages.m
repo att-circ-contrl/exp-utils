@@ -108,7 +108,7 @@ for rangeidx = 1:length(lagranges_ms)
   lagspan = lagranges_ms{rangeidx};
 
   if isempty(lagspan)
-    lagspan = laglist;
+    lagspan = [ -inf, inf ];
   end
 
   minlag = min(lagspan);
@@ -154,7 +154,7 @@ for rangeidx = 1:length(timeranges_ms)
   winspan = timeranges_ms{rangeidx};
 
   if isempty(winspan)
-    winspan = winlist;
+    winspan = [ -inf, inf ];
   end
 
   minwin = min(winspan);
