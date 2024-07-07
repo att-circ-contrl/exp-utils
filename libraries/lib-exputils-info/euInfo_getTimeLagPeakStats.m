@@ -1,10 +1,10 @@
 function [ ampmean ampdev lagmean lagdev ] = ...
   euInfo_getTimeLagPeakStats( timelagdata, datafield, ...
-    timerange_ms, timesmooth_ms, magthresh, magacceptrange )
+    timerange_ms, timesmooth_ms, magthresh, magacceptrange, method )
 
 % function [ ampmean ampdev lagmean lagdev ] = ...
 %   euInfo_getTimeLagPeakStats( timelagdata, datafield, ...
-%     timerange_ms, timesmooth_ms, magthresh, magacceptrange )
+%     timerange_ms, timesmooth_ms, magthresh, magacceptrange, method )
 %
 % This analyzes a time-and-lag analysis dataset, extracting the mean and
 % deviation of the data peak's amplitude and time lag by black magic,
@@ -40,6 +40,9 @@ function [ ampmean ampdev lagmean lagdev ] = ...
 %   multiplied by the peak data magnitude to get a data magnitude acceptance
 %   range for time-varying peak detection. A typical range would be
 %   [ 0.5 inf ].
+% "method" is an optional argument. If present, it should be 'largest' or
+%   'weighted', specifying an euInfo_findTimeLagPeaks search method. The
+%   default is 'largest'.
 %
 % "ampmean" is a matrix indexed by (destidx,srcidx) containing the mean
 %   (signed) peak data value within the specified window for each pair.
@@ -67,6 +70,10 @@ wincount = length(winlist);
 
 if isempty(timerange_ms)
   timerange_ms = [ -inf, inf ];
+end
+
+if ~exist('method', 'var')
+  method = 'largest';
 end
 
 
@@ -177,7 +184,7 @@ for destidx = 1:destcount
     thispairdata.(datafield) = avgdata(destidx,srcidx,:,:);
 
     peakdata = euInfo_findTimeLagPeaks( ...
-      thispairdata, datafield, timesmooth_ms, lagrange, 'largest' );
+      thispairdata, datafield, timesmooth_ms, lagrange, method );
 
 
     % Mask the search data and compute statistics.
