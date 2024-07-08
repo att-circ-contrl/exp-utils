@@ -182,6 +182,23 @@ for tidx = 1:timecount
   hold on;
 
 
+
+  % FIXME - Magic sizes.
+
+%  textbump = 0.15;
+  textbump = 0.1;
+
+  % Size 12 is okay up to 30-40 points.
+  markersize = round(400 / allcount);
+  markersize = min(markersize, 12);
+  markersize = max(markersize, 1);
+
+  % Size 16 is fine at 4 points, but use 8 max at 30-40.
+  fontsize = round(300 / allcount);
+  fontsize = min(fontsize, 16);
+  fontsize = max(fontsize, 1);
+
+
   % Render nodes.
 
   for aidx = 1:allcount
@@ -189,11 +206,8 @@ for tidx = 1:timecount
     thisy = channely(tidx,aidx);
 
     plot( thisax, thisx, thisy, 'o', 'Color', cols.blk, ...
-      'LineWidth', 3, 'MarkerSize', 12, 'HandleVisibility', 'off' );
+      'LineWidth', 3, 'MarkerSize', markersize, 'HandleVisibility', 'off' );
 
-    % FIXME - Lots of magic values for text!
-
-    textbump = 0.15;
 
     if (thisy < 0)
       thisy = thisy - textbump;
@@ -209,7 +223,7 @@ for tidx = 1:timecount
       thisalign = 'left';
     end
 
-    text( thisax, thisx, thisy, safelabels{aidx}, 'FontSize', 16, ...
+    text( thisax, thisx, thisy, safelabels{aidx}, 'FontSize', fontsize, ...
       'HorizontalAlignment', thisalign, 'VerticalAlignment', 'middle' );
   end
 
