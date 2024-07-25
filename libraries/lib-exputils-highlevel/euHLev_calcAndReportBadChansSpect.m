@@ -21,6 +21,7 @@ function badchanlist = euHLev_calcAndReportBadChansSpect( ...
 % "plotswanted" is a cell array with zero or more of the following:
 %   'rawscatter' scatter-plots raw power and tone statistics.
 %   'rawhist' shows histograms of power and tone statistics.
+%   'rawheatmap' plots power and tone statistics vs channel and band.
 %   'pcascatter' scatter-plots PCA-reduced power and tone statistics.
 %   'chanlists' emits lists of bad channels.
 % "titleprefix" is a prefix to use when building plot titles.
@@ -101,9 +102,14 @@ for bidx = 1:bandcount
   bandtitles{bidx} = sprintf('%d Hz to %d Hz', thismin, thismax);
 end
 
+[ chanlabelssafe chantitles ] = euUtil_makeSafeStringArray( chanlabels );
+
 pcadims = checkconfig.pcadims;
 
 cols = nlPlot_getColorPalette();
+
+% Get geometry information for resizing the figure.
+[ oldpos newpos ] = nlPlot_makeFigureTaller( thisfig, chancount, 32 );
 
 
 
@@ -112,8 +118,12 @@ cols = nlPlot_getColorPalette();
 
 want_raw_scatter = ismember('rawscatter', plotswanted);
 want_raw_hist = ismember('rawhist', plotswanted);
+want_raw_heatmap = ismember('rawheatmap', plotswanted);
 
 if want_raw_scatter || want_raw_hist
+
+  % These plots are iterated per-band.
+
   for bidx = 1:bandcount
 
     thisbandlabel = bandlabels{bidx};
@@ -148,6 +158,7 @@ if want_raw_scatter || want_raw_hist
       % Total absolute power.
 
       clf('reset');
+      thisfig.Position = newpos;
       hold on;
 
       for tidx = 1:powercount
@@ -182,6 +193,7 @@ if want_raw_scatter || want_raw_hist
       % Peak power relative to baseline. Tones will have high peak power.
 
       clf('reset');
+      thisfig.Position = newpos;
       hold on;
 
       for tidx = 1:tonecount
@@ -212,6 +224,10 @@ if want_raw_scatter || want_raw_hist
 
       saveas( thisfig, [ fileprefix '-chantones-' thisbandlabel '.png' ] );
 
+
+      % Restore original geometry.
+      thisfig.Position = oldpos;
+
     end
 
 
@@ -227,6 +243,102 @@ if want_raw_scatter || want_raw_hist
 end
 
 
+if want_raw_heatmap
+
+  % Cyan-and-yellow heatmap.
+  colmap = nlPlot_getColorMapHotCold( ...
+    [ 0.6 0.9 1.0 ], [ 1.0 0.9 0.3 ], 1.0 );
+
+
+  % Transform the data for plotting.
+  % For power, keep it linear and make it relative to median and quartiles.
+  % For tones, make it log-scale and scale it to the median (it's one-sided).
+
+  plotpower = spectpower;
+  plottone = log10(tonepower);
+
+  for bidx = 1:bandcount
+    % Total in-band power.
+    % Normalize so that the median power is 0.
+    % Scale above and below median independently, so that quartiles are +/- 1.
+    % NOTE - Rescale so that quartiles are +/- 0.67, and we're getting
+    % standard deviations from the median (approximately).
+
+    thispower = plotpower(:,bidx);
+    thispower = thispower - median(thispower);
+
+    posmask = (thispower >= 0);
+    negmask = ~posmask;
+    posamp = prctile(thispower, 75);
+    negamp = prctile(thispower, 25);
+
+    thispower(posmask) = thispower(posmask) / posamp;
+    thispower(negmask) = thispower(negmask) / abs(negamp);
+
+    % Rescale so that we're standard deviations rather than quartiles.
+    % This is approximate!
+    thispower = 0.67 * thispower;
+
+    plotpower(:,bidx) = thispower;
+
+
+    % Tone power.
+    % Minimum is log(1) = 0. Maximum is arbitrary.
+    % Normalize so that the median relative tone power is 1.
+
+    thistone = plottone(:,bidx);
+    plottone(:,bidx) = thistone / median(thistone);
+  end
+
+
+  % Render heatmaps.
+  % Data is indexed by (channel,band), and plotted as (y,x), which is fine.
+
+
+  clf('reset');
+  thisfig.Position = newpos;
+  colormap(thisfig, colmap);
+
+  nlPlot_axesPlotSurface2D( gca, plotpower, ...
+    bandtitles, chantitles, [], [], ...
+    'linear', 'linear', 'linear', ...
+    'Band', 'Channel', ...
+    [ titleprefix ' - Channel Power' ] );
+
+  % Median 0, quartiles at +/- 0.67 (deviations +/- 1 approximately).
+  clim([ -3 3 ]);
+
+  thiscol = colorbar;
+  thiscol.Label.String = 'Normalized In-Band Power';
+
+  saveas( thisfig, [ fileprefix '-chanpowerheat.png' ] );
+
+
+  clf('reset');
+  thisfig.Position = newpos;
+  colormap(thisfig, colmap);
+
+  nlPlot_axesPlotSurface2D( gca, plottone, ...
+    bandtitles, chantitles, [], [], ...
+    'linear', 'linear', 'linear', ...
+    'Band', 'Channel', ...
+    [ titleprefix ' - Tone Power' ] );
+
+  % Minimum 0, median 1, log10 scale.
+  clim([ 0 3 ]);
+
+  thiscol = colorbar;
+  thiscol.Label.String = 'Normalized Tone Power (log)';
+
+  saveas( thisfig, [ fileprefix '-chantonesheat.png' ] );
+
+
+  % Restore original geometry.
+  thisfig.Position = oldpos;
+
+end
+
+
 
 %
 % PCA plots.
@@ -234,9 +346,6 @@ end
 want_pca_scatter = ismember('pcascatter', plotswanted);
 
 if want_pca_scatter
-
-  thisbandlabel = bandlabels{bidx};
-  thisbandtitle = bandtitles{bidx};
 
   % Data to be plotted.
   % Plot the first two principal components if present.
