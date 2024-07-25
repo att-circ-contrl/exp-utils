@@ -261,47 +261,9 @@ end
 %
 % Get total band power and relative tone power for each bin.
 
-% Spectpower and tonepower are nChans x nBins.
-
-for cidx = 1:chancount
-
-  thiswave = ephysdata.trial{1}(cidx,:);
-
-  % Just in case of off-by-one rounding issues.
-  sampcount = length(thiswave);
-  duration = sampcount / samprate;
-
-  wavespect = fft(thiswave);
-  wavespect = abs(wavespect);
-  wavespect = wavespect .* wavespect;
-
-  % For a real-valued input signal, F(-w) is conj(F(w)), so the power
-  % spectrum is symmetrical. We can ignore the above-Nyquist half.
-  freqlist = 0:(sampcount-1);
-  freqlist = freqlist / duration;
-
-  for bidx = 1:bincount
-
-    minfreq = config.freqbinedges(bidx);
-    maxfreq = config.freqbinedges(bidx+1);
-    binrange = (freqlist >= minfreq) & (freqlist <= maxfreq);
-
-    % Initialize to values that it's safe to take the logarithm of.
-    thispower = 1;
-    thistone = 1;
-
-    if ~isempty(binrange)
-      thisdata = wavespect(binrange);
-      thispower = sum(thisdata);
-      thistone = max(thisdata) / median(thisdata);
-    end
-
-    spectpower(cidx,bidx) = thispower;
-    tonepower(cidx,bidx) = thistone;
-
-  end
-
-end
+% NOTE - Multi-trial data was already aggregated into a single trial.
+[ spectpower tonepower ] = nlProc_getBandPower( ...
+  ephysdata.trial{1}, samprate, config.freqbinedges );
 
 
 
