@@ -151,7 +151,7 @@ if want_raw_scatter || want_raw_hist
 
     % Scatter plots.
     % X axis is total power or relative tone power.
-    % Y axis is the channel index. FIXME - This would ideally be the label!
+    % Y axis is the channel label.
 
     if want_raw_scatter
 
@@ -187,6 +187,8 @@ if want_raw_scatter || want_raw_hist
       xlabel('In-Band Power (a.u.)');
       ylabel('Channel');
 
+      set( gca, 'YTick', 1:chancount, 'YTickLabel', chantitles );
+
       saveas( thisfig, [ fileprefix '-chanpower-' thisbandlabel '.png' ] );
 
 
@@ -221,6 +223,8 @@ if want_raw_scatter || want_raw_hist
       title([ titleprefix ' - Peak Power (' thisbandtitle ')' ]);
       xlabel('Peak Power (normalized)');
       ylabel('Channel');
+
+      set( gca, 'YTick', 1:chancount, 'YTickLabel', chantitles );
 
       saveas( thisfig, [ fileprefix '-chantones-' thisbandlabel '.png' ] );
 
