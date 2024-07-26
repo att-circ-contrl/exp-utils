@@ -12,6 +12,9 @@ function euPlot_hlevPlotBandPower( bandpower, tonepower, ...
 % If multiple trials are defined, an additional plot is generated with the
 % average across trials (trial name 'Average').
 %
+% If only one trial is defined, trial labels aren't rendered or used for
+% filenames.
+%
 % If plot ranges aren't specified, reasonable defaults are used that assume
 % the power values have been z-scored.
 %
@@ -187,10 +190,15 @@ want_toneheat = ismember('toneheatmap', plotswanted);
 
 % Iterate trials.
 
+trialtitlesuffix = '';
+triallabelsuffix = '';
+
 for tidx = 1:trialcount
 
-  thistriallabel = triallabels{tidx};
-  thistrialtitle = trialtitles{tidx};
+  if trialcount > 1
+    trialtitlesuffix = [ ' - ' trialtitles{tidx} ];
+    triallabelsuffix = [ '-' triallabels{tidx} ];
+  end
 
 
   % These plots are iterated per-band.
@@ -211,15 +219,15 @@ for tidx = 1:trialcount
 
       legend('off');
 
-      title([ titleprefix ' - Channel Power (' thisbandtitle ') - ' ...
-        thistrialtitle ]);
+      title([ titleprefix ' - Channel Power (' thisbandtitle ')' ...
+        trialtitlesuffix ]);
       xlabel('In-Band Power');
       ylabel('Channel');
 
       set( gca, 'YTick', 1:chancount, 'YTickLabel', chantitles );
 
-      saveas( thisfig, [ fileprefix '-chanpower-' thisbandlabel '-' ...
-        thistriallabel '.png' ] );
+      saveas( thisfig, [ fileprefix '-chanpower-' thisbandlabel ...
+        triallabelsuffix '.png' ] );
     end
 
     if want_tonebychan
@@ -231,15 +239,15 @@ for tidx = 1:trialcount
 
       legend('off');
 
-      title([ titleprefix ' - Tone Power (' thisbandtitle ') - ' ...
-        thistrialtitle ]);
+      title([ titleprefix ' - Tone Power (' thisbandtitle ')' ...
+        trialtitlesuffix ]);
       xlabel('Relative Tone Power');
       ylabel('Channel');
 
       set( gca, 'YTick', 1:chancount, 'YTickLabel', chantitles );
 
-      saveas( thisfig, [ fileprefix '-chantones-' thisbandlabel '-' ...
-        thistriallabel '.png' ] );
+      saveas( thisfig, [ fileprefix '-chantones-' thisbandlabel ...
+        triallabelsuffix '.png' ] );
     end
 
   end
@@ -260,14 +268,14 @@ for tidx = 1:trialcount
       bandtitles, chantitles, [], [], ...
       'linear', 'linear', 'linear', ...
       'Band', 'Channel', ...
-      [ titleprefix ' - Channel Power - ' thistrialtitle ] );
+      [ titleprefix ' - Channel Power' trialtitlesuffix ] );
 
     clim(bandpowerrange);
 
     thiscol = colorbar;
     thiscol.Label.String = 'In-Band Power';
 
-    saveas( thisfig, [ fileprefix '-chanpowerheat-' thistriallabel '.png' ] );
+    saveas( thisfig, [ fileprefix '-chanpowerheat' triallabelsuffix '.png' ] );
   end
 
   if want_toneheat
@@ -279,14 +287,14 @@ for tidx = 1:trialcount
       bandtitles, chantitles, [], [], ...
       'linear', 'linear', 'linear', ...
       'Band', 'Channel', ...
-      [ titleprefix ' - Tone Power - ' thistrialtitle ] );
+      [ titleprefix ' - Tone Power' trialtitlesuffix ] );
 
     clim(tonepowerrange);
 
     thiscol = colorbar;
     thiscol.Label.String = 'Tone Power';
 
-    saveas( thisfig, [ fileprefix '-chantonesheat-' thistriallabel '.png' ] );
+    saveas( thisfig, [ fileprefix '-chantonesheat' triallabelsuffix '.png' ] );
   end
 
 end
