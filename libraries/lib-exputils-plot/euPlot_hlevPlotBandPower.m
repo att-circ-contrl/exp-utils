@@ -149,7 +149,7 @@ if trialcount > 1
   scratch = mean(bandpower, 3);
   bandpower(:,:,trialcount+1) = scratch;
 
-  scratch = mean(tonepower,3);
+  scratch = mean(tonepower, 3);
   tonepower(:,:,trialcount+1) = scratch;
 
   triallabels{trialcount+1} = 'avg';
