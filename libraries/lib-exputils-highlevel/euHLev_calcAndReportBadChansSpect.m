@@ -115,243 +115,29 @@ cols = nlPlot_getColorPalette();
 
 %
 % Raw data plots.
+% Wrap the helper for this.
 
-want_raw_scatter = ismember('rawscatter', plotswanted);
-want_raw_hist = ismember('rawhist', plotswanted);
-want_raw_heatmap = ismember('rawheatmap', plotswanted);
+rawplotswanted = {};
+if ismember('rawscatter', plotswanted)
+  rawplotswanted = [ rawplotswanted { 'powerbychan', 'tonebychan' } ];
+end
+if ismember('rawheatmap', plotswanted)
+  rawplotswanted = [ rawplotswanted { 'powerheatmap', 'toneheatmap' } ];
+end
 
-if want_raw_scatter || want_raw_hist
-
-  % These plots are iterated per-band.
-
-  for bidx = 1:bandcount
-
-    thisbandlabel = bandlabels{bidx};
-    thisbandtitle = bandtitles{bidx};
-
-    % Data to be plotted.
-
-    thispower = spectpower(:,bidx);
-    thistone = tonepower(:,bidx);
-    thischanidx = [];
-    thischanidx(1:chancount,1) = 1:chancount;
-
-    % Cluster information.
-
-    thispowertags = spectclusters(:,bidx);
-    thistonetags = toneclusters(:,bidx);
-
-    powercount = max(thispowertags);
-    tonecount = max(thistonetags);
-
-    % Ask for N+1 colours, since the last is the same as the first.
-    powercols = nlPlot_getColorSpread(cols.blu, (powercount+1), 360);
-    tonecols = nlPlot_getColorSpread(cols.blu, (tonecount+1), 360);
+if ~isempty(rawplotswanted)
+  euPlot_hlevPlotBandPower( spectpower, tonepower, ...
+    checkconfig.freqbinedges, chanlabels, { 'single' }, [], [], ...
+    rawplotswanted, titleprefix, fileprefix );
+end
 
 
-    % Scatter plots.
-    % X axis is total power or relative tone power.
-    % Y axis is the channel label.
+% Histogram plots.
+% X axis is total power or relative tone power.
+% Y axis is the number of channels.
 
-    if want_raw_scatter
-
-      % Total absolute power.
-
-      clf('reset');
-      thisfig.Position = newpos;
-      hold on;
-
-      for tidx = 1:powercount
-        thismask = (thispowertags == tidx);
-        goodmask = thismask & changoodvec;
-        badmask = thismask & (~changoodvec);
-
-        thisdata = thispower(goodmask);
-        if ~isempty(thisdata)
-          plot( thisdata, thischanidx(goodmask), ...
-            '+', 'Color', powercols{tidx}, 'HandleVisibility', 'off' );
-        end
-
-        thisdata = thispower(badmask);
-        if ~isempty(thisdata)
-          plot( thisdata, thischanidx(badmask), ...
-            'o', 'Color', powercols{tidx}, 'HandleVisibility', 'off' );
-        end
-      end
-
-      hold off;
-
-      legend('off');
-
-      title([ titleprefix ' - Channel Power (' thisbandtitle ')' ]);
-      xlabel('In-Band Power (a.u.)');
-      ylabel('Channel');
-
-      set( gca, 'YTick', 1:chancount, 'YTickLabel', chantitles );
-
-      saveas( thisfig, [ fileprefix '-chanpower-' thisbandlabel '.png' ] );
-
-
-      % Peak power relative to baseline. Tones will have high peak power.
-
-      clf('reset');
-      thisfig.Position = newpos;
-      hold on;
-
-      for tidx = 1:tonecount
-        thismask = (thistonetags == tidx);
-        goodmask = thismask & changoodvec;
-        badmask = thismask & (~changoodvec);
-
-        thisdata = thistone(goodmask);
-        if ~isempty(thisdata)
-          plot( thisdata, thischanidx(goodmask), ...
-            '+', 'Color', tonecols{tidx}, 'HandleVisibility', 'off' );
-        end
-
-        thisdata = thistone(badmask);
-        if ~isempty(thisdata)
-          plot( thisdata, thischanidx(badmask), ...
-            'o', 'Color', tonecols{tidx}, 'HandleVisibility', 'off' );
-        end
-      end
-
-      hold off;
-
-      legend('off');
-
-      title([ titleprefix ' - Peak Power (' thisbandtitle ')' ]);
-      xlabel('Peak Power (normalized)');
-      ylabel('Channel');
-
-      set( gca, 'YTick', 1:chancount, 'YTickLabel', chantitles );
-
-      saveas( thisfig, [ fileprefix '-chantones-' thisbandlabel '.png' ] );
-
-
-      % Restore original geometry.
-      thisfig.Position = oldpos;
-
-    end
-
-
-    % Histogram plots.
-    % X axis is total power or relative tone power.
-    % Y axis is the number of channels.
-
-    if want_raw_hist
+if ismember('rawhist', plotswanted)
 % FIXME - NYI.
-    end
-
-  end
-end
-
-
-if want_raw_heatmap
-
-  % Cyan-and-yellow heatmap.
-  colmap = nlPlot_getColorMapHotCold( ...
-    [ 0.6 0.9 1.0 ], [ 1.0 0.9 0.3 ], 1.0 );
-
-
-  % Transform the data for plotting.
-  % For power, keep it linear and make it relative to median and quartiles.
-  % For tones, make it log-scale and scale it to the median (it's one-sided).
-
-  plotpower = spectpower;
-  plottone = tonepower;
-
-
-% FIXME - Stubbing this out, since we're doing it elsewhere.
-if false
-  plottone = log10(tonepower);
-
-  for bidx = 1:bandcount
-    % Total in-band power.
-    % Normalize so that the median power is 0.
-    % Scale above and below median independently, so that quartiles are +/- 1.
-    % NOTE - Rescale so that quartiles are +/- 0.67, and we're getting
-    % standard deviations from the median (approximately).
-
-    thispower = plotpower(:,bidx);
-    thispower = thispower - median(thispower);
-
-    posmask = (thispower >= 0);
-    negmask = ~posmask;
-    posamp = prctile(thispower, 75);
-    negamp = prctile(thispower, 25);
-
-    thispower(posmask) = thispower(posmask) / posamp;
-    thispower(negmask) = thispower(negmask) / abs(negamp);
-
-    % Rescale so that we're standard deviations rather than quartiles.
-    % This is approximate!
-    thispower = 0.67 * thispower;
-
-    plotpower(:,bidx) = thispower;
-
-
-    % Tone power.
-    % Minimum is log(1) = 0. Maximum is arbitrary.
-    % Normalize so that the median relative tone power is 1.
-
-    thistone = plottone(:,bidx);
-    plottone(:,bidx) = thistone / median(thistone);
-  end
-end
-
-
-  % Render heatmaps.
-  % Data is indexed by (channel,band), and plotted as (y,x), which is fine.
-
-
-  clf('reset');
-  thisfig.Position = newpos;
-  colormap(thisfig, colmap);
-
-  nlPlot_axesPlotSurface2D( gca, plotpower, ...
-    bandtitles, chantitles, [], [], ...
-    'linear', 'linear', 'linear', ...
-    'Band', 'Channel', ...
-    [ titleprefix ' - Channel Power' ] );
-
-  % Median 0, quartiles at +/- 0.67 (1 sigma +/- 1 approximately).
-  clim([-3 3]);
-
-  thiscol = colorbar;
-  thiscol.Label.String = 'Normalized In-Band Power';
-
-  saveas( thisfig, [ fileprefix '-chanpowerheat.png' ] );
-
-
-  clf('reset');
-  thisfig.Position = newpos;
-  colormap(thisfig, colmap);
-
-  nlPlot_axesPlotSurface2D( gca, plottone, ...
-    bandtitles, chantitles, [], [], ...
-    'linear', 'linear', 'linear', ...
-    'Band', 'Channel', ...
-    [ titleprefix ' - Tone Power' ] );
-
-  % Minimum 0, median 1, log scale.
-%  clim([0 3]);
-
-  % Median 0, quartiles at +/- 0.67 (1 sigma approx +/- 1), log scale.
-  % We want the bar midpoint at 2 sigma.
-%  clim([-2 6]);
-  % Alternate: wider and midpoint near 1 sigma.
-  clim([-4 6]);
-
-  thiscol = colorbar;
-  thiscol.Label.String = 'Normalized Tone Power (log)';
-
-  saveas( thisfig, [ fileprefix '-chantonesheat.png' ] );
-
-
-  % Restore original geometry.
-  thisfig.Position = oldpos;
-
 end
 
 
