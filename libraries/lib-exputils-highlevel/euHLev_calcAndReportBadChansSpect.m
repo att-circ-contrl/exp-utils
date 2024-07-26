@@ -259,6 +259,11 @@ if want_raw_heatmap
   % For tones, make it log-scale and scale it to the median (it's one-sided).
 
   plotpower = spectpower;
+  plottone = tonepower;
+
+
+% FIXME - Stubbing this out, since we're doing it elsewhere.
+if false
   plottone = log10(tonepower);
 
   for bidx = 1:bandcount
@@ -293,6 +298,7 @@ if want_raw_heatmap
     thistone = plottone(:,bidx);
     plottone(:,bidx) = thistone / median(thistone);
   end
+end
 
 
   % Render heatmaps.
@@ -309,8 +315,8 @@ if want_raw_heatmap
     'Band', 'Channel', ...
     [ titleprefix ' - Channel Power' ] );
 
-  % Median 0, quartiles at +/- 0.67 (deviations +/- 1 approximately).
-  clim([ -3 3 ]);
+  % Median 0, quartiles at +/- 0.67 (1 sigma +/- 1 approximately).
+  clim([-3 3]);
 
   thiscol = colorbar;
   thiscol.Label.String = 'Normalized In-Band Power';
@@ -328,8 +334,14 @@ if want_raw_heatmap
     'Band', 'Channel', ...
     [ titleprefix ' - Tone Power' ] );
 
-  % Minimum 0, median 1, log10 scale.
-  clim([ 0 3 ]);
+  % Minimum 0, median 1, log scale.
+%  clim([0 3]);
+
+  % Median 0, quartiles at +/- 0.67 (1 sigma approx +/- 1), log scale.
+  % We want the bar midpoint at 2 sigma.
+%  clim([-2 6]);
+  % Alternate: wider and midpoint near 1 sigma.
+  clim([-4 6]);
 
   thiscol = colorbar;
   thiscol.Label.String = 'Normalized Tone Power (log)';

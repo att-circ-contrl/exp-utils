@@ -262,8 +262,14 @@ end
 % Get total band power and relative tone power for each bin.
 
 % NOTE - Multi-trial data was already aggregated into a single trial.
-[ spectpower tonepower ] = nlProc_getBandPower( ...
+[ spectpower tonepower normspect normtone ] = nlProc_getBandPower( ...
   ephysdata.trial{1}, samprate, config.freqbinedges );
+
+% FIXME - Swap in normalized versions of in-band and tone power.
+if true
+  spectpower = normspect;
+  tonepower = normtone;
+end
 
 
 
