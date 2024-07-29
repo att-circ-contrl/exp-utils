@@ -142,6 +142,23 @@ end
 
 
 
+% Sort by channel label.
+% FIXME - This may or may not be desirable, depending on channel mapping.
+
+if false
+  [ chanlabels sortidx ] = sort(chanlabels);
+  chantitles = chantitles(sortidx);
+
+  oldbandpower = bandpower;
+  oldtonepower = tonepower;
+  for cidx = 1:chancount
+    bandpower(cidx,:,:) = oldbandpower(sortidx(cidx),:,:);
+    tonepower(cidx,:,:) = oldtonepower(sortidx(cidx),:,:);
+  end
+end
+
+
+
 %
 % If we have multiple trials, make an additional "average" trial.
 
