@@ -109,9 +109,6 @@ for pidx = 1:passcount
 
     normband = nlProc_normalizeAcrossChannels( thisbandpower, scoremethod );
     normtone = nlProc_normalizeAcrossChannels( thistonepower, scoremethod );
-% FIXME - Diagnostics.
-disp([ min(normband,[],'all'), max(normband,[],'all'), ...
-min(normtone,[],'all'), max(normtone,[],'all') ]);
 
 
     % Get outliers.
@@ -126,16 +123,10 @@ min(normtone,[],'all'), max(normtone,[],'all') ]);
     % Compare with the "bad observations" threshold to get the mask.
     thisbadmask = (thisbadmask >= minbadcount);
 
-% FIXME - Diagnostics.
-disp(sprintf( 'xx Pass %d of %d: %d of %d channels (%d bad)', ...
-pidx, passcount, sum(validmask), length(validmask), sum(thisbadmask) ));
 
     % Update this subset of the global bad channel mask.
     badchanmask( find(validmask) ) = thisbadmask;
   end
-
-% FIXME - Diagnostics.
-disp(sprintf( 'xx %d bad channels after pass %d.', sum(badchanmask), pidx ));
 
 end
 
