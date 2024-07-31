@@ -2,7 +2,8 @@ function [ configfiles mapfiles ] = euUtil_getOpenEphysConfigFiles( topdir )
 
 % This was moved to euMeta_xx.
 
-disp('.. Deprecated function; call euMeta_getOpenEphysConfigFiles().');
+euUtil_warnDeprecated( 'euUtil_getOpenEphysConfigFiles', ...
+  'Call euMeta_getOpenEphysConfigFiles().' );
 
 [ configfiles mapfiles ] = euMeta_getOpenEphysConfigFiles(topdir);
 

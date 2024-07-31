@@ -3,7 +3,8 @@ function [ firstindices lastindices ] = ...
 
 % This was moved to nlProc_xx.
 
-disp('.. Deprecated function; call nlProc_getSlidingWindowIndices().');
+euUtil_warnDeprecated( 'euAlign_getSlidingWindowIndices', ...
+  'Call nlProc_getSlidingWindowIndices().' );
 
 [ firstindices lastindices ] = ...
   nlProc_getSlidingWindowIndices( firsttimes, secondtimes, windowrad );

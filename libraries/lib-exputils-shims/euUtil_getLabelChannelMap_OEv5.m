@@ -3,7 +3,8 @@ function [ maplabelsraw maplabelscooked ] = ...
 
 % This was moved to euMeta_xx.
 
-disp('.. Deprecated function; call euMeta_getLabelChannelMap_OEv5().');
+euUtil_warnDeprecated( 'euUtil_getLabelChannelMap_OEv5', ...
+  'Call euMeta_getLabelChannelMap_OEv5().' );
 
 [ maplabelsraw maplabelscooked ] = ...
   euMeta_getLabelChannelMap_OEv5(mapdir, datadir);

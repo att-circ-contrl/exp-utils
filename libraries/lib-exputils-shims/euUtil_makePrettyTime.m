@@ -10,6 +10,8 @@ function durstring = euUtil_makePrettyTime(dursecs)
 % "durstring" is a character array containing a terse human-readable
 %   summary of the duration.
 
+euUtil_warnDeprecated( 'euUtil_makePrettyTime', ...
+  'Call nlUtil_makePrettyTime().' );
 
 % This was moved to the LoopUtil library.
 durstring = nlUtil_makePrettyTime(dursecs);

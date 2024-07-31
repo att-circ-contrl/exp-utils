@@ -3,7 +3,8 @@ function xcorrdata = euChris_calcXCorr( ...
 
 % This was moved to euInfo_xx.
 
-disp('.. Deprecated function; call euInfo_calcXCorr() with new arguments.');
+euUtil_warnDeprecated( 'euChris_calcXCorr', ...
+  'Call euInfo_calcXCorr() with new arguments.' );
 
 
 % Translate the old-style arguments.

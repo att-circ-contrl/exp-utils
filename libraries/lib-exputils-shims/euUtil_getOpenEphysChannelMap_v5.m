@@ -2,7 +2,8 @@ function chanmap = euUtil_getOpenEphysChannelMap_v5( inputfolder )
 
 % This was moved to euMeta_xx.
 
-disp('.. Deprecated function; call euMeta_getOpenEphysChannelMap_v5().');
+euUtil_warnDeprecated( 'euUtil_getOpenEphysChannelMap_v5', ...
+  'Call euMeta_getOpenEphysChannelMap_v5().' );
 
 chanmap = euMeta_getOpenEphysChannelMap_v5(inputfolder);
 

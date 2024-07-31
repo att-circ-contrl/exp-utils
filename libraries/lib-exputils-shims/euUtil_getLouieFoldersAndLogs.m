@@ -3,7 +3,8 @@ function sessionlist = ...
 
 % This was moved to euMeta_xx.
 
-disp('.. Deprecated function; call euMeta_getLouieFoldersAndLogs().');
+euUtil_warnDeprecated( 'euUtil_getLouieFoldersAndLogs', ...
+  'Call euMeta_getLouieFoldersAndLogs().' );
 
 sessionlist = euMeta_getLouieFoldersAndLogs(sessionfolders, logfilepatterns);
 
