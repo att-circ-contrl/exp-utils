@@ -5,8 +5,7 @@ function newdata = euAlign_squashOutliers( ...
 % It was also changed to explicitly use percentiles, rather than pretending
 % to use standard deviation.
 
-euUtil_warnDeprecated( 'euAlign_squashOutliers', ...
-  'Call nlProc_squashOutliersSlidingWindow().' );
+euUtil_warnDeprecated( 'Call nlProc_squashOutliersSlidingWindow().' );
 
 newdata = nlProc_squashOutliersSlidingWindow( ...
   timeseries, olddata, windowrad, 16, outliersigma );

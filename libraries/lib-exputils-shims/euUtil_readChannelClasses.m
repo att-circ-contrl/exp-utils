@@ -3,8 +3,7 @@ function [ channames, chanclasses ] = ...
 
 % This was moved to euMeta_xx.
 
-euUtil_warnDeprecated( 'euUtil_readChannelClasses', ...
-  'Call euMeta_readChannelClasses().' );
+euUtil_warnDeprecated( 'Call euMeta_readChannelClasses().' );
 
 [ channames chanclasses ] = ...
   euMeta_readChannelClasses(fname, namecolumn, classcolumn);

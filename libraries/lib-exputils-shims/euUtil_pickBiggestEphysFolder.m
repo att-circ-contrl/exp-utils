@@ -3,8 +3,7 @@ function [ foldername foldersizes ] = ...
 
 % This was moved to euMeta_xx.
 
-euUtil_warnDeprecated( 'euUtil_pickBiggestEphysFolder', ...
-  'Call euMeta_pickBiggestEphysFolder().' );
+euUtil_warnDeprecated( 'Call euMeta_pickBiggestEphysFolder().' );
 
 [ foldername foldersizes ] = euMeta_pickBiggestEphysFolder(folderlist);
 
