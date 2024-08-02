@@ -27,37 +27,14 @@ function newdata = ...
 newdata = olddata;
 
 
-% Build a list of notches.
+% Walk through the trials, performing filtering.
 
-% FIXME - Clamp bandwidth to a reasonable minimum fraction of the frequency.
-bandwidth_minimum = 0.02;
-bw_list = max(notch_bw, notch_list * bandwidth_minimum);
-
-low_corners = notch_list - 0.5 * bw_list;
-high_corners = notch_list + 0.5 * bw_list;
-
-notch_corners = {};
-for nidx = 1:length(notch_list)
-  notch_corners{nidx} = [ low_corners(nidx), high_corners(nidx) ];
-end
-
-
-% Walk through the trials and channels, performing filtering.
-
-chancount = length(newdata.label);
 trialcount = length(newdata.trial);
 samprate = newdata.fsample;
 
 for tidx = 1:trialcount
-  thistrial = newdata.trial{tidx};
-
-  for cidx = 1:chancount
-    thiswave = thistrial(cidx,:);
-    thiswave = nlProc_filterBrickBandStop( thiswave, samprate, notch_corners );
-    thistrial(cidx,:) = thiswave;
-  end
-
-  newdata.trial{tidx} = thistrial;
+  newdata.trial{tidx} = euFT_doBrickNotchRemovalTrial( ...
+    olddata.trial{tidx}, samprate, notch_list, notch_bw );
 end
 
 
