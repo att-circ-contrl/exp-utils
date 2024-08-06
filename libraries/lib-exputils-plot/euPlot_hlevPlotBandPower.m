@@ -1,8 +1,8 @@
-function euPlot_hlevPlotBandPower( bandpower, tonepower, ...
+function euPlot_hlevPlotBandPower( bandpower, tonepower, normmethod, ...
   bandlabels, chanlabels, triallabels, bandpowerrange, tonepowerrange, ...
   plotswanted, titleprefix, fileprefix )
 
-% function euPlot_hlevPlotBandPower( bandpower, tonepower, ...
+% function euPlot_hlevPlotBandPower( bandpower, tonepower, normmethod, ...
 %   bandlabels, chanlabels, triallabels, bandpowerrange, tonepowerrange, ...
 %   plotswanted, titleprefix, fileprefix )
 %
@@ -15,14 +15,19 @@ function euPlot_hlevPlotBandPower( bandpower, tonepower, ...
 % If only one trial is defined, trial labels aren't rendered or used for
 % filenames.
 %
-% If plot ranges aren't specified, reasonable defaults are used that assume
-% the power values have been z-scored.
+% If plot ranges aren't specified, reasonable defaults are used.
+%
+% For most plots, data is z-scored across channels; for specific types of
+% plot (noted below), z-scoring is across bands instead. Z-scoring may be
+% disabled by selecting a normalization method of 'none'.
 %
 % "bandpower" is a nChans x nBands x nTrials matrix containing per-band
 %   total power for each channel, band, and trial.
 % "tonepower" is a nChans x nBands x nTrials matrix containing the ratio
 %   of maximum component power to median component power of in-band
 %   frequencies.
+% "normmethod" is 'zscore', 'median', 'twosided', or 'none', indicating
+%   which normalization method to use (per nlProc_normalizeAcrossChannels).
 % "bandlabels" is a cell array of character vectors, or a vector with
 %   nBands elements specifying band midpoint frequencies, or a vector with
 %   nBands+1 elements specifying band edge frequencies. If this is {} or [],
@@ -40,6 +45,8 @@ function euPlot_hlevPlotBandPower( bandpower, tonepower, ...
 %   'tonebychan' - Tone power for each channel; one plot per band/trial.
 %   'powerheatmap' - In-band power vs channel and band; one plot per trial.
 %   'toneheatmap' - Tone power vs channel and band; one plot per trial.
+%   'powerheatband' - As 'powerheatmap', but z-scored across bands.
+%   'toneheatband' - As 'toneheatmap', but z-scored across bands.
 % "titleprefix" is a prefix used when building plot titles.
 % "fileprefix" is a prefix used when building output filenames.
 %
@@ -56,14 +63,22 @@ trialcount = size(bandpower,3);
 % Set magic ranges.
 
 if isempty(bandpowerrange)
-  % +/- 3 sigma, with midpoint at the mean.
-  bandpowerrange = [ -3 3 ];
+  if strcmp('none', normmethod)
+    bandpowerrange = 'auto';
+  else
+    % +/- 3 sigma, with midpoint at the mean.
+    bandpowerrange = [ -3 3 ];
+  end
 end
 
 if isempty(tonepowerrange)
-  % Midpoint at +1 sigma, wide enough range to catch extreme values.
-  % Tones from noise tend to be really strong.
-  tonepowerrange = [ -4 6 ];
+  if strcmp('none', normmethod)
+    tonepowerrange = 'auto';
+  else
+    % Midpoint at +1 sigma, wide enough range to catch extreme values.
+    % Tones from noise tend to be really strong.
+    tonepowerrange = [ -4 6 ];
+  end
 end
 
 
@@ -142,20 +157,8 @@ end
 
 
 
-% Sort by channel label.
-% FIXME - This may or may not be desirable, depending on channel mapping.
-
-if false
-  [ chanlabels sortidx ] = sort(chanlabels);
-  chantitles = chantitles(sortidx);
-
-  oldbandpower = bandpower;
-  oldtonepower = tonepower;
-  for cidx = 1:chancount
-    bandpower(cidx,:,:) = oldbandpower(sortidx(cidx),:,:);
-    tonepower(cidx,:,:) = oldtonepower(sortidx(cidx),:,:);
-  end
-end
+% NOTE - There is no guarantee that channel labels are sorted!
+% That's the caller's problem.
 
 
 
@@ -173,6 +176,22 @@ if trialcount > 1
   trialtitles{trialcount+1} = 'Average';
 
   trialcount = trialcount + 1;
+end
+
+
+
+%
+% Normalize data, if requested.
+
+bandpower_nb = bandpower;
+tonepower_nb = tonepower;
+
+if ~strcmp('none', normmethod)
+  bandpower = nlProc_normalizeAcrossChannels( bandpower, normmethod );
+  tonepower = nlProc_normalizeAcrossChannels( tonepower, normmethod );
+
+  bandpower_nb = nlProc_normalizeAcrossBandTime( bandpower_nb, normmethod );
+  tonepower_nb = nlProc_normalizeAcrossBandTime( tonepower_nb, normmethod );
 end
 
 
@@ -203,6 +222,9 @@ want_tonebychan = ismember('tonebychan', plotswanted);
 
 want_powerheat = ismember('powerheatmap', plotswanted);
 want_toneheat = ismember('toneheatmap', plotswanted);
+
+want_powerheatband = ismember('powerheatband', plotswanted);
+want_toneheatband = ismember('toneheatband', plotswanted);
 
 
 % Iterate trials.
@@ -312,6 +334,52 @@ for tidx = 1:trialcount
     thiscol.Label.String = 'Tone Power';
 
     saveas( thisfig, [ fileprefix '-chantonesheat' triallabelsuffix '.png' ] );
+  end
+
+  % FIXME - Copy-pasted code for alternate normalization.
+  % For good style we'd use a helper function instead.
+
+  thispower = bandpower_nb(:,:,tidx);
+  thistone = tonepower_nb(:,:,tidx);
+
+  if want_powerheatband
+    clf('reset');
+    thisfig.Position = newpos;
+    colormap(thisfig, colmap);
+
+    nlPlot_axesPlotSurface2D( gca, thispower, ...
+      bandtitles, chantitles, [], [], ...
+      'linear', 'linear', 'linear', ...
+      'Band', 'Channel', ...
+      [ titleprefix ' - Channel Power' trialtitlesuffix ] );
+
+    clim(bandpowerrange);
+
+    thiscol = colorbar;
+    thiscol.Label.String = 'In-Band Power';
+
+    saveas( thisfig, ...
+      [ fileprefix '-chanpowerheat2' triallabelsuffix '.png' ] );
+  end
+
+  if want_toneheatband
+    clf('reset');
+    thisfig.Position = newpos;
+    colormap(thisfig, colmap);
+
+    nlPlot_axesPlotSurface2D( gca, thistone, ...
+      bandtitles, chantitles, [], [], ...
+      'linear', 'linear', 'linear', ...
+      'Band', 'Channel', ...
+      [ titleprefix ' - Tone Power' trialtitlesuffix ] );
+
+    clim(tonepowerrange);
+
+    thiscol = colorbar;
+    thiscol.Label.String = 'Tone Power';
+
+    saveas( thisfig, ...
+      [ fileprefix '-chantonesheat2' triallabelsuffix '.png' ] );
   end
 
 end
