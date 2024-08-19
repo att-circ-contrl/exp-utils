@@ -1,10 +1,10 @@
 function euPlot_hlevPlotBandPower( bandpower, tonepower, normmethod, ...
   bandlabels, chanlabels, triallabels, bandpowerrange, tonepowerrange, ...
-  plotswanted, titleprefix, fileprefix )
+  plotswanted, titleprefix, fileprefix, markedchans )
 
 % function euPlot_hlevPlotBandPower( bandpower, tonepower, normmethod, ...
 %   bandlabels, chanlabels, triallabels, bandpowerrange, tonepowerrange, ...
-%   plotswanted, titleprefix, fileprefix )
+%   plotswanted, titleprefix, fileprefix, markedchans )
 %
 % This makes plots of in-band power and tone power data returned by
 %  nlProc_getBandPower().
@@ -18,8 +18,9 @@ function euPlot_hlevPlotBandPower( bandpower, tonepower, normmethod, ...
 % If plot ranges aren't specified, reasonable defaults are used.
 %
 % For most plots, data is z-scored across channels; for specific types of
-% plot (noted below), z-scoring is across bands instead. Z-scoring may be
-% disabled by selecting a normalization method of 'none'.
+% plot (noted below), z-scoring is across bands instead, or across bands
+% followed by across channels. Z-scoring may be disabled by selecting a
+% normalization method of 'none'.
 %
 % "bandpower" is a nChans x nBands x nTrials matrix containing per-band
 %   total power for each channel, band, and trial.
@@ -47,8 +48,14 @@ function euPlot_hlevPlotBandPower( bandpower, tonepower, normmethod, ...
 %   'toneheatmap' - Tone power vs channel and band; one plot per trial.
 %   'powerheatband' - As 'powerheatmap', but z-scored across bands.
 %   'toneheatband' - As 'toneheatmap', but z-scored across bands.
+%   'powerheatdual' - As 'powerheatmap' but z-scored across band, then channel.
+%   'toneheatdual' - As 'toneheatmap' but z-scored across band, then channel.
 % "titleprefix" is a prefix used when building plot titles.
 % "fileprefix" is a prefix used when building output filenames.
+% "markedchans" is an optional argument. If present, it's a cell array of
+%   character vectors, or a vector with channel numbers. Channels in
+%   "chanlabels" that are present in this list have a marker prepended to
+%   them.
 %
 % No return value.
 
@@ -162,6 +169,28 @@ end
 
 
 
+% Deal with the optional list of channel labels to mark.
+
+if ~exist('markedchans', 'var')
+  markedchans = {};
+end
+
+if ~iscell(markedchans)
+  markedchans = nlUtil_sprintfCellArray('CH %03d', markedchans);
+end
+
+% Convert raw FT labels to the plotting label/title format.
+[ scratch markedchans ] = euUtil_makeSafeStringArray( markedchans );
+
+for cidx = 1:length(chanlabels)
+  thischan = chantitles{cidx};
+  if ismember(thischan, markedchans)
+    chantitles{cidx} = [ 'x ' thischan ];
+  end
+end
+
+
+
 %
 % If we have multiple trials, make an additional "average" trial.
 
@@ -186,12 +215,21 @@ end
 bandpower_nb = bandpower;
 tonepower_nb = tonepower;
 
+bandpower_dual = bandpower;
+tonepower_dual = tonepower;
+
 if ~strcmp('none', normmethod)
   bandpower = nlProc_normalizeAcrossChannels( bandpower, normmethod );
   tonepower = nlProc_normalizeAcrossChannels( tonepower, normmethod );
 
   bandpower_nb = nlProc_normalizeAcrossBandTime( bandpower_nb, normmethod );
   tonepower_nb = nlProc_normalizeAcrossBandTime( tonepower_nb, normmethod );
+
+  % Normalize a second time. The effect is to compare differences in the
+  % shape of the spectrum between channels, rather than absolute amplitudes.
+
+  bandpower_dual = nlProc_normalizeAcrossChannels( bandpower_nb, normmethod );
+  tonepower_dual = nlProc_normalizeAcrossChannels( tonepower_nb, normmethod );
 end
 
 
@@ -225,6 +263,9 @@ want_toneheat = ismember('toneheatmap', plotswanted);
 
 want_powerheatband = ismember('powerheatband', plotswanted);
 want_toneheatband = ismember('toneheatband', plotswanted);
+
+want_powerheatdual= ismember('powerheatdual', plotswanted);
+want_toneheatdual = ismember('toneheatdual', plotswanted);
 
 
 % Iterate trials.
@@ -292,94 +333,69 @@ for tidx = 1:trialcount
   end
 
 
+
   % Render heatmaps.
   % Data is indexed by (channel,band), and plotted as (y,x), which is fine.
 
-  thispower = bandpower(:,:,tidx);
-  thistone = tonepower(:,:,tidx);
+  % We have six different cases to plot. Instead of cutting and pasting,
+  % use a helper function.
+
+
+  % Z-scored across channels.
 
   if want_powerheat
-    clf('reset');
-    thisfig.Position = newpos;
-    colormap(thisfig, colmap);
-
-    nlPlot_axesPlotSurface2D( gca, thispower, ...
-      bandtitles, chantitles, [], [], ...
-      'linear', 'linear', 'linear', ...
-      'Band', 'Channel', ...
-      [ titleprefix ' - Channel Power' trialtitlesuffix ] );
-
-    clim(bandpowerrange);
-
-    thiscol = colorbar;
-    thiscol.Label.String = 'In-Band Power';
-
-    saveas( thisfig, [ fileprefix '-chanpowerheat' triallabelsuffix '.png' ] );
+    euPlot_hlevPlotBandPower_helper( ...
+      thisfig, newpos, colmap, bandtitles, chantitles, ...
+      bandpower(:,:,tidx), 'In-Band Power', bandpowerrange, ...
+      [ titleprefix ' - Channel Power' trialtitlesuffix ], ...
+      [ fileprefix '-chanpowerheat' triallabelsuffix '.png' ] );
   end
 
   if want_toneheat
-    clf('reset');
-    thisfig.Position = newpos;
-    colormap(thisfig, colmap);
-
-    nlPlot_axesPlotSurface2D( gca, thistone, ...
-      bandtitles, chantitles, [], [], ...
-      'linear', 'linear', 'linear', ...
-      'Band', 'Channel', ...
-      [ titleprefix ' - Tone Power' trialtitlesuffix ] );
-
-    clim(tonepowerrange);
-
-    thiscol = colorbar;
-    thiscol.Label.String = 'Tone Power';
-
-    saveas( thisfig, [ fileprefix '-chantonesheat' triallabelsuffix '.png' ] );
+    euPlot_hlevPlotBandPower_helper( ...
+      thisfig, newpos, colmap, bandtitles, chantitles, ...
+      tonepower(:,:,tidx), 'Tone Power', tonepowerrange, ...
+      [ titleprefix ' - Tone Power' trialtitlesuffix ], ...
+      [ fileprefix '-chantonesheat' triallabelsuffix '.png' ] );
   end
 
-  % FIXME - Copy-pasted code for alternate normalization.
-  % For good style we'd use a helper function instead.
 
-  thispower = bandpower_nb(:,:,tidx);
-  thistone = tonepower_nb(:,:,tidx);
+  % Z-scored across bands.
 
   if want_powerheatband
-    clf('reset');
-    thisfig.Position = newpos;
-    colormap(thisfig, colmap);
-
-    nlPlot_axesPlotSurface2D( gca, thispower, ...
-      bandtitles, chantitles, [], [], ...
-      'linear', 'linear', 'linear', ...
-      'Band', 'Channel', ...
-      [ titleprefix ' - Channel Power' trialtitlesuffix ] );
-
-    clim(bandpowerrange);
-
-    thiscol = colorbar;
-    thiscol.Label.String = 'In-Band Power';
-
-    saveas( thisfig, ...
+    euPlot_hlevPlotBandPower_helper( ...
+      thisfig, newpos, colmap, bandtitles, chantitles, ...
+      bandpower_nb(:,:,tidx), 'In-Band Power', bandpowerrange, ...
+      [ titleprefix ' - Channel Power' trialtitlesuffix ], ...
       [ fileprefix '-chanpowerheat2' triallabelsuffix '.png' ] );
   end
 
   if want_toneheatband
-    clf('reset');
-    thisfig.Position = newpos;
-    colormap(thisfig, colmap);
-
-    nlPlot_axesPlotSurface2D( gca, thistone, ...
-      bandtitles, chantitles, [], [], ...
-      'linear', 'linear', 'linear', ...
-      'Band', 'Channel', ...
-      [ titleprefix ' - Tone Power' trialtitlesuffix ] );
-
-    clim(tonepowerrange);
-
-    thiscol = colorbar;
-    thiscol.Label.String = 'Tone Power';
-
-    saveas( thisfig, ...
+    euPlot_hlevPlotBandPower_helper( ...
+      thisfig, newpos, colmap, bandtitles, chantitles, ...
+      tonepower_nb(:,:,tidx), 'Tone Power', tonepowerrange, ...
+      [ titleprefix ' - Tone Power' trialtitlesuffix ], ...
       [ fileprefix '-chantonesheat2' triallabelsuffix '.png' ] );
+  end
+
+
+  % Z-scored across bands and then channels.
+  % FIXME - Double the colour bar scale for these plots.
+
+  if want_powerheatdual
+    euPlot_hlevPlotBandPower_helper( ...
+      thisfig, newpos, colmap, bandtitles, chantitles, ...
+      bandpower_dual(:,:,tidx), 'In-Band Power', bandpowerrange * 2, ...
+      [ titleprefix ' - Channel Power' trialtitlesuffix ], ...
+      [ fileprefix '-chanpowerheat3' triallabelsuffix '.png' ] );
+  end
+
+  if want_toneheatdual
+    euPlot_hlevPlotBandPower_helper( ...
+      thisfig, newpos, colmap, bandtitles, chantitles, ...
+      tonepower_dual(:,:,tidx), 'Tone Power', tonepowerrange * 2, ...
+      [ titleprefix ' - Tone Power' trialtitlesuffix ], ...
+      [ fileprefix '-chantonesheat3' triallabelsuffix '.png' ] );
   end
 
 end
@@ -395,6 +411,36 @@ close(thisfig);
 
 % Done.
 end
+
+
+
+%
+% Helper Functions
+
+
+% Heatmap plotting helper.
+
+function euPlot_hlevPlotBandPower_helper( ...
+  thisfig, newpos, colmap, bandtitles, chantitles, ...
+  datamatrix, coltitle, colrange, figtitle, outfile )
+
+  clf('reset');
+  thisfig.Position = newpos;
+  colormap(thisfig, colmap);
+
+  nlPlot_axesPlotSurface2D( gca, datamatrix, ...
+    bandtitles, chantitles, [], [], ...
+    'linear', 'linear', 'linear', ...
+    'Band', 'Channel', figtitle );
+
+  clim(colrange);
+
+  thiscol = colorbar;
+  thiscol.Label.String = coltitle;
+
+  saveas( thisfig, outfile );
+end
+
 
 
 %
