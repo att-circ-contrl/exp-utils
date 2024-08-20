@@ -33,7 +33,8 @@ function euPlot_plotFTTrials( wavedata_ft, wavesamprate, ...
 %   and 'rwdB'.
 % "evsamprate" is the sampling rate used when reading events.
 % "plots_wanted" is a cell array containing zero or more of 'oneplot',
-%   'perchannel', and 'pertrial', controlling which plots are produced.
+%   'perchannel', 'pertrial', and 'stripchart', controlling which plots are
+%   produced.
 % "window_sizes" is a cell array. Each cell contains a plot time range
 %   [ begin end ] in seconds, or [] for the full data extent.
 % "size_labels" is a cell array containing filename-safe labels used when
@@ -83,7 +84,7 @@ trialnames = euPlot_helperMakeTrialNames(trialnames, trialcount);
 % If we were passed an empty trial definition table, make one with bogus
 % information.
 % This is used to time-align events. Filling it with NaN is fine; events
-% all fail there "is event visible" checks.
+% all fail their "is event visible" checks.
 
 if isempty(trialdefs)
   trialdefs = nan( [ trialcount, 3 ] );
@@ -101,10 +102,12 @@ if ismember('oneplot', plots_wanted)
     legendpos = 'off';
   end
 
+  wantspread = false;
+
   helper_plotAllZooms( thisfig, wavedata_ft, wavesamprate, ...
     trialdefs, trialnames, trialsamprate, {}, {}, ...
     evcodes, evrwdA, evrwdB, evsamprate, ...
-    legendpos, [ figtitle ' - All' ], [ obase '-all' ], ...
+    wantspread, legendpos, [ figtitle ' - All' ], [ obase '-all' ], ...
     window_sizes, size_labels );
 
 end
@@ -119,6 +122,8 @@ if ismember('perchannel', plots_wanted)
     legendpos = 'off';
   end
 
+  wantspread = false;
+
   % Get an acceptance mask for channels, in case there are too many.
   wantplot = euPlot_decimatePlotsBresenham(max_count_per_size, chanlist);
 
@@ -129,7 +134,7 @@ if ismember('perchannel', plots_wanted)
 
       helper_plotAllZooms( thisfig, wavedata_ft, wavesamprate, ...
         trialdefs, trialnames, trialsamprate, { thischan }, {}, ...
-        evcodes, evrwdA, evrwdB, evsamprate, legendpos, ...
+        evcodes, evrwdA, evrwdB, evsamprate, wantspread, legendpos, ...
         [ figtitle ' - ' thischantitle ], [ obase '-' thischanlabel ], ...
         window_sizes, size_labels );
     end
@@ -147,6 +152,8 @@ if ismember('pertrial', plots_wanted)
     legendpos = 'off';
   end
 
+  wantspread = false;
+
   % Get an acceptance mask for trials, in case there are too many.
   wantplot = euPlot_decimatePlotsBresenham(max_count_per_size, trialnames);
 
@@ -156,7 +163,37 @@ if ismember('pertrial', plots_wanted)
 
       helper_plotAllZooms( thisfig, wavedata_ft, wavesamprate, ...
         trialdefs, trialnames, trialsamprate, {}, trialnames(tidx), ...
-        evcodes, evrwdA, evrwdB, evsamprate, legendpos, ...
+        evcodes, evrwdA, evrwdB, evsamprate, wantspread, legendpos, ...
+        [ figtitle ' - ' trialtitle ], [ obase '-' triallabel ], ...
+        window_sizes, size_labels );
+    end
+  end
+
+end
+
+
+% Generate strip-chart plots.
+% Only do this if we have more than one channel.
+% We have one plot per trial.
+
+if ismember('stripchart', plots_wanted) ...
+  && (length(wavedata_ft.label) > 1)
+
+  % The strip chart annotates each wave with the channel name, so no legend.
+  legendpos = 'off';
+
+  wantspread = true;
+
+  % Get an acceptance mask for trials, in case there are too many.
+  wantplot = euPlot_decimatePlotsBresenham(max_count_per_size, trialnames);
+
+  for tidx = 1:trialcount
+    if wantplot(tidx)
+      [ triallabel trialtitle ] = euUtil_makeSafeString( trialnames{tidx} );
+
+      helper_plotAllZooms( thisfig, wavedata_ft, wavesamprate, ...
+        trialdefs, trialnames, trialsamprate, {}, trialnames(tidx), ...
+        evcodes, evrwdA, evrwdB, evsamprate, wantspread, legendpos, ...
         [ figtitle ' - ' trialtitle ], [ obase '-' triallabel ], ...
         window_sizes, size_labels );
     end
@@ -181,25 +218,78 @@ end
 function helper_plotAllZooms( thisfig, wavedata_ft, wavesamprate, ...
   trialdefs, trialnames, trialsamprate, chanlist, triallist, ...
   evcodes, evrwdA, evrwdB, evsamprate, ...
-  legendpos, titlebase, obase, zoomsizes, zoomlabels )
+  wantspread, legendpos, titlebase, obase, zoomsizes, zoomlabels )
+
+  figure(thisfig);
+  clf('reset');
+
+
+  % Adjust the figure size if we're making a strip-chart plot.
+
+  oldpos = thisfig.Position;
+  newpos = oldpos;
+
+  spread_fraction = 0.5;
+
+  if wantspread
+    chancount = length(chanlist);
+    if isempty(chanlist)
+      chancount = length(wavedata_ft.label);
+    end
+
+    [ oldpos newpos ] = nlPlot_makeFigureTaller( thisfig, chancount, 8 );
+  end
+
+
+  % Call the plotting helper for each zoom level.
 
   for zidx = 1:length(zoomlabels)
 
     thiszlabel = zoomlabels{zidx};
     thiszoom = zoomsizes{zidx};
 
-    figure(thisfig);
     clf('reset');
+    thisfig.Position = newpos;
     thisax = gca();
 
-    euPlot_axesPlotFTTrials( thisax, wavedata_ft, wavesamprate, ...
-      trialdefs, trialnames, trialsamprate, ...
-      chanlist, triallist, thiszoom, {}, ...
-      evcodes, evrwdA, evrwdB, evsamprate, legendpos, titlebase );
+    if wantspread
+
+      % FIXME - Kludge. Call the timelock helper!
+
+      % FIXME - Very messy kludge to extract the desired trials and make
+      % them look like timelock output.
+
+      thisname = triallist{1};
+      trialmask = strcmp(trialnames, thisname);
+
+      wavedata_ft.time = wavedata_ft.time(trialmask);
+      wavedata_ft.time = wavedata_ft.time{1};
+      wavedata_ft.trial = wavedata_ft.trial(trialmask);
+      scratch = wavedata_ft.trial{1};
+      wavedata.ft_trial = scratch;
+      wavedata_ft.avg = scratch;
+      wavedata_ft.var = nan(size(scratch));
+      wavedata_ft.dof = ones(size(scratch));
+
+      euPlot_axesPlotFTTimelock( thisax, wavedata_ft, ...
+        chanlist, spread_fraction, NaN, thiszoom, [], legendpos, titlebase );
+
+    else
+      euPlot_axesPlotFTTrials( thisax, wavedata_ft, wavesamprate, ...
+        trialdefs, trialnames, trialsamprate, ...
+        chanlist, triallist, thiszoom, {}, ...
+        evcodes, evrwdA, evrwdB, evsamprate, legendpos, titlebase );
+    end
 
     saveas( thisfig, sprintf('%s-%s.png', obase, thiszlabel) );
 
   end
+
+
+  % Restore the original figure size.
+  clf('reset');
+  thisfig.Position = oldpos;
+
 
   % Done.
 end

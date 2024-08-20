@@ -144,12 +144,7 @@ function helper_plotAllZooms( thisfig, timelockdata_ft, chanlist, ...
       chancount = length(timelockdata_ft.label);
     end
 
-    if chancount > 1
-      ysize = newpos(4);
-      ysize = round( ysize * 0.25 );
-      ystride = round( spread_fraction * ysize );
-      newpos(4) = ysize + (chancount - 1) * ystride;
-    end
+    [ oldpos newpos ] = nlPlot_makeFigureTaller( thisfig, chancount, 8 );
   end
 
 
