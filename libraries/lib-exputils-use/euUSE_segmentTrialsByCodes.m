@@ -100,15 +100,22 @@ if discardbad
     prevtable = pertrialtabs{tidx-1};
     thistable = pertrialtabs{tidx};
 
-    prevline = prevtable(strcmp(prevtable.(labelfield), 'TrialNumber'),:);
-    thisline = thistable(strcmp(thistable.(labelfield), 'TrialNumber'),:);
+    % This may match multiple times, for ill-formed trials.
+    prevmask = strcmp(prevtable.(labelfield), 'TrialNumber');
+    thismask = strcmp(thistable.(labelfield), 'TrialNumber');
+
+    prevline = prevtable(max(find(prevmask)),:);
+    thisline = thistable(max(find(thismask)),:);
 
     if (~isempty(prevline)) && (~isempty(thisline))
       if thisline.(valuefield) ~= prevline.(valuefield)
         % We just incremented TrialNumber.
         % This means the "previous" trial was valid.
-        keepcount = keepcount + 1;
-        keeplist(keepcount) = tidx-1;
+        % Make sure it isn't an ill-formed trial, though.
+        if sum(prevmask) == 1
+          keepcount = keepcount + 1;
+          keeplist(keepcount) = tidx-1;
+        end
       end
     end
   end
