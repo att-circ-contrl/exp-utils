@@ -132,6 +132,19 @@ badchanlist.('FrProbe0222050600801') = scratch;
 
 scratch = struct();
 
+% Probe tip span and 059 looked like they had 60 Hz interference.
+scratch.('prACC1') = ...
+{ 'CH_002', 'CH_010', 'CH_012', 'CH_022', 'CH_030', 'CH_043', 'CH_045', ...
+  'CH_048', 'CH_053', 'CH_060', 'CH_061', 'CH_062', 'CH_063', 'CH_064' };
+
+% Either the tip/cable damage healed or it was intereference instead of
+% damage. Much less severe than previously.
+% Lots of suspicious channels, but hard to disambiguate on spectrum plots.
+scratch.('prCD1') = ...
+{ 'CH_066', 'CH_067', 'CH_073', 'CH_074', 'CH_075', ...
+  'CH_078', 'CH_094', 'CH_111', 'CH_112', 'CH_123', ...
+  'CH_124', 'CH_125', 'CH_126', 'CH_127', 'CH_128' };
+
 badchanlist.('FrProbe0222050900901') = scratch;
 
 
