@@ -1,0 +1,25 @@
+Bad channel lists, and other lists such as channels-of-interest, are stored
+as hierarchical structures with the format described below.
+
+
+A top-level channel list is a structure indexed by session label, containing
+session channel lists.
+
+A session channel list is a structure indexed by probe label, containing
+cell arrays with channel labels.
+
+
+Example:
+
+badchanlist = struct();
+badchanlist.('Session1') = struct();
+badchanlist.('Session1').('Probe1') = { 'CH_005', 'CH_008' };
+
+
+FIXME - Support the option of the top-level list or per-session lists
+being cell arrays. The cleanest way to do this is probably to make a query
+function that takes session and probe as the argument and returns a cell
+array.
+
+
+(This is the end of the file.)
