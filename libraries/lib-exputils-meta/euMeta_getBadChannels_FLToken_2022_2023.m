@@ -33,6 +33,10 @@ badchanlist = struct();
 % Frey Sessions
 
 
+% NOTE - I suspect a channel map error. CH_059 looks like it should be
+% next to CH_014.
+
+
 
 % 2022 05 02 session.
 
@@ -153,6 +157,16 @@ badchanlist.('FrProbe0222050900901') = scratch;
 
 scratch = struct();
 
+scratch.('prACC1') = ...
+{ 'CH_002', 'CH_010', 'CH_012', 'CH_022', 'CH_030', 'CH_043', 'CH_045', ...
+  'CH_048', 'CH_053', 'CH_060', 'CH_061', 'CH_062', 'CH_063', 'CH_064' };
+
+% No _good_ channels to compare to.
+% 066 through 076 look suspicious, but are LF dominated, not 60 Hz.
+scratch.('prCD1') = ...
+{ 'CH_078', 'CH_094', ...
+  'CH_124', 'CH_125', 'CH_126', 'CH_127', 'CH_128' };
+
 badchanlist.('FrProbe0222051001001') = scratch;
 
 
@@ -161,13 +175,36 @@ badchanlist.('FrProbe0222051001001') = scratch;
 
 scratch = struct();
 
+scratch.('prACC1') = ...
+{ 'CH_002', 'CH_010', 'CH_012', 'CH_022', 'CH_030', 'CH_043', 'CH_045', ...
+  'CH_048', 'CH_053', 'CH_060', 'CH_061', 'CH_062', 'CH_063', 'CH_064' };
+
+% Lots of suspicious channels that showed up before: 083, 090, 092, 104,
+% 106, 107, 108, 111, 112.
+% 066 through 076 have a big blob, but are LF dominated, not 60 Hz.
+scratch.('prCD1') = ...
+{ 'CH_078', 'CH_094', ...
+  'CH_124', 'CH_125', 'CH_126', 'CH_127', 'CH_128' };
+
 badchanlist.('FrProbe0222051101101') = scratch;
 
 
 
 % 2022 06 30 session.
+% Different probes, looks like.
 
 scratch = struct();
+
+% Suspicious: 067, 068, 069, 090, 091, 092, 109, 110.
+scratch.('prACC1') = ...
+{ 'CH_081', 'CH_094', ...
+  'CH_124', 'CH_125', 'CH_126', 'CH_127', 'CH_128' };
+
+% Suspicious: 014, 046, 059
+% Nice-looking LFP activity and spiking (from spectrum): 026
+scratch.('prCD1') = ...
+{ 'CH_002', 'CH_030', ...
+  'CH_060', 'CH_061', 'CH_062', 'CH_063', 'CH_064' };
 
 badchanlist.('FrProbe0322063000102') = scratch;
 
@@ -184,15 +221,18 @@ scratch.('prACC1') = ...
   'CH_316', 'CH_317', 'CH_318', 'CH_319', 'CH_320' };
 
 % This looks like it had four very different layers.
-% Also suspicious: 001, 002, 044.
+% Also suspicious: 002, 044.
 % 016/017/018/045 might be a bad group or might be a real feature.
+% Suspicious: 031, 046, 059.
 scratch.('prPFC1') = ...
-{ 'CH_029', 'CH_030', 'CH_060', 'CH_061', 'CH_062', 'CH_063', 'CH_064' };
+{ 'CH_001', 'CH_029', 'CH_030', ...
+  'CH_060', 'CH_061', 'CH_062', 'CH_063', 'CH_064' };
 
 % This also seems to have layers and several different mixed types.
 % Might be bad or might be real: 131/132/133 blob at 60-120 Hz.
 scratch.('prCD1') = ...
-{ 'CH_130', 'CH_158', 'CH_188', 'CH_189', 'CH_190', 'CH_191', 'CH_192' };
+{ 'CH_130', 'CH_158', ...
+  'CH_188', 'CH_189', 'CH_190', 'CH_191', 'CH_192' };
 
 badchanlist.('FrProbe0322071300201') = scratch;
 
@@ -201,6 +241,24 @@ badchanlist.('FrProbe0322071300201') = scratch;
 % 2022 07 21 session.
 
 scratch = struct();
+
+% Suspicious: 289, 303, 304, 315.
+scratch.('prACC1') = ...
+{ 'CH_257', 'CH_269', 'CH_284', 'CH_285', 'CH_286', 'CH_297', 'CH_300', ...
+  'CH_316', 'CH_317', 'CH_318', 'CH_319', 'CH_320' };
+
+% Suspicious spectra, but I think it may be legit activity:
+% 331, 332, 333, 334, 348, 349, 350, 363, 367, 368, 369, 370
+% If there _aren't_ bad channels, channels with LFP or spiking look extreme.
+scratch.('prACC2') = ...
+{ 'CH_380', 'CH_381', 'CH_382', 'CH_383', 'CH_384' };
+
+scratch.('prPFC1') = ...
+{ 'CH_030', 'CH_060', 'CH_061', 'CH_062', 'CH_063', 'CH_064' };
+
+% Suspicious: 159, 173, 174, 187.
+scratch.('prCD1') = ...
+{ 'CH_130', 'CH_158', 'CH_188', 'CH_189', 'CH_190', 'CH_191', 'CH_192' };
 
 badchanlist.('FrProbe0322072100401') = scratch;
 
@@ -215,7 +273,7 @@ badchanlist.('FrProbe0322072100401') = scratch;
 
 scratch = struct();
 
-badchanlist.('') = scratch;
+%badchanlist.('') = scratch;
 
 
 
