@@ -69,7 +69,7 @@ end
 % Prune the channel list if we want fewer per-channel plots.
 
 if chancount > max_count_per_size
-  wantplot = euPlot_decimatePlotsBresenham(max_count_per_size, chanlist);
+  wantplot = nlProc_decimateBresenham(max_count_per_size, chanlist);
   chanlist = chanlist(wantplot);
   chancount = length(chanlist);
 end

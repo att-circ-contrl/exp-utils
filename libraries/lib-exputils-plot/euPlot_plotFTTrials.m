@@ -125,7 +125,7 @@ if ismember('perchannel', plots_wanted)
   wantspread = false;
 
   % Get an acceptance mask for channels, in case there are too many.
-  wantplot = euPlot_decimatePlotsBresenham(max_count_per_size, chanlist);
+  wantplot = nlProc_decimateBresenham(max_count_per_size, chanlist);
 
   for cidx = 1:chancount
     if wantplot(cidx)
@@ -155,7 +155,7 @@ if ismember('pertrial', plots_wanted)
   wantspread = false;
 
   % Get an acceptance mask for trials, in case there are too many.
-  wantplot = euPlot_decimatePlotsBresenham(max_count_per_size, trialnames);
+  wantplot = nlProc_decimateBresenham(max_count_per_size, trialnames);
 
   for tidx = 1:trialcount
     if wantplot(tidx)
@@ -185,7 +185,7 @@ if ismember('stripchart', plots_wanted) ...
   wantspread = true;
 
   % Get an acceptance mask for trials, in case there are too many.
-  wantplot = euPlot_decimatePlotsBresenham(max_count_per_size, trialnames);
+  wantplot = nlProc_decimateBresenham(max_count_per_size, trialnames);
 
   for tidx = 1:trialcount
     if wantplot(tidx)

@@ -76,7 +76,7 @@ size_labels = size_labels(zoommask);
 
 % Mask off trials to get the desired number of plots.
 
-trialmask = euPlot_decimatePlotsBresenham( max_count_per_size, trialtimes );
+trialmask = nlProc_decimateBresenham( max_count_per_size, trialtimes );
 
 
 

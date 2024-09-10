@@ -136,7 +136,7 @@ end
 % Prune the plot list.
 
 % This works fine if we already have fewer than the desired number.
-wantplot = euPlot_decimatePlotsBresenham( max_plot_count, trigtimes );
+wantplot = nlProc_decimateBresenham( max_plot_count, trigtimes );
 
 
 %
