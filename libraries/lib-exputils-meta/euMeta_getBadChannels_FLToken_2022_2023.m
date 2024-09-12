@@ -196,13 +196,13 @@ badchanlist.('FrProbe0222051101101') = scratch;
 scratch = struct();
 
 % Suspicious: 067, 068, 069, 090, 091, 092, 109, 110.
-scratch.('prACC1') = ...
+scratch.('prCD1') = ...
 { 'CH_081', 'CH_094', ...
   'CH_124', 'CH_125', 'CH_126', 'CH_127', 'CH_128' };
 
 % Suspicious: 014, 046, 059
 % Nice-looking LFP activity and spiking (from spectrum): 026
-scratch.('prCD1') = ...
+scratch.('prCD2') = ...
 { 'CH_002', 'CH_030', ...
   'CH_060', 'CH_061', 'CH_062', 'CH_063', 'CH_064' };
 
@@ -269,11 +269,241 @@ badchanlist.('FrProbe0322072100401') = scratch;
 
 
 
-% 2023 02  session.
+% 2023 02 13 session.
 
 scratch = struct();
 
-%badchanlist.('') = scratch;
+% NOTE - Very hard to tell bad channels apart from channels with unusual
+% spectra.
+
+scratch.('prACC1') = ...
+{ 'CH_102', 'CH_124', 'CH_125', 'CH_126', 'CH_127', 'CH_128' };
+
+% 53 also suspicious.
+scratch.('prACC2') = ...
+{ 'CH_030', 'CH_060', 'CH_061', 'CH_062', 'CH_063', 'CH_064' };
+
+% Also suspicious: 197, 198, 240, 241.
+scratch.('prPFC1') = ...
+{ 'CH_222', 'CH_252', 'CH_253', 'CH_254', 'CH_255', 'CH_256' };
+
+% Also suspicious: 145, 146, 147.
+scratch.('prPFC2') = ...
+{ 'CH_167', 'CH_188', 'CH_189', 'CH_190', 'CH_191', 'CH_192' };
+
+scratch.('prCD1') = ...
+{ 'CH_334', 'CH_350', 'CH_380', 'CH_381', 'CH_382', 'CH_383', 'CH_384' };
+
+% Also suspicious: 257, 258.
+scratch.('prCD2') = ...
+{ 'CH_286', 'CH_316', 'CH_317', 'CH_318', 'CH_319', 'CH_320' };
+
+badchanlist.('WoProbe0123021300301') = scratch;
+
+
+
+% 2023 02 22 session.
+
+scratch = struct();
+
+% Also suspicious: 091, 094.
+scratch.('prACC1') = ...
+{ 'CH_068', 'CH_124', 'CH_125', 'CH_126', 'CH_127', 'CH_128' };
+
+scratch.('prACC2') = ...
+{ 'CH_030', 'CH_039', 'CH_060', 'CH_061', 'CH_062', 'CH_063', 'CH_064' };
+
+scratch.('prPFC1') = ...
+{ 'CH_206', 'CH_222', 'CH_252', 'CH_253', 'CH_254', 'CH_255', 'CH_256' };
+
+% Also suspicious: 355, 356, 373, 374, 375
+scratch.('prCD1') = ...
+{ 'CH_334', 'CH_350', 'CH_380', 'CH_381', 'CH_382', 'CH_383', 'CH_384' };
+
+scratch.('prCD2') = ...
+{ 'CH_270', 'CH_286', 'CH_316', 'CH_317', 'CH_318', 'CH_319', 'CH_320' };
+
+badchanlist.('WoProbe0123022200701') = scratch;
+
+
+
+% 2023 02 23 session.
+
+scratch = struct();
+
+% NOTE - Channel order looks iffy.
+
+% Also suspicious: 091, 095.
+scratch.('prACC1') = ...
+{ 'CH_094', 'CH_124', 'CH_125', 'CH_126', 'CH_127', 'CH_128' };
+
+% Also suspicious: 004
+scratch.('prACC2') = ...
+{ 'CH_030', 'CH_039', 'CH_060', 'CH_061', 'CH_062', 'CH_063', 'CH_064' };
+
+% Also suspicious: 196, 207, 242.
+scratch.('prPFC1') = ...
+{ 'CH_222', 'CH_252', 'CH_253', 'CH_254', 'CH_255', 'CH_256' };
+
+scratch.('prCD1') = ...
+{ 'CH_334', 'CH_350', 'CH_380', 'CH_381', 'CH_382', 'CH_383', 'CH_384' };
+
+% Also suspicious: 260.
+scratch.('prCD2') = ...
+{ 'CH_286', 'CH_316', 'CH_317', 'CH_318', 'CH_319', 'CH_320' };
+
+badchanlist.('WoProbe0123022300801') = scratch;
+
+
+
+% 2023 02 24 session.
+
+scratch = struct();
+
+scratch.('prACC1') = ...
+{ 'CH_094', 'CH_124', 'CH_125', 'CH_126', 'CH_127', 'CH_128' };
+
+% Tones: 001, 017
+scratch.('prACC2') = ...
+{ 'CH_030', 'CH_039', 'CH_060', 'CH_061', 'CH_062', 'CH_063', 'CH_064' };
+
+% Also suspicious: 203, 207. Maybe features.
+scratch.('prPFC1') = ...
+{ 'CH_222', 'CH_252', 'CH_253', 'CH_254', 'CH_255', 'CH_256' };
+
+% Also suspicious: 346, 347.
+scratch.('prCD1') = ...
+{ 'CH_334', 'CH_350', 'CH_380', 'CH_381', 'CH_382', 'CH_383', 'CH_384' };
+
+% Also suspicious: 273 (tone), 284.
+scratch.('prCD2') = ...
+{ 'CH_286', 'CH_316', 'CH_317', 'CH_318', 'CH_319', 'CH_320' };
+
+badchanlist.('WoProbe0123022400901') = scratch;
+
+
+
+% 2023 02 27 session.
+
+scratch = struct();
+
+% Can't tell if suspicious or spiky: 068.
+scratch.('prACC1') = ...
+{ 'CH_094', 'CH_124', 'CH_125', 'CH_126', 'CH_127', 'CH_128' };
+
+% Also suspicious: 004.
+scratch.('prACC2') = ...
+{ 'CH_030', 'CH_039', 'CH_060', 'CH_061', 'CH_062', 'CH_063', 'CH_064' };
+
+% Also suspicious: 197, 198, 207, 240, 241.
+scratch.('prPFC1') = ...
+{ 'CH_222', 'CH_252', 'CH_253', 'CH_254', 'CH_255', 'CH_256' };
+
+% Looks like channel mapping errors.
+scratch.('prCD1') = ...
+{ 'CH_334', 'CH_336', 'CH_350', ...
+  'CH_380', 'CH_381', 'CH_382', 'CH_383', 'CH_384' };
+
+% Also suspicious: 273, 284.
+scratch.('prCD2') = ...
+{ 'CH_286', 'CH_316', 'CH_317', 'CH_318', 'CH_319', 'CH_320' };
+
+badchanlist.('WoProbe0123022701001') = scratch;
+
+
+
+% 2023 02 28 session.
+
+scratch = struct();
+
+scratch.('prACC1') = ...
+{ 'CH_091', 'CH_094', 'CH_095', ...
+  'CH_124', 'CH_125', 'CH_126', 'CH_127', 'CH_128' };
+
+% Also suspicious: 014.
+scratch.('prACC2') = ...
+{ 'CH_030', 'CH_039', 'CH_060', 'CH_061', 'CH_062', 'CH_063', 'CH_064' };
+
+% 199 and 201 migh be false positives, but look a lot like 206.
+scratch.('prPFC1') = ...
+{ 'CH_199', 'CH_201', 'CH_206', 'CH_222', ...
+  'CH_252', 'CH_253', 'CH_254', 'CH_255', 'CH_256' };
+
+scratch.('prCD1') = ...
+{ 'CH_334', 'CH_350', ...
+  'CH_380', 'CH_381', 'CH_382', 'CH_383', 'CH_384' };
+
+% Also suspicious: 262.
+scratch.('prCD2') = ...
+{ 'CH_270', 'CH_286', 'CH_316', 'CH_317', 'CH_318', 'CH_319', 'CH_320' };
+
+badchanlist.('WoProbe0123022801101') = scratch;
+
+
+
+% 2023 03 01 session.
+
+scratch = struct();
+
+scratch.('pr') = ...
+{  };
+
+badchanlist.('WoProbe0123030101201') = scratch;
+
+
+
+% 2023 03 02 session.
+
+scratch = struct();
+
+scratch.('pr') = ...
+{  };
+
+badchanlist.('WoProbe0123030201301') = scratch;
+
+
+
+% 2023 03 03 session.
+
+scratch = struct();
+
+scratch.('pr') = ...
+{  };
+
+badchanlist.('WoProbe0123030301401') = scratch;
+
+
+
+% 2023 03 07 session.
+
+scratch = struct();
+
+scratch.('pr') = ...
+{  };
+
+badchanlist.('WoProbe0123030701601') = scratch;
+
+
+
+% 2023 03 08 session.
+
+scratch = struct();
+
+scratch.('pr') = ...
+{  };
+
+badchanlist.('WoProbe0123030801701') = scratch;
+
+
+
+% 2023 03 09 session.
+
+scratch = struct();
+
+scratch.('pr') = ...
+{  };
+
+badchanlist.('WoProbe0123030901801') = scratch;
 
 
 
