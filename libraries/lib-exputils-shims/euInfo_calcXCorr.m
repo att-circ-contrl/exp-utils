@@ -16,5 +16,7 @@ else
     detrend_method, xcorr_norm_method );
 end
 
+end
+
 %
 % This is the end of the file.

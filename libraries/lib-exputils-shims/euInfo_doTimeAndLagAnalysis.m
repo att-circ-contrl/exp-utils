@@ -10,5 +10,7 @@ winlagdata = eiCalc_doTimeAndLagAnalysis( ...
   analysis_preproc, analysis_func, analysis_params, ...
   filter_preproc, filter_func, filter_params );
 
+end
+
 %
 % This is the end of the file.

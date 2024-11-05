@@ -6,5 +6,7 @@ euUtil_warnDeprecated( 'Call eiCalc_helper_analyzeMutual().' );
 result = eiCalc_helper_analyzeMutual( ...
   wavedest, wavesrc, samprate, delaylist, params );
 
+end
+
 %
 % This is the end of the file.

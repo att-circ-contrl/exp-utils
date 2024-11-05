@@ -16,5 +16,7 @@ else
     bin_count_dest, bin_count_src, exparams );
 end
 
+end
+
 %
 % This is the end of the file.

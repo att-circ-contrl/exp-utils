@@ -16,5 +16,7 @@ else
       timerange_ms, timesmooth_ms, magthresh, magacceptrange );
 end
 
+end
+
 %
 % This is the end of the file.
